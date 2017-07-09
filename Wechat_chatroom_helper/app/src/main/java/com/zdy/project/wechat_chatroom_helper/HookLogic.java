@@ -7,6 +7,8 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
@@ -94,7 +96,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                         Log.v("storage.ad", "field_msgCount = " + XposedHelpers.getObjectField(ad, "field_msgCount").toString());
                         Log.v("storage.ad", "field_conversationTime = " + new Date(XposedHelpers.getLongField(ad, "field_conversationTime") * 1000).toString());
 
-                        XposedHelpers.setObjectField(param.args[0], "field_digest", "喫屎咧梁非凡");
+                        //  XposedHelpers.setObjectField(param.args[0], "field_digest", "喫屎咧梁非凡");
                     }
 
 
@@ -126,20 +128,99 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                         Object value = XposedHelpers.callMethod(param.thisObject, "ev", position);
 
-                        MessageEntity entity=new MessageEntity(value);
+                        MessageEntity entity = new MessageEntity(value);
 
                         XposedBridge.log("XposedBridge, getView MessageEntity = " + entity.toString());
-
 
                         Object viewHolder = itemView.getTag();
 
                         Object textView = XposedHelpers.getObjectField(viewHolder, "usj");
 
-                        XposedHelpers.callMethod(textView,"setText","王倩是傻逼");
+                        //     XposedHelpers.callMethod(textView, "setText", "王倩是腿真细才怪");
+
+                        //免打扰icon
+                        ImageView usm = (ImageView) XposedHelpers.getObjectField(viewHolder, "usm");
+
+                        Object messageStatus = XposedHelpers.callMethod(param.thisObject, "j", value);
+
+                        boolean uyI = XposedHelpers.getBooleanField(messageStatus, "uyI");
+                        boolean uXX = XposedHelpers.getBooleanField(messageStatus, "uXX");
+
+                        if (uyI && uXX) {
+                            XposedBridge.log("XposedBridge, " + entity.field_content + ", 这条消息是免打扰的");
+                        }
+                    }
+                });
+
+
+        XposedHelpers.findAndHookMethod(WECHAT_PACKAGE_NAME + ".ui.conversation.e",
+                loadPackageParam.classLoader, "onItemClick", AdapterView.class, View.class,
+                int.class, long.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+
 
                     }
                 });
+
+
+        XposedHelpers.findAndHookMethod(WECHAT_PACKAGE_NAME + ".ui.conversation.j",
+                loadPackageParam.classLoader, "bGx", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+
+                        Object adapter = XposedHelpers.getObjectField(param.thisObject, "uXk");
+
+                        Object listPackage = XposedHelpers.getObjectField(adapter, "tMb");
+
+                        Object hdB = XposedHelpers.getObjectField(listPackage, "hdB");
+
+                        XposedBridge.log("XposedBridge,afterHookedMethod hdB = " +hdB.toString());
+                    }
+
+
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        Object adapter = XposedHelpers.getObjectField(param.thisObject, "uXk");
+
+                        Object listPackage = XposedHelpers.getObjectField(adapter, "tMb");
+
+                        Object hdB = XposedHelpers.getObjectField(listPackage, "hdB");
+
+                        XposedBridge.log("XposedBridge,beforeHookedMethod hdB = " +hdB.toString());
+                    }
+                });
+
+
+        hookLog(loadPackageParam);
     }
 
+    private void hookLog(XC_LoadPackage.LoadPackageParam loadPackageParam) {
+        XposedHelpers.findAndHookMethod("com.tencent.mm.sdk.platformtools.v",
+                loadPackageParam.classLoader, "d", String.class, String.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        XposedBridge.log("WechatLog d= " + ", args[0] = " + param.args[0].toString()
+                                + ", args[1] = " + param.args[1]);
+                    }
+                });
+
+        XposedHelpers.findAndHookMethod("com.tencent.mm.sdk.platformtools.v",
+                loadPackageParam.classLoader, "i", String.class, String.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        XposedBridge.log("WechatLog i= " + ", args[0] = " + param.args[0].toString()
+                                + ", args[1] = " + param.args[1]);
+                    }
+                });
+        XposedHelpers.findAndHookMethod("com.tencent.mm.sdk.platformtools.v",
+                loadPackageParam.classLoader, "v", String.class, String.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        XposedBridge.log("WechatLog v= " + ", args[0] = " + param.args[0].toString()
+                                + ", args[1] = " + param.args[1]);
+                    }
+                });
+    }
 
 }

@@ -34,6 +34,8 @@ public class MessageEntity {
     public String field_username;
 
 
+
+
     public  MessageEntity(Object value) {
         field_UnDeliverCount = XposedHelpers.getIntField(value, "field_UnDeliverCount");
         field_UnReadInvite = XposedHelpers.getIntField(value, "field_UnReadInvite");
