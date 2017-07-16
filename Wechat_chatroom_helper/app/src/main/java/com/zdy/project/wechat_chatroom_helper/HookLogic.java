@@ -1,7 +1,10 @@
 package com.zdy.project.wechat_chatroom_helper;
 
+import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -12,8 +15,6 @@ import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -21,7 +22,6 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import de.robv.android.xposed.services.BaseService;
 
 import static com.zdy.project.wechat_chatroom_helper.Constants.WECHAT_PACKAGE_NAME;
 
@@ -39,6 +39,10 @@ public class HookLogic implements IXposedHookLoadPackage {
 
 
     private ArrayList<Integer> muteListInAdapterPositions = new ArrayList<>();
+
+
+    SparseIntArray newViewPositionWithDataPositionList = new SparseIntArray();
+
 
     private int firstMutePosition = -1;
 
@@ -119,30 +123,32 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                         if (!clazzName.equals("g")) return;
 
-                        XposedBridge.log("XposedBridge, getCount itemCount = " + result);
+                        //     XposedBridge.log("XposedBridge, getCount itemCount = " + result);
 
-                        muteListInAdapterPositions.clear();
 
                         if (result == 0) return;
 
+                        newViewPositionWithDataPositionList.clear();
+                        muteListInAdapterPositions.clear();
                         int muteCount = 0;
-
                         firstMutePosition = -1;
 
                         for (int i = 0; i < result; i++) {
-                            Object value = XposedHelpers.callMethod(param.thisObject, "ev", i);
+                            Object value = getMessageBeanForOriginIndex(param, i);
                             Object messageStatus = XposedHelpers.callMethod(param.thisObject, "j", value);
 
                             boolean uyI = XposedHelpers.getBooleanField(messageStatus, "uyI");
                             boolean uXX = XposedHelpers.getBooleanField(messageStatus, "uXX");
 
                             if (uyI && uXX) {
-
                                 if (firstMutePosition == -1)
                                     firstMutePosition = i;
 
                                 muteCount++;
                                 muteListInAdapterPositions.add(i);
+                            }
+                            if (!(uyI && uXX) || muteCount == 1) {
+                                newViewPositionWithDataPositionList.put(i - (muteCount >= 1 ? muteCount - 1 : muteCount), i);
                             }
 
 //                            if (uyI)//是否为群
@@ -157,8 +163,14 @@ public class HookLogic implements IXposedHookLoadPackage {
                         count++;//增加入口位置
 
                         param.setResult(count);
-
-                        XposedBridge.log("XposedBridge, getCount count = " + count);
+//
+//                        XposedBridge.log("XposedBridge, getCount muteCount = " + muteCount);
+//
+//                        XposedBridge.log("XposedBridge, getCount count = " + result);
+//
+//                        XposedBridge.log("XposedBridge, getCount mutePosition = " + muteListInAdapterPositions.toString());
+//
+//                        XposedBridge.log("XposedBridge, getCount dataRelativePosition= " + newViewPositionWithDataPositionList.toString());
                     }
                 });
 
@@ -168,19 +180,16 @@ public class HookLogic implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 
-                        int index = (int) param.args[0];
-
                         String clazzName = param.thisObject.getClass().getSimpleName();
 
                         if (!clazzName.equals("g")) return;
 
-                        Object tMb = XposedHelpers.getObjectField(param.thisObject, "tMb");
+                        int index = (int) param.args[0];
 
-                        Object hdB = XposedHelpers.getObjectField(tMb, "hdB");
+                        if (newViewPositionWithDataPositionList.size() != 0)
+                            index = newViewPositionWithDataPositionList.get(index);
 
-                        Object bean = XposedHelpers.callMethod(hdB, "ev", index);
-
-                        XposedHelpers.callMethod(bean, "tE");
+                        Object bean = getMessageBeanForOriginIndex(param, index);
 
                         param.setResult(bean);
                     }
@@ -190,10 +199,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                         .classLoader, "getView",
                 int.class, View.class, ViewGroup.class, new XC_MethodHook() {
 
-                    @Override
-                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                    }
-
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -201,7 +206,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                         int position = (int) param.args[0];
                         View itemView = (View) param.args[1];
-                        ViewGroup parent = (ViewGroup) param.args[2];
 
 
                         XposedBridge.log("XposedBridge, getView itemView = " + itemView.toString());
@@ -214,10 +218,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                         Object viewHolder = itemView.getTag();
 
-                        Object textView = XposedHelpers.getObjectField(viewHolder, "usj");
-
-                        //     XposedHelpers.callMethod(textView, "setText", "王倩是腿真细才怪");
-
                         //免打扰icon
                         ImageView usm = (ImageView) XposedHelpers.getObjectField(viewHolder, "usm");
 
@@ -229,61 +229,11 @@ public class HookLogic implements IXposedHookLoadPackage {
                         if (uyI && uXX) {
                             XposedBridge.log("XposedBridge, " + entity.field_content + ", 这条消息是免打扰的");
                         }
-                    }
-                });
 
+                        Object title = XposedHelpers.getObjectField(viewHolder, "usj");
 
-        XposedHelpers.findAndHookMethod(WECHAT_PACKAGE_NAME + Conversation_List_View_Adapter,
-                loadPackageParam.classLoader, "onResume", new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-
-                        Object listPackage = XposedHelpers.getObjectField(param.thisObject, "tMb");
-
-                        Object hdB = XposedHelpers.getObjectField(listPackage, "hdB");
-
-                        XposedBridge.log("XposedBridge,afterHookedMethod hdB = " + hdB.toString());
-                    }
-
-                });
-
-        XposedHelpers.findAndHookMethod(WECHAT_PACKAGE_NAME + Conversation_List_View_Adapter,
-                loadPackageParam.classLoader, "a", HashSet.class, SparseArray[].class,
-                new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        HashSet hashSet = (HashSet) param.args[0];
-                        for (Object next : hashSet) {
-                            XposedBridge.log("XposedBridge, hashSet =" + next.toString());
-                        }
-
-                        SparseArray<String>[] sparseArrays = (SparseArray<String>[]) param.args[1];
-
-                        for (SparseArray<String> sparseArray : sparseArrays) {
-
-                            XposedBridge.log("XposedBridge, sparseArray =" + sparseArray.toString());
-                        }
-                    }
-                });
-
-
-        XposedHelpers.findAndHookMethod(WECHAT_PACKAGE_NAME + Conversation_List_View_Adapter,
-                loadPackageParam.classLoader, "a", "com.tencent.mm.ui.e.b", SparseArray.class, HashMap.class,
-                new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        SparseArray sparseArray = (SparseArray) param.args[1];
-
-                        XposedBridge.log("XposedBridge, sparseArray =" + sparseArray.toString());
-
-
-                        HashMap HashMap = (HashMap) param.args[2];
-                        Iterator iterator = HashMap.entrySet().iterator();
-
-
-                        while (iterator.hasNext()) {
-                            Object next = iterator.next();
-
+                        if (position == firstMutePosition) {
+                            XposedHelpers.callMethod(title, "setText", "群助手消息");
                         }
                     }
                 });
@@ -293,14 +243,61 @@ public class HookLogic implements IXposedHookLoadPackage {
                 loadPackageParam.classLoader, "onItemClick", AdapterView.class, View.class,
                 int.class, long.class, new XC_MethodHook() {
                     @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    protected void afterHookedMethod(final MethodHookParam param) throws Throwable {
 
+
+                        View view = (View) param.args[1];
+                        int position = (int) param.args[2];
+
+
+                        XposedBridge.log("XposedBridge, onItemClick, position =" + position);
+
+//                        if (position == firstMutePosition) {
+//
+//                            XposedBridge.log("XposedBridge, onItemClick, firstMutePosition");
+//
+//                            String[] strings = new String[muteListInAdapterPositions.size()];
+//
+//                            for (int i = 0; i < muteListInAdapterPositions.size(); i++) {
+//                                Integer muteListInAdapterPosition = muteListInAdapterPositions.get(i);
+//                                Object value = getMessageBeanForOriginIndex(param, muteListInAdapterPosition);
+//                                MessageEntity entity = new MessageEntity(value);
+//                                strings[i] = entity.field_digest;
+//                            }
+//
+//                            AlertDialog alertDialog = new AlertDialog.Builder(view.getContext())
+//                                    .setItems(strings, new DialogInterface.OnClickListener() {
+//                                        @Override
+//                                        public void onClick(DialogInterface dialog, int which) {
+//                                            XposedHelpers.callMethod(param.thisObject, "onItemClick"
+//                                                    , param.args[0], param.args[1], muteListInAdapterPositions.get(which), param.args[3]);
+//                                        }
+//                                    }).create();
+//                            alertDialog.show();
+//
+//                        }
 
                     }
                 });
 
 
         hookLog(loadPackageParam);
+    }
+
+
+    /**
+     * 根据下标返回消息列表里的消息条目，不受免打扰影响
+     * 即为原数据
+     */
+    private Object getMessageBeanForOriginIndex(XC_MethodHook.MethodHookParam param, int index) {
+        Object tMb = XposedHelpers.getObjectField(param.thisObject, "tMb");
+
+        Object hdB = XposedHelpers.getObjectField(tMb, "hdB");
+
+        Object bean = XposedHelpers.callMethod(hdB, "ev", index);
+
+        XposedHelpers.callMethod(bean, "tE");
+        return bean;
     }
 
     private void hookLog(XC_LoadPackage.LoadPackageParam loadPackageParam) {
