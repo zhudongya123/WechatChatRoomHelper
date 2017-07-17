@@ -1,5 +1,7 @@
 package com.zdy.project.wechat_chatroom_helper;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -9,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 
@@ -164,13 +168,13 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                         param.setResult(count);
 //
-//                        XposedBridge.log("XposedBridge, getCount muteCount = " + muteCount);
-//
-//                        XposedBridge.log("XposedBridge, getCount count = " + result);
-//
-//                        XposedBridge.log("XposedBridge, getCount mutePosition = " + muteListInAdapterPositions.toString());
-//
-//                        XposedBridge.log("XposedBridge, getCount dataRelativePosition= " + newViewPositionWithDataPositionList.toString());
+                        XposedBridge.log("XposedBridge, getCount muteCount = " + muteCount);
+
+                        XposedBridge.log("XposedBridge, getCount count = " + result);
+
+                        XposedBridge.log("XposedBridge, getCount mutePosition = " + muteListInAdapterPositions.toString());
+
+                        XposedBridge.log("XposedBridge, getCount dataRelativePosition= " + newViewPositionWithDataPositionList.toString());
                     }
                 });
 
@@ -242,41 +246,66 @@ public class HookLogic implements IXposedHookLoadPackage {
         XposedHelpers.findAndHookMethod(WECHAT_PACKAGE_NAME + ".ui.conversation.e",
                 loadPackageParam.classLoader, "onItemClick", AdapterView.class, View.class,
                 int.class, long.class, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(final MethodHookParam param) throws Throwable {
 
+
+                    @Override
+                    protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
 
                         View view = (View) param.args[1];
                         int position = (int) param.args[2];
+                        long id = (long) param.args[3];
 
+                        XposedBridge.log("XposedBridge, onItemClick, originPosition =" + position);
+
+                        if (id!=-1) {
+                            Object uWH = XposedHelpers.getObjectField(param.thisObject, "uWH");
+                            int headerViewsCount = (int) XposedHelpers.callMethod(uWH, "getHeaderViewsCount");
+                            position = position - headerViewsCount;
+                        }
 
                         XposedBridge.log("XposedBridge, onItemClick, position =" + position);
 
-//                        if (position == firstMutePosition) {
-//
-//                            XposedBridge.log("XposedBridge, onItemClick, firstMutePosition");
-//
-//                            String[] strings = new String[muteListInAdapterPositions.size()];
-//
-//                            for (int i = 0; i < muteListInAdapterPositions.size(); i++) {
-//                                Integer muteListInAdapterPosition = muteListInAdapterPositions.get(i);
-//                                Object value = getMessageBeanForOriginIndex(param, muteListInAdapterPosition);
-//                                MessageEntity entity = new MessageEntity(value);
-//                                strings[i] = entity.field_digest;
-//                            }
-//
-//                            AlertDialog alertDialog = new AlertDialog.Builder(view.getContext())
-//                                    .setItems(strings, new DialogInterface.OnClickListener() {
-//                                        @Override
-//                                        public void onClick(DialogInterface dialog, int which) {
-//                                            XposedHelpers.callMethod(param.thisObject, "onItemClick"
-//                                                    , param.args[0], param.args[1], muteListInAdapterPositions.get(which), param.args[3]);
-//                                        }
-//                                    }).create();
-//                            alertDialog.show();
-//
-//                        }
+                        if (position == firstMutePosition) {
 
+                            XposedBridge.log("XposedBridge, onItemClick, firstMutePosition");
+
+                            Context context = view.getContext();
+
+                            LinearLayout linearLayout = new LinearLayout(context);
+                            linearLayout.setOrientation(LinearLayout.VERTICAL);
+
+                            for (int i = 0; i < muteListInAdapterPositions.size(); i++) {
+                                Integer muteListInAdapterPosition = muteListInAdapterPositions.get(i);
+
+                                Object uXk = XposedHelpers.getObjectField(param.thisObject, "uXk");
+
+                                Object value = getMessageBeanForOriginIndex(uXk, muteListInAdapterPosition);
+
+                                MessageEntity entity = new MessageEntity(value);
+
+                                TextView textView = new TextView(context);
+                                textView.setText(entity.field_username + entity.field_digest);
+
+                                final int finalI = i;
+                                textView.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        XposedHelpers.callMethod(param.thisObject, "onItemClick"
+                                                , param.args[0], param.args[1],
+                                                muteListInAdapterPositions.get(finalI), -1);
+                                    }
+                                });
+
+
+                                linearLayout.addView(textView);
+                            }
+
+                            Dialog dialog = new Dialog(context);
+                            dialog.setContentView(linearLayout);
+                            dialog.show();
+
+                            param.setResult(null);
+                        }
                     }
                 });
 
@@ -291,6 +320,17 @@ public class HookLogic implements IXposedHookLoadPackage {
      */
     private Object getMessageBeanForOriginIndex(XC_MethodHook.MethodHookParam param, int index) {
         Object tMb = XposedHelpers.getObjectField(param.thisObject, "tMb");
+
+        Object hdB = XposedHelpers.getObjectField(tMb, "hdB");
+
+        Object bean = XposedHelpers.callMethod(hdB, "ev", index);
+
+        XposedHelpers.callMethod(bean, "tE");
+        return bean;
+    }
+
+    private Object getMessageBeanForOriginIndex(Object adapter, int index) {
+        Object tMb = XposedHelpers.getObjectField(adapter, "tMb");
 
         Object hdB = XposedHelpers.getObjectField(tMb, "hdB");
 
