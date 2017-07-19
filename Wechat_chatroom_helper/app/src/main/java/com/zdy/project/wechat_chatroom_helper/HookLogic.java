@@ -44,11 +44,14 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     private ArrayList<Integer> muteListInAdapterPositions = new ArrayList<>();
 
-
+    //映射免打扰群组的数据位置和实际View位置
     SparseIntArray newViewPositionWithDataPositionList = new SparseIntArray();
 
-
+    //第一个免打扰群组的下标
     private int firstMutePosition = -1;
+
+    //标记位，当点击Dialog内的免打扰群组时，防止onItemClick与getObject方法的position冲突
+    private boolean clickChatRoomFlag = false;
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
@@ -89,7 +92,6 @@ public class HookLogic implements IXposedHookLoadPackage {
          *
          *
          */
-
         XposedHelpers.findAndHookMethod(WECHAT_PACKAGE_NAME + ".ui.conversation.g", loadPackageParam
                         .classLoader, "b",
                 "com.tencent.mm.storage.ad", int.class, boolean.class, new XC_MethodHook() {
@@ -116,6 +118,9 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
                 });
 
+        /**
+         * 消息列表数量
+         */
         XposedHelpers.findAndHookMethod(WECHAT_PACKAGE_NAME + Conversation_List_View_Adapter_Parent,
                 loadPackageParam.classLoader, "getCount", new XC_MethodHook() {
                     @Override
@@ -127,14 +132,11 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                         if (!clazzName.equals("g")) return;
 
-                        //     XposedBridge.log("XposedBridge, getCount itemCount = " + result);
-
-
                         if (result == 0) return;
 
                         newViewPositionWithDataPositionList.clear();
                         muteListInAdapterPositions.clear();
-                        int muteCount = 0;
+                        int muteCount = 0;//免打扰消息群组的的數量
                         firstMutePosition = -1;
 
                         for (int i = 0; i < result; i++) {
@@ -162,38 +164,50 @@ public class HookLogic implements IXposedHookLoadPackage {
 //                                XposedBridge.log("XposedBridge, getCount position = " + i + ", uXX" + uXX);
                         }
 
-                        int count = result - muteCount;//减去免打扰消息
+                        int count = result - muteCount;//减去免打扰消息的數量
 
                         count++;//增加入口位置
 
                         param.setResult(count);
 //
-                        XposedBridge.log("XposedBridge, getCount muteCount = " + muteCount);
-
-                        XposedBridge.log("XposedBridge, getCount count = " + result);
-
-                        XposedBridge.log("XposedBridge, getCount mutePosition = " + muteListInAdapterPositions.toString());
-
-                        XposedBridge.log("XposedBridge, getCount dataRelativePosition= " + newViewPositionWithDataPositionList.toString());
+//                        XposedBridge.log("XposedBridge, getCount muteCount = " + muteCount);
+//
+//                        XposedBridge.log("XposedBridge, getCount count = " + result);
+//
+//                        XposedBridge.log("XposedBridge, getCount mutePosition = " + muteListInAdapterPositions.toString());
+//
+//                        XposedBridge.log("XposedBridge, getCount dataRelativePosition= " + newViewPositionWithDataPositionList.toString());
                     }
                 });
 
-
+/**
+ * 此方法等于getObject
+ */
         XposedHelpers.findAndHookMethod(WECHAT_PACKAGE_NAME + Conversation_List_View_Adapter_Parent,
                 loadPackageParam.classLoader, "ev", int.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 
+                        int index = (int) param.args[0];
+
+                        XposedBridge.log("XposedBridge, ev dataPosition = " + param.args[0]);
+
                         String clazzName = param.thisObject.getClass().getSimpleName();
 
                         if (!clazzName.equals("g")) return;
 
-                        int index = (int) param.args[0];
-
                         if (newViewPositionWithDataPositionList.size() != 0)
-                            index = newViewPositionWithDataPositionList.get(index);
+                            index = newViewPositionWithDataPositionList.get(index, index);
+
+                        //如果剛剛點擊了Dialog中的item，則下一次getObject方法，不再修改數據和View的位置
+                        if (clickChatRoomFlag) {
+                            index = (int) param.args[0];
+                            clickChatRoomFlag = false;
+                        }
 
                         Object bean = getMessageBeanForOriginIndex(param, index);
+
+                        XposedBridge.log("XposedBridge, ev position = " + index);
 
                         param.setResult(bean);
                     }
@@ -206,7 +220,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-
 
                         int position = (int) param.args[0];
                         View itemView = (View) param.args[1];
@@ -247,25 +260,29 @@ public class HookLogic implements IXposedHookLoadPackage {
                 loadPackageParam.classLoader, "onItemClick", AdapterView.class, View.class,
                 int.class, long.class, new XC_MethodHook() {
 
-
                     @Override
                     protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
-
                         View view = (View) param.args[1];
                         int position = (int) param.args[2];
-                        long id = (long) param.args[3];
+                        final long id = (long) param.args[3];
+
+                        XposedBridge.log("XposedBridge, onItemClick, view =" + view + " ,position = " + position + " ,id = " + id);
+
 
                         XposedBridge.log("XposedBridge, onItemClick, originPosition =" + position);
 
-                        if (id!=-1) {
-                            Object uWH = XposedHelpers.getObjectField(param.thisObject, "uWH");
-                            int headerViewsCount = (int) XposedHelpers.callMethod(uWH, "getHeaderViewsCount");
-                            position = position - headerViewsCount;
-                        }
+                        Object uWH = XposedHelpers.getObjectField(param.thisObject, "uWH");
+                        final int headerViewsCount = (int) XposedHelpers.callMethod(uWH, "getHeaderViewsCount");
+
+//                        if (id != -1) {
+                        position = position - headerViewsCount;
+                        //                      }
+
+                        XposedBridge.log("XposedBridge, onItemClick, getHeaderViewsCount =" + headerViewsCount);
 
                         XposedBridge.log("XposedBridge, onItemClick, position =" + position);
 
-                        if (position == firstMutePosition) {
+                        if (position == firstMutePosition && !clickChatRoomFlag) {
 
                             XposedBridge.log("XposedBridge, onItemClick, firstMutePosition");
 
@@ -273,6 +290,9 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                             LinearLayout linearLayout = new LinearLayout(context);
                             linearLayout.setOrientation(LinearLayout.VERTICAL);
+
+
+                            final Dialog dialog = new Dialog(context);
 
                             for (int i = 0; i < muteListInAdapterPositions.size(); i++) {
                                 Integer muteListInAdapterPosition = muteListInAdapterPositions.get(i);
@@ -283,16 +303,19 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                                 MessageEntity entity = new MessageEntity(value);
 
-                                TextView textView = new TextView(context);
+                                final TextView textView = new TextView(context);
                                 textView.setText(entity.field_username + entity.field_digest);
 
                                 final int finalI = i;
                                 textView.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
+                                        dialog.dismiss();
+                                        clickChatRoomFlag = true;
                                         XposedHelpers.callMethod(param.thisObject, "onItemClick"
                                                 , param.args[0], param.args[1],
-                                                muteListInAdapterPositions.get(finalI), -1);
+                                                muteListInAdapterPositions.get(finalI) + headerViewsCount, id);
+
                                     }
                                 });
 
@@ -300,12 +323,13 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 linearLayout.addView(textView);
                             }
 
-                            Dialog dialog = new Dialog(context);
                             dialog.setContentView(linearLayout);
                             dialog.show();
 
                             param.setResult(null);
+                            return;
                         }
+                        afterHookedMethod(param);
                     }
                 });
 
