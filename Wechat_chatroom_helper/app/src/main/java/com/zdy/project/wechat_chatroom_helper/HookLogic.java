@@ -1,9 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper;
 
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
@@ -11,8 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 
@@ -288,44 +283,61 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                             Context context = view.getContext();
 
-                            LinearLayout linearLayout = new LinearLayout(context);
-                            linearLayout.setOrientation(LinearLayout.VERTICAL);
+                            //     LinearLayout linearLayout = new LinearLayout(context);
+                            //         linearLayout.setOrientation(LinearLayout.VERTICAL);
 
 
-                            final Dialog dialog = new Dialog(context);
+//                            final Dialog dialog = new Dialog(context);
 
-                            for (int i = 0; i < muteListInAdapterPositions.size(); i++) {
-                                Integer muteListInAdapterPosition = muteListInAdapterPositions.get(i);
-
-                                Object uXk = XposedHelpers.getObjectField(param.thisObject, "uXk");
-
-                                Object value = getMessageBeanForOriginIndex(uXk, muteListInAdapterPosition);
-
-                                MessageEntity entity = new MessageEntity(value);
-
-                                final TextView textView = new TextView(context);
-                                textView.setText(entity.field_username + entity.field_digest);
-
-                                final int finalI = i;
-                                textView.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        dialog.dismiss();
-                                        clickChatRoomFlag = true;
-                                        XposedHelpers.callMethod(param.thisObject, "onItemClick"
-                                                , param.args[0], param.args[1],
-                                                muteListInAdapterPositions.get(finalI) + headerViewsCount, id);
-
-                                    }
-                                });
+                            //   for (int i = 0; i < muteListInAdapterPositions.size(); i++) {
+                            //        Integer muteListInAdapterPosition = muteListInAdapterPositions.get(i);
 
 
-                                linearLayout.addView(textView);
-                            }
+                            //         Object value = getMessageBeanForOriginIndex(uXk, muteListInAdapterPosition);
 
-                            dialog.setContentView(linearLayout);
-                            dialog.show();
+                            //   MessageEntity entity = new MessageEntity(value);
 
+//                                final TextView textView = new TextView(context);
+//                                textView.setText(entity.field_username + entity.field_digest);
+//
+//                                final int finalI = i;
+//                                textView.setOnClickListener(new View.OnClickListener() {
+//                                    @Override
+//                                    public void onClick(View v) {
+//                                        dialog.dismiss();
+//                                        clickChatRoomFlag = true;
+//                                        XposedHelpers.callMethod(param.thisObject, "onItemClick"
+//                                                , param.args[0], param.args[1],
+//                                                muteListInAdapterPositions.get(finalI) + headerViewsCount, id);
+//                                    }
+//                                });
+
+
+//                                linearLayout.addView(textView);
+                            //      }
+//
+//                            dialog.setContentView(linearLayout);
+//                            dialog.show();
+
+
+                            Object uXk = XposedHelpers.getObjectField(param.thisObject, "uXk");
+                            final MuteConversationDialog muteConversationDialog = new MuteConversationDialog(context);
+                            muteConversationDialog.setAdapter(uXk);
+                            muteConversationDialog.setMuteListInAdapterPositions(muteListInAdapterPositions);
+                            muteConversationDialog.setOnDialogItemClickListener(new MuteConversationDialog
+                                    .OnDialogItemClickListener() {
+
+                                @Override
+                                public void onItemClick(int relativePosition) {
+                                    clickChatRoomFlag = true;
+                                    XposedHelpers.callMethod(param.thisObject, "onItemClick"
+                                            , param.args[0], param.args[1], relativePosition + headerViewsCount, id);
+                                    muteConversationDialog.dismiss();
+                                }
+                            });
+
+
+                            muteConversationDialog.show();
                             param.setResult(null);
                             return;
                         }
@@ -353,7 +365,7 @@ public class HookLogic implements IXposedHookLoadPackage {
         return bean;
     }
 
-    private Object getMessageBeanForOriginIndex(Object adapter, int index) {
+    public static Object getMessageBeanForOriginIndex(Object adapter, int index) {
         Object tMb = XposedHelpers.getObjectField(adapter, "tMb");
 
         Object hdB = XposedHelpers.getObjectField(tMb, "hdB");
