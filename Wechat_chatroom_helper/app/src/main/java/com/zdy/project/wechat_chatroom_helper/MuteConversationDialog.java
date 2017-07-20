@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
@@ -121,7 +122,7 @@ public class MuteConversationDialog extends Dialog {
             XposedHelpers.callMethod(nickName,"F",ScreenUtils.dip2px(mContext,16));
 
             XposedHelpers.callMethod(content,"setTextColor",0xff000000);
-            XposedHelpers.callMethod(content,"setText", XposedHelpers.getObjectField(j,entity.field_digestUser+":"+ entity.field_digest));
+            XposedHelpers.callMethod(content,"setText", String.format(Locale.CHINA,entity.field_digestUser,entity.field_digest));
             XposedHelpers.callMethod(content,"F",ScreenUtils.dip2px(mContext,14));
 
             XposedHelpers.callMethod(time,"setTextColor",0xff000000);
