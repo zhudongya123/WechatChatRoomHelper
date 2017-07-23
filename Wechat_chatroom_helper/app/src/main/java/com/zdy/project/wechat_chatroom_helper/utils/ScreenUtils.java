@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper;
+package com.zdy.project.wechat_chatroom_helper.utils;
 
 import android.app.Activity;
 import android.content.Context;

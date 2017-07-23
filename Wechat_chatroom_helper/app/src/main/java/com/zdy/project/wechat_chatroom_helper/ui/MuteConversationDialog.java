@@ -1,12 +1,24 @@
-package com.zdy.project.wechat_chatroom_helper;
+package com.zdy.project.wechat_chatroom_helper.ui;
 
 import android.app.Dialog;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
+import android.graphics.drawable.shapes.Shape;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.sax.RootElement;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -22,8 +34,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toolbar;
 
+import com.zdy.project.wechat_chatroom_helper.HookLogic;
+import com.zdy.project.wechat_chatroom_helper.R;
+import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import de.robv.android.xposed.XposedHelpers;
@@ -42,6 +58,8 @@ public class MuteConversationDialog extends Dialog {
 
     private Object mAdapter;
 
+    ViewGroup contentView;
+
     public MuteConversationDialog(@NonNull Context context) {
         super(context);
         mContext = context;
@@ -51,6 +69,7 @@ public class MuteConversationDialog extends Dialog {
     public void setAdapter(Object mAdapter) {
         this.mAdapter = mAdapter;
     }
+
 
     public void setMuteListInAdapterPositions(ArrayList<Integer> muteListInAdapterPositions) {
         this.muteListInAdapterPositions = muteListInAdapterPositions;
@@ -65,20 +84,89 @@ public class MuteConversationDialog extends Dialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(Color.rgb(48, 49, 53));
+        }
         configWindow();
-
-        setContentView(getContentView());
     }
+
+    @Override
+    public void show() {
+        super.show();
+        requestLayout();
+    }
+
+    public void requestLayout() {
+        contentView = (ViewGroup) getContentView();
+        setContentView(contentView);
+        bindData();
+    }
+
+    public void bindData() {
+        for (int i = 0; i < muteListInAdapterPositions.size(); i++) {
+            final Integer integer = muteListInAdapterPositions.get(i);
+
+            Object value = HookLogic.getMessageBeanForOriginIndex(mAdapter, integer);
+
+            View itemView = contentView.getChildAt(i + 1);
+
+            MessageEntity entity = new MessageEntity(value);
+
+            Object j = XposedHelpers.callMethod(mAdapter, "j", value);
+            CharSequence uXP = (CharSequence) XposedHelpers.getObjectField(j, "uXP");
+
+            ((TextView) itemView.findViewById(id_nickname)).setText((CharSequence) XposedHelpers.getObjectField(j, "nickName"));
+            ((TextView) itemView.findViewById(id_content)).setText(entity.field_digest);
+            ((TextView) itemView.findViewById(id_time)).setText((CharSequence) XposedHelpers.getObjectField(j, "uXO"));
+
+            HookLogic.setAvatar(((ImageView) itemView.findViewById(id_avatar)), entity.field_username);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onDialogItemClickListener.onItemClick(integer);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            dismiss();
+                        }
+                    }, 200);
+                }
+            });
+
+            if (entity.field_unReadCount > 0)
+                itemView.findViewById(id_unread).setBackground(new ShapeDrawable(new Shape() {
+                    @Override
+                    public void draw(Canvas canvas, Paint paint) {
+                        int size = canvas.getWidth();
+
+                        paint.setAntiAlias(true);
+                        paint.setColor(0xFFFF0000);
+                        paint.setStyle(Paint.Style.FILL_AND_STROKE);
+                        canvas.drawCircle(size / 2, size / 2, size / 2, paint);
+                    }
+                }));
+            else itemView.findViewById(id_unread).setBackground(new BitmapDrawable());
+
+            itemView.setBackground(getItemViewBackground());
+        }
+    }
+
 
     private View getContentView() {
         LinearLayout rootView = new LinearLayout(mContext);
         rootView.setOrientation(LinearLayout.VERTICAL);
 
-
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+
+            RelativeLayout head = new RelativeLayout(mContext);
+
             Toolbar actionBar = new Toolbar(mContext);
+
+            int height = ScreenUtils.dip2px(mContext, 48);
+
             actionBar.setLayoutParams(
-                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ScreenUtils.dip2px(mContext, 48)));
+                    new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
             actionBar.setNavigationIcon(mContext.getResources()
                     .getIdentifier("rj", "drawable", mContext.getPackageName()));
             actionBar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -88,8 +176,50 @@ public class MuteConversationDialog extends Dialog {
                 }
             });
             actionBar.setBackgroundColor(0xFF313235);
+            actionBar.setTitle("群助手消息");
+            actionBar.setTitleTextColor(0xFFFAFAFA);
 
-            rootView.addView(actionBar);
+
+            Class<?> clazz;
+            try {
+                clazz = Class.forName("android.widget.Toolbar");
+                Field field = clazz.getDeclaredField("mTitleTextView");
+                field.setAccessible(true);
+                TextView textView = (TextView) field.get(actionBar);
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            } catch (ClassNotFoundException | IllegalAccessException | NoSuchFieldException e) {
+                e.printStackTrace();
+            }
+
+
+            ImageView imageView = new ImageView(mContext);
+
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(height, height);
+            params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+
+            imageView.setLayoutParams(params);
+            imageView.setPadding(height / 5, height / 5, height / 5, height / 5);
+            imageView.setImageResource(mContext.getResources().
+                    getIdentifier("ang", "drawable", mContext.getPackageName()));
+
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(Intent.ACTION_MAIN);
+                    intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                    ComponentName cn = new ComponentName("com.zdy.project.wechat_chatroom_helper",
+                            "com.zdy.project.wechat_chatroom_helper.ui.MainActivity");
+                    intent.setComponent(cn);
+                    mContext.startActivity(intent);
+                }
+            });
+//            imageView.setImageTintList(new ColorStateList(new int[][]{}, new int[]{0xFFFFFFFF}));
+//            imageView.setImageTintMode(PorterDuff.Mode.SRC_IN);
+
+            head.addView(actionBar);
+            head.addView(imageView);
+
+            rootView.addView(head);
         }
 
 
@@ -98,23 +228,19 @@ public class MuteConversationDialog extends Dialog {
 
             Object value = HookLogic.getMessageBeanForOriginIndex(mAdapter, integer);
 
-            MessageEntity entity = new MessageEntity(value);
 
             View itemView = getItemView(rootView, integer);
             rootView.addView(itemView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ScreenUtils.dip2px(mContext, 64)));
 
+
+            MessageEntity entity = new MessageEntity(value);
+
             Object j = XposedHelpers.callMethod(mAdapter, "j", value);
-
-            ((TextView) itemView.findViewById(id_nickname))
-                    .setText((CharSequence) XposedHelpers.getObjectField(j, "nickName"));
-
             CharSequence uXP = (CharSequence) XposedHelpers.getObjectField(j, "uXP");
 
 
-//            entity.field_digestUser + ":"
-//                    + (uXP == null || uXP.length() == 0 ? entity.field_digest : uXP)
-
+            ((TextView) itemView.findViewById(id_nickname)).setText((CharSequence) XposedHelpers.getObjectField(j, "nickName"));
             ((TextView) itemView.findViewById(id_content)).setText(entity.field_digest);
             ((TextView) itemView.findViewById(id_time)).setText((CharSequence) XposedHelpers.getObjectField(j, "uXO"));
 
@@ -130,7 +256,6 @@ public class MuteConversationDialog extends Dialog {
                     }, 200);
                 }
             });
-
 
             itemView.setBackground(getItemViewBackground());
         }
@@ -202,7 +327,6 @@ public class MuteConversationDialog extends Dialog {
         nickName.setSingleLine();
 
         contentContainer.setOrientation(LinearLayout.HORIZONTAL);
-        //  contentContainer.setPadding(ScreenUtils.dip2px(mContext, 30), 0, 0, 0);
 
         RelativeLayout.LayoutParams avatarContainerParams =
                 new RelativeLayout.LayoutParams(ScreenUtils.dip2px(mContext, 72), ScreenUtils.dip2px(mContext, 64));
@@ -231,7 +355,7 @@ public class MuteConversationDialog extends Dialog {
                 .LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         contentContainerParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         contentContainerParams.addRule(RelativeLayout.RIGHT_OF, avatarContainer.getId());
-        contentContainerParams.setMargins(0, 0, 0, ScreenUtils.dip2px(mContext, 8));
+        contentContainerParams.setMargins(0, 0, 0, ScreenUtils.dip2px(mContext, 12));
 
         {
             LinearLayout.LayoutParams msgStateParams = new LinearLayout.LayoutParams(ScreenUtils.dip2px(mContext, 20)
@@ -248,10 +372,10 @@ public class MuteConversationDialog extends Dialog {
         }
 
         RelativeLayout.LayoutParams unReadParams =
-                new RelativeLayout.LayoutParams(ScreenUtils.dip2px(mContext, 20), ScreenUtils.dip2px(mContext, 20));
+                new RelativeLayout.LayoutParams(ScreenUtils.dip2px(mContext, 8), ScreenUtils.dip2px(mContext, 8));
         unReadParams.addRule(RelativeLayout.ALIGN_RIGHT, avatarContainer.getId());
         unReadParams.addRule(RelativeLayout.ALIGN_TOP, avatarContainer.getId());
-        unReadParams.setMargins(0, ScreenUtils.dip2px(mContext, 3), 0, ScreenUtils.dip2px(mContext, 7));
+        unReadParams.setMargins(0, ScreenUtils.dip2px(mContext, 8), ScreenUtils.dip2px(mContext, 10), ScreenUtils.dip2px(mContext, 7));
 
         RelativeLayout.LayoutParams dividerParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams
                 .MATCH_PARENT, 1);
@@ -277,13 +401,12 @@ public class MuteConversationDialog extends Dialog {
         window.getDecorView().setBackground(null);
         WindowManager.LayoutParams layoutParams = window.getAttributes();
         layoutParams.gravity = Gravity.TOP;
-//        layoutParams.height = ScreenUtils.getScreenHeight(mContext) - ScreenUtils.getStatusHeight(mContext) - 300;
         layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
         layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
     }
 
 
-    interface OnDialogItemClickListener {
+    public interface OnDialogItemClickListener {
         void onItemClick(int relativePosition);
     }
 
