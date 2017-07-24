@@ -10,12 +10,53 @@ public class Constants {
     public static final String WECHAT_PACKAGE_NAME = "com.tencent.mm";
 
 
-    public static String Conversation_List_View_Adapter = "com.tencent.mm.ui.conversation.g";
-    public static String Conversation_List_View_Adapter_Parent = "com.tencent.mm.ui.e";
-    public static String Conversation_List_Adapter_OnItemClickListener = "com.tencent.mm.ui.conversation.e";
+    public static String Class_Conversation_List_View_Adapter_Name;
+    public static String Class_Conversation_List_View_Adapter_Parent_Name;
+    public static String Class_Conversation_List_Adapter_OnItemClickListener_Name;
 
-    public static String TENCENT_LOG_CLASS = "com.tencent.mm.sdk.platformtools.v";
-    public static String SET_AVATAR_CLASS = "com.tencent.mm.pluginsdk.ui.a$b";
+    public static String Class_Conversation_List_View_Adapter_SimpleName;
+    public static String Class_Conversation_List_View_Adapter_Parent_SimpleName;
+
+    public static String Method_Message_Status_Bean;
+    public static String Method_Adapter_Get_Object;
+
+    public static String Value_Message_Status_Is_Mute_1;
+    public static String Value_Message_Status_Is_Mute_2;
+    public static String Value_ListView_Adapter;
+
+    public static String Value_ListView_Adapter_ViewHolder_Title;
+
+    public static String Method_Adapter_Get_Object_Step_1;
+    public static String Method_Adapter_Get_Object_Step_2;
+    public static String Method_Adapter_Get_Object_Step_3;
+
+    public static String CLASS_TENCENT_LOG;
+    public static String CLASS_SET_AVATAR;
+
+
+//    public static String Class_Conversation_List_View_Adapter_Name = "com.tencent.mm.ui.conversation.g";
+//    public static String Class_Conversation_List_View_Adapter_Parent_Name = "com.tencent.mm.ui.e";
+//    public static String Class_Conversation_List_Adapter_OnItemClickListener_Name = "com.tencent.mm.ui.conversation
+// .e";
+//
+//    public static String Class_Conversation_List_View_Adapter_SimpleName = "g";
+//    public static String Class_Conversation_List_View_Adapter_Parent_SimpleName = "e";
+//
+//    public static String Method_Message_Status_Bean = "j";
+//    public static String Method_Adapter_Get_Object = "ev";
+//
+//    public static String Value_Message_Status_Is_Mute_1 = "uyI";
+//    public static String Value_Message_Status_Is_Mute_2 = "uXX";
+//    public static String Value_ListView_Adapter = "uXk";
+//
+//    public static String Value_ListView_Adapter_ViewHolder_Title = "usj";
+//
+//    public static String Method_Adapter_Get_Object_Step_1 = "tMb";
+//    public static String Method_Adapter_Get_Object_Step_2 = "hdB";
+//    public static String Method_Adapter_Get_Object_Step_3 = "ev";
+//
+//    public static String CLASS_TENCENT_LOG = "com.tencent.mm.sdk.platformtools.v";
+//    public static String CLASS_SET_AVATAR = "com.tencent.mm.pluginsdk.ui.a$b";
 
 
 }
