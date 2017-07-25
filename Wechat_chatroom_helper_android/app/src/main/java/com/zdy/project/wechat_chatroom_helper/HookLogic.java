@@ -30,6 +30,7 @@ import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Ge
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_2;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_3;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_Status_Bean;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Title;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_Mute_1;
@@ -173,7 +174,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                         XposedBridge.log("XposedBridge, getView itemView = " + itemView.toString());
 
-                        Object value = XposedHelpers.callMethod(param.thisObject, "ev", position);
+                        Object value = XposedHelpers.callMethod(param.thisObject,Method_Adapter_Get_Object, position);
 
                         MessageEntity entity = new MessageEntity(value);
 
@@ -219,7 +220,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                         XposedBridge.log("XposedBridge, onItemClick, originPosition =" + position);
 
-                        Object uWH = XposedHelpers.getObjectField(param.thisObject, "uWH");
+                        Object uWH = XposedHelpers.getObjectField(param.thisObject, Value_ListView);
                         final int headerViewsCount = (int) XposedHelpers.callMethod(uWH, "getHeaderViewsCount");
 
                         position = position - headerViewsCount;

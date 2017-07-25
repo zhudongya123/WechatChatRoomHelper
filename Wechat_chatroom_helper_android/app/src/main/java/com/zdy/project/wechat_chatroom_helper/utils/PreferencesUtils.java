@@ -51,6 +51,7 @@ public class PreferencesUtils {
             Constants.Value_Message_Status_Is_Mute_1 = jsonObject.get("vmsim1").getAsString();
             Constants.Value_Message_Status_Is_Mute_2 = jsonObject.get("vmsim2").getAsString();
             Constants.Value_ListView_Adapter = jsonObject.get("vla").getAsString();
+            Constants.Value_ListView = jsonObject.get("vl").getAsString();
 
             Constants.Value_ListView_Adapter_ViewHolder_Title = jsonObject.get("vlavt").getAsString();
 
@@ -60,6 +61,13 @@ public class PreferencesUtils {
 
             Constants.CLASS_TENCENT_LOG = jsonObject.get("ctl").getAsString();
             Constants.CLASS_SET_AVATAR = jsonObject.get("csa").getAsString();
+
+            Constants.Drawable_String_Arrow = jsonObject.get("dsa").getAsString();
+            Constants.Drawable_String_Setting = jsonObject.get("dss").getAsString();
+
+            Constants.Value_Message_Bean_Content = jsonObject.get("vmbc").getAsString();
+            Constants.Value_Message_Bean_NickName = jsonObject.get("vmbn").getAsString();
+            Constants.Value_Message_Bean_Time =jsonObject.get("vmbt").getAsString();
 
             return true;
         } catch (Exception e) {

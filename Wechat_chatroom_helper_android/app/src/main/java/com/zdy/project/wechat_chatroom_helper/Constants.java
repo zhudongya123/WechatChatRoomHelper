@@ -23,6 +23,7 @@ public class Constants {
     public static String Value_Message_Status_Is_Mute_1;
     public static String Value_Message_Status_Is_Mute_2;
     public static String Value_ListView_Adapter;
+    public static String Value_ListView;
 
     public static String Value_ListView_Adapter_ViewHolder_Title;
 
@@ -32,6 +33,14 @@ public class Constants {
 
     public static String CLASS_TENCENT_LOG;
     public static String CLASS_SET_AVATAR;
+
+
+    public static String Drawable_String_Arrow;
+    public static String Drawable_String_Setting;
+
+    public static String Value_Message_Bean_Content;
+    public static String Value_Message_Bean_NickName;
+    public static String Value_Message_Bean_Time;
 
 
 //    public static String Class_Conversation_List_View_Adapter_Name = "com.tencent.mm.ui.conversation.g";

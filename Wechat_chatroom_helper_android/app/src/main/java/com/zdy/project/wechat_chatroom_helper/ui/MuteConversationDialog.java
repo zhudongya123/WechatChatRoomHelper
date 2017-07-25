@@ -4,11 +4,9 @@ import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -18,7 +16,6 @@ import android.graphics.drawable.shapes.Shape;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.sax.RootElement;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
@@ -35,14 +32,20 @@ import android.widget.TextView;
 import android.widget.Toolbar;
 
 import com.zdy.project.wechat_chatroom_helper.HookLogic;
-import com.zdy.project.wechat_chatroom_helper.R;
-import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
+import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import de.robv.android.xposed.XposedHelpers;
+
+import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Arrow;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Setting;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_Status_Bean;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Bean_Content;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Bean_NickName;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Bean_Time;
 
 /**
  * Created by zhudo on 2017/7/20.
@@ -102,6 +105,7 @@ public class MuteConversationDialog extends Dialog {
         bindData();
     }
 
+
     public void bindData() {
         for (int i = 0; i < muteListInAdapterPositions.size(); i++) {
             final Integer integer = muteListInAdapterPositions.get(i);
@@ -112,12 +116,14 @@ public class MuteConversationDialog extends Dialog {
 
             MessageEntity entity = new MessageEntity(value);
 
-            Object j = XposedHelpers.callMethod(mAdapter, "j", value);
-            CharSequence uXP = (CharSequence) XposedHelpers.getObjectField(j, "uXP");
+            Object j = XposedHelpers.callMethod(mAdapter, Method_Message_Status_Bean, value);
+            CharSequence uXP = (CharSequence) XposedHelpers.getObjectField(j, Value_Message_Bean_Content);
 
-            ((TextView) itemView.findViewById(id_nickname)).setText((CharSequence) XposedHelpers.getObjectField(j, "nickName"));
+            ((TextView) itemView.findViewById(id_nickname)).setText((CharSequence) XposedHelpers.getObjectField(j,
+                    Value_Message_Bean_NickName));
             ((TextView) itemView.findViewById(id_content)).setText(entity.field_digest);
-            ((TextView) itemView.findViewById(id_time)).setText((CharSequence) XposedHelpers.getObjectField(j, "uXO"));
+            ((TextView) itemView.findViewById(id_time)).setText((CharSequence) XposedHelpers.getObjectField(j,
+                    Value_Message_Bean_Time));
 
             HookLogic.setAvatar(((ImageView) itemView.findViewById(id_avatar)), entity.field_username);
 
@@ -153,6 +159,7 @@ public class MuteConversationDialog extends Dialog {
     }
 
 
+
     private View getContentView() {
         LinearLayout rootView = new LinearLayout(mContext);
         rootView.setOrientation(LinearLayout.VERTICAL);
@@ -168,7 +175,7 @@ public class MuteConversationDialog extends Dialog {
             actionBar.setLayoutParams(
                     new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
             actionBar.setNavigationIcon(mContext.getResources()
-                    .getIdentifier("rj", "drawable", mContext.getPackageName()));
+                    .getIdentifier(Drawable_String_Arrow, "drawable", mContext.getPackageName()));
             actionBar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -200,7 +207,7 @@ public class MuteConversationDialog extends Dialog {
             imageView.setLayoutParams(params);
             imageView.setPadding(height / 5, height / 5, height / 5, height / 5);
             imageView.setImageResource(mContext.getResources().
-                    getIdentifier("ang", "drawable", mContext.getPackageName()));
+                    getIdentifier(Drawable_String_Setting, "drawable", mContext.getPackageName()));
 
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -234,15 +241,16 @@ public class MuteConversationDialog extends Dialog {
                     ScreenUtils.dip2px(mContext, 64)));
 
 
-            MessageEntity entity = new MessageEntity(value);
-
-            Object j = XposedHelpers.callMethod(mAdapter, "j", value);
-            CharSequence uXP = (CharSequence) XposedHelpers.getObjectField(j, "uXP");
-
-
-            ((TextView) itemView.findViewById(id_nickname)).setText((CharSequence) XposedHelpers.getObjectField(j, "nickName"));
-            ((TextView) itemView.findViewById(id_content)).setText(entity.field_digest);
-            ((TextView) itemView.findViewById(id_time)).setText((CharSequence) XposedHelpers.getObjectField(j, "uXO"));
+//            MessageEntity entity = new MessageEntity(value);
+//
+//            Object j = XposedHelpers.callMethod(mAdapter, "j", value);
+//            CharSequence uXP = (CharSequence) XposedHelpers.getObjectField(j, "uXP");
+//
+//            ((TextView) itemView.findViewById(id_nickname)).setText((CharSequence) XposedHelpers.getObjectField(j,
+// "nickName"));
+//            ((TextView) itemView.findViewById(id_content)).setText(entity.field_digest);
+//            ((TextView) itemView.findViewById(id_time)).setText((CharSequence) XposedHelpers.getObjectField(j,
+// "uXO"));
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
