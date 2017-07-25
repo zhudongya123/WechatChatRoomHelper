@@ -75,13 +75,15 @@ public class MainActivity extends AppCompatActivity {
 
             RequestBody requestBody = new FormBody.Builder().add("versionCode", String.valueOf(versionCode)).build();
 
-            final Request request = new Request.Builder().url("http://172.16.1.153/class/mapping").post(requestBody)
+            final Request request = new Request.Builder().url("http://116.62.247.71:8080/wechat/class/mapping").post
+                    (requestBody)
                     .build();
 
             okHttpClient.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     e.printStackTrace();
+                    setFailText(versionName + "(" + versionCode + ")");
                 }
 
                 @Override
@@ -100,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                         edit.apply();
 
                         setSuccessText(versionName + "(" + versionCode + ")");
-                    }
+                    } else setFailText(versionName + "(" + versionCode + ")");
                 }
 
 
@@ -110,6 +112,17 @@ public class MainActivity extends AppCompatActivity {
 
         settingFragment = new SettingFragment();
         getFragmentManager().beginTransaction().replace(fragmentContent.getId(), settingFragment).commit();
+    }
+
+    private void setFailText(final String versionInfo) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                detail.setText("当前微信版本" + versionInfo + "暂未成功适配，请等待开发者适配。");
+                detail.setTextColor(0xFFFF0000);
+            }
+        });
+
     }
 
     private void setSuccessText(final String versionInfo) {
@@ -128,8 +141,6 @@ public class MainActivity extends AppCompatActivity {
             super.onCreate(savedInstanceState);
             getPreferenceManager().setSharedPreferencesMode(MODE_WORLD_READABLE);
             addPreferencesFromResource(R.xml.pref_setting);
-
-
         }
     }
 

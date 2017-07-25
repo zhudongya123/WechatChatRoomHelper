@@ -68,7 +68,6 @@ public class MuteConversationDialog extends Dialog {
         mContext = context;
     }
 
-
     public void setAdapter(Object mAdapter) {
         this.mAdapter = mAdapter;
     }
