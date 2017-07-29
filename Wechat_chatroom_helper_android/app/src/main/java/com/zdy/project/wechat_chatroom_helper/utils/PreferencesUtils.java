@@ -1,6 +1,10 @@
 package com.zdy.project.wechat_chatroom_helper.utils;
 
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.zdy.project.wechat_chatroom_helper.Constants;
+
 import de.robv.android.xposed.XSharedPreferences;
 
 public class PreferencesUtils {
@@ -26,6 +30,50 @@ public class PreferencesUtils {
     }
 
 
+    public static boolean initVariableName() {
+
+        String json = getInstance().getString("json", "");
+
+        try {
+
+            JsonObject jsonObject = new JsonParser().parse(json).getAsJsonObject();
+
+            Constants.Class_Conversation_List_View_Adapter_Name = jsonObject.get("cclvan").getAsString();
+            Constants.Class_Conversation_List_View_Adapter_Parent_Name = jsonObject.get("cclvapn").getAsString();
+            Constants.Class_Conversation_List_Adapter_OnItemClickListener_Name = jsonObject.get("cclaon").getAsString();
+
+            Constants.Class_Conversation_List_View_Adapter_SimpleName = jsonObject.get("cclvas").getAsString();
+            Constants.Class_Conversation_List_View_Adapter_Parent_SimpleName = jsonObject.get("cclvaps").getAsString();
+
+            Constants.Method_Message_Status_Bean = jsonObject.get("mmsb").getAsString();
+            Constants.Method_Adapter_Get_Object = jsonObject.get("mago").getAsString();
+
+            Constants.Value_Message_Status_Is_Mute_1 = jsonObject.get("vmsim1").getAsString();
+            Constants.Value_Message_Status_Is_Mute_2 = jsonObject.get("vmsim2").getAsString();
+            Constants.Value_ListView_Adapter = jsonObject.get("vla").getAsString();
+            Constants.Value_ListView = jsonObject.get("vl").getAsString();
+
+            Constants.Value_ListView_Adapter_ViewHolder_Title = jsonObject.get("vlavt").getAsString();
+
+            Constants.Method_Adapter_Get_Object_Step_1 = jsonObject.get("magos1").getAsString();
+            Constants.Method_Adapter_Get_Object_Step_2 = jsonObject.get("magos2").getAsString();
+            Constants.Method_Adapter_Get_Object_Step_3 = jsonObject.get("magos3").getAsString();
+
+            Constants.CLASS_TENCENT_LOG = jsonObject.get("ctl").getAsString();
+            Constants.CLASS_SET_AVATAR = jsonObject.get("csa").getAsString();
+
+            Constants.Drawable_String_Arrow = jsonObject.get("dsa").getAsString();
+            Constants.Drawable_String_Setting = jsonObject.get("dss").getAsString();
+
+            Constants.Value_Message_Bean_Content = jsonObject.get("vmbc").getAsString();
+            Constants.Value_Message_Bean_NickName = jsonObject.get("vmbn").getAsString();
+            Constants.Value_Message_Bean_Time =jsonObject.get("vmbt").getAsString();
+
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
 
 
