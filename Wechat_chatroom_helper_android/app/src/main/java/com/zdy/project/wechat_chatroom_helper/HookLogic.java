@@ -1,6 +1,15 @@
 package com.zdy.project.wechat_chatroom_helper;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.Shape;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +34,7 @@ import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversatio
 import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_Name;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_Parent_Name;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_SimpleName;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Chatroom_Avatar;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_1;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_2;
@@ -32,6 +42,8 @@ import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Ge
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_Status_Bean;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Avatar;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Content;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Title;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_Mute_1;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_Mute_2;
@@ -50,28 +62,30 @@ public class HookLogic implements IXposedHookLoadPackage {
     private ArrayList<Integer> muteListInAdapterPositions = new ArrayList<>();
 
     //映射免打扰群组的数据位置和实际View位置
-    SparseIntArray newViewPositionWithDataPositionList = new SparseIntArray();
+    private SparseIntArray newViewPositionWithDataPositionList = new SparseIntArray();
+    private SparseIntArray unReadCountList = new SparseIntArray();
 
     //第一个免打扰群组的下标
     private int firstMutePosition = -1;
 
     //标记位，当点击Dialog内的免打扰群组时，防止onItemClick与getObject方法的position冲突
     private boolean clickChatRoomFlag = false;
-    private boolean closeMuteConsversationFlag = false;
 
-    MuteConversationDialog muteConversationDialog;
+
+    private boolean closeMuteConversationFlag = false;
+
+    private MuteConversationDialog muteConversationDialog;
 
     private static ClassLoader mClassLoader;
 
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
 
-
         if (!loadPackageParam.packageName.equals(WECHAT_PACKAGE_NAME)) return;
 
         mClassLoader = loadPackageParam.classLoader;
 
-        if (!PreferencesUtils.initVariableName()) return;
+        if (!PreferencesUtils.initVariableName()) return;//判断是否获取了配置
 
         /**
          * 消息列表数量
@@ -80,13 +94,14 @@ public class HookLogic implements IXposedHookLoadPackage {
                 .classLoader, "getCount", new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (!PreferencesUtils.open()) return;
+                if (!PreferencesUtils.open()) return;//开关
 
-                int result = (int) param.getResult();
+                int result = (int) param.getResult();//原有会话数量
 
                 String clazzName = param.thisObject.getClass().getSimpleName();
 
-                if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName)) return;
+                if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
+                    return;//是否为正确的Adapter
 
                 if (result == 0) return;
 
@@ -95,8 +110,11 @@ public class HookLogic implements IXposedHookLoadPackage {
                 int muteCount = 0;//免打扰消息群组的的數量
                 firstMutePosition = -1;
 
+
+                //逐一判断是否为免打扰群组
                 for (int i = 0; i < result; i++) {
-                    Object value = getMessageBeanForOriginIndex(param, i);
+                    Object value = getMessageBeanForOriginIndex(param.thisObject, i);
+
                     Object messageStatus = XposedHelpers.callMethod(param.thisObject, Method_Message_Status_Bean,
                             value);
 
@@ -109,6 +127,12 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                         muteCount++;
                         muteListInAdapterPositions.add(i);
+
+
+                        MessageEntity entity = new MessageEntity(value);
+
+                        unReadCountList.put(i, entity.field_unReadCount);
+
                     }
                     if (!(uyI && uXX) || muteCount == 1) {
                         newViewPositionWithDataPositionList.put(i - (muteCount >= 1 ? muteCount - 1 : muteCount), i);
@@ -131,33 +155,37 @@ public class HookLogic implements IXposedHookLoadPackage {
                 loadPackageParam.classLoader, Method_Adapter_Get_Object, int.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (!PreferencesUtils.open()) return;
+                        if (!PreferencesUtils.open()) return;//开关
 
-                        int index = (int) param.args[0];
+                        int index = (int) param.args[0];//要取的数据下标
 
                         XposedBridge.log("XposedBridge, ev dataPosition = " + param.args[0]);
 
                         String clazzName = param.thisObject.getClass().getSimpleName();
 
-                        if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName)) return;
+                        if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
+                            return;
 
                         if (newViewPositionWithDataPositionList.size() != 0)
                             index = newViewPositionWithDataPositionList.get(index, index);
 
                         //如果剛剛點擊了Dialog中的item，則下一次getObject方法，不再修改數據和View的位置
                         if (clickChatRoomFlag) {
-                            index = (int) param.args[0];
+                            index = (int) param.args[0];//重置数据位置
                             clickChatRoomFlag = false;
-                            closeMuteConsversationFlag = true;
+                            closeMuteConversationFlag = true;
                         }
 
-                        Object bean = getMessageBeanForOriginIndex(param, index);
+                        Object bean = getMessageBeanForOriginIndex(param.thisObject, index);
 
                         XposedBridge.log("XposedBridge, ev position = " + index);
 
                         param.setResult(bean);
                     }
                 });
+
+        Class<?> clazz = XposedHelpers.findClass("com.tencent.mm.storage.x", loadPackageParam.classLoader);
+
 
         XposedHelpers.findAndHookMethod(Class_Conversation_List_View_Adapter_Name, loadPackageParam
                         .classLoader, "getView",
@@ -171,33 +199,59 @@ public class HookLogic implements IXposedHookLoadPackage {
                         int position = (int) param.args[0];
                         View itemView = (View) param.args[1];
 
+                        Object value = XposedHelpers.callMethod(param.thisObject, Method_Adapter_Get_Object, position);
 
-                        XposedBridge.log("XposedBridge, getView itemView = " + itemView.toString());
+                        if (itemView == null) return;
+                        if (itemView.getTag() == null) return;
 
-                        Object value = XposedHelpers.callMethod(param.thisObject,Method_Adapter_Get_Object, position);
-
-                        MessageEntity entity = new MessageEntity(value);
-
-                        XposedBridge.log("XposedBridge, getView MessageEntity = " + entity.toString());
-
+                        //修改群消息助手入口itemView
                         Object viewHolder = itemView.getTag();
 
-                        //   Object messageStatus = XposedHelpers.callMethod(param.thisObject,
-                        // Method_Message_Status_Bean,
-                        //             value);
-
-//                        boolean uyI = XposedHelpers.getBooleanField(messageStatus, Value_Message_Status_Is_Mute_1);
-//                        boolean uXX = XposedHelpers.getBooleanField(messageStatus, Value_Message_Status_Is_Mute_2);
-//
-//                        if (uyI && uXX) {
-//                            XposedBridge.log("XposedBridge, " + entity.field_content + ", 这条消息是免打扰的");
-//                        }
-
-                        Object title = XposedHelpers.getObjectField(viewHolder,
-                                Value_ListView_Adapter_ViewHolder_Title);
-
+                        //將第一個免打擾的itemView更改為群消息助手入口
                         if (position == firstMutePosition) {
-                            XposedHelpers.callMethod(title, "setText", "群助手消息");
+
+                            Object title = XposedHelpers.getObjectField(viewHolder,
+                                    Value_ListView_Adapter_ViewHolder_Title);
+                            final Object avatar = XposedHelpers.getObjectField(viewHolder,
+                                    Value_ListView_Adapter_ViewHolder_Avatar);
+                            final Object content = XposedHelpers.getObjectField(viewHolder,
+                                    Value_ListView_Adapter_ViewHolder_Content);
+
+
+                            XposedHelpers.callMethod(title, "setText", "群消息助手");
+                            XposedHelpers.callMethod(title, "setTextColor", Color.rgb(87, 107, 149));
+
+
+                            final Context context = itemView.getContext();
+
+                            ShapeDrawable shapeDrawable = new ShapeDrawable(new Shape() {
+                                @Override
+                                public void draw(Canvas canvas, Paint paint) {
+                                    paint.setColor(0xFF12B7F6);
+                                    int size = canvas.getWidth();
+                                    int drawableId = context.getResources().getIdentifier(Drawable_String_Chatroom_Avatar, "drawable", context.getPackageName());
+                                    Bitmap temp = BitmapFactory.decodeResource(context.getResources(), drawableId);
+
+                                    handlerBitmap(canvas, paint, size, temp);
+                                }
+                            });
+                            XposedHelpers.callMethod(avatar, "setBackgroundDrawable", shapeDrawable);
+                            XposedHelpers.callMethod(avatar, "setImageDrawable", shapeDrawable);
+                            XposedHelpers.callMethod(avatar, "setVisibility", View.VISIBLE);
+
+                            int newMessageCount = 0;
+                            for (int k = 0; k < unReadCountList.size(); k++) {
+                                int itemValue = unReadCountList.valueAt(k);
+
+                                if (itemValue > 0)
+                                    newMessageCount++;
+                            }
+
+                            if (newMessageCount > 0) {
+                                XposedHelpers.callMethod(content, "setText", "[" + newMessageCount + "个群有新消息]");
+                                XposedHelpers.callMethod(content, "setTextColor", Color.rgb(242, 140, 72));
+                            }
+
                         }
                     }
                 });
@@ -211,7 +265,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                     protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
                         if (!PreferencesUtils.open()) return;
 
-
                         final View view = (View) param.args[1];
                         int position = (int) param.args[2];
                         final long id = (long) param.args[3];
@@ -220,11 +273,11 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                         XposedBridge.log("XposedBridge, onItemClick, originPosition =" + position);
 
+                        //移除頭部View的position
                         Object uWH = XposedHelpers.getObjectField(param.thisObject, Value_ListView);
                         final int headerViewsCount = (int) XposedHelpers.callMethod(uWH, "getHeaderViewsCount");
 
                         position = position - headerViewsCount;
-
 
                         XposedBridge.log("XposedBridge, onItemClick, getHeaderViewsCount =" + headerViewsCount);
 
@@ -255,12 +308,37 @@ public class HookLogic implements IXposedHookLoadPackage {
                             param.setResult(null);
                             return;
                         }
-                        afterHookedMethod(param);
                     }
                 });
 
 
         hookLog(loadPackageParam);
+    }
+
+    private static void handlerBitmap(Canvas canvas, Paint paint, int size, Bitmap drawable) {
+        Bitmap whiteMask = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+
+        whiteMask.eraseColor(Color.WHITE);
+
+        drawable = Bitmap.createScaledBitmap(drawable, size / 2, size / 2, false).copy(Bitmap.Config.ARGB_8888, false);
+
+        Bitmap raw = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+
+        Canvas bitmapCanvas = new Canvas(raw);
+
+        bitmapCanvas.drawBitmap(drawable, size / 4, size / 4, paint);
+
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+
+        bitmapCanvas.drawBitmap(whiteMask, 0, 0, paint);
+
+
+        paint.setXfermode(null);
+
+        canvas.drawColor(0xFF12B7F6);
+
+        canvas.drawBitmap(raw, 0, 0, paint);
+
     }
 
     public static void setAvatar(ImageView avatar, String field_username) {
@@ -271,23 +349,21 @@ public class HookLogic implements IXposedHookLoadPackage {
             e.printStackTrace();
         }
     }
-
+//
+//
+//    public static String getNickName(Object adapter, String wechat_id) {
+//        Object vJp = XposedHelpers.getObjectField(adapter, "vJp");
+//        Object localx = XposedHelpers.callMethod(vJp, "bWH");
+//
+//        Class<?> clazz = XposedHelpers.findClass("com.tencent.mm.s.n", mClassLoader);
+//        return (String) XposedHelpers.callStaticMethod(clazz, "a", localx, wechat_id, false);
+//    }
+//
 
     /**
      * 根据下标返回消息列表里的消息条目，不受免打扰影响
      * 即为原数据
      */
-    private Object getMessageBeanForOriginIndex(XC_MethodHook.MethodHookParam param, int index) {
-        Object tMb = XposedHelpers.getObjectField(param.thisObject, Method_Adapter_Get_Object_Step_1);
-
-        Object hdB = XposedHelpers.getObjectField(tMb, Method_Adapter_Get_Object_Step_2);
-
-        Object bean = XposedHelpers.callMethod(hdB, Method_Adapter_Get_Object_Step_3, index);
-
-        //  XposedHelpers.callMethod(bean, "tE");
-        return bean;
-    }
-
     public static Object getMessageBeanForOriginIndex(Object adapter, int index) {
         Object tMb = XposedHelpers.getObjectField(adapter, Method_Adapter_Get_Object_Step_1);
 
@@ -295,7 +371,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         Object bean = XposedHelpers.callMethod(hdB, Method_Adapter_Get_Object_Step_3, index);
 
-        //    XposedHelpers.callMethod(bean, "tE");
         return bean;
     }
 
@@ -315,10 +390,14 @@ public class HookLogic implements IXposedHookLoadPackage {
                         Object arg = param.args[1];
                         if (arg instanceof String) {
                             if (((String) arg).contains("closeChatting")) {
-                                if (closeMuteConsversationFlag && !PreferencesUtils.auto_close()) {
+                                if (closeMuteConversationFlag && !PreferencesUtils.auto_close()) {
                                     muteConversationDialog.show();
-                                    closeMuteConsversationFlag = false;
+                                    closeMuteConversationFlag = false;
                                 }
+                            }
+                            if (((String) arg).contains("newcursor cursor update Memory key")) {
+                                if (muteConversationDialog != null && muteConversationDialog.isShowing())
+                                    muteConversationDialog.requestLayout();
                             }
                         }
                     }

@@ -1,5 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.ui;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -7,6 +8,7 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -38,6 +40,7 @@ import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Arrow;
@@ -116,13 +119,16 @@ public class MuteConversationDialog extends Dialog {
             MessageEntity entity = new MessageEntity(value);
 
             Object j = XposedHelpers.callMethod(mAdapter, Method_Message_Status_Bean, value);
-            CharSequence uXP = (CharSequence) XposedHelpers.getObjectField(j, Value_Message_Bean_Content);
+            CharSequence content = (CharSequence) XposedHelpers.getObjectField(j, Value_Message_Bean_Content);
+
 
             ((TextView) itemView.findViewById(id_nickname)).setText((CharSequence) XposedHelpers.getObjectField(j,
                     Value_Message_Bean_NickName));
-            ((TextView) itemView.findViewById(id_content)).setText(entity.field_digest);
+            ((TextView) itemView.findViewById(id_content)).setText(content == null ? entity.field_digest : content);
             ((TextView) itemView.findViewById(id_time)).setText((CharSequence) XposedHelpers.getObjectField(j,
                     Value_Message_Bean_Time));
+
+            XposedBridge.log("content =" + content + ", field_digest = " + entity.toString());
 
             HookLogic.setAvatar(((ImageView) itemView.findViewById(id_avatar)), entity.field_username);
 
@@ -138,6 +144,7 @@ public class MuteConversationDialog extends Dialog {
                     }, 200);
                 }
             });
+
 
             if (entity.field_unReadCount > 0)
                 itemView.findViewById(id_unread).setBackground(new ShapeDrawable(new Shape() {
@@ -156,7 +163,6 @@ public class MuteConversationDialog extends Dialog {
             itemView.setBackground(getItemViewBackground());
         }
     }
-
 
 
     private View getContentView() {
@@ -182,7 +188,7 @@ public class MuteConversationDialog extends Dialog {
                 }
             });
             actionBar.setBackgroundColor(0xFF313235);
-            actionBar.setTitle("群助手消息");
+            actionBar.setTitle("群消息助手");
             actionBar.setTitleTextColor(0xFFFAFAFA);
 
 
@@ -219,11 +225,12 @@ public class MuteConversationDialog extends Dialog {
                     mContext.startActivity(intent);
                 }
             });
-//            imageView.setImageTintList(new ColorStateList(new int[][]{}, new int[]{0xFFFFFFFF}));
-//            imageView.setImageTintMode(PorterDuff.Mode.SRC_IN);
+
+            imageView.getDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
 
             head.addView(actionBar);
             head.addView(imageView);
+
 
             rootView.addView(head);
         }
@@ -238,18 +245,6 @@ public class MuteConversationDialog extends Dialog {
             View itemView = getItemView(rootView, integer);
             rootView.addView(itemView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ScreenUtils.dip2px(mContext, 64)));
-
-
-//            MessageEntity entity = new MessageEntity(value);
-//
-//            Object j = XposedHelpers.callMethod(mAdapter, "j", value);
-//            CharSequence uXP = (CharSequence) XposedHelpers.getObjectField(j, "uXP");
-//
-//            ((TextView) itemView.findViewById(id_nickname)).setText((CharSequence) XposedHelpers.getObjectField(j,
-// "nickName"));
-//            ((TextView) itemView.findViewById(id_content)).setText(entity.field_digest);
-//            ((TextView) itemView.findViewById(id_time)).setText((CharSequence) XposedHelpers.getObjectField(j,
-// "uXO"));
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -326,6 +321,7 @@ public class MuteConversationDialog extends Dialog {
         divider.setBackgroundColor(0xFFDADADA);
 
         nickName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        content.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
         time.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
         unread.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
 
@@ -349,7 +345,7 @@ public class MuteConversationDialog extends Dialog {
 
         RelativeLayout.LayoutParams nickNameParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams
                 .WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        nickNameParams.setMargins(0, ScreenUtils.dip2px(mContext, 12), 0, 0);
+        nickNameParams.setMargins(0, ScreenUtils.dip2px(mContext, 10), 0, 0);
         nickNameParams.addRule(RelativeLayout.RIGHT_OF, avatarContainer.getId());
 
         RelativeLayout.LayoutParams timeParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams

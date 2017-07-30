@@ -1,6 +1,8 @@
 package com.zdy.project.wechat_chatroom_helper.utils;
 
 
+import android.support.v4.content.ContextCompat;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.zdy.project.wechat_chatroom_helper.Constants;
@@ -54,6 +56,8 @@ public class PreferencesUtils {
             Constants.Value_ListView = jsonObject.get("vl").getAsString();
 
             Constants.Value_ListView_Adapter_ViewHolder_Title = jsonObject.get("vlavt").getAsString();
+            Constants.Value_ListView_Adapter_ViewHolder_Avatar = jsonObject.get("vlava").getAsString();
+            Constants.Value_ListView_Adapter_ViewHolder_Content = jsonObject.get("vlavc").getAsString();
 
             Constants.Method_Adapter_Get_Object_Step_1 = jsonObject.get("magos1").getAsString();
             Constants.Method_Adapter_Get_Object_Step_2 = jsonObject.get("magos2").getAsString();
@@ -64,10 +68,11 @@ public class PreferencesUtils {
 
             Constants.Drawable_String_Arrow = jsonObject.get("dsa").getAsString();
             Constants.Drawable_String_Setting = jsonObject.get("dss").getAsString();
+            Constants.Drawable_String_Chatroom_Avatar = jsonObject.get("dsca").getAsString();
 
             Constants.Value_Message_Bean_Content = jsonObject.get("vmbc").getAsString();
             Constants.Value_Message_Bean_NickName = jsonObject.get("vmbn").getAsString();
-            Constants.Value_Message_Bean_Time =jsonObject.get("vmbt").getAsString();
+            Constants.Value_Message_Bean_Time = jsonObject.get("vmbt").getAsString();
 
             return true;
         } catch (Exception e) {

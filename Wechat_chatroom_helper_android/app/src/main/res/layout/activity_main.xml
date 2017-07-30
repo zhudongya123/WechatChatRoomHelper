@@ -15,15 +15,15 @@
 
     <Button
         android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="获取配置"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:layout_width="48dp"
+        android:layout_height="48dp"/>
 
     <TextView
         android:id="@+id/detail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
 
     <FrameLayout
         android:id="@+id/fragment_content"

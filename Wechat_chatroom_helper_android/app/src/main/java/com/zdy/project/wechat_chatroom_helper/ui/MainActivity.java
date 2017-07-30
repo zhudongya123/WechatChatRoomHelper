@@ -3,6 +3,16 @@ package com.zdy.project.wechat_chatroom_helper.ui;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.Shape;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +23,8 @@ import android.widget.TextView;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.internal.Excluder;
+import com.zdy.project.wechat_chatroom_helper.HookLogic;
 import com.zdy.project.wechat_chatroom_helper.R;
 
 import java.io.IOException;
@@ -56,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
         final SharedPreferences sharedPreferences = getSharedPreferences(this.getPackageName() + "_preferences",
                 MODE_WORLD_READABLE);
 
-
         PackageManager packageManager = getPackageManager();
         List<PackageInfo> packageInfoList = packageManager.getInstalledPackages(0);
         for (PackageInfo packageInfo : packageInfoList) {
@@ -66,6 +77,9 @@ public class MainActivity extends AppCompatActivity {
                 versionName = packageInfo.versionName;
             }
         }
+
+        MuteConversationDialog dialog=new MuteConversationDialog(this);
+        dialog.show();
 
         int saveVersionCode = sharedPreferences.getInt("saveVersionCode", 0);
 
@@ -88,21 +102,26 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    String string = response.body().string();
-                    Log.v("result = ", string);
+                    try {
+                        String string = response.body().string();
+                        Log.v("result = ", string);
 
-                    JsonObject jsonObject = new JsonParser().parse(string).getAsJsonObject();
+                        JsonObject jsonObject = new JsonParser().parse(string).getAsJsonObject();
 
-                    int code = jsonObject.get("code").getAsInt();
+                        int code = jsonObject.get("code").getAsInt();
 
-                    if (code == 0) {
-                        SharedPreferences.Editor edit = sharedPreferences.edit();
-                        edit.putString("json", jsonObject.get("data").toString());
-                        edit.putInt("saveVersionCode", versionCode);
-                        edit.apply();
+                        if (code == 0) {
+                            SharedPreferences.Editor edit = sharedPreferences.edit();
+                            edit.putString("json", jsonObject.get("data").toString());
+                            edit.putInt("saveVersionCode", versionCode);
+                            edit.apply();
 
-                        setSuccessText(versionName + "(" + versionCode + ")");
-                    } else setFailText(versionName + "(" + versionCode + ")");
+                            setSuccessText(versionName + "(" + versionCode + ")");
+                        } else setFailText(versionName + "(" + versionCode + ")");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        setFailText(versionName + "(" + versionCode + ")");
+                    }
                 }
 
 
@@ -114,11 +133,12 @@ public class MainActivity extends AppCompatActivity {
         getFragmentManager().beginTransaction().replace(fragmentContent.getId(), settingFragment).commit();
     }
 
+
     private void setFailText(final String versionInfo) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                detail.setText("当前微信版本" + versionInfo + "暂未成功适配，请等待开发者适配。");
+                detail.setText("当前微信版本" + versionInfo + "暂未成功适配，或者出现其他问题，请等待开发者解决。");
                 detail.setTextColor(0xFFFF0000);
             }
         });

@@ -26,6 +26,8 @@ public class Constants {
     public static String Value_ListView;
 
     public static String Value_ListView_Adapter_ViewHolder_Title;
+    public static String Value_ListView_Adapter_ViewHolder_Avatar;
+    public static String Value_ListView_Adapter_ViewHolder_Content;
 
     public static String Method_Adapter_Get_Object_Step_1;
     public static String Method_Adapter_Get_Object_Step_2;
@@ -37,6 +39,7 @@ public class Constants {
 
     public static String Drawable_String_Arrow;
     public static String Drawable_String_Setting;
+    public static String Drawable_String_Chatroom_Avatar;
 
     public static String Value_Message_Bean_Content;
     public static String Value_Message_Bean_NickName;
