@@ -67,7 +67,7 @@ public class MuteConversationDialog extends Dialog {
     ViewGroup contentView;
 
     public MuteConversationDialog(@NonNull Context context) {
-        super(context);
+        super(context, android.R.style.Theme_Black_NoTitleBar);
         mContext = context;
     }
 

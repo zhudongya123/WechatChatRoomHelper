@@ -71,7 +71,7 @@ public class HookLogic implements IXposedHookLoadPackage {
     //标记位，当点击Dialog内的免打扰群组时，防止onItemClick与getObject方法的position冲突
     private boolean clickChatRoomFlag = false;
 
-
+    //标记位，用来标记刚刚关闭了免打扰群组
     private boolean closeMuteConversationFlag = false;
 
     private MuteConversationDialog muteConversationDialog;
@@ -184,13 +184,9 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
                 });
 
-        Class<?> clazz = XposedHelpers.findClass("com.tencent.mm.storage.x", loadPackageParam.classLoader);
-
-
         XposedHelpers.findAndHookMethod(Class_Conversation_List_View_Adapter_Name, loadPackageParam
                         .classLoader, "getView",
                 int.class, View.class, ViewGroup.class, new XC_MethodHook() {
-
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -199,15 +195,13 @@ public class HookLogic implements IXposedHookLoadPackage {
                         int position = (int) param.args[0];
                         View itemView = (View) param.args[1];
 
-                        Object value = XposedHelpers.callMethod(param.thisObject, Method_Adapter_Get_Object, position);
-
                         if (itemView == null) return;
                         if (itemView.getTag() == null) return;
 
                         //修改群消息助手入口itemView
                         Object viewHolder = itemView.getTag();
 
-                        //將第一個免打擾的itemView更改為群消息助手入口
+                        //將第一個免打擾的itemView更改為群消息助手入口，更新其UI
                         if (position == firstMutePosition) {
 
                             Object title = XposedHelpers.getObjectField(viewHolder,
@@ -315,6 +309,7 @@ public class HookLogic implements IXposedHookLoadPackage {
         hookLog(loadPackageParam);
     }
 
+    //自造群消息助手头像
     private static void handlerBitmap(Canvas canvas, Paint paint, int size, Bitmap drawable) {
         Bitmap whiteMask = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
 
@@ -331,7 +326,6 @@ public class HookLogic implements IXposedHookLoadPackage {
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
 
         bitmapCanvas.drawBitmap(whiteMask, 0, 0, paint);
-
 
         paint.setXfermode(null);
 
@@ -374,9 +368,7 @@ public class HookLogic implements IXposedHookLoadPackage {
         return bean;
     }
 
-
     private void hookLog(XC_LoadPackage.LoadPackageParam loadPackageParam) {
-
         XposedHelpers.findAndHookMethod(CLASS_TENCENT_LOG,
                 loadPackageParam.classLoader, "i", String.class, String.class, new XC_MethodHook() {
                     @Override
@@ -384,17 +376,18 @@ public class HookLogic implements IXposedHookLoadPackage {
                         if (!PreferencesUtils.open()) return;
 
 
-                        XposedBridge.log("WechatLog i= " + ", args[0] = " + param.args[0].toString()
-                                + ", args[1] = " + param.args[1]);
-
+                        //无奈之举，只能使用拦截日志的做法来实现部分功能
                         Object arg = param.args[1];
                         if (arg instanceof String) {
+                            //关闭聊天窗口
                             if (((String) arg).contains("closeChatting")) {
                                 if (closeMuteConversationFlag && !PreferencesUtils.auto_close()) {
                                     muteConversationDialog.show();
                                     closeMuteConversationFlag = false;
                                 }
                             }
+
+                            //收到新消息
                             if (((String) arg).contains("newcursor cursor update Memory key")) {
                                 if (muteConversationDialog != null && muteConversationDialog.isShowing())
                                     muteConversationDialog.requestLayout();

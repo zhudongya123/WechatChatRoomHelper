@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">Wechat_chatroom_helper</string>
-    <string name="app_desc">微信群助手</string>
+    <string name="app_name">微信群消息助手</string>
+    <string name="app_desc">整理微信中的免打扰消息</string>
     <string name="setting">设置</string>
     <string name="pref_open">功能开关</string>
     <string name="pref_auto_close">返回消息列表时关闭群消息助手</string>

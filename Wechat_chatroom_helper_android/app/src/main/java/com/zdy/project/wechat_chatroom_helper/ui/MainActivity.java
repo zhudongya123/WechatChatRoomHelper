@@ -16,6 +16,8 @@ import android.graphics.drawable.shapes.Shape;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -48,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
     int versionCode;
     String versionName;
 
+    SharedPreferences sharedPreferences;
+
 
     private TextView textView;
     private Button button;
@@ -64,10 +68,27 @@ public class MainActivity extends AppCompatActivity {
         detail = (TextView) findViewById(R.id.detail);
 
         fragmentContent = (FrameLayout) findViewById(R.id.fragment_content);
+        sharedPreferences
+                = getSharedPreferences(this.getPackageName() + "_preferences", MODE_WORLD_READABLE);
 
-        final SharedPreferences sharedPreferences = getSharedPreferences(this.getPackageName() + "_preferences",
-                MODE_WORLD_READABLE);
+        getVersion();
 
+        int saveVersionCode = sharedPreferences.getInt("saveVersionCode", 0);
+
+        sendRequest(saveVersionCode);
+
+        settingFragment = new SettingFragment();
+        getFragmentManager().beginTransaction().replace(fragmentContent.getId(), settingFragment).commit();
+
+
+        textView.setText(Html.fromHtml(
+                "<p><a href=\"https://github.com/zhudongya123/WechatChatroomHelper/issues\">反馈地址</a></p>\n" + "鸣谢:<br>\n" +
+                        "<p><a href=\"https://www.coolapk.com/apk/com.toshiba_dealin.developerhelper\">开发者助手开发者（东芝）</a></p>\n" +
+                        "<p><a href=\"https://github.com/veryyoung\">微信红包开发者（veryyoung）</a></p>"));
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    private void getVersion() {
         PackageManager packageManager = getPackageManager();
         List<PackageInfo> packageInfoList = packageManager.getInstalledPackages(0);
         for (PackageInfo packageInfo : packageInfoList) {
@@ -77,12 +98,9 @@ public class MainActivity extends AppCompatActivity {
                 versionName = packageInfo.versionName;
             }
         }
+    }
 
-        MuteConversationDialog dialog=new MuteConversationDialog(this);
-        dialog.show();
-
-        int saveVersionCode = sharedPreferences.getInt("saveVersionCode", 0);
-
+    private void sendRequest(int saveVersionCode) {
         if (versionCode != saveVersionCode) {
 
             OkHttpClient okHttpClient = new OkHttpClient();
@@ -127,10 +145,6 @@ public class MainActivity extends AppCompatActivity {
 
             });
         } else setSuccessText(versionName + "(" + versionCode + ")");
-
-
-        settingFragment = new SettingFragment();
-        getFragmentManager().beginTransaction().replace(fragmentContent.getId(), settingFragment).commit();
     }
 
 
@@ -138,11 +152,10 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                detail.setText("当前微信版本" + versionInfo + "暂未成功适配，或者出现其他问题，请等待开发者解决。");
+                detail.setText("当前微信版本" + versionInfo + "暂未适配，或者出现其他问题，请等待开发者解决。");
                 detail.setTextColor(0xFFFF0000);
             }
         });
-
     }
 
     private void setSuccessText(final String versionInfo) {
@@ -155,7 +168,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static class SettingFragment extends PreferenceFragment {
-
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
