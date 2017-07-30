@@ -68,6 +68,7 @@ public class PathServlet extends HttpServlet {
 
                 data.addProperty("dsa", "rj");
                 data.addProperty("dss", "ang");
+                data.addProperty("dsca", "u_");
 
                 data.addProperty("vmbc", "uXP");
                 data.addProperty("vmbn", "nickName");
@@ -110,11 +111,11 @@ public class PathServlet extends HttpServlet {
 
                 data.addProperty("dsa", "sb");
                 data.addProperty("dss", "ao8");
+                data.addProperty("dsca", "v2");
 
                 data.addProperty("vmbc", "vID");
                 data.addProperty("vmbn", "nickName");
                 data.addProperty("vmbt", "vIC");
-
 
 
                 jsonObject.add("data", data);
