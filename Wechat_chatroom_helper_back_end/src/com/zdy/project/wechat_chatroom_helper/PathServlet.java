@@ -56,6 +56,8 @@ public class PathServlet extends HttpServlet {
                 data.addProperty("vl", "uWH");
 
                 data.addProperty("vlavt", "usj");
+                data.addProperty("vlava", "iym");
+                data.addProperty("vlavc", "usl");
 
                 data.addProperty("magos1", "tMb");
                 data.addProperty("magos2", "hdB");
@@ -96,6 +98,8 @@ public class PathServlet extends HttpServlet {
                 data.addProperty("vl", "vHv");
 
                 data.addProperty("vlavt", "vcu");
+                data.addProperty("vlava", "iAt");
+                data.addProperty("vlavc", "vcw");
 
                 data.addProperty("magos1", "uvS");
                 data.addProperty("magos2", "utT");
