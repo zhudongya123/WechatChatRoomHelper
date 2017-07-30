@@ -1,6 +1,5 @@
 package com.zdy.project.wechat_chatroom_helper.ui;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -30,6 +29,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toolbar;
 
@@ -102,8 +102,10 @@ public class MuteConversationDialog extends Dialog {
     }
 
     public void requestLayout() {
-        contentView = (ViewGroup) getContentView();
-        setContentView(contentView);
+        if (contentView == null) {
+            contentView = (ViewGroup) getContentView();
+            setContentView(contentView);
+        }
         bindData();
     }
 
@@ -114,7 +116,7 @@ public class MuteConversationDialog extends Dialog {
 
             Object value = HookLogic.getMessageBeanForOriginIndex(mAdapter, integer);
 
-            View itemView = contentView.getChildAt(i + 1);
+            View itemView = ((ViewGroup) contentView.findViewById(android.R.id.list)).getChildAt(i);
 
             MessageEntity entity = new MessageEntity(value);
 
@@ -168,6 +170,10 @@ public class MuteConversationDialog extends Dialog {
     private View getContentView() {
         LinearLayout rootView = new LinearLayout(mContext);
         rootView.setOrientation(LinearLayout.VERTICAL);
+
+        LinearLayout listView = new LinearLayout(mContext);
+        listView.setOrientation(LinearLayout.VERTICAL);
+        listView.setId(android.R.id.list);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
 
@@ -241,9 +247,8 @@ public class MuteConversationDialog extends Dialog {
 
             Object value = HookLogic.getMessageBeanForOriginIndex(mAdapter, integer);
 
-
-            View itemView = getItemView(rootView, integer);
-            rootView.addView(itemView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+            View itemView = getItemView(listView, integer);
+            listView.addView(itemView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ScreenUtils.dip2px(mContext, 64)));
 
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -262,7 +267,11 @@ public class MuteConversationDialog extends Dialog {
             itemView.setBackground(getItemViewBackground());
         }
 
-        rootView.setBackground(new ColorDrawable(0xFFFFFFFF));
+        listView.setBackground(new ColorDrawable(0xFFFFFFFF));
+        ScrollView scrollView = new ScrollView(mContext);
+        scrollView.addView(listView);
+
+        rootView.addView(scrollView);
         return rootView;
     }
 
