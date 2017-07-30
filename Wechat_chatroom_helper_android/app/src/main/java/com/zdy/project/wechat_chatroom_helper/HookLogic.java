@@ -74,6 +74,8 @@ public class HookLogic implements IXposedHookLoadPackage {
     //标记位，用来标记刚刚关闭了免打扰群组
     private boolean closeMuteConversationFlag = false;
 
+    private boolean notifyMuteList = true;
+
     private MuteConversationDialog muteConversationDialog;
 
     private static ClassLoader mClassLoader;
@@ -87,6 +89,22 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         if (!PreferencesUtils.initVariableName()) return;//判断是否获取了配置
 
+        XposedHelpers.findAndHookMethod("android.widget.BaseAdapter", loadPackageParam.classLoader,
+                "notifyDataSetChanged", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+
+                        String clazzName = param.thisObject.getClass().getSimpleName();
+
+                        if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
+                            return;//是否为正确的Adapter
+
+                        XposedBridge.log("Class_Conversation_List_View_Adapter_Parent_Name notifyDataSetChanged = ");
+
+                        notifyMuteList = true;
+                    }
+                });
+
         /**
          * 消息列表数量
          */
@@ -98,12 +116,21 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                 int result = (int) param.getResult();//原有会话数量
 
+
                 String clazzName = param.thisObject.getClass().getSimpleName();
 
                 if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
                     return;//是否为正确的Adapter
 
+
+                XposedBridge.log("Class_Conversation_List_View_Adapter_Parent_Name getCount = " + result);
+
                 if (result == 0) return;
+                if (!notifyMuteList) return;
+                notifyMuteList = false;
+
+
+                XposedBridge.log("Class_Conversation_List_View_Adapter_Parent_Name_after getCount = " + result);
 
                 newViewPositionWithDataPositionList.clear();
                 muteListInAdapterPositions.clear();
@@ -128,11 +155,9 @@ public class HookLogic implements IXposedHookLoadPackage {
                         muteCount++;
                         muteListInAdapterPositions.add(i);
 
-
                         MessageEntity entity = new MessageEntity(value);
 
                         unReadCountList.put(i, entity.field_unReadCount);
-
                     }
                     if (!(uyI && uXX) || muteCount == 1) {
                         newViewPositionWithDataPositionList.put(i - (muteCount >= 1 ? muteCount - 1 : muteCount), i);
@@ -375,6 +400,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         if (!PreferencesUtils.open()) return;
 
+                        XposedBridge.log("XposedLog, params0 = " + param.args[0] + " params1 = " + param.args[1]);
 
                         //无奈之举，只能使用拦截日志的做法来实现部分功能
                         Object arg = param.args[1];
@@ -385,6 +411,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                                     muteConversationDialog.show();
                                     closeMuteConversationFlag = false;
                                 }
+                           //     notifyMuteList = true;
                             }
 
                             //收到新消息
