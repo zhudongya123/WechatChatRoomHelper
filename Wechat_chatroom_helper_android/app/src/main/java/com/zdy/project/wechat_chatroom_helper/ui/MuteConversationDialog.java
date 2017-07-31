@@ -237,7 +237,6 @@ public class MuteConversationDialog extends Dialog {
             head.addView(actionBar);
             head.addView(imageView);
 
-
             rootView.addView(head);
         }
 
@@ -267,11 +266,11 @@ public class MuteConversationDialog extends Dialog {
             itemView.setBackground(getItemViewBackground());
         }
 
-        listView.setBackground(new ColorDrawable(0xFFFFFFFF));
         ScrollView scrollView = new ScrollView(mContext);
         scrollView.addView(listView);
 
         rootView.addView(scrollView);
+        rootView.setBackground(new ColorDrawable(0xFFFFFFFF));
         return rootView;
     }
 
@@ -402,7 +401,6 @@ public class MuteConversationDialog extends Dialog {
 
         itemView.addView(contentView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-
 
         return itemView;
     }
