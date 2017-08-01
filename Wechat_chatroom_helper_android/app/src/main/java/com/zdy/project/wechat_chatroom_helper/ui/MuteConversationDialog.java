@@ -101,12 +101,16 @@ public class MuteConversationDialog extends Dialog {
         requestLayout();
     }
 
-    public void requestLayout() {
-        if (contentView == null) {
+    public void requestLayout(boolean isForce) {
+        if (contentView == null || isForce) {
             contentView = (ViewGroup) getContentView();
             setContentView(contentView);
         }
         bindData();
+    }
+
+    public void requestLayout() {
+        requestLayout(false);
     }
 
 

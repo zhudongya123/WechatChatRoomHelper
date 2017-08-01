@@ -8,12 +8,14 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.Shape;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
@@ -80,6 +82,8 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     private static ClassLoader mClassLoader;
 
+    private int muteCount = 0;
+
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
 
@@ -88,6 +92,7 @@ public class HookLogic implements IXposedHookLoadPackage {
         mClassLoader = loadPackageParam.classLoader;
 
         if (!PreferencesUtils.initVariableName()) return;//判断是否获取了配置
+
 
         XposedHelpers.findAndHookMethod("android.widget.BaseAdapter", loadPackageParam.classLoader,
                 "notifyDataSetChanged", new XC_MethodHook() {
@@ -101,9 +106,54 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                         XposedBridge.log("Class_Conversation_List_View_Adapter_Parent_Name notifyDataSetChanged = ");
 
+                        notifyMuteList = false;
+
+                        //代码保护区，此段执行时getCount逻辑跳过
+                        {
+                            newViewPositionWithDataPositionList.clear();
+                            muteListInAdapterPositions.clear();
+                            muteCount = 0;//免打扰消息群组的的數量
+                            firstMutePosition = -1;
+
+
+                            //逐一判断是否为免打扰群组
+                            for (int i = 0; i < ((BaseAdapter) param.thisObject).getCount(); i++) {
+                                Object value = getMessageBeanForOriginIndex(param.thisObject, i);
+
+                                Object messageStatus = XposedHelpers.callMethod(param.thisObject,
+                                        Method_Message_Status_Bean,
+                                        value);
+
+                                boolean uyI = XposedHelpers.getBooleanField(messageStatus,
+                                        Value_Message_Status_Is_Mute_1);
+                                boolean uXX = XposedHelpers.getBooleanField(messageStatus,
+                                        Value_Message_Status_Is_Mute_2);
+
+                                if (uyI && uXX) {
+                                    if (firstMutePosition == -1)
+                                        firstMutePosition = i;
+
+                                    muteCount++;
+                                    muteListInAdapterPositions.add(i);
+
+                                    MessageEntity entity = new MessageEntity(value);
+
+                                    unReadCountList.put(i, entity.field_unReadCount);
+                                }
+                                if (!(uyI && uXX) || muteCount == 1) {
+                                    newViewPositionWithDataPositionList.put(i - (muteCount >= 1 ? muteCount - 1 :
+                                            muteCount), i);
+                                }
+
+                            }
+                        }
                         notifyMuteList = true;
+
+                        muteConversationDialog.setMuteListInAdapterPositions(muteListInAdapterPositions);
+                        muteConversationDialog.requestLayout(true);
                     }
                 });
+
 
         /**
          * 消息列表数量
@@ -126,50 +176,13 @@ public class HookLogic implements IXposedHookLoadPackage {
                 XposedBridge.log("Class_Conversation_List_View_Adapter_Parent_Name getCount = " + result);
 
                 if (result == 0) return;
-                if (!notifyMuteList) return;
-                notifyMuteList = false;
 
-
-                XposedBridge.log("Class_Conversation_List_View_Adapter_Parent_Name_after getCount = " + result);
-
-                newViewPositionWithDataPositionList.clear();
-                muteListInAdapterPositions.clear();
-                int muteCount = 0;//免打扰消息群组的的數量
-                firstMutePosition = -1;
-
-
-                //逐一判断是否为免打扰群组
-                for (int i = 0; i < result; i++) {
-                    Object value = getMessageBeanForOriginIndex(param.thisObject, i);
-
-                    Object messageStatus = XposedHelpers.callMethod(param.thisObject, Method_Message_Status_Bean,
-                            value);
-
-                    boolean uyI = XposedHelpers.getBooleanField(messageStatus, Value_Message_Status_Is_Mute_1);
-                    boolean uXX = XposedHelpers.getBooleanField(messageStatus, Value_Message_Status_Is_Mute_2);
-
-                    if (uyI && uXX) {
-                        if (firstMutePosition == -1)
-                            firstMutePosition = i;
-
-                        muteCount++;
-                        muteListInAdapterPositions.add(i);
-
-                        MessageEntity entity = new MessageEntity(value);
-
-                        unReadCountList.put(i, entity.field_unReadCount);
-                    }
-                    if (!(uyI && uXX) || muteCount == 1) {
-                        newViewPositionWithDataPositionList.put(i - (muteCount >= 1 ? muteCount - 1 : muteCount), i);
-                    }
-
+                if (notifyMuteList) {
+                    int count = result - muteCount;//减去免打扰消息的數量
+                    count++;//增加入口位置
+                    param.setResult(count);
+                    XposedBridge.log("Class_Conversation_List_View_Adapter_Parent_Name_after getCount = " + result);
                 }
-
-                int count = result - muteCount;//减去免打扰消息的數量
-
-                count++;//增加入口位置
-
-                param.setResult(count);
             }
         });
 
@@ -226,20 +239,20 @@ public class HookLogic implements IXposedHookLoadPackage {
                         //修改群消息助手入口itemView
                         Object viewHolder = itemView.getTag();
 
+
+                        Object title = XposedHelpers.getObjectField(viewHolder,
+                                Value_ListView_Adapter_ViewHolder_Title);
+                        final Object avatar = XposedHelpers.getObjectField(viewHolder,
+                                Value_ListView_Adapter_ViewHolder_Avatar);
+                        final Object content = XposedHelpers.getObjectField(viewHolder,
+                                Value_ListView_Adapter_ViewHolder_Content);
+
+
                         //將第一個免打擾的itemView更改為群消息助手入口，更新其UI
                         if (position == firstMutePosition) {
 
-                            Object title = XposedHelpers.getObjectField(viewHolder,
-                                    Value_ListView_Adapter_ViewHolder_Title);
-                            final Object avatar = XposedHelpers.getObjectField(viewHolder,
-                                    Value_ListView_Adapter_ViewHolder_Avatar);
-                            final Object content = XposedHelpers.getObjectField(viewHolder,
-                                    Value_ListView_Adapter_ViewHolder_Content);
-
-
                             XposedHelpers.callMethod(title, "setText", "群消息助手");
                             XposedHelpers.callMethod(title, "setTextColor", Color.rgb(87, 107, 149));
-
 
                             final Context context = itemView.getContext();
 
@@ -270,8 +283,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 XposedHelpers.callMethod(content, "setText", "[" + newMessageCount + "个群有新消息]");
                                 XposedHelpers.callMethod(content, "setTextColor", Color.rgb(242, 140, 72));
                             }
-
-                        }
+                        } else XposedHelpers.callMethod(avatar, "setBackgroundDrawable", new BitmapDrawable());
                     }
                 });
 
