@@ -149,8 +149,10 @@ public class HookLogic implements IXposedHookLoadPackage {
                         }
                         notifyMuteList = true;
 
-                        muteConversationDialog.setMuteListInAdapterPositions(muteListInAdapterPositions);
-                        muteConversationDialog.requestLayout(true);
+                        if (muteConversationDialog != null) {
+                            muteConversationDialog.setMuteListInAdapterPositions(muteListInAdapterPositions);
+                            muteConversationDialog.requestLayout(true);
+                        }
                     }
                 });
 
@@ -343,6 +345,15 @@ public class HookLogic implements IXposedHookLoadPackage {
                 });
 
 
+        XposedHelpers.findAndHookMethod("com.tencent.mm.ui.LauncherUIBottomTabView", loadPackageParam.classLoader,
+                "yA", int.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        int arg = (int) param.args[0];
+                        XposedBridge.log("updateMainTabUnread count = " + arg);
+                    }
+                });
+
         hookLog(loadPackageParam);
     }
 
@@ -396,13 +407,18 @@ public class HookLogic implements IXposedHookLoadPackage {
      * 即为原数据
      */
     public static Object getMessageBeanForOriginIndex(Object adapter, int index) {
-        Object tMb = XposedHelpers.getObjectField(adapter, Method_Adapter_Get_Object_Step_1);
+        try {
+            Object tMb = XposedHelpers.getObjectField(adapter, Method_Adapter_Get_Object_Step_1);
 
-        Object hdB = XposedHelpers.getObjectField(tMb, Method_Adapter_Get_Object_Step_2);
+            Object hdB = XposedHelpers.getObjectField(tMb, Method_Adapter_Get_Object_Step_2);
 
-        Object bean = XposedHelpers.callMethod(hdB, Method_Adapter_Get_Object_Step_3, index);
+            Object bean = XposedHelpers.callMethod(hdB, Method_Adapter_Get_Object_Step_3, index);
 
-        return bean;
+            return bean;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private void hookLog(XC_LoadPackage.LoadPackageParam loadPackageParam) {
@@ -412,7 +428,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         if (!PreferencesUtils.open()) return;
 
-                        XposedBridge.log("XposedLog, params0 = " + param.args[0] + " params1 = " + param.args[1]);
+                        XposedBridge.log("XposedLogi, params0 = " + param.args[0] + ", params1 = " + param.args[1]);
 
                         //无奈之举，只能使用拦截日志的做法来实现部分功能
                         Object arg = param.args[1];
@@ -435,7 +451,26 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
                 });
 
+        XposedHelpers.findAndHookMethod(CLASS_TENCENT_LOG,
+                loadPackageParam.classLoader, "v", String.class, String.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!PreferencesUtils.open()) return;
 
+                        XposedBridge.log("XposedLogv, params0 = " + param.args[0] + " params1 = " + param.args[1]);
+
+                    }
+                });
+        XposedHelpers.findAndHookMethod(CLASS_TENCENT_LOG,
+                loadPackageParam.classLoader, "v", String.class, String.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (!PreferencesUtils.open()) return;
+
+                        XposedBridge.log("XposedLogd, params0 = " + param.args[0] + " params1 = " + param.args[1]);
+
+                    }
+                });
     }
 
 }

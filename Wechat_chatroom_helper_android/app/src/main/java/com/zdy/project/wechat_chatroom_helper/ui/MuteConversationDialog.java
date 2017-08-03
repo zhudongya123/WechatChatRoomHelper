@@ -124,17 +124,21 @@ public class MuteConversationDialog extends Dialog {
 
             MessageEntity entity = new MessageEntity(value);
 
-            Object j = XposedHelpers.callMethod(mAdapter, Method_Message_Status_Bean, value);
-            CharSequence content = (CharSequence) XposedHelpers.getObjectField(j, Value_Message_Bean_Content);
+            try {
+                Object j = XposedHelpers.callMethod(mAdapter, Method_Message_Status_Bean, value);
+                CharSequence content = (CharSequence) XposedHelpers.getObjectField(j, Value_Message_Bean_Content);
 
 
-            ((TextView) itemView.findViewById(id_nickname)).setText((CharSequence) XposedHelpers.getObjectField(j,
-                    Value_Message_Bean_NickName));
-            ((TextView) itemView.findViewById(id_content)).setText(content == null ? entity.field_digest : content);
-            ((TextView) itemView.findViewById(id_time)).setText((CharSequence) XposedHelpers.getObjectField(j,
-                    Value_Message_Bean_Time));
+                ((TextView) itemView.findViewById(id_nickname)).setText((CharSequence) XposedHelpers.getObjectField(j,
+                        Value_Message_Bean_NickName));
+                ((TextView) itemView.findViewById(id_content)).setText(content == null ? entity.field_digest : content);
+                ((TextView) itemView.findViewById(id_time)).setText((CharSequence) XposedHelpers.getObjectField(j,
+                        Value_Message_Bean_Time));
 
-            XposedBridge.log("content =" + content + ", field_digest = " + entity.toString());
+                XposedBridge.log("content =" + content + ", field_digest = " + entity.toString());
+            }catch (Exception e){
+                e.printStackTrace();
+            }
 
             HookLogic.setAvatar(((ImageView) itemView.findViewById(id_avatar)), entity.field_username);
 
@@ -179,7 +183,7 @@ public class MuteConversationDialog extends Dialog {
         listView.setOrientation(LinearLayout.VERTICAL);
         listView.setId(android.R.id.list);
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
             RelativeLayout head = new RelativeLayout(mContext);
 
@@ -248,7 +252,7 @@ public class MuteConversationDialog extends Dialog {
         for (int i = 0; i < muteListInAdapterPositions.size(); i++) {
             final Integer integer = muteListInAdapterPositions.get(i);
 
-            Object value = HookLogic.getMessageBeanForOriginIndex(mAdapter, integer);
+      //      Object value = HookLogic.getMessageBeanForOriginIndex(mAdapter, integer);
 
             View itemView = getItemView(listView, integer);
             listView.addView(itemView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
