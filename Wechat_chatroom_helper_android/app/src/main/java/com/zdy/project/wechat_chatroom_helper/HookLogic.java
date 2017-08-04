@@ -344,17 +344,18 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
                 });
 
-
-        XposedHelpers.findAndHookMethod("com.tencent.mm.ui.LauncherUIBottomTabView", loadPackageParam.classLoader,
-                "yA", int.class, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        int arg = (int) param.args[0];
-                        XposedBridge.log("updateMainTabUnread count = " + arg);
-                    }
-                });
-
         hookLog(loadPackageParam);
+
+
+//        XposedHelpers.findAndHookMethod("com.tencent.mm.ui.LauncherUIBottomTabView", loadPackageParam.classLoader,
+//                "yA", int.class, new XC_MethodHook() {
+//                    @Override
+//                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                        int arg = (int) param.args[0];
+//                        XposedBridge.log("updateMainTabUnread count = " + arg);
+//                    }
+//                });
+
     }
 
     //自造群消息助手头像
