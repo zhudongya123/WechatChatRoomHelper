@@ -93,7 +93,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         if (!PreferencesUtils.initVariableName()) return;//判断是否获取了配置
 
-
         XposedHelpers.findAndHookMethod("android.widget.BaseAdapter", loadPackageParam.classLoader,
                 "notifyDataSetChanged", new XC_MethodHook() {
                     @Override
@@ -104,7 +103,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                         if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
                             return;//是否为正确的Adapter
 
-                        XposedBridge.log("Class_Conversation_List_View_Adapter_Parent_Name notifyDataSetChanged = ");
 
                         notifyMuteList = false;
 
@@ -112,6 +110,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                         {
                             newViewPositionWithDataPositionList.clear();
                             muteListInAdapterPositions.clear();
+                            unReadCountList.clear();
                             muteCount = 0;//免打扰消息群组的的數量
                             firstMutePosition = -1;
 
@@ -128,6 +127,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                                         Value_Message_Status_Is_Mute_1);
                                 boolean uXX = XposedHelpers.getBooleanField(messageStatus,
                                         Value_Message_Status_Is_Mute_2);
+
 
                                 if (uyI && uXX) {
                                     if (firstMutePosition == -1)
@@ -174,16 +174,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                 if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
                     return;//是否为正确的Adapter
 
-
-                XposedBridge.log("Class_Conversation_List_View_Adapter_Parent_Name getCount = " + result);
-
                 if (result == 0) return;
 
                 if (notifyMuteList) {
                     int count = result - muteCount;//减去免打扰消息的數量
                     count++;//增加入口位置
                     param.setResult(count);
-                    XposedBridge.log("Class_Conversation_List_View_Adapter_Parent_Name_after getCount = " + result);
                 }
             }
         });
@@ -199,8 +195,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                         int index = (int) param.args[0];//要取的数据下标
 
-                        XposedBridge.log("XposedBridge, ev dataPosition = " + param.args[0]);
-
                         String clazzName = param.thisObject.getClass().getSimpleName();
 
                         if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
@@ -215,10 +209,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                             clickChatRoomFlag = false;
                             closeMuteConversationFlag = true;
                         }
-
                         Object bean = getMessageBeanForOriginIndex(param.thisObject, index);
-
-                        XposedBridge.log("XposedBridge, ev position = " + index);
 
                         param.setResult(bean);
                     }
@@ -277,8 +268,10 @@ public class HookLogic implements IXposedHookLoadPackage {
                             for (int k = 0; k < unReadCountList.size(); k++) {
                                 int itemValue = unReadCountList.valueAt(k);
 
-                                if (itemValue > 0)
+                                XposedBridge.log("Message position = " + k + ", unreadCount = " + itemValue);
+                                if (itemValue > 0) {
                                     newMessageCount++;
+                            }
                             }
 
                             if (newMessageCount > 0) {
@@ -347,14 +340,7 @@ public class HookLogic implements IXposedHookLoadPackage {
         hookLog(loadPackageParam);
 
 
-//        XposedHelpers.findAndHookMethod("com.tencent.mm.ui.LauncherUIBottomTabView", loadPackageParam.classLoader,
-//                "yA", int.class, new XC_MethodHook() {
-//                    @Override
-//                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-//                        int arg = (int) param.args[0];
-//                        XposedBridge.log("updateMainTabUnread count = " + arg);
-//                    }
-//                });
+
 
     }
 

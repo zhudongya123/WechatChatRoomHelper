@@ -46,9 +46,10 @@ import de.robv.android.xposed.XposedHelpers;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Arrow;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Setting;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_Status_Bean;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Bean_Content;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_True_Content;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Bean_NickName;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Bean_Time;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_True_Content_Params;
 
 /**
  * Created by zhudo on 2017/7/20.
@@ -126,8 +127,10 @@ public class MuteConversationDialog extends Dialog {
 
             try {
                 Object j = XposedHelpers.callMethod(mAdapter, Method_Message_Status_Bean, value);
-                CharSequence content = (CharSequence) XposedHelpers.getObjectField(j, Value_Message_Bean_Content);
 
+                boolean uXV = XposedHelpers.getBooleanField(j, Value_Message_True_Content_Params);
+                CharSequence content = (CharSequence) XposedHelpers.callMethod(mAdapter, Method_Message_True_Content,
+                        value, ScreenUtils.dip2px(mContext, 13), uXV);
 
                 ((TextView) itemView.findViewById(id_nickname)).setText((CharSequence) XposedHelpers.getObjectField(j,
                         Value_Message_Bean_NickName));

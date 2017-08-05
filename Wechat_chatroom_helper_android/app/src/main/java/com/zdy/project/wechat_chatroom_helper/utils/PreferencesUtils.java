@@ -74,6 +74,11 @@ public class PreferencesUtils {
             Constants.Value_Message_Bean_NickName = jsonObject.get("vmbn").getAsString();
             Constants.Value_Message_Bean_Time = jsonObject.get("vmbt").getAsString();
 
+
+
+            Constants.Method_Message_True_Content = jsonObject.get("mmtc").getAsString();
+            Constants.Value_Message_True_Content_Params = jsonObject.get("vmtcp").getAsString();
+
             return true;
         } catch (Exception e) {
             return false;

@@ -70,6 +70,7 @@ public class MessageEntity {
             field_unReadCount = XposedHelpers.getIntField(value, "field_unReadCount");
         } catch (Exception e) {
             e.printStackTrace();
+            field_unReadCount = 0;
         }
 
 //        field_unReadMuteCount = XposedHelpers.getIntField(value, "field_unReadMuteCount");
