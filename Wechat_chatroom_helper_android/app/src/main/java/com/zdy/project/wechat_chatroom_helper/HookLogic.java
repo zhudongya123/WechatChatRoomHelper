@@ -11,6 +11,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.Shape;
+import android.support.annotation.IdRes;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -389,7 +390,10 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                         View customView = (View) XposedHelpers.callMethod(actionBar, "getCustomView");
 
-                        TextView textView = (TextView) customView.findViewById(16908308);
+                        @IdRes
+                        int textViewId = 16908308;
+
+                        TextView textView = (TextView) customView.findViewById(textViewId);
                         String text = "微信(" + unReadCount + ")";
                         if (unReadCount == 0)
                             text = "微信";
