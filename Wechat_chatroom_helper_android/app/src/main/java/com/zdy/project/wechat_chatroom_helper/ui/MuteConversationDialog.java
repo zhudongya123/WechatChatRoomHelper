@@ -96,6 +96,11 @@ public class MuteConversationDialog extends Dialog {
         configWindow();
     }
 
+
+    public Object getAdapter() {
+        return mAdapter;
+    }
+
     @Override
     public void show() {
         super.show();

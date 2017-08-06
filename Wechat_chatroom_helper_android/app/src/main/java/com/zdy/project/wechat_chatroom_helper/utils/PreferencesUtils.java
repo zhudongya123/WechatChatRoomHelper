@@ -1,10 +1,9 @@
 package com.zdy.project.wechat_chatroom_helper.utils;
 
 
-import android.support.v4.content.ContextCompat;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
 import com.zdy.project.wechat_chatroom_helper.Constants;
 
 import de.robv.android.xposed.XSharedPreferences;
@@ -29,6 +28,15 @@ public class PreferencesUtils {
 
     public static boolean auto_close() {
         return getInstance().getBoolean("auto_close", false);
+    }
+
+    public static int getVersionCode() {
+        return getInstance().getInt("saveVersionCode", 0);
+    }
+
+
+    public static boolean getBugUnread() {
+        return getInstance().getBoolean("bug_unread", false);
     }
 
 
@@ -73,8 +81,6 @@ public class PreferencesUtils {
             Constants.Value_Message_Bean_Content = jsonObject.get("vmbc").getAsString();
             Constants.Value_Message_Bean_NickName = jsonObject.get("vmbn").getAsString();
             Constants.Value_Message_Bean_Time = jsonObject.get("vmbt").getAsString();
-
-
 
             Constants.Method_Message_True_Content = jsonObject.get("mmtc").getAsString();
             Constants.Value_Message_True_Content_Params = jsonObject.get("vmtcp").getAsString();

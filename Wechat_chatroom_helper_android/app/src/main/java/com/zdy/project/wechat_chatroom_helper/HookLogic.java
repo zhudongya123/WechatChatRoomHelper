@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.MuteConversationDialog;
@@ -83,6 +84,7 @@ public class HookLogic implements IXposedHookLoadPackage {
     private static ClassLoader mClassLoader;
 
     private int muteCount = 0;
+
 
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
@@ -271,14 +273,15 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 XposedBridge.log("Message position = " + k + ", unreadCount = " + itemValue);
                                 if (itemValue > 0) {
                                     newMessageCount++;
-                            }
+                                }
                             }
 
                             if (newMessageCount > 0) {
                                 XposedHelpers.callMethod(content, "setText", "[" + newMessageCount + "个群有新消息]");
                                 XposedHelpers.callMethod(content, "setTextColor", Color.rgb(242, 140, 72));
                             }
-                        } else XposedHelpers.callMethod(avatar, "setBackgroundDrawable", new BitmapDrawable());
+                        } else
+                            XposedHelpers.callMethod(avatar, "setBackgroundDrawable", new BitmapDrawable());
                     }
                 });
 
@@ -339,9 +342,63 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         hookLog(loadPackageParam);
 
+        if (!PreferencesUtils.getBugUnread()) return;
 
+        int versionCode = PreferencesUtils.getVersionCode();
+        String methodHomeUIGetUnRead = null;
+        String actionbarName = null;
+        if (versionCode == 1080) {
+            methodHomeUIGetUnRead = "yI";
+            actionbarName = "Gx";
+        } else if (versionCode == 1060) {
+            methodHomeUIGetUnRead = "xu";
+            actionbarName = "Gy";
+        }
 
+        final String finalActionbarName = actionbarName;
+        XposedHelpers.findAndHookMethod("com.tencent.mm.ui.HomeUI",
+                loadPackageParam.classLoader, methodHomeUIGetUnRead, int.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        int arg = (int) param.args[0];
 
+                        if (muteConversationDialog == null) return;
+                        Object adapter = muteConversationDialog.getAdapter();
+                        int count = (int) XposedHelpers.callMethod(adapter, "getCount");
+
+                        int unReadCount = 0;
+                        String unReadString = "[";
+                        for (int i = 0; i < count; i++) {
+                            Object message = getMessageBeanForOriginIndex(adapter, i);
+                            MessageEntity messageEntity = new MessageEntity(message);
+
+                            unReadString = unReadString + messageEntity.field_unReadCount;
+
+                            for (Integer muteListInAdapterPosition : muteListInAdapterPositions) {
+                                if (muteListInAdapterPosition == i) break;
+                            }
+
+                            unReadCount = +messageEntity.field_unReadCount;
+
+                            if (i != count - 1) unReadString += ",";
+                            else unReadString += "]";
+                        }
+
+                        Object actionBar = XposedHelpers
+                                .getObjectField(param.thisObject, finalActionbarName);
+
+                        View customView = (View) XposedHelpers.callMethod(actionBar, "getCustomView");
+
+                        TextView textView = (TextView) customView.findViewById(16908308);
+                        String text = "微信(" + unReadCount + ")";
+                        if (unReadCount == 0)
+                            text = "微信";
+                        textView.setText(text);
+
+                        XposedBridge.log("currentUnreadCount = " + arg + ", trueUnreadCount = "
+                                + unReadString + ", unReadCount = " + unReadCount);
+                    }
+                });
     }
 
     //自造群消息助手头像
@@ -426,7 +483,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                                     muteConversationDialog.show();
                                     closeMuteConversationFlag = false;
                                 }
-                           //     notifyMuteList = true;
                             }
 
                             //收到新消息

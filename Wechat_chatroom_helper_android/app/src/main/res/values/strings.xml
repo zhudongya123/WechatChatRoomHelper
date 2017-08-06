@@ -4,4 +4,6 @@
     <string name="setting">设置</string>
     <string name="pref_open">功能开关</string>
     <string name="pref_auto_close">返回消息列表时关闭群消息助手</string>
+
+    <string name="bug_unread_strings">强制修复主界面未读消息异常</string>
 </resources>
