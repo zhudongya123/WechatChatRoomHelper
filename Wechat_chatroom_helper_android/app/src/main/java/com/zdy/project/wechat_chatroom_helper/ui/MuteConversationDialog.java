@@ -47,6 +47,7 @@ import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_A
 import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Setting;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_Status_Bean;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_True_Content;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_True_Time;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Bean_NickName;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Bean_Time;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_True_Content_Params;
@@ -61,11 +62,11 @@ public class MuteConversationDialog extends Dialog {
 
     private ArrayList<Integer> muteListInAdapterPositions = new ArrayList<>();
 
-    OnDialogItemClickListener onDialogItemClickListener;
+    private OnDialogItemClickListener onDialogItemClickListener;
 
     private Object mAdapter;
 
-    ViewGroup contentView;
+    private ViewGroup contentView;
 
     public MuteConversationDialog(@NonNull Context context) {
         super(context, android.R.style.Theme_Black_NoTitleBar);
@@ -91,7 +92,9 @@ public class MuteConversationDialog extends Dialog {
         super.onCreate(savedInstanceState);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(Color.rgb(48, 49, 53));
+            Window window = getWindow();
+            assert window != null;
+            window.setStatusBarColor(Color.rgb(48, 49, 53));
         }
         configWindow();
     }
@@ -120,7 +123,7 @@ public class MuteConversationDialog extends Dialog {
     }
 
 
-    public void bindData() {
+    private void bindData() {
         for (int i = 0; i < muteListInAdapterPositions.size(); i++) {
             final Integer integer = muteListInAdapterPositions.get(i);
 
@@ -133,18 +136,19 @@ public class MuteConversationDialog extends Dialog {
             try {
                 Object j = XposedHelpers.callMethod(mAdapter, Method_Message_Status_Bean, value);
 
-                boolean uXV = XposedHelpers.getBooleanField(j, Value_Message_True_Content_Params);
+                boolean param1 = XposedHelpers.getBooleanField(j, Value_Message_True_Content_Params);
                 CharSequence content = (CharSequence) XposedHelpers.callMethod(mAdapter, Method_Message_True_Content,
-                        value, ScreenUtils.dip2px(mContext, 13), uXV);
+                        value, ScreenUtils.dip2px(mContext, 13), param1);
+
+                CharSequence time = (CharSequence) XposedHelpers.callMethod(mAdapter, Method_Message_True_Time, value);
 
                 ((TextView) itemView.findViewById(id_nickname)).setText((CharSequence) XposedHelpers.getObjectField(j,
                         Value_Message_Bean_NickName));
                 ((TextView) itemView.findViewById(id_content)).setText(content == null ? entity.field_digest : content);
-                ((TextView) itemView.findViewById(id_time)).setText((CharSequence) XposedHelpers.getObjectField(j,
-                        Value_Message_Bean_Time));
+                ((TextView) itemView.findViewById(id_time)).setText(time);
 
                 XposedBridge.log("content =" + content + ", field_digest = " + entity.toString());
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -176,7 +180,8 @@ public class MuteConversationDialog extends Dialog {
                         canvas.drawCircle(size / 2, size / 2, size / 2, paint);
                     }
                 }));
-            else itemView.findViewById(id_unread).setBackground(new BitmapDrawable());
+            else
+                itemView.findViewById(id_unread).setBackground(new BitmapDrawable(mContext.getResources()));
 
             itemView.setBackground(getItemViewBackground());
         }
@@ -260,9 +265,9 @@ public class MuteConversationDialog extends Dialog {
         for (int i = 0; i < muteListInAdapterPositions.size(); i++) {
             final Integer integer = muteListInAdapterPositions.get(i);
 
-      //      Object value = HookLogic.getMessageBeanForOriginIndex(mAdapter, integer);
+            //      Object value = HookLogic.getMessageBeanForOriginIndex(mAdapter, integer);
 
-            View itemView = getItemView(listView, integer);
+            View itemView = getItemView();
             listView.addView(itemView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ScreenUtils.dip2px(mContext, 64)));
 
@@ -314,7 +319,7 @@ public class MuteConversationDialog extends Dialog {
     private int id_unread = 6;
 
 
-    private View getItemView(LinearLayout rootView, final Integer integer) {
+    private View getItemView() {
 
         RelativeLayout itemView = new RelativeLayout(mContext);
         RelativeLayout contentView = new RelativeLayout(mContext);
@@ -423,6 +428,7 @@ public class MuteConversationDialog extends Dialog {
 
     private void configWindow() {
         Window window = getWindow();
+        assert window != null;
         window.getDecorView().setPadding(0, 0, 0, 0);
         window.getDecorView().setBackground(null);
         WindowManager.LayoutParams layoutParams = window.getAttributes();

@@ -1,6 +1,7 @@
 package com.zdy.project.wechat_chatroom_helper;
 
 import com.google.gson.JsonObject;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -18,6 +19,15 @@ public class PathServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         super.doGet(req, resp);
     }
+
+    /**
+     * vmbt 字段已在2017年8月8日 21:02:01废弃
+     *
+     * @param req
+     * @param resp
+     * @throws ServletException
+     * @throws IOException
+     */
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -76,6 +86,7 @@ public class PathServlet extends HttpServlet {
 
                 data.addProperty("mmtc", "b");
                 data.addProperty("vmtcp", "uXV");
+                data.addProperty("mmtt", "i");
 
                 jsonObject.add("data", data);
 
@@ -117,10 +128,12 @@ public class PathServlet extends HttpServlet {
 
                 data.addProperty("vmbc", "vID");
                 data.addProperty("vmbn", "nickName");
+
                 data.addProperty("vmbt", "vIC");
 
                 data.addProperty("mmtc", "b");
                 data.addProperty("vmtcp", "vIJ");
+                data.addProperty("mmtt", "i");
 
                 jsonObject.add("data", data);
 

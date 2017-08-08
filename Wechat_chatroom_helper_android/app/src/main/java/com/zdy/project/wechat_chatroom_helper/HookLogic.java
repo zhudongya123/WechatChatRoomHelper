@@ -320,7 +320,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                             Context context = view.getContext();
 
                             Object uXk = XposedHelpers.getObjectField(param.thisObject, Value_ListView_Adapter);
-                            if (muteConversationDialog == null) {
+                           // if (muteConversationDialog == null) {
                                 muteConversationDialog = new MuteConversationDialog(context);
                                 muteConversationDialog.setAdapter(uXk);
                                 muteConversationDialog.setMuteListInAdapterPositions(muteListInAdapterPositions);
@@ -333,7 +333,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                                                 , param.args[0], view, relativePosition + headerViewsCount, id);
                                     }
                                 });
-                            }
+                         //   }
                             muteConversationDialog.show();
                             param.setResult(null);
                             return;
@@ -439,16 +439,6 @@ public class HookLogic implements IXposedHookLoadPackage {
             e.printStackTrace();
         }
     }
-//
-//
-//    public static String getNickName(Object adapter, String wechat_id) {
-//        Object vJp = XposedHelpers.getObjectField(adapter, "vJp");
-//        Object localx = XposedHelpers.callMethod(vJp, "bWH");
-//
-//        Class<?> clazz = XposedHelpers.findClass("com.tencent.mm.s.n", mClassLoader);
-//        return (String) XposedHelpers.callStaticMethod(clazz, "a", localx, wechat_id, false);
-//    }
-//
 
     /**
      * 根据下标返回消息列表里的消息条目，不受免打扰影响

@@ -48,6 +48,8 @@ public class Constants {
     public static String Method_Message_True_Content;
     public static String Value_Message_True_Content_Params;
 
+    public static String Method_Message_True_Time;
+
 
 //    public static String Class_Conversation_List_View_Adapter_Name = "com.tencent.mm.ui.conversation.g";
 //    public static String Class_Conversation_List_View_Adapter_Parent_Name = "com.tencent.mm.ui.e";

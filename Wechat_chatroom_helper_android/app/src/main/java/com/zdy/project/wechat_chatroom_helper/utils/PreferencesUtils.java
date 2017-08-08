@@ -85,6 +85,8 @@ public class PreferencesUtils {
             Constants.Method_Message_True_Content = jsonObject.get("mmtc").getAsString();
             Constants.Value_Message_True_Content_Params = jsonObject.get("vmtcp").getAsString();
 
+            Constants.Method_Message_True_Time = jsonObject.get("mmtt").getAsString();
+
             return true;
         } catch (Exception e) {
             return false;
