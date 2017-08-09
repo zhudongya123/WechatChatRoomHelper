@@ -100,244 +100,42 @@ public class HookLogic implements IXposedHookLoadPackage {
                 "notifyDataSetChanged", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-
-                        String clazzName = param.thisObject.getClass().getSimpleName();
-
-                        if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
-                            return;//是否为正确的Adapter
-
-
-                        notifyMuteList = false;
-
-                        //代码保护区，此段执行时getCount逻辑跳过
-                        {
-                            newViewPositionWithDataPositionList.clear();
-                            muteListInAdapterPositions.clear();
-                            unReadCountList.clear();
-                            muteCount = 0;//免打扰消息群组的的數量
-                            firstMutePosition = -1;
-
-
-                            //逐一判断是否为免打扰群组
-                            for (int i = 0; i < ((BaseAdapter) param.thisObject).getCount(); i++) {
-                                Object value = getMessageBeanForOriginIndex(param.thisObject, i);
-
-                                Object messageStatus = XposedHelpers.callMethod(param.thisObject,
-                                        Method_Message_Status_Bean,
-                                        value);
-
-                                boolean uyI = XposedHelpers.getBooleanField(messageStatus,
-                                        Value_Message_Status_Is_Mute_1);
-                                boolean uXX = XposedHelpers.getBooleanField(messageStatus,
-                                        Value_Message_Status_Is_Mute_2);
-
-
-                                if (uyI && uXX) {
-                                    if (firstMutePosition == -1)
-                                        firstMutePosition = i;
-
-                                    muteCount++;
-                                    muteListInAdapterPositions.add(i);
-
-                                    MessageEntity entity = new MessageEntity(value);
-
-                                    unReadCountList.put(i, entity.field_unReadCount);
-                                }
-                                if (!(uyI && uXX) || muteCount == 1) {
-                                    newViewPositionWithDataPositionList.put(i - (muteCount >= 1 ? muteCount - 1 :
-                                            muteCount), i);
-                                }
-
-                            }
-                        }
-                        notifyMuteList = true;
-
-                        if (muteConversationDialog != null) {
-                            muteConversationDialog.setMuteListInAdapterPositions(muteListInAdapterPositions);
-                            muteConversationDialog.requestLayout(true);
-                        }
+                        hookNotifyDataSetChanged(param);
                     }
                 });
 
+        XposedHelpers.findAndHookMethod(Class_Conversation_List_View_Adapter_Parent_Name,
+                loadPackageParam.classLoader, "getCount", new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        hookGetCount(param);
+                    }
+                });
 
-        /**
-         * 消息列表数量
-         */
-        XposedHelpers.findAndHookMethod(Class_Conversation_List_View_Adapter_Parent_Name, loadPackageParam
-                .classLoader, "getCount", new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (!PreferencesUtils.open()) return;//开关
-
-                int result = (int) param.getResult();//原有会话数量
-
-
-                String clazzName = param.thisObject.getClass().getSimpleName();
-
-                if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
-                    return;//是否为正确的Adapter
-
-                if (result == 0) return;
-
-                if (notifyMuteList) {
-                    int count = result - muteCount;//减去免打扰消息的數量
-                    count++;//增加入口位置
-                    param.setResult(count);
-                }
-            }
-        });
-
-        /**
-         * 此方法等于getObject
-         */
         XposedHelpers.findAndHookMethod(Class_Conversation_List_View_Adapter_Parent_Name,
                 loadPackageParam.classLoader, Method_Adapter_Get_Object, int.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (!PreferencesUtils.open()) return;//开关
-
-                        int index = (int) param.args[0];//要取的数据下标
-
-                        String clazzName = param.thisObject.getClass().getSimpleName();
-
-                        if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
-                            return;
-
-                        if (newViewPositionWithDataPositionList.size() != 0)
-                            index = newViewPositionWithDataPositionList.get(index, index);
-
-                        //如果剛剛點擊了Dialog中的item，則下一次getObject方法，不再修改數據和View的位置
-                        if (clickChatRoomFlag) {
-                            index = (int) param.args[0];//重置数据位置
-                            clickChatRoomFlag = false;
-                            closeMuteConversationFlag = true;
-                        }
-                        Object bean = getMessageBeanForOriginIndex(param.thisObject, index);
-
-                        param.setResult(bean);
+                        hookGetObject(param);
                     }
                 });
 
-        XposedHelpers.findAndHookMethod(Class_Conversation_List_View_Adapter_Name, loadPackageParam
-                        .classLoader, "getView",
-                int.class, View.class, ViewGroup.class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(Class_Conversation_List_View_Adapter_Name,
+                loadPackageParam.classLoader, "getView", int.class, View.class,
+                ViewGroup.class, new XC_MethodHook() {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (!PreferencesUtils.open()) return;
-
-                        int position = (int) param.args[0];
-                        View itemView = (View) param.args[1];
-
-                        if (itemView == null) return;
-                        if (itemView.getTag() == null) return;
-
-                        //修改群消息助手入口itemView
-                        Object viewHolder = itemView.getTag();
-
-
-                        Object title = XposedHelpers.getObjectField(viewHolder,
-                                Value_ListView_Adapter_ViewHolder_Title);
-                        final Object avatar = XposedHelpers.getObjectField(viewHolder,
-                                Value_ListView_Adapter_ViewHolder_Avatar);
-                        final Object content = XposedHelpers.getObjectField(viewHolder,
-                                Value_ListView_Adapter_ViewHolder_Content);
-
-
-                        //將第一個免打擾的itemView更改為群消息助手入口，更新其UI
-                        if (position == firstMutePosition) {
-
-                            XposedHelpers.callMethod(title, "setText", "群消息助手");
-                            XposedHelpers.callMethod(title, "setTextColor", Color.rgb(87, 107, 149));
-
-                            final Context context = itemView.getContext();
-
-                            ShapeDrawable shapeDrawable = new ShapeDrawable(new Shape() {
-                                @Override
-                                public void draw(Canvas canvas, Paint paint) {
-                                    paint.setColor(0xFF12B7F6);
-                                    int size = canvas.getWidth();
-                                    int drawableId = context.getResources().getIdentifier(Drawable_String_Chatroom_Avatar, "drawable", context.getPackageName());
-                                    Bitmap temp = BitmapFactory.decodeResource(context.getResources(), drawableId);
-
-                                    handlerBitmap(canvas, paint, size, temp);
-                                }
-                            });
-                            XposedHelpers.callMethod(avatar, "setBackgroundDrawable", shapeDrawable);
-                            XposedHelpers.callMethod(avatar, "setImageDrawable", shapeDrawable);
-                            XposedHelpers.callMethod(avatar, "setVisibility", View.VISIBLE);
-
-                            int newMessageCount = 0;
-                            for (int k = 0; k < unReadCountList.size(); k++) {
-                                int itemValue = unReadCountList.valueAt(k);
-
-                                XposedBridge.log("Message position = " + k + ", unreadCount = " + itemValue);
-                                if (itemValue > 0) {
-                                    newMessageCount++;
-                                }
-                            }
-
-                            if (newMessageCount > 0) {
-                                XposedHelpers.callMethod(content, "setText", "[" + newMessageCount + "个群有新消息]");
-                                XposedHelpers.callMethod(content, "setTextColor", Color.rgb(242, 140, 72));
-                            }
-                        } else
-                            XposedHelpers.callMethod(avatar, "setBackgroundDrawable", new BitmapDrawable());
+                        hookGetView(param);
                     }
                 });
-
 
         XposedHelpers.findAndHookMethod(Class_Conversation_List_Adapter_OnItemClickListener_Name,
                 loadPackageParam.classLoader, "onItemClick", AdapterView.class, View.class,
                 int.class, long.class, new XC_MethodHook() {
-
                     @Override
                     protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
-                        if (!PreferencesUtils.open()) return;
-
-                        final View view = (View) param.args[1];
-                        int position = (int) param.args[2];
-                        final long id = (long) param.args[3];
-
-                        XposedBridge.log("XposedBridge, onItemClick, view =" + view + " ,position = " + position + " ,id = " + id);
-
-                        XposedBridge.log("XposedBridge, onItemClick, originPosition =" + position);
-
-                        //移除頭部View的position
-                        Object uWH = XposedHelpers.getObjectField(param.thisObject, Value_ListView);
-                        final int headerViewsCount = (int) XposedHelpers.callMethod(uWH, "getHeaderViewsCount");
-
-                        position = position - headerViewsCount;
-
-                        XposedBridge.log("XposedBridge, onItemClick, getHeaderViewsCount =" + headerViewsCount);
-
-                        XposedBridge.log("XposedBridge, onItemClick, position =" + position);
-
-                        if (position == firstMutePosition && !clickChatRoomFlag) {
-
-                            XposedBridge.log("XposedBridge, onItemClick, firstMutePosition");
-
-                            Context context = view.getContext();
-
-                            Object uXk = XposedHelpers.getObjectField(param.thisObject, Value_ListView_Adapter);
-                           // if (muteConversationDialog == null) {
-                                muteConversationDialog = new MuteConversationDialog(context);
-                                muteConversationDialog.setAdapter(uXk);
-                                muteConversationDialog.setMuteListInAdapterPositions(muteListInAdapterPositions);
-                                muteConversationDialog.setOnDialogItemClickListener(new MuteConversationDialog.OnDialogItemClickListener() {
-
-                                    @Override
-                                    public void onItemClick(int relativePosition) {
-                                        clickChatRoomFlag = true;
-                                        XposedHelpers.callMethod(param.thisObject, "onItemClick"
-                                                , param.args[0], view, relativePosition + headerViewsCount, id);
-                                    }
-                                });
-                         //   }
-                            muteConversationDialog.show();
-                            param.setResult(null);
-                            return;
-                        }
+                        hookOnItemClick(param);
                     }
                 });
 
@@ -403,6 +201,218 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 + unReadString + ", unReadCount = " + unReadCount);
                     }
                 });
+    }
+
+    private void hookOnItemClick(final XC_MethodHook.MethodHookParam param) {
+        if (!PreferencesUtils.open()) return;
+
+        final View view = (View) param.args[1];
+        int position = (int) param.args[2];
+        final long id = (long) param.args[3];
+
+        XposedBridge.log("XposedBridge, onItemClick, view =" + view + " ,position = " + position + " ,id = " + id);
+
+        XposedBridge.log("XposedBridge, onItemClick, originPosition =" + position);
+
+        //移除頭部View的position
+        Object uWH = XposedHelpers.getObjectField(param.thisObject, Value_ListView);
+        final int headerViewsCount = (int) XposedHelpers.callMethod(uWH, "getHeaderViewsCount");
+
+        position = position - headerViewsCount;
+
+        XposedBridge.log("XposedBridge, onItemClick, getHeaderViewsCount =" + headerViewsCount);
+
+        XposedBridge.log("XposedBridge, onItemClick, position =" + position);
+
+        if (position == firstMutePosition && !clickChatRoomFlag) {
+
+            XposedBridge.log("XposedBridge, onItemClick, firstMutePosition");
+
+            Context context = view.getContext();
+
+            Object uXk = XposedHelpers.getObjectField(param.thisObject, Value_ListView_Adapter);
+            // if (muteConversationDialog == null) {
+            muteConversationDialog = new MuteConversationDialog(context);
+            muteConversationDialog.setAdapter(uXk);
+            muteConversationDialog.setMuteListInAdapterPositions(muteListInAdapterPositions);
+            muteConversationDialog.setOnDialogItemClickListener(new MuteConversationDialog.OnDialogItemClickListener() {
+
+                @Override
+                public void onItemClick(int relativePosition) {
+                    clickChatRoomFlag = true;
+                    XposedHelpers.callMethod(param.thisObject, "onItemClick"
+                            , param.args[0], view, relativePosition + headerViewsCount, id);
+                }
+            });
+            //   }
+            muteConversationDialog.show();
+            param.setResult(null);
+            return;
+        }
+    }
+
+    private void hookGetView(XC_MethodHook.MethodHookParam param) {
+        if (!PreferencesUtils.open()) return;
+
+        int position = (int) param.args[0];
+        View itemView = (View) param.args[1];
+
+        if (itemView == null) return;
+        if (itemView.getTag() == null) return;
+
+        //修改群消息助手入口itemView
+        Object viewHolder = itemView.getTag();
+
+
+        Object title = XposedHelpers.getObjectField(viewHolder,
+                Value_ListView_Adapter_ViewHolder_Title);
+        final Object avatar = XposedHelpers.getObjectField(viewHolder,
+                Value_ListView_Adapter_ViewHolder_Avatar);
+        final Object content = XposedHelpers.getObjectField(viewHolder,
+                Value_ListView_Adapter_ViewHolder_Content);
+
+
+        //將第一個免打擾的itemView更改為群消息助手入口，更新其UI
+        if (position == firstMutePosition) {
+
+            XposedHelpers.callMethod(title, "setText", "群消息助手");
+            XposedHelpers.callMethod(title, "setTextColor", Color.rgb(87, 107, 149));
+
+            final Context context = itemView.getContext();
+
+            ShapeDrawable shapeDrawable = new ShapeDrawable(new Shape() {
+                @Override
+                public void draw(Canvas canvas, Paint paint) {
+                    paint.setColor(0xFF12B7F6);
+                    int size = canvas.getWidth();
+                    int drawableId = context.getResources().getIdentifier(Drawable_String_Chatroom_Avatar, "drawable", context.getPackageName());
+                    Bitmap temp = BitmapFactory.decodeResource(context.getResources(), drawableId);
+
+                    handlerBitmap(canvas, paint, size, temp);
+                }
+            });
+            XposedHelpers.callMethod(avatar, "setBackgroundDrawable", shapeDrawable);
+            XposedHelpers.callMethod(avatar, "setImageDrawable", shapeDrawable);
+            XposedHelpers.callMethod(avatar, "setVisibility", View.VISIBLE);
+
+            int newMessageCount = 0;
+            for (int k = 0; k < unReadCountList.size(); k++) {
+                int itemValue = unReadCountList.valueAt(k);
+
+                XposedBridge.log("Message position = " + k + ", unreadCount = " + itemValue);
+                if (itemValue > 0) {
+                    newMessageCount++;
+                }
+            }
+
+            if (newMessageCount > 0) {
+                XposedHelpers.callMethod(content, "setText", "[" + newMessageCount + "个群有新消息]");
+                XposedHelpers.callMethod(content, "setTextColor", Color.rgb(242, 140, 72));
+            }
+        } else
+            XposedHelpers.callMethod(avatar, "setBackgroundDrawable", new BitmapDrawable());
+    }
+
+    private void hookGetObject(XC_MethodHook.MethodHookParam param) {
+        if (!PreferencesUtils.open()) return;//开关
+
+        int index = (int) param.args[0];//要取的数据下标
+
+        String clazzName = param.thisObject.getClass().getSimpleName();
+
+        if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
+            return;
+
+        if (newViewPositionWithDataPositionList.size() != 0)
+            index = newViewPositionWithDataPositionList.get(index, index);
+
+        //如果剛剛點擊了Dialog中的item，則下一次getObject方法，不再修改數據和View的位置
+        if (clickChatRoomFlag) {
+            index = (int) param.args[0];//重置数据位置
+            clickChatRoomFlag = false;
+            closeMuteConversationFlag = true;
+        }
+        Object bean = getMessageBeanForOriginIndex(param.thisObject, index);
+
+        param.setResult(bean);
+    }
+
+    private void hookGetCount(XC_MethodHook.MethodHookParam param) {
+        if (!PreferencesUtils.open()) return;//开关
+
+        int result = (int) param.getResult();//原有会话数量
+
+
+        String clazzName = param.thisObject.getClass().getSimpleName();
+
+        if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
+            return;//是否为正确的Adapter
+
+        if (result == 0) return;
+
+        if (notifyMuteList) {
+            int count = result - muteCount;//减去免打扰消息的數量
+            count++;//增加入口位置
+            param.setResult(count);
+        }
+    }
+
+    private void hookNotifyDataSetChanged(XC_MethodHook.MethodHookParam param) {
+        String clazzName = param.thisObject.getClass().getSimpleName();
+
+        if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
+            return;//是否为正确的Adapter
+
+
+        notifyMuteList = false;
+
+        //代码保护区，此段执行时getCount逻辑跳过
+        {
+            newViewPositionWithDataPositionList.clear();
+            muteListInAdapterPositions.clear();
+            unReadCountList.clear();
+            muteCount = 0;//免打扰消息群组的的數量
+            firstMutePosition = -1;
+
+
+            //逐一判断是否为免打扰群组
+            for (int i = 0; i < ((BaseAdapter) param.thisObject).getCount(); i++) {
+                Object value = getMessageBeanForOriginIndex(param.thisObject, i);
+
+                Object messageStatus = XposedHelpers.callMethod(param.thisObject,
+                        Method_Message_Status_Bean,
+                        value);
+
+                boolean uyI = XposedHelpers.getBooleanField(messageStatus,
+                        Value_Message_Status_Is_Mute_1);
+                boolean uXX = XposedHelpers.getBooleanField(messageStatus,
+                        Value_Message_Status_Is_Mute_2);
+
+
+                if (uyI && uXX) {
+                    if (firstMutePosition == -1)
+                        firstMutePosition = i;
+
+                    muteCount++;
+                    muteListInAdapterPositions.add(i);
+
+                    MessageEntity entity = new MessageEntity(value);
+
+                    unReadCountList.put(i, entity.field_unReadCount);
+                }
+                if (!(uyI && uXX) || muteCount == 1) {
+                    newViewPositionWithDataPositionList.put(i - (muteCount >= 1 ? muteCount - 1 :
+                            muteCount), i);
+                }
+
+            }
+        }
+        notifyMuteList = true;
+
+        if (muteConversationDialog != null) {
+            muteConversationDialog.setMuteListInAdapterPositions(muteListInAdapterPositions);
+            muteConversationDialog.requestLayout(true);
+        }
     }
 
     //自造群消息助手头像
