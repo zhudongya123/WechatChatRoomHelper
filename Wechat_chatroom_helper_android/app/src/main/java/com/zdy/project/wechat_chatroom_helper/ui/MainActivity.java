@@ -3,16 +3,6 @@ package com.zdy.project.wechat_chatroom_helper.ui;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.Shape;
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.AppCompatActivity;
@@ -25,9 +15,8 @@ import android.widget.TextView;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.internal.Excluder;
-import com.zdy.project.wechat_chatroom_helper.HookLogic;
 import com.zdy.project.wechat_chatroom_helper.R;
+import com.zdy.project.wechat_chatroom_helper.network.ApiManager;
 
 import java.io.IOException;
 import java.util.List;
@@ -35,10 +24,11 @@ import java.util.List;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+
+import static com.zdy.project.wechat_chatroom_helper.network.ApiManager.UrlPath.CLASS_MAPPING;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -103,15 +93,16 @@ public class MainActivity extends AppCompatActivity {
     private void sendRequest(int saveVersionCode) {
         if (versionCode != saveVersionCode) {
 
-            OkHttpClient okHttpClient = new OkHttpClient();
 
-            RequestBody requestBody = new FormBody.Builder().add("versionCode", String.valueOf(versionCode)).build();
+            RequestBody requestBody = new FormBody.Builder()
+                    .add("versionCode", String.valueOf(versionCode)).build();
 
-            final Request request = new Request.Builder().url("http://116.62.247.71:8080/wechat/class/mapping").post
-                    (requestBody)
+            final Request request = new Request.Builder()
+                    .url(CLASS_MAPPING)
+                    .post(requestBody)
                     .build();
 
-            okHttpClient.newCall(request).enqueue(new Callback() {
+            ApiManager.getINSTANCE().getClient().newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     e.printStackTrace();

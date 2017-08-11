@@ -96,48 +96,72 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         if (!PreferencesUtils.initVariableName()) return;//判断是否获取了配置
 
-        XposedHelpers.findAndHookMethod("android.widget.BaseAdapter", loadPackageParam.classLoader,
-                "notifyDataSetChanged", new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        hookNotifyDataSetChanged(param);
-                    }
-                });
+        try {
+            XposedHelpers.findAndHookMethod("android.widget.BaseAdapter", loadPackageParam.classLoader,
+                    "notifyDataSetChanged", new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            try {
+                                hookNotifyDataSetChanged(param);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
 
-        XposedHelpers.findAndHookMethod(Class_Conversation_List_View_Adapter_Parent_Name,
-                loadPackageParam.classLoader, "getCount", new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        hookGetCount(param);
-                    }
-                });
+            XposedHelpers.findAndHookMethod(Class_Conversation_List_View_Adapter_Parent_Name,
+                    loadPackageParam.classLoader, "getCount", new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            try {
+                                hookGetCount(param);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
 
-        XposedHelpers.findAndHookMethod(Class_Conversation_List_View_Adapter_Parent_Name,
-                loadPackageParam.classLoader, Method_Adapter_Get_Object, int.class, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        hookGetObject(param);
-                    }
-                });
+            XposedHelpers.findAndHookMethod(Class_Conversation_List_View_Adapter_Parent_Name,
+                    loadPackageParam.classLoader, Method_Adapter_Get_Object, int.class, new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            try {
+                                hookGetObject(param);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
 
-        XposedHelpers.findAndHookMethod(Class_Conversation_List_View_Adapter_Name,
-                loadPackageParam.classLoader, "getView", int.class, View.class,
-                ViewGroup.class, new XC_MethodHook() {
+            XposedHelpers.findAndHookMethod(Class_Conversation_List_View_Adapter_Name,
+                    loadPackageParam.classLoader, "getView", int.class, View.class,
+                    ViewGroup.class, new XC_MethodHook() {
 
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        hookGetView(param);
-                    }
-                });
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                            try {
+                                hookGetView(param);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
 
-        XposedHelpers.findAndHookMethod(Class_Conversation_List_Adapter_OnItemClickListener_Name,
-                loadPackageParam.classLoader, "onItemClick", AdapterView.class, View.class,
-                int.class, long.class, new XC_MethodHook() {
-                    @Override
-                    protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
-                        hookOnItemClick(param);
-                    }
-                });
+            XposedHelpers.findAndHookMethod(Class_Conversation_List_Adapter_OnItemClickListener_Name,
+                    loadPackageParam.classLoader, "onItemClick", AdapterView.class, View.class,
+                    int.class, long.class, new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
+                            try {
+                                hookOnItemClick(param);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         hookLog(loadPackageParam);
 
