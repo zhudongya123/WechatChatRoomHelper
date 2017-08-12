@@ -40,7 +40,6 @@ public class PathServlet extends HttpServlet {
 
         Integer versionCodeNumber = Integer.valueOf(versionCode);
 
-
         JsonObject jsonObject = new JsonObject();
         JsonObject data = new JsonObject();
         switch (versionCodeNumber) {
