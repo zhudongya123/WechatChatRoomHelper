@@ -1,5 +1,8 @@
 package com.zdy.project.wechat_chatroom_helper;
 
+import android.app.Activity;
+import android.app.AndroidAppHelper;
+import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,6 +14,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.Shape;
+import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.util.SparseIntArray;
 import android.view.View;
@@ -20,8 +24,10 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.zdy.project.wechat_chatroom_helper.crash.CrashHandler;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.MuteConversationDialog;
+import com.zdy.project.wechat_chatroom_helper.ui.MyApplication;
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
 
 import java.util.ArrayList;
@@ -86,6 +92,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     private int muteCount = 0;
 
+    private Context context;
 
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
@@ -96,6 +103,20 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         if (!PreferencesUtils.initVariableName()) return;//判断是否获取了配置
 
+
+        XposedHelpers.findAndHookMethod("android.app.Activity", loadPackageParam.classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+
+                if (param.thisObject.getClass().getSimpleName().equals("LauncherUI")) {
+
+                    Object thisObject = param.thisObject;
+                    context = (Context) XposedHelpers.callMethod(thisObject, "getBaseContext");
+                    XposedBridge.log("context = " + context.toString());
+                }
+            }
+        });
+
         try {
             XposedHelpers.findAndHookMethod("android.widget.BaseAdapter", loadPackageParam.classLoader,
                     "notifyDataSetChanged", new XC_MethodHook() {
@@ -103,8 +124,9 @@ public class HookLogic implements IXposedHookLoadPackage {
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             try {
                                 hookNotifyDataSetChanged(param);
-                            } catch (Exception e) {
+                            } catch (Throwable e) {
                                 e.printStackTrace();
+                                CrashHandler.saveCrashInfo2File(e, context);
                             }
                         }
                     });
@@ -115,8 +137,9 @@ public class HookLogic implements IXposedHookLoadPackage {
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             try {
                                 hookGetCount(param);
-                            } catch (Exception e) {
+                            } catch (Throwable e) {
                                 e.printStackTrace();
+                                CrashHandler.saveCrashInfo2File(e, context);
                             }
                         }
                     });
@@ -127,8 +150,9 @@ public class HookLogic implements IXposedHookLoadPackage {
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             try {
                                 hookGetObject(param);
-                            } catch (Exception e) {
+                            } catch (Throwable e) {
                                 e.printStackTrace();
+                                CrashHandler.saveCrashInfo2File(e, context);
                             }
                         }
                     });
@@ -141,8 +165,9 @@ public class HookLogic implements IXposedHookLoadPackage {
                         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                             try {
                                 hookGetView(param);
-                            } catch (Exception e) {
+                            } catch (Throwable e) {
                                 e.printStackTrace();
+                                CrashHandler.saveCrashInfo2File(e, context);
                             }
                         }
                     });
@@ -154,13 +179,15 @@ public class HookLogic implements IXposedHookLoadPackage {
                         protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
                             try {
                                 hookOnItemClick(param);
-                            } catch (Exception e) {
+                            } catch (Throwable e) {
                                 e.printStackTrace();
+                                CrashHandler.saveCrashInfo2File(e, context);
                             }
                         }
                     });
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
+            CrashHandler.saveCrashInfo2File(e, context);
         }
 
         hookLog(loadPackageParam);
@@ -170,15 +197,23 @@ public class HookLogic implements IXposedHookLoadPackage {
         int versionCode = PreferencesUtils.getVersionCode();
         String methodHomeUIGetUnRead = null;
         String actionbarName = null;
+        String bottomViewName = null;
+        String bottomViewIndicatorName = null;
         if (versionCode == 1080) {
             methodHomeUIGetUnRead = "yI";
             actionbarName = "Gx";
+            bottomViewName = "uxn";
+            bottomViewIndicatorName = "uzx";
         } else if (versionCode == 1060) {
             methodHomeUIGetUnRead = "xu";
             actionbarName = "Gy";
+            bottomViewName = "tNs";
+            bottomViewIndicatorName = "tPz";
         }
 
         final String finalActionbarName = actionbarName;
+        final String finalBottomViewName = bottomViewName;
+        final String finalBottomViewIndicatorName = bottomViewIndicatorName;
         XposedHelpers.findAndHookMethod("com.tencent.mm.ui.HomeUI",
                 loadPackageParam.classLoader, methodHomeUIGetUnRead, int.class, new XC_MethodHook() {
                     @Override
@@ -220,6 +255,10 @@ public class HookLogic implements IXposedHookLoadPackage {
                         if (unReadCount == 0)
                             text = "微信";
                         textView.setText(text);
+
+
+                        Object bottomView = XposedHelpers.getObjectField(param.thisObject, finalBottomViewName);
+                        XposedHelpers.setIntField(bottomView, finalBottomViewIndicatorName, unReadCount);
 
                         XposedBridge.log("currentUnreadCount = " + arg + ", trueUnreadCount = "
                                 + unReadString + ", unReadCount = " + unReadCount);
@@ -359,6 +398,7 @@ public class HookLogic implements IXposedHookLoadPackage {
         Object bean = getMessageBeanForOriginIndex(param.thisObject, index);
 
         param.setResult(bean);
+
     }
 
     private void hookGetCount(XC_MethodHook.MethodHookParam param) {

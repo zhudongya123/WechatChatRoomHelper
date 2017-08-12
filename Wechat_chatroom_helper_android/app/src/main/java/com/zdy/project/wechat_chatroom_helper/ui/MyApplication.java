@@ -12,6 +12,9 @@ import com.tencent.bugly.crashreport.CrashReport;
 
 public class MyApplication extends Application {
 
+
+    private static MyApplication INSTANCE;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -19,5 +22,10 @@ public class MyApplication extends Application {
         Bugly.init(getApplicationContext(), "ed7bb0e103", false);
 
 
+        INSTANCE = this;
+    }
+
+    public static MyApplication getINSTANCE() {
+        return INSTANCE;
     }
 }

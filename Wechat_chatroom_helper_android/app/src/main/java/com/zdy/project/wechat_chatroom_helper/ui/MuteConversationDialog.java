@@ -49,7 +49,6 @@ import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_St
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_True_Content;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_True_Time;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Bean_NickName;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Bean_Time;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_True_Content_Params;
 
 /**

@@ -7,6 +7,8 @@ import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
+import com.zdy.project.wechat_chatroom_helper.network.ApiManager;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
@@ -30,6 +32,7 @@ public class CrashHandler {
 
     /**
      * 收集设备参数信息
+     *
      * @param ctx
      */
     private static Map<String, String> collectDeviceInfo(Context ctx) {
@@ -63,47 +66,51 @@ public class CrashHandler {
      * 保存错误信息到文件中
      *
      * @param ex
-     * @return  返回文件名称,便于将文件传送到服务器
+     * @return 返回文件名称, 便于将文件传送到服务器
      */
-    public static String saveCrashInfo2File(Throwable ex, Context context) {
-
-        Map<String, String> infos = collectDeviceInfo(context);
-        StringBuffer sb = new StringBuffer();
-        for (Map.Entry<String, String> entry : infos.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            sb.append(key + "=" + value + "\n");
-        }
-
-        Writer writer = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(writer);
-        ex.printStackTrace(printWriter);
-        Throwable cause = ex.getCause();
-        while (cause != null) {
-            cause.printStackTrace(printWriter);
-            cause = cause.getCause();
-        }
-        printWriter.close();
-        String result = writer.toString();
-        sb.append(result);
+    public static void saveCrashInfo2File(Throwable ex, Context context) {
         try {
+            if (context == null) return;
+
+            Map<String, String> infos = collectDeviceInfo(context);
+            StringBuffer sb = new StringBuffer();
+            for (Map.Entry<String, String> entry : infos.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                sb.append(key + "=" + value + "\n");
+            }
+
+            Writer writer = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(writer);
+            ex.printStackTrace(printWriter);
+            Throwable cause = ex.getCause();
+            while (cause != null) {
+                cause.printStackTrace(printWriter);
+                cause = cause.getCause();
+            }
+            printWriter.close();
+            String result = writer.toString();
+            sb.append(result);
             long timestamp = System.currentTimeMillis();
             String time = formatter.format(new Date());
             String fileName = "crash-" + time + "-" + timestamp + ".log";
-            if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                String path = "/sdcard/crash/";
-                File dir = new File(path);
-                if (!dir.exists()) {
-                    dir.mkdirs();
+
+            String path = context.getFilesDir().getAbsolutePath();
+
+            final File file = new File(path + fileName);
+
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(sb.toString().getBytes());
+            fos.close();
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ApiManager.getINSTANCE().sendRequestForCrashReport(file);
                 }
-                FileOutputStream fos = new FileOutputStream(path + fileName);
-                fos.write(sb.toString().getBytes());
-                fos.close();
-            }
-            return fileName;
-        } catch (Exception e) {
+            }).start();
+        } catch (Throwable e) {
             Log.e(TAG, "an error occured while writing file...", e);
         }
-        return null;
     }
 }
