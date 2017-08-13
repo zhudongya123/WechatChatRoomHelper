@@ -59,6 +59,7 @@ public class ApiManager {
 
         try {
             getINSTANCE().getClient().newCall(new Request.Builder().post(multipartBody).url(ERROR_RECEIVER).build()).execute();
+            file.delete();
         } catch (IOException e) {
             e.printStackTrace();
         }
