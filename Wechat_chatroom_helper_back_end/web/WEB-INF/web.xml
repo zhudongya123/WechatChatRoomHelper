@@ -14,4 +14,17 @@
         <servlet-name>PathServlet</servlet-name>
         <url-pattern>/class/mapping</url-pattern>
     </servlet-mapping>
+
+
+
+    <servlet>
+        <servlet-name>ErrorReceiverServlet</servlet-name>
+        <servlet-class>com.zdy.project.wechat_chatroom_helper.ErrorReceiverServlet</servlet-class>
+    </servlet>
+
+
+    <servlet-mapping>
+        <servlet-name>ErrorReceiverServlet</servlet-name>
+        <url-pattern>/error/receiver</url-pattern>
+    </servlet-mapping>
 </web-app>
