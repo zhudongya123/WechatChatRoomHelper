@@ -49,7 +49,6 @@ import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_St
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_True_Content;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_True_Time;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Bean_NickName;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Bean_Time;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_True_Content_Params;
 
 /**
@@ -94,6 +93,8 @@ public class MuteConversationDialog extends Dialog {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
             assert window != null;
+
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(Color.rgb(48, 49, 53));
         }
         configWindow();

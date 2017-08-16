@@ -16,6 +16,12 @@
             android:defaultValue="false"
             android:key="bug_unread"
             android:title="@string/bug_unread_strings" />
+
+
+        <EditTextPreference
+            android:dialogMessage="请输入6位颜色值代码"
+            android:title="群消息助手Toolbar颜色"
+            />
     </PreferenceCategory>
 
 </PreferenceScreen>
