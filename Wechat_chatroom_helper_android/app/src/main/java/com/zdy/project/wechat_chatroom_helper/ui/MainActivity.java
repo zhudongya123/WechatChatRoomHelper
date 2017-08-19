@@ -3,18 +3,33 @@ package com.zdy.project.wechat_chatroom_helper.ui;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.os.Build;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
+import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
 import android.text.Html;
+import android.text.TextWatcher;
+import android.text.method.KeyListener;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.zdy.project.wechat_chatroom_helper.Constants;
 import com.zdy.project.wechat_chatroom_helper.R;
 import com.zdy.project.wechat_chatroom_helper.network.ApiManager;
 
@@ -165,8 +180,101 @@ public class MainActivity extends AppCompatActivity {
             getPreferenceManager().setSharedPreferencesMode(MODE_WORLD_READABLE);
             addPreferencesFromResource(R.xml.pref_setting);
 
-
+            final EditTextPreference toolbarColor = ((EditTextPreference) findPreference("toolbar_color"));
+            setToolbarColor(toolbarColor);
         }
+
+        private void setToolbarColor(final EditTextPreference preference) {
+
+
+            final PreferenceTextWatcher watcher = new PreferenceTextWatcher(preference);
+            preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                public boolean onPreferenceClick(final Preference preference) {
+
+                    String toolbar_color = preference.getSharedPreferences().
+                            getString("toolbar_color", Constants.DEFAULT_TOOLBAR_COLOR);
+
+                    final EditText editText = ((EditTextPreference) preference).getEditText();
+                    editText.setBackgroundTintList(ColorStateList.valueOf(getColorInt(toolbar_color)));
+                    editText.setBackgroundTintMode(PorterDuff.Mode.SRC_IN);
+                    editText.setTextColor(getColorInt(toolbar_color));
+                    editText.setHint("当前值：" + toolbar_color);
+                    editText.setSingleLine();
+                    editText.setSelection(editText.getText().length());
+                    editText.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                        @Override
+                        public void onViewAttachedToWindow(View v) {
+                            editText.addTextChangedListener(watcher);
+                        }
+
+                        @Override
+                        public void onViewDetachedFromWindow(View v) {
+                            editText.removeTextChangedListener(watcher);
+                        }
+                    });
+
+                    return false;
+                }
+            });
+            preference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    try {
+                        getColorInt((String) newValue);
+                        Toast.makeText(getActivity(), "颜色已更新", Toast.LENGTH_SHORT).show();
+                        return true;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return false;
+                    }
+                }
+            });
+        }
+
+        private int getColorInt(CharSequence colorString) {
+            return Color.parseColor("#" + colorString);
+        }
+
+
+        private class PreferenceTextWatcher implements TextWatcher {
+
+            EditTextPreference preference;
+
+            PreferenceTextWatcher(EditTextPreference preference) {
+                this.preference = preference;
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                View button = preference.getDialog().findViewById(android.R.id.button1);
+                if (s.length() == 6)
+                    try {
+                        int color = getColorInt(s);
+                        EditText editText = preference.getEditText();
+                        editText.setTextColor(color);
+                        editText.setBackgroundTintList(ColorStateList.valueOf(color));
+                        editText.setBackgroundTintMode(PorterDuff.Mode.SRC_IN);
+                        button.setEnabled(true);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        button.setEnabled(false);
+                    }
+                else {
+                    button.setEnabled(false);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        }
+
     }
 
 
