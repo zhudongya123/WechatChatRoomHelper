@@ -35,6 +35,7 @@ import android.widget.Toolbar;
 
 import com.zdy.project.wechat_chatroom_helper.HookLogic;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
+import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 import java.lang.reflect.Field;
@@ -95,7 +96,7 @@ public class MuteConversationDialog extends Dialog {
             assert window != null;
 
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(Color.rgb(48, 49, 53));
+            window.setStatusBarColor(Color.parseColor("#" + PreferencesUtils.getToolBarColor()));
         }
         configWindow();
     }
@@ -215,7 +216,7 @@ public class MuteConversationDialog extends Dialog {
                     dismiss();
                 }
             });
-            actionBar.setBackgroundColor(0xFF313235);
+            actionBar.setBackgroundColor(Color.parseColor("#" + PreferencesUtils.getToolBarColor()));
             actionBar.setTitle("群消息助手");
             actionBar.setTitleTextColor(0xFFFAFAFA);
 

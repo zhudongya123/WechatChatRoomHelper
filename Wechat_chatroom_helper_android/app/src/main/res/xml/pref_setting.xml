@@ -19,9 +19,10 @@
 
 
         <EditTextPreference
-            android:dialogMessage="请输入6位颜色值代码"
-            android:title="群消息助手Toolbar颜色"
-            />
+            android:defaultValue="303135"
+            android:dialogMessage="请输入6位颜色值代码，示例：FF0000（红色）"
+            android:key="toolbar_color"
+            android:title="群消息助手Toolbar颜色" />
     </PreferenceCategory>
 
 </PreferenceScreen>

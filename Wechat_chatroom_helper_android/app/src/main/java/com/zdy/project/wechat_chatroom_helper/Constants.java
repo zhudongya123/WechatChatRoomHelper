@@ -9,6 +9,8 @@ public class Constants {
 
     public static final String WECHAT_PACKAGE_NAME = "com.tencent.mm";
 
+    public static final String DEFAULT_TOOLBAR_COLOR = "303135";
+
 
     public static String Class_Conversation_List_View_Adapter_Name;
     public static String Class_Conversation_List_View_Adapter_Parent_Name;

@@ -34,6 +34,10 @@ public class PreferencesUtils {
         return getInstance().getInt("saveVersionCode", 0);
     }
 
+    public static String getToolBarColor() {
+        return getInstance().getString("toolbar_color", Constants.DEFAULT_TOOLBAR_COLOR);
+    }
+
 
     public static boolean getBugUnread() {
         return getInstance().getBoolean("bug_unread", false);
