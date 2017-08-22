@@ -138,6 +138,54 @@ public class PathServlet extends HttpServlet {
 
                 break;
 
+            case 1100:
+                jsonObject.addProperty("code", 0);
+                jsonObject.addProperty("msg", "success");
+
+                data.addProperty("cclvan", "com.tencent.mm.ui.conversation.g");
+                data.addProperty("cclvapn", "com.tencent.mm.ui.e");
+                data.addProperty("cclaon", "com.tencent.mm.ui.conversation.e");
+
+                data.addProperty("cclvas", "g");
+                data.addProperty("cclvaps", "e");
+
+                data.addProperty("mmsb", "j");
+                data.addProperty("mago", "yL");
+
+                data.addProperty("vmsim1", "waz");
+                data.addProperty("vmsim2", "vAw");
+                data.addProperty("vla", "vZM");
+                data.addProperty("vl", "vZj");
+
+                data.addProperty("vlavt", "vtJ");
+                data.addProperty("vlava", "ipb");
+                data.addProperty("vlavc", "vtL");
+
+                data.addProperty("magos1", "uMR");
+                data.addProperty("magos2", "uKT");
+                data.addProperty("magos3", "yL");
+
+
+                data.addProperty("ctl", "com.tencent.mm.sdk.platformtools.v");
+                data.addProperty("csa", "com.tencent.mm.pluginsdk.ui.a$b");
+
+                data.addProperty("dsa", "sk");
+                data.addProperty("dss", "ao1");
+                data.addProperty("dsca", "v0");
+
+                data.addProperty("vmbc", "war");
+                data.addProperty("vmbn", "nickName");
+
+                data.addProperty("vmbt", "waq");
+
+                data.addProperty("mmtc", "b");
+                data.addProperty("vmtcp", "wax");
+                data.addProperty("mmtt", "i");
+
+                jsonObject.add("data", data);
+
+                break;
+
             default:
                 jsonObject.addProperty("code", 1);
                 jsonObject.addProperty("msg", "no_info");
