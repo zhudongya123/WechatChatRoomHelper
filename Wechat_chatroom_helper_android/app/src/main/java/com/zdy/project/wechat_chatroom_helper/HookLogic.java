@@ -1,8 +1,5 @@
 package com.zdy.project.wechat_chatroom_helper;
 
-import android.app.Activity;
-import android.app.AndroidAppHelper;
-import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -27,7 +24,6 @@ import android.widget.TextView;
 import com.zdy.project.wechat_chatroom_helper.crash.CrashHandler;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.MuteConversationDialog;
-import com.zdy.project.wechat_chatroom_helper.ui.MyApplication;
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
 
 import java.util.ArrayList;
@@ -507,9 +503,11 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     public static void setAvatar(ImageView avatar, String field_username) {
         try {
+            String h = "h";
+            if (PreferencesUtils.getVersionCode() == 1100) h = "a";
             XposedHelpers.callStaticMethod(Class.forName(CLASS_SET_AVATAR, false, mClassLoader),
-                    "h", avatar, field_username);
-        } catch (ClassNotFoundException e) {
+                    h, avatar, field_username);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
