@@ -15,6 +15,7 @@ import android.graphics.drawable.shapes.Shape;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.util.SparseIntArray;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -28,6 +29,7 @@ import com.zdy.project.wechat_chatroom_helper.crash.CrashHandler;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.MuteConversationDialog;
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
+import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 import java.util.ArrayList;
 
@@ -96,6 +98,8 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     private LinearLayout chatRoomView;
 
+    private boolean isInChatting = false;
+
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
 
@@ -115,7 +119,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                         Object activity = XposedHelpers.getObjectField(param.thisObject, "uOv");
 
-                        Window window = (Window) XposedHelpers.getObjectField(activity, "getWindow");
+                        Window window = (Window) XposedHelpers.callMethod(activity, "getWindow");
 
                         ViewGroup viewGroup = (ViewGroup) window.getDecorView();
 
@@ -134,10 +138,11 @@ public class HookLogic implements IXposedHookLoadPackage {
                                     chatRoomView = new LinearLayout(context);
                                     chatRoomView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup
                                             .LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                                    chatRoomView.setPadding(0, ScreenUtils.getStatusHeight(context),
+                                            0, ScreenUtils.getNavigationBarHeight(context));
                                     fitSystemWindowLayoutView.addView(chatRoomView, 1);
                                     chatRoomView.setVisibility(View.GONE);
                                 }
-
                             }
                         }
 
@@ -350,7 +355,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                 }
             });
             //   }
-            muteConversationDialog.show();
+            //      muteConversationDialog.show();
+            muteConversationDialog.show(chatRoomView);
             param.setResult(null);
             return;
         }
@@ -578,6 +584,28 @@ public class HookLogic implements IXposedHookLoadPackage {
     }
 
     private void hookLog(XC_LoadPackage.LoadPackageParam loadPackageParam) {
+
+        XposedHelpers.findAndHookMethod("com.tencent.mm.ui.LauncherUI", loadPackageParam.classLoader,
+                "dispatchKeyEvent", KeyEvent.class, new XC_MethodHook() {
+
+
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        XposedBridge.log("wechatChatroomHelper, " + "按下了某个键");
+                        KeyEvent keyEvent = (KeyEvent) param.args[0];
+                        if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+
+                            XposedBridge.log("wechatChatroomHelper, " + "按下了返回键");
+                            if (!isInChatting && chatRoomView.getVisibility() == View.VISIBLE) {
+                                XposedBridge.log("wechatChatroomHelper, " + "不在聊天界面且在群助手界面");
+                                chatRoomView.setVisibility(View.GONE);
+                                param.setResult(true);
+                            }
+
+                        }
+                    }
+                });
+
         XposedHelpers.findAndHookMethod(CLASS_TENCENT_LOG,
                 loadPackageParam.classLoader, "i", String.class, String.class, Object[].class, new XC_MethodHook() {
                     @Override
@@ -590,9 +618,13 @@ public class HookLogic implements IXposedHookLoadPackage {
                         if (param.args[2] != null) {
                             Object[] arg = (Object[]) param.args[2];
 
-                            for (Object o : arg) {
-                                params = params + o.toString() + " ";
+                            try {
+                                for (Object o : arg)
+                                    params = params + o.toString() + " ";
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
+
                         }
                         XposedBridge.log("XposedLogi, desc = " + desc + ", value = " + value + ", params = " + params);
 
@@ -602,10 +634,14 @@ public class HookLogic implements IXposedHookLoadPackage {
                             //关闭聊天窗口
                             if (((String) arg).contains("closeChatting")) {
                                 if (closeMuteConversationFlag && !PreferencesUtils.auto_close()) {
-                                    muteConversationDialog.show();
+                                    //    muteConversationDialog.show();
+                                    //  muteConversationDialog.show(chatRoomView);
                                     closeMuteConversationFlag = false;
                                 }
+                                isInChatting = false;
                             }
+                            if (((String) arg).contains("startChatting"))
+                                isInChatting = true;
 
                             //收到新消息
                             if (((String) arg).contains("newcursor cursor update Memory key")) {
@@ -616,42 +652,42 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
                 });
 
-        XposedHelpers.findAndHookMethod(CLASS_TENCENT_LOG,
-                loadPackageParam.classLoader, "v", String.class, String.class, Object[].class, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (!PreferencesUtils.open()) return;
-                        String desc = (String) param.args[0];
-                        String value = (String) param.args[1];
-                        String params = "";
-                        if (param.args[2] != null) {
-                            Object[] arg = (Object[]) param.args[2];
-
-                            for (Object o : arg) {
-                                params = params + o.toString() + " ";
-                            }
-                        }
-                        XposedBridge.log("XposedLogi, desc = " + desc + ", value = " + value + ", params = " + params);
-                    }
-                });
-        XposedHelpers.findAndHookMethod(CLASS_TENCENT_LOG,
-                loadPackageParam.classLoader, "v", String.class, String.class, Object[].class, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (!PreferencesUtils.open()) return;
-                        String desc = (String) param.args[0];
-                        String value = (String) param.args[1];
-                        String params = "";
-                        if (param.args[2] != null) {
-                            Object[] arg = (Object[]) param.args[2];
-
-                            for (Object o : arg) {
-                                params = params + o.toString() + " ";
-                            }
-                        }
-                        XposedBridge.log("XposedLogi, desc = " + desc + ", value = " + value + ", params = " + params);
-                    }
-                });
+//        XposedHelpers.findAndHookMethod(CLASS_TENCENT_LOG,
+//                loadPackageParam.classLoader, "v", String.class, String.class, Object[].class, new XC_MethodHook() {
+//                    @Override
+//                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                        if (!PreferencesUtils.open()) return;
+//                        String desc = (String) param.args[0];
+//                        String value = (String) param.args[1];
+//                        String params = "";
+//                        if (param.args[2] != null) {
+//                            Object[] arg = (Object[]) param.args[2];
+//
+//                            for (Object o : arg) {
+//                                params = params + o.toString() + " ";
+//                            }
+//                        }
+//                        XposedBridge.log("XposedLogi, desc = " + desc + ", value = " + value + ", params = " + params);
+//                    }
+//                });
+//        XposedHelpers.findAndHookMethod(CLASS_TENCENT_LOG,
+//                loadPackageParam.classLoader, "v", String.class, String.class, Object[].class, new XC_MethodHook() {
+//                    @Override
+//                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                        if (!PreferencesUtils.open()) return;
+//                        String desc = (String) param.args[0];
+//                        String value = (String) param.args[1];
+//                        String params = "";
+//                        if (param.args[2] != null) {
+//                            Object[] arg = (Object[]) param.args[2];
+//
+//                            for (Object o : arg) {
+//                                params = params + o.toString() + " ";
+//                            }
+//                        }
+//                        XposedBridge.log("XposedLogi, desc = " + desc + ", value = " + value + ", params = " + params);
+//                    }
+//                });
     }
 
 }

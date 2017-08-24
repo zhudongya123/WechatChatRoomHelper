@@ -106,10 +106,21 @@ public class MuteConversationDialog extends Dialog {
         return mAdapter;
     }
 
-    @Override
-    public void show() {
-        super.show();
-        requestLayout();
+//    @Override
+//    public void show() {
+//        super.show();
+//        requestLayout();
+//    }
+
+
+    public void show(ViewGroup chatroomView) {
+        //if (contentView == null || isForce) {
+        chatroomView.setVisibility(View.VISIBLE);
+        contentView = (ViewGroup) getContentView();
+        chatroomView.addView(contentView);
+        //    setContentView(contentView);
+        //}
+        bindData();
     }
 
     public void requestLayout(boolean isForce) {
@@ -213,7 +224,13 @@ public class MuteConversationDialog extends Dialog {
             actionBar.setNavigationOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    dismiss();
+//                    dismiss();
+
+                    View chatroomView = (View) contentView.getParent();
+                    if (chatroomView.getVisibility() == View.VISIBLE)
+                        chatroomView.setVisibility(View.GONE);
+
+
                 }
             });
             actionBar.setBackgroundColor(Color.parseColor("#" + PreferencesUtils.getToolBarColor()));

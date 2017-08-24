@@ -132,6 +132,17 @@ public class ScreenUtils {
         return statusHeight;
     }
 
+    public static int getNavigationBarHeight(Context context) {
+        int result = 0;
+        int resourceId=0;
+        int rid = context.getResources().getIdentifier("config_showNavigationBar", "bool", "android");
+        if (rid!=0){
+            resourceId = context.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+            return context.getResources().getDimensionPixelSize(resourceId);
+        }else
+            return 0;
+    }
+
     /**
      * 获取当前屏幕截图，包含状态栏
      *
@@ -176,30 +187,4 @@ public class ScreenUtils {
 
     }
 
-    /**
-     * 用于添加纯色状态栏
-     * 当存在actionbar的时候使用
-     *
-     * @param activity
-     */
-    public static void setScreenParams(Activity activity, int index) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            Window window = activity.getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);// 透明状态栏
-            //rootView为activity的根布局
-            ViewGroup rootView = (ViewGroup) ((ViewGroup) activity.getWindow().getDecorView().findViewById(android.R.id.content)).getChildAt(0);
-            // rootView.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorPrimary));
-            ViewGroup actionbar = (ViewGroup) rootView.getChildAt(index);// activity.findViewById(R.id.app_actionbar);
-            actionbar.getLayoutParams().height = actionbar.getLayoutParams().height + ScreenUtils.getStatusHeight(activity);
-//            actionbar.setPadding(0, ScreenUtils.getStatusHeight(activity), 0, 0);
-        }
-    }
-
-
-    public static void setSpecialScreenParams(Activity activity, int layoutId) {
-        ViewGroup rootView = (ViewGroup) ((ViewGroup) activity.getWindow().getDecorView().findViewById(android.R.id.content)).getChildAt(0);
-        // rootView.setBackgroundColor(ContextCompat.getColor(activity, R.color.colorPrimary));
-        ViewGroup actionbar = (ViewGroup) rootView.findViewById(layoutId);// activity.findViewById(R.id.app_actionbar);
-        actionbar.getLayoutParams().height = actionbar.getLayoutParams().height + ScreenUtils.getStatusHeight(activity);
-    }
 }
