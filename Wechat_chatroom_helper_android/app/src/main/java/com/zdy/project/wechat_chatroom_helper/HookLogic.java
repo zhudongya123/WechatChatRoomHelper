@@ -27,6 +27,7 @@ import android.widget.TextView;
 
 import com.zdy.project.wechat_chatroom_helper.crash.CrashHandler;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
+import com.zdy.project.wechat_chatroom_helper.ui.ChatRoomViewHelper;
 import com.zdy.project.wechat_chatroom_helper.ui.MuteConversationDialog;
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
@@ -87,7 +88,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     private boolean notifyMuteList = true;
 
-    private MuteConversationDialog muteConversationDialog;
 
     private static ClassLoader mClassLoader;
 
@@ -95,7 +95,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     private Context context;
 
-
+    private ChatRoomViewHelper chatRoomViewHelper;
     private LinearLayout chatRoomView;
 
     private boolean isInChatting = false;
@@ -142,6 +142,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                                             0, ScreenUtils.getNavigationBarHeight(context));
                                     fitSystemWindowLayoutView.addView(chatRoomView, 1);
                                     chatRoomView.setVisibility(View.GONE);
+                                    chatRoomViewHelper = new ChatRoomViewHelper(chatRoomView);
                                 }
                             }
                         }
@@ -232,6 +233,24 @@ public class HookLogic implements IXposedHookLoadPackage {
                             }
                         }
                     });
+
+            XposedHelpers.findAndHookMethod("com.tencent.mm.ui.LauncherUI", loadPackageParam.classLoader,
+                    "dispatchKeyEvent", KeyEvent.class, new XC_MethodHook() {
+                        @Override
+                        protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                            KeyEvent keyEvent = (KeyEvent) param.args[0];
+                            if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_BACK
+                                    && keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
+                                if (!isInChatting && chatRoomView.getVisibility() == View.VISIBLE) {
+                                    chatRoomView.setVisibility(View.GONE);
+                                    param.setResult(true);
+                                }
+
+                            }
+                        }
+                    });
+
+
         } catch (Throwable e) {
             e.printStackTrace();
             CrashHandler.saveCrashInfo2File(e, context);
@@ -241,6 +260,10 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         if (!PreferencesUtils.getBugUnread()) return;
 
+        fixUnread(loadPackageParam);
+    }
+
+    private void fixUnread(XC_LoadPackage.LoadPackageParam loadPackageParam) {
         int versionCode = PreferencesUtils.getVersionCode();
         String methodHomeUIGetUnRead = null;
         String actionbarName = null;
@@ -267,8 +290,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         int arg = (int) param.args[0];
 
-                        if (muteConversationDialog == null) return;
-                        Object adapter = muteConversationDialog.getAdapter();
+                        if (chatRoomViewHelper == null) return;
+                        Object adapter = chatRoomViewHelper.getAdapter();
                         int count = (int) XposedHelpers.callMethod(adapter, "getCount");
 
                         int unReadCount = 0;
@@ -335,17 +358,15 @@ public class HookLogic implements IXposedHookLoadPackage {
         XposedBridge.log("XposedBridge, onItemClick, position =" + position);
 
         if (position == firstMutePosition && !clickChatRoomFlag) {
-
             XposedBridge.log("XposedBridge, onItemClick, firstMutePosition");
 
             Context context = view.getContext();
 
             Object uXk = XposedHelpers.getObjectField(param.thisObject, Value_ListView_Adapter);
             // if (muteConversationDialog == null) {
-            muteConversationDialog = new MuteConversationDialog(context);
-            muteConversationDialog.setAdapter(uXk);
-            muteConversationDialog.setMuteListInAdapterPositions(muteListInAdapterPositions);
-            muteConversationDialog.setOnDialogItemClickListener(new MuteConversationDialog.OnDialogItemClickListener() {
+            chatRoomViewHelper.setAdapter(uXk);
+            chatRoomViewHelper.setMuteListInAdapterPositions(muteListInAdapterPositions);
+            chatRoomViewHelper.setOnDialogItemClickListener(new ChatRoomViewHelper.OnDialogItemClickListener() {
 
                 @Override
                 public void onItemClick(int relativePosition) {
@@ -354,11 +375,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                             , param.args[0], view, relativePosition + headerViewsCount, id);
                 }
             });
-            //   }
-            //      muteConversationDialog.show();
-            muteConversationDialog.show(chatRoomView);
+            chatRoomViewHelper.show();
             param.setResult(null);
-            return;
         }
     }
 
@@ -521,9 +539,9 @@ public class HookLogic implements IXposedHookLoadPackage {
         }
         notifyMuteList = true;
 
-        if (muteConversationDialog != null) {
-            muteConversationDialog.setMuteListInAdapterPositions(muteListInAdapterPositions);
-            muteConversationDialog.requestLayout(true);
+        if (chatRoomViewHelper != null) {
+            chatRoomViewHelper.setMuteListInAdapterPositions(muteListInAdapterPositions);
+            chatRoomViewHelper.requestLayout();
         }
     }
 
@@ -584,28 +602,6 @@ public class HookLogic implements IXposedHookLoadPackage {
     }
 
     private void hookLog(XC_LoadPackage.LoadPackageParam loadPackageParam) {
-
-        XposedHelpers.findAndHookMethod("com.tencent.mm.ui.LauncherUI", loadPackageParam.classLoader,
-                "dispatchKeyEvent", KeyEvent.class, new XC_MethodHook() {
-
-
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        XposedBridge.log("wechatChatroomHelper, " + "按下了某个键");
-                        KeyEvent keyEvent = (KeyEvent) param.args[0];
-                        if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_BACK) {
-
-                            XposedBridge.log("wechatChatroomHelper, " + "按下了返回键");
-                            if (!isInChatting && chatRoomView.getVisibility() == View.VISIBLE) {
-                                XposedBridge.log("wechatChatroomHelper, " + "不在聊天界面且在群助手界面");
-                                chatRoomView.setVisibility(View.GONE);
-                                param.setResult(true);
-                            }
-
-                        }
-                    }
-                });
-
         XposedHelpers.findAndHookMethod(CLASS_TENCENT_LOG,
                 loadPackageParam.classLoader, "i", String.class, String.class, Object[].class, new XC_MethodHook() {
                     @Override
@@ -633,11 +629,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                         if (arg instanceof String) {
                             //关闭聊天窗口
                             if (((String) arg).contains("closeChatting")) {
-                                if (closeMuteConversationFlag && !PreferencesUtils.auto_close()) {
-                                    //    muteConversationDialog.show();
-                                    //  muteConversationDialog.show(chatRoomView);
-                                    closeMuteConversationFlag = false;
-                                }
                                 isInChatting = false;
                             }
                             if (((String) arg).contains("startChatting"))
@@ -645,8 +636,8 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                             //收到新消息
                             if (((String) arg).contains("newcursor cursor update Memory key")) {
-                                if (muteConversationDialog != null && muteConversationDialog.isShowing())
-                                    muteConversationDialog.requestLayout();
+                                if (chatRoomViewHelper != null && chatRoomViewHelper.isShowing())
+                                    chatRoomViewHelper.requestLayout();
                             }
                         }
                     }

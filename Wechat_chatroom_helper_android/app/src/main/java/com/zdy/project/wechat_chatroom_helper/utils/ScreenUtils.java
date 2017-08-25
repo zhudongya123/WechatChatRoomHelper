@@ -2,6 +2,7 @@ package com.zdy.project.wechat_chatroom_helper.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.os.Build;
@@ -133,14 +134,12 @@ public class ScreenUtils {
     }
 
     public static int getNavigationBarHeight(Context context) {
-        int result = 0;
-        int resourceId=0;
-        int rid = context.getResources().getIdentifier("config_showNavigationBar", "bool", "android");
-        if (rid!=0){
-            resourceId = context.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
-            return context.getResources().getDimensionPixelSize(resourceId);
-        }else
-            return 0;
+        Resources resources = context.getResources();
+        int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            return resources.getDimensionPixelSize(resourceId);
+        }
+        return 0;
     }
 
     /**
