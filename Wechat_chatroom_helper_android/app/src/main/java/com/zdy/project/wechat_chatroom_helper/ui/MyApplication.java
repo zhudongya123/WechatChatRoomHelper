@@ -19,7 +19,7 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        Bugly.init(getApplicationContext(), "ed7bb0e103", false);
+       // Bugly.init(getApplicationContext(), "ed7bb0e103", false);
 
 
         INSTANCE = this;
