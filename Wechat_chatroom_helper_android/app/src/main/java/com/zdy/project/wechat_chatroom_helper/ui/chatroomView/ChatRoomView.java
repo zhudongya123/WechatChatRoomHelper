@@ -1,12 +1,14 @@
 package com.zdy.project.wechat_chatroom_helper.ui.chatroomView;
 
-import android.app.Activity;
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.LinearLayoutManager;
@@ -28,9 +30,9 @@ import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.IllegalFormatCodePointException;
 import java.util.List;
 
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Arrow;
@@ -49,9 +51,12 @@ public class ChatRoomView implements ChatRoomContract.View {
     private ChatRoomContract.Presenter mPresenter;
 
     private Context mContext;
-    private ViewGroup container;
+    private RelativeLayout container;
 
     private LinearLayout contentView;
+    private View maskView;
+
+    private LinearLayout mainView;
     private RecyclerView mRecyclerView;
     private ViewGroup mToolbarContainer;
     private Toolbar mToolbar;
@@ -60,22 +65,40 @@ public class ChatRoomView implements ChatRoomContract.View {
 
 
     ChatRoomView(Context context, ViewGroup container) {
-        this.container = container;
+        this.container = (RelativeLayout) container;
         this.mContext = context;
 
         contentView = new LinearLayout(mContext);
-        contentView.setOrientation(LinearLayout.VERTICAL);
+        RelativeLayout.LayoutParams params =
+                new RelativeLayout.LayoutParams(ScreenUtils.getScreenWidth(mContext)
+                        + ScreenUtils.dip2px(mContext, 16), ViewGroup.LayoutParams.MATCH_PARENT);
+
+        maskView = new View(mContext);
+        maskView.setLayoutParams(new ViewGroup.LayoutParams(ScreenUtils.dip2px(mContext, 16),
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        maskView.setBackground(new GradientDrawable(
+                GradientDrawable.Orientation.RIGHT_LEFT, new int[]{0x66000000, 0x44000000, 0x00000000}));
+
+        mainView = new LinearLayout(mContext);
+        mainView.setLayoutParams(new ViewGroup.LayoutParams(ScreenUtils.getScreenWidth(mContext),
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        mainView.setOrientation(LinearLayout.VERTICAL);
 
         mRecyclerView = new RecyclerView(mContext);
         mRecyclerView.setId(android.R.id.list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
 
-        contentView.addView(initToolbar());
-        contentView.addView(mRecyclerView);
+        mainView.addView(initToolbar());
+        mainView.addView(mRecyclerView);
 
-        contentView.setBackground(new ColorDrawable(0xFFFFFFFF));
+        mainView.setBackground(new ColorDrawable(0xFFFFFFFF));
 
-        container.addView(contentView);
+        contentView.addView(maskView);
+        contentView.addView(mainView);
+        container.addView(contentView, params);
+        //   contentView.setX(-ScreenUtils.dip2px(mContext, 16));
+
+        contentView.setVisibility(View.GONE);
     }
 
 
@@ -86,17 +109,63 @@ public class ChatRoomView implements ChatRoomContract.View {
 
     @Override
     public boolean isShowing() {
-        return container.getVisibility() == View.VISIBLE;
+        return contentView.getVisibility() == View.VISIBLE;
     }
 
     @Override
     public void show() {
-        container.setVisibility(View.VISIBLE);
+        if (contentView.getVisibility() == View.VISIBLE) return;
+
+        contentView.setVisibility(View.VISIBLE);
+        ValueAnimator animator = ValueAnimator.ofInt(1080, 0);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                contentView.setTranslationX((int) animation.getAnimatedValue());
+            }
+        });
+        animator.setTarget(contentView);
+        animator.setRepeatCount(1);
+        animator.setDuration(300);
+        animator.start();
     }
 
     @Override
     public void dismiss() {
-        container.setVisibility(View.GONE);
+        if (contentView.getVisibility() == View.GONE) return;
+
+        ValueAnimator animator = ValueAnimator.ofInt(0, 1080);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                contentView.setTranslationX((int) animation.getAnimatedValue());
+            }
+        });
+        animator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                contentView.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        animator.setRepeatCount(1);
+        animator.setTarget(contentView);
+        animator.setDuration(300);
+        animator.start();
     }
 
     @Override

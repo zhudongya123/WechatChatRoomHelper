@@ -1,13 +1,9 @@
 package com.zdy.project.wechat_chatroom_helper.ui.chatroomView;
 
-import android.app.Activity;
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
-
-import de.robv.android.xposed.XposedBridge;
 
 /**
  * Created by Mr.Zdy on 2017/8/25.
@@ -15,9 +11,7 @@ import de.robv.android.xposed.XposedBridge;
 
 public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
 
-
-    public Context mContext;
-
+    private Context mContext;
 
     private Object mAdapter;
 

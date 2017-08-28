@@ -77,7 +77,6 @@ public class ChatRoomRecyclerViewAdapter extends RecyclerView.Adapter<ChatRoomVi
 
     @Override
     public void onBindViewHolder(ChatRoomViewHolder holder, final int position) {
-//        Object item = HookLogic.getMessageBeanForOriginIndex(originAdapter, muteListInAdapterPositions.get(position));
 
         Object item = getObject(position);
         MessageEntity entity = new MessageEntity(item);
@@ -119,7 +118,6 @@ public class ChatRoomRecyclerViewAdapter extends RecyclerView.Adapter<ChatRoomVi
             holder.unread.setBackground(new BitmapDrawable(mContext.getResources()));
 
         holder.itemView.setBackground(ChatRoomViewHelper.getItemViewBackground());
-
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
