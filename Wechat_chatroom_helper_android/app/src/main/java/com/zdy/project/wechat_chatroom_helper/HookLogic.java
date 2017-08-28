@@ -88,7 +88,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     // private int muteCount = 0;
 
-    private Activity context;
+    private Context context;
 
     private ChatRoomViewPresenter chatRoomViewPresenter;
     private LinearLayout chatRoomView;
@@ -163,7 +163,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                     Object thisObject = param.thisObject;
                     //       context = (Context) XposedHelpers.callMethod(thisObject, "getBaseContext");
-                    context = (Activity) param.thisObject;
+                    context = (Context) param.thisObject;
                     XposedBridge.log("context = " + context.toString());
                 }
             }

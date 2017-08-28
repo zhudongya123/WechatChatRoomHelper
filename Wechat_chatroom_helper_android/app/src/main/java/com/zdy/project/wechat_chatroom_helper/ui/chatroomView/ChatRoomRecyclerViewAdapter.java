@@ -124,7 +124,7 @@ public class ChatRoomRecyclerViewAdapter extends RecyclerView.Adapter<ChatRoomVi
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onDialogItemClickListener.onItemClick(position);
+                onDialogItemClickListener.onItemClick(muteListInAdapterPositions.get(position));
             }
         });
     }

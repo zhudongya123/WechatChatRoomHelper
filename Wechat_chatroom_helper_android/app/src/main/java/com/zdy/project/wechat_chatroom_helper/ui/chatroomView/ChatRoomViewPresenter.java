@@ -2,6 +2,7 @@ package com.zdy.project.wechat_chatroom_helper.ui.chatroomView;
 
 import android.app.Activity;
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
@@ -15,14 +16,14 @@ import de.robv.android.xposed.XposedBridge;
 public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
 
 
-    public Activity mContext;
+    public Context mContext;
 
 
     private Object mAdapter;
 
     private ChatRoomContract.View mChatRoomView;
 
-    public ChatRoomViewPresenter(Activity context, ViewGroup chatRoomView) {
+    public ChatRoomViewPresenter(Context context, ViewGroup chatRoomView) {
         mContext = context;
         mChatRoomView = new ChatRoomView(context, chatRoomView);
         mChatRoomView.setPresenter(this);

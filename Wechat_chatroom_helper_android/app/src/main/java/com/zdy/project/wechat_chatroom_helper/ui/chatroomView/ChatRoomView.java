@@ -48,7 +48,7 @@ public class ChatRoomView implements ChatRoomContract.View {
 
     private ChatRoomContract.Presenter mPresenter;
 
-    private Activity mContext;
+    private Context mContext;
     private ViewGroup container;
 
     private LinearLayout contentView;
@@ -59,9 +59,9 @@ public class ChatRoomView implements ChatRoomContract.View {
     private ChatRoomRecyclerViewAdapter mAdapter;
 
 
-    ChatRoomView(Activity activity, ViewGroup container) {
+    ChatRoomView(Context context, ViewGroup container) {
         this.container = container;
-        this.mContext = activity;
+        this.mContext = context;
 
         contentView = new LinearLayout(mContext);
         contentView.setOrientation(LinearLayout.VERTICAL);
@@ -110,10 +110,7 @@ public class ChatRoomView implements ChatRoomContract.View {
         new Handler(mContext.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-//                mAdapter.notifyDataSetChanged();
-
                 ArrayList data = mAdapter.getData();
-
                 for (int i = 0; i < data.size(); i++) {
                     Object item = data.get(i);
                     MessageEntity entity = new MessageEntity(item);
@@ -141,8 +138,6 @@ public class ChatRoomView implements ChatRoomContract.View {
             data.add(object);
         }
 
-        XposedBridge.log("wechat_chatroom_helper_appliction, data.size = " + data.size());
-        XposedBridge.log("wechat_chatroom_helper_appliction, muteListInAdapterPositions = " + muteListInAdapterPositions.toString());
         mAdapter.setMuteListInAdapterPositions(muteListInAdapterPositions);
 //        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(
 //                new DiffCallBack(mAdapter.getData(), data), true);
