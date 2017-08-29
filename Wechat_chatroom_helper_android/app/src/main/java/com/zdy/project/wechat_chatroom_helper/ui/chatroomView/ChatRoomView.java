@@ -51,7 +51,7 @@ public class ChatRoomView implements ChatRoomContract.View {
     private ChatRoomContract.Presenter mPresenter;
 
     private Context mContext;
-    private AbsoluteLayout container;
+    private AbsoluteLayout mContainer;
 
     private LinearLayout contentView;
     private View maskView;
@@ -68,7 +68,7 @@ public class ChatRoomView implements ChatRoomContract.View {
 
 
     ChatRoomView(Context context, final ViewGroup container) {
-        this.container = (AbsoluteLayout) container;
+        this.mContainer = (AbsoluteLayout) container;
         this.mContext = context;
 
         contentView = new LinearLayout(mContext);
@@ -98,10 +98,9 @@ public class ChatRoomView implements ChatRoomContract.View {
 
         contentView.addView(maskView);
         contentView.addView(mainView);
-        container.addView(contentView, params);
+        mContainer.addView(contentView, params);
 
         contentView.setVisibility(View.GONE);
-
     }
 
 

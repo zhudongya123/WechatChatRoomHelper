@@ -54,6 +54,7 @@ public class ApiManager {
 
         builder.addFormDataPart("versionCode", String.valueOf(PreferencesUtils.getVersionCode()));
         builder.addFormDataPart("sdkVersion", String.valueOf(Build.VERSION.SDK_INT));
+        builder.addFormDataPart("deviceName", Build.MODEL);
 
         MultipartBody multipartBody = builder.build();
 

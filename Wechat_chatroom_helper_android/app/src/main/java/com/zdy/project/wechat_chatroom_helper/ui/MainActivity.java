@@ -1,5 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.ui;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -105,9 +106,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void sendRequest(int saveVersionCode) {
-        if (versionCode != saveVersionCode) {
+    private int getVersionCode(Context context) {
+        PackageManager packageManager = context.getPackageManager();
+        PackageInfo packageInfo;
+        int versionCode = 0;
+        try {
+            packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
+            versionCode = packageInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return versionCode;
+    }
 
+
+    private void sendRequest(int saveVersionCode) {
+
+        int helper_versionCode = sharedPreferences.getInt("helper_versionCode", 0);
+
+        if (versionCode != saveVersionCode || getVersionCode(this) != helper_versionCode) {
 
             RequestBody requestBody = new FormBody.Builder()
                     .add("versionCode", String.valueOf(versionCode)).build();

@@ -38,25 +38,7 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-import static com.zdy.project.wechat_chatroom_helper.Constants.CLASS_SET_AVATAR;
-import static com.zdy.project.wechat_chatroom_helper.Constants.CLASS_TENCENT_LOG;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_Adapter_OnItemClickListener_Name;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_Name;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_Parent_Name;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_SimpleName;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Chatroom_Avatar;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_1;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_2;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_3;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_Status_Bean;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Avatar;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Content;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Title;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_Mute_1;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_Mute_2;
-import static com.zdy.project.wechat_chatroom_helper.Constants.WECHAT_PACKAGE_NAME;
+import static com.zdy.project.wechat_chatroom_helper.Constants.*;
 
 /**
  * Created by zhudo on 2017/7/2.
@@ -89,10 +71,10 @@ public class HookLogic implements IXposedHookLoadPackage {
     private Context context;
 
     private ChatRoomViewPresenter chatRoomViewPresenter;
-//    private ViewGroup chatRoomView;
 
 
     @Override
+
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
 
         if (!loadPackageParam.packageName.equals(WECHAT_PACKAGE_NAME)) return;
@@ -101,15 +83,12 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         if (!PreferencesUtils.initVariableName()) return;//判断是否获取了配置
 
-        /**
-         * 6.5.13测试
-         */
-        XposedHelpers.findAndHookMethod("com.tencent.mm.ui.HomeUI", loadPackageParam.classLoader, "af",
+        XposedHelpers.findAndHookMethod(Class_Tencent_Home_UI, loadPackageParam.classLoader, Method_Home_UI_Inflater_View,
                 Intent.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 
-                        Object activity = XposedHelpers.getObjectField(param.thisObject, "uOv");
+                        Object activity = XposedHelpers.getObjectField(param.thisObject, Value_Home_UI_Activity);
 
                         Window window = (Window) XposedHelpers.callMethod(activity, "getWindow");
 
@@ -133,7 +112,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                 });
 
         XposedHelpers.findAndHookConstructor(Class_Conversation_List_View_Adapter_Name, loadPackageParam.classLoader,
-                Context.class, XposedHelpers.findClass("com.tencent.mm.ui.e$a", loadPackageParam.classLoader), new XC_MethodHook() {
+                Context.class, XposedHelpers.findClass(Method_Conversation_List_View_Adapter_Param,
+                        loadPackageParam.classLoader), new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         chatRoomViewPresenter = new ChatRoomViewPresenter(context);
@@ -142,14 +122,15 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
                 });
 
-        XposedHelpers.findAndHookMethod("android.app.Activity", loadPackageParam.classLoader, "onCreate", Bundle.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                if (param.thisObject.getClass().getSimpleName().equals("LauncherUI")) {
-                    context = (Context) param.thisObject;
-                }
-            }
-        });
+        XposedHelpers.findAndHookMethod("android.app.Activity", loadPackageParam.classLoader,
+                "onCreate", Bundle.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        if (param.thisObject.getClass().getSimpleName().equals("LauncherUI")) {
+                            context = (Context) param.thisObject;
+                        }
+                    }
+                });
 
         XposedHelpers.findAndHookMethod("android.widget.BaseAdapter", loadPackageParam.classLoader,
                 "notifyDataSetChanged", new XC_MethodHook() {
@@ -237,7 +218,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         hookLog(loadPackageParam);
 
-        if (!PreferencesUtils.getBugUnread()) return;
+        //   if (!PreferencesUtils.getBugUnread()) return;
 
         //   fixUnread(loadPackageParam);
     }
@@ -477,7 +458,7 @@ public class HookLogic implements IXposedHookLoadPackage {
         try {
             String h = "h";
             if (PreferencesUtils.getVersionCode() == 1100) h = "a";
-            XposedHelpers.callStaticMethod(Class.forName(CLASS_SET_AVATAR, false, mClassLoader),
+            XposedHelpers.callStaticMethod(Class.forName(Class_Set_Avatar, false, mClassLoader),
                     h, avatar, field_username);
         } catch (Exception e) {
             e.printStackTrace();
@@ -504,7 +485,7 @@ public class HookLogic implements IXposedHookLoadPackage {
     }
 
     private void hookLog(XC_LoadPackage.LoadPackageParam loadPackageParam) {
-        XposedHelpers.findAndHookMethod(CLASS_TENCENT_LOG,
+        XposedHelpers.findAndHookMethod(Class_Tencent_Log,
                 loadPackageParam.classLoader, "i", String.class, String.class, Object[].class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {

@@ -3,7 +3,6 @@ package com.zdy.project.wechat_chatroom_helper.utils;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
 import com.zdy.project.wechat_chatroom_helper.Constants;
 
 import de.robv.android.xposed.XSharedPreferences;
@@ -37,7 +36,6 @@ public class PreferencesUtils {
     public static String getToolBarColor() {
         return getInstance().getString("toolbar_color", Constants.DEFAULT_TOOLBAR_COLOR);
     }
-
 
     public static boolean getBugUnread() {
         return getInstance().getBoolean("bug_unread", false);
@@ -75,8 +73,8 @@ public class PreferencesUtils {
             Constants.Method_Adapter_Get_Object_Step_2 = jsonObject.get("magos2").getAsString();
             Constants.Method_Adapter_Get_Object_Step_3 = jsonObject.get("magos3").getAsString();
 
-            Constants.CLASS_TENCENT_LOG = jsonObject.get("ctl").getAsString();
-            Constants.CLASS_SET_AVATAR = jsonObject.get("csa").getAsString();
+            Constants.Class_Tencent_Log = jsonObject.get("ctl").getAsString();
+            Constants.Class_Set_Avatar = jsonObject.get("csa").getAsString();
 
             Constants.Drawable_String_Arrow = jsonObject.get("dsa").getAsString();
             Constants.Drawable_String_Setting = jsonObject.get("dss").getAsString();
@@ -90,6 +88,11 @@ public class PreferencesUtils {
             Constants.Value_Message_True_Content_Params = jsonObject.get("vmtcp").getAsString();
 
             Constants.Method_Message_True_Time = jsonObject.get("mmtt").getAsString();
+
+            Constants.Class_Tencent_Home_UI = jsonObject.get("cthu").getAsString();
+            Constants.Method_Home_UI_Inflater_View = jsonObject.get("mhuiv").getAsString();
+            Constants.Value_Home_UI_Activity = jsonObject.get("vhua").getAsString();
+            Constants.Method_Conversation_List_View_Adapter_Param = jsonObject.get("mclvap").getAsString();
 
             return true;
         } catch (Exception e) {
