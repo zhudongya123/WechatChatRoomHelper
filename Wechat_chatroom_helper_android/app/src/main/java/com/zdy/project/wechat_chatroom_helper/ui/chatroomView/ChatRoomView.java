@@ -16,6 +16,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsoluteLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -50,7 +51,7 @@ public class ChatRoomView implements ChatRoomContract.View {
     private ChatRoomContract.Presenter mPresenter;
 
     private Context mContext;
-    private RelativeLayout container;
+    private AbsoluteLayout container;
 
     private LinearLayout contentView;
     private View maskView;
@@ -63,12 +64,17 @@ public class ChatRoomView implements ChatRoomContract.View {
     private ChatRoomRecyclerViewAdapter mAdapter;
 
 
-    ChatRoomView(Context context, ViewGroup container) {
-        this.container = (RelativeLayout) container;
+    private boolean isInAnim = false;
+
+
+    ChatRoomView(Context context, final ViewGroup container) {
+        this.container = (AbsoluteLayout) container;
         this.mContext = context;
 
         contentView = new LinearLayout(mContext);
-        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(1128, ViewGroup.LayoutParams.MATCH_PARENT);
+        int width = ScreenUtils.dip2px(mContext, 16) + ScreenUtils.getScreenWidth(mContext);
+        AbsoluteLayout.LayoutParams params = new AbsoluteLayout.LayoutParams(width, ViewGroup.LayoutParams
+                .MATCH_PARENT, 0, 0);
 
         maskView = new View(mContext);
         maskView.setLayoutParams(new ViewGroup.LayoutParams(ScreenUtils.dip2px(mContext, 16),
@@ -94,7 +100,10 @@ public class ChatRoomView implements ChatRoomContract.View {
         contentView.addView(mainView);
         container.addView(contentView, params);
 
+
         contentView.setVisibility(View.GONE);
+
+
     }
 
 
@@ -111,16 +120,40 @@ public class ChatRoomView implements ChatRoomContract.View {
     @Override
     public void show() {
         if (contentView.getVisibility() == View.VISIBLE) return;
+        if (isInAnim) return;
 
+        isInAnim = true;
         contentView.setVisibility(View.VISIBLE);
-        ValueAnimator animator = ValueAnimator.ofInt(1080, -ScreenUtils.dip2px(mContext, 16));
+        ValueAnimator animator = ValueAnimator.ofInt(1080 + ScreenUtils.dip2px(mContext, 16), -ScreenUtils.dip2px
+                (mContext, 16));
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 contentView.setTranslationX((int) animation.getAnimatedValue());
             }
         });
-        animator.setDuration(300);
+        animator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                isInAnim = false;
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        animator.setDuration(200);
         animator.setRepeatMode(ValueAnimator.REVERSE);
         animator.setTarget(contentView);
         animator.start();
@@ -129,8 +162,11 @@ public class ChatRoomView implements ChatRoomContract.View {
     @Override
     public void dismiss() {
         if (contentView.getVisibility() == View.GONE) return;
+        if (isInAnim) return;
 
-        ValueAnimator animator = ValueAnimator.ofInt(-ScreenUtils.dip2px(mContext, 16), 1080);
+        isInAnim = true;
+        ValueAnimator animator = ValueAnimator.ofInt(-ScreenUtils.dip2px(mContext, 16),
+                1080 + ScreenUtils.dip2px(mContext, 16));
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -146,6 +182,7 @@ public class ChatRoomView implements ChatRoomContract.View {
             @Override
             public void onAnimationEnd(Animator animation) {
                 contentView.setVisibility(View.GONE);
+                isInAnim = false;
             }
 
             @Override
@@ -160,7 +197,7 @@ public class ChatRoomView implements ChatRoomContract.View {
         });
         animator.setRepeatMode(ValueAnimator.REVERSE);
         animator.setTarget(contentView);
-        animator.setDuration(300);
+        animator.setDuration(200);
         animator.start();
     }
 

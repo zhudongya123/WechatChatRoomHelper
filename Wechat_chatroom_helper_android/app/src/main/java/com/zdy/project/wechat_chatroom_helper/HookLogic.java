@@ -1,6 +1,5 @@
 package com.zdy.project.wechat_chatroom_helper;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -20,10 +19,10 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.AbsoluteLayout;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -93,7 +92,7 @@ public class HookLogic implements IXposedHookLoadPackage {
     private Context context;
 
     private ChatRoomViewPresenter chatRoomViewPresenter;
-   private RelativeLayout chatRoomView;
+    private ViewGroup chatRoomView;
 
 
     @Override
@@ -143,7 +142,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 
-                        chatRoomView = new RelativeLayout(context);
+                        chatRoomView = new AbsoluteLayout(context);
                         chatRoomView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup
                                 .LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                         chatRoomView.setPadding(0, ScreenUtils.getStatusHeight(context),
