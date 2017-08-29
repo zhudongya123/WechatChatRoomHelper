@@ -93,7 +93,7 @@ public class HookLogic implements IXposedHookLoadPackage {
     private Context context;
 
     private ChatRoomViewPresenter chatRoomViewPresenter;
-    private RelativeLayout chatRoomView;
+   private RelativeLayout chatRoomView;
 
 
     @Override

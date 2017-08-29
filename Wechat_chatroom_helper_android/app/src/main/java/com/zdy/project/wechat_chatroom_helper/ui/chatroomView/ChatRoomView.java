@@ -30,7 +30,6 @@ import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.IllegalFormatCodePointException;
 import java.util.List;
 
 import de.robv.android.xposed.XposedHelpers;
@@ -69,15 +68,13 @@ public class ChatRoomView implements ChatRoomContract.View {
         this.mContext = context;
 
         contentView = new LinearLayout(mContext);
-        RelativeLayout.LayoutParams params =
-                new RelativeLayout.LayoutParams(ScreenUtils.getScreenWidth(mContext)
-                        + ScreenUtils.dip2px(mContext, 16), ViewGroup.LayoutParams.MATCH_PARENT);
+        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(1128, ViewGroup.LayoutParams.MATCH_PARENT);
 
         maskView = new View(mContext);
         maskView.setLayoutParams(new ViewGroup.LayoutParams(ScreenUtils.dip2px(mContext, 16),
                 ViewGroup.LayoutParams.MATCH_PARENT));
         maskView.setBackground(new GradientDrawable(
-                GradientDrawable.Orientation.RIGHT_LEFT, new int[]{0x66000000, 0x44000000, 0x00000000}));
+                GradientDrawable.Orientation.RIGHT_LEFT, new int[]{0x55000000, 0x2A000000, 0x00000000}));
 
         mainView = new LinearLayout(mContext);
         mainView.setLayoutParams(new ViewGroup.LayoutParams(ScreenUtils.getScreenWidth(mContext),
@@ -96,7 +93,6 @@ public class ChatRoomView implements ChatRoomContract.View {
         contentView.addView(maskView);
         contentView.addView(mainView);
         container.addView(contentView, params);
-        //   contentView.setX(-ScreenUtils.dip2px(mContext, 16));
 
         contentView.setVisibility(View.GONE);
     }
@@ -117,16 +113,16 @@ public class ChatRoomView implements ChatRoomContract.View {
         if (contentView.getVisibility() == View.VISIBLE) return;
 
         contentView.setVisibility(View.VISIBLE);
-        ValueAnimator animator = ValueAnimator.ofInt(1080, 0);
+        ValueAnimator animator = ValueAnimator.ofInt(1080, -ScreenUtils.dip2px(mContext, 16));
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 contentView.setTranslationX((int) animation.getAnimatedValue());
             }
         });
-        animator.setTarget(contentView);
-        animator.setRepeatCount(1);
         animator.setDuration(300);
+        animator.setRepeatMode(ValueAnimator.REVERSE);
+        animator.setTarget(contentView);
         animator.start();
     }
 
@@ -134,7 +130,7 @@ public class ChatRoomView implements ChatRoomContract.View {
     public void dismiss() {
         if (contentView.getVisibility() == View.GONE) return;
 
-        ValueAnimator animator = ValueAnimator.ofInt(0, 1080);
+        ValueAnimator animator = ValueAnimator.ofInt(-ScreenUtils.dip2px(mContext, 16), 1080);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -162,7 +158,7 @@ public class ChatRoomView implements ChatRoomContract.View {
 
             }
         });
-        animator.setRepeatCount(1);
+        animator.setRepeatMode(ValueAnimator.REVERSE);
         animator.setTarget(contentView);
         animator.setDuration(300);
         animator.start();
