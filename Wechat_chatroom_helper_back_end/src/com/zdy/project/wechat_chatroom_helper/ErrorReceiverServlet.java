@@ -26,12 +26,13 @@ public class ErrorReceiverServlet extends HttpServlet {
 
         Part part = req.getPart("file");
 
-
         String versionCode = "";
         String sdkVersion = "";
+        String deviceName = "";
         try {
             versionCode = convertStreamToString(req.getPart("versionCode").getInputStream()).trim();
             sdkVersion = convertStreamToString(req.getPart("sdkVersion").getInputStream()).trim();
+            deviceName = convertStreamToString(req.getPart("deviceName").getInputStream()).trim();
         } catch (Throwable e) {
             e.printStackTrace();
         }
@@ -40,13 +41,17 @@ public class ErrorReceiverServlet extends HttpServlet {
 
         String format = formatter.format(Calendar.getInstance().getTime());
 
-        File folder = new File(PATH + format);
+        File rootFolder = new File(PATH + format);
 
-        if (!folder.exists())
-            folder.mkdirs();
+        if (!rootFolder.exists())
+            rootFolder.mkdirs();
 
-        String fileName = format + "/" + System.currentTimeMillis() / 1000 +
-                "_versionCode_" + versionCode + "_sdkVersion_" + sdkVersion + ".txt";
+        File parentFolder = new File(PATH + format + "/" + Calendar.getInstance().get(Calendar.HOUR_OF_DAY));
+        if (!parentFolder.exists())
+            parentFolder.mkdirs();
+
+        String fileName = format + "/" + Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + "/" + System.currentTimeMillis() / 1000 +
+                "_versionCode_" + versionCode + "_sdkVersion_" + sdkVersion + "_deviceName_" + deviceName + ".txt";
         File file = new File(PATH + fileName);
 
         if (!file.exists())
@@ -64,7 +69,7 @@ public class ErrorReceiverServlet extends HttpServlet {
 
     }
 
-    public static String convertStreamToString(InputStream is) {
+    private static String convertStreamToString(InputStream is) {
         /*
           * To convert the InputStream to String we use the BufferedReader.readLine()
           * method. We iterate until the BufferedReader return null which means

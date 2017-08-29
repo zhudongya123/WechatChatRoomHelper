@@ -87,6 +87,11 @@ public class PathServlet extends HttpServlet {
                 data.addProperty("vmtcp", "uXV");
                 data.addProperty("mmtt", "i");
 
+                data.addProperty("cthu", "com.tencent.mm.ui.HomeUI");
+                data.addProperty("mhuiv", "ad");
+                data.addProperty("vhua", "tNB");
+                data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
+
                 jsonObject.add("data", data);
 
                 break;
@@ -133,6 +138,12 @@ public class PathServlet extends HttpServlet {
                 data.addProperty("mmtc", "b");
                 data.addProperty("vmtcp", "vIJ");
                 data.addProperty("mmtt", "i");
+
+                data.addProperty("cthu", "com.tencent.mm.ui.HomeUI");
+                data.addProperty("mhuiv", "af");
+                data.addProperty("vhua", "uxw");
+                data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
+
 
                 jsonObject.add("data", data);
 
@@ -182,6 +193,12 @@ public class PathServlet extends HttpServlet {
                 data.addProperty("vmtcp", "wax");
                 data.addProperty("mmtt", "i");
 
+
+                data.addProperty("cthu", "com.tencent.mm.ui.HomeUI");
+                data.addProperty("mhuiv", "af");
+                data.addProperty("vhua", "uOv");
+                data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
+
                 jsonObject.add("data", data);
 
                 break;
@@ -195,4 +212,7 @@ public class PathServlet extends HttpServlet {
         writer.write(jsonObject.toString());
 
     }
+
+
+
 }
