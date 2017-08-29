@@ -100,9 +100,7 @@ public class ChatRoomView implements ChatRoomContract.View {
         contentView.addView(mainView);
         container.addView(contentView, params);
 
-
         contentView.setVisibility(View.GONE);
-
 
     }
 

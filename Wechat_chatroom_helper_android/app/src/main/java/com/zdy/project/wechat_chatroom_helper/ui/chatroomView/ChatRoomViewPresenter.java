@@ -2,6 +2,9 @@ package com.zdy.project.wechat_chatroom_helper.ui.chatroomView;
 
 import android.content.Context;
 import android.view.ViewGroup;
+import android.widget.AbsoluteLayout;
+
+import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 import java.util.ArrayList;
 
@@ -15,17 +18,27 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
 
     private Object mAdapter;
 
-    private ChatRoomContract.View mChatRoomView;
+    private ChatRoomContract.View mView;
 
-    public ChatRoomViewPresenter(Context context, ViewGroup chatRoomView) {
+    private ViewGroup chatRoomView;
+
+    public ChatRoomViewPresenter(Context context) {
         mContext = context;
-        mChatRoomView = new ChatRoomView(context, chatRoomView);
-        mChatRoomView.setPresenter(this);
+
+        chatRoomView = new AbsoluteLayout(context);
+        chatRoomView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup
+                .LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        chatRoomView.setPadding(0, ScreenUtils.getStatusHeight(context),
+                0, ScreenUtils.getNavigationBarHeight(context));
+
+        mView = new ChatRoomView(context, chatRoomView);
+        mView.setPresenter(this);
+
     }
 
 
     public void setOnDialogItemClickListener(ChatRoomRecyclerViewAdapter.OnDialogItemClickListener listener) {
-        mChatRoomView.setOnDialogItemClickListener(listener);
+        mView.setOnDialogItemClickListener(listener);
     }
 
     public void setAdapter(Object mAdapter) {
@@ -34,36 +47,37 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
 
 
     public void setMuteListInAdapterPositions(ArrayList<Integer> muteListInAdapterPositions) {
-        mChatRoomView.showMessageRefresh(muteListInAdapterPositions);
+        mView.showMessageRefresh(muteListInAdapterPositions);
     }
 
     @Override
     public void setMessageRefresh(String targetUserName) {
-        mChatRoomView.showMessageRefresh(targetUserName);
+        mView.showMessageRefresh(targetUserName);
+    }
+
+    @Override
+    public ViewGroup getPresenterView() {
+        return chatRoomView;
     }
 
     public boolean isShowing() {
-        return mChatRoomView.isShowing();
+        return mView.isShowing();
     }
 
-
-    public Object getAdapter() {
-        return mAdapter;
-    }
 
 
     public void show() {
-        mChatRoomView.show();
+        mView.show();
     }
 
     public void dismiss() {
-        mChatRoomView.dismiss();
+        mView.dismiss();
     }
 
 
     @Override
     public void start() {
-        mChatRoomView.init();
+        mView.init();
     }
 
     @Override

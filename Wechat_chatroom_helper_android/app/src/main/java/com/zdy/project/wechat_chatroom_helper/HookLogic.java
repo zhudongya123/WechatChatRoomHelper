@@ -19,11 +19,9 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.AbsoluteLayout;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.zdy.project.wechat_chatroom_helper.crash.CrashHandler;
@@ -31,7 +29,6 @@ import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomRecyclerViewAdapter;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter;
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
-import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 import java.util.ArrayList;
 
@@ -92,7 +89,7 @@ public class HookLogic implements IXposedHookLoadPackage {
     private Context context;
 
     private ChatRoomViewPresenter chatRoomViewPresenter;
-    private ViewGroup chatRoomView;
+//    private ViewGroup chatRoomView;
 
 
     @Override
@@ -126,13 +123,11 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                                 ViewGroup fitSystemWindowLayoutView = (ViewGroup) viewGroup.getChildAt(i);
 
-                                if (fitSystemWindowLayoutView.getChildCount() == 2
-                                        && chatRoomView != null) {
-                                    fitSystemWindowLayoutView.addView(chatRoomView, 1);
+                                if (fitSystemWindowLayoutView.getChildCount() == 2) {
+                                    fitSystemWindowLayoutView.addView(chatRoomViewPresenter.getPresenterView(), 1);
                                 }
                             }
                         }
-
 
                     }
                 });
@@ -141,13 +136,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                 Context.class, XposedHelpers.findClass("com.tencent.mm.ui.e$a", loadPackageParam.classLoader), new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-
-                        chatRoomView = new AbsoluteLayout(context);
-                        chatRoomView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup
-                                .LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                        chatRoomView.setPadding(0, ScreenUtils.getStatusHeight(context),
-                                0, ScreenUtils.getNavigationBarHeight(context));
-                        chatRoomViewPresenter = new ChatRoomViewPresenter(context, chatRoomView);
+                        chatRoomViewPresenter = new ChatRoomViewPresenter(context);
                         chatRoomViewPresenter.setAdapter(param.thisObject);
                         chatRoomViewPresenter.start();
                     }
@@ -157,9 +146,7 @@ public class HookLogic implements IXposedHookLoadPackage {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 if (param.thisObject.getClass().getSimpleName().equals("LauncherUI")) {
-
                     context = (Context) param.thisObject;
-                    XposedBridge.log("context = " + context.toString());
                 }
             }
         });
@@ -553,7 +540,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                                 String sendUsername = (String) objects[0];
                                 if (sendUsername.contains("chatroom")) {
-                                    if (chatRoomViewPresenter != null && chatRoomView != null) {
+                                    if (chatRoomViewPresenter != null) {
                                         chatRoomViewPresenter.setMessageRefresh(sendUsername);
                                     }
                                 }
@@ -593,7 +580,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                         int arg = (int) param.args[0];
 
                         if (chatRoomViewPresenter == null) return;
-                        Object adapter = chatRoomViewPresenter.getAdapter();
+                        Object adapter = chatRoomViewPresenter.getOriginAdapter();
                         int count = (int) XposedHelpers.callMethod(adapter, "getCount");
 
                         int unReadCount = 0;

@@ -1,5 +1,7 @@
 package com.zdy.project.wechat_chatroom_helper.ui.chatroomView;
 
+import android.view.ViewGroup;
+
 import java.util.ArrayList;
 
 /**
@@ -16,6 +18,8 @@ public interface ChatRoomContract {
         Object getOriginAdapter();
 
         void setMessageRefresh(String targetUserName);
+
+        ViewGroup getPresenterView();
     }
 
     interface View {
