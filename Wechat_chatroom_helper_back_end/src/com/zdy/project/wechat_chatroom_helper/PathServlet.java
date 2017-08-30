@@ -1,7 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper;
 
 import com.google.gson.JsonObject;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
