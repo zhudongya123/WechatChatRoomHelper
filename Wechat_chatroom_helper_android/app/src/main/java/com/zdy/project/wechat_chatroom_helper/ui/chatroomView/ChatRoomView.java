@@ -14,6 +14,7 @@ import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
@@ -33,6 +34,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Arrow;
@@ -65,13 +67,52 @@ public class ChatRoomView implements ChatRoomContract.View {
 
 
     private boolean isInAnim = false;
+    private boolean isdragging = false;
 
 
     ChatRoomView(Context context, final ViewGroup container) {
         this.mContainer = (AbsoluteLayout) container;
         this.mContext = context;
 
-        contentView = new LinearLayout(mContext);
+        contentView = new LinearLayout(mContext) {
+            @Override
+            public boolean dispatchTouchEvent(MotionEvent event) {
+
+//                float x = event.getX();
+//                float translationX = contentView.getTranslationX();
+//                switch (event.getAction()) {
+//
+//                      case MotionEvent.ACTION_DOWN:
+//                        XposedBridge.log("action = " + "ACTION_DOWN");
+//                        moveX = x;
+//                        break;
+//
+//                    case MotionEvent.ACTION_MOVE:
+//                        XposedBridge.log("action = " + "ACTION_MOVE");
+//                        float v1 = x - moveX;
+//                        XposedBridge.log("action offest= " + v1);
+//                        float value = translationX + v1;
+//                        if (Math.abs(value) < ScreenUtils.getScreenWidth(mContext) / 200)
+//                            return super.dispatchTouchEvent(event);
+//                        if (value >= -ScreenUtils.dip2px(mContext, 16)
+//                                && value <= ScreenUtils.getScreenWidth(mContext)) {
+//                            contentView.setTranslationX(value);
+//                            isdragging = true;
+//                            XposedBridge.log("action offest= drag");
+//                        }
+//                        break;
+//
+//                    case MotionEvent.ACTION_UP:
+//                        XposedBridge.log("action = " + "ACTION_UP");
+//                        setResetAnim(translationX);
+//                        if (isdragging) {
+//                            return false;
+//                        } else return super.dispatchTouchEvent(event);
+//                }
+
+                return super.dispatchTouchEvent(event);
+            }
+        };
         int width = ScreenUtils.dip2px(mContext, 16) + ScreenUtils.getScreenWidth(mContext);
         AbsoluteLayout.LayoutParams params = new AbsoluteLayout.LayoutParams(width, ViewGroup.LayoutParams
                 .MATCH_PARENT, 0, 0);
@@ -100,9 +141,54 @@ public class ChatRoomView implements ChatRoomContract.View {
         contentView.addView(mainView);
         mContainer.addView(contentView, params);
 
-        contentView.setVisibility(View.GONE);
+        //  contentView.setBackground(new ColorDrawable(0xFFFEF5A4));
+
+//        contentView.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                float x = event.getX();
+//                float translationX = contentView.getTranslationX();
+//                switch (event.getAction()) {
+//
+//                    case MotionEvent.ACTION_DOWN:
+//                        XposedBridge.log("action = " + "ACTION_DOWN");
+//                        moveX = x;
+//                        return true;
+//
+//                    case MotionEvent.ACTION_MOVE:
+//                        XposedBridge.log("action = " + "ACTION_MOVE");
+//                        float v1 = x - moveX;
+//                        float value = translationX + v1;
+//                        if (value >= -ScreenUtils.dip2px(mContext, 16)
+//                                && value <= ScreenUtils.getScreenWidth(mContext)) {
+//                            contentView.setTranslationX(value);
+//                        }
+//                        break;
+//
+//                    case MotionEvent.ACTION_UP:
+//                        XposedBridge.log("action = " + "ACTION_UP");
+//                        setResetAnim(translationX);
+//                        break;
+//                }
+//
+//                return false;
+//            }
+//        });
+
+        dismiss();
     }
 
+    private void setResetAnim(float translationX) {
+        XposedBridge.log("translationX = " + translationX + "");
+        int screenWidth = ScreenUtils.getScreenWidth(mContext);
+        if (translationX >= screenWidth / 2) {
+            dismiss(((int) translationX));
+        } else {
+            show(((int) translationX));
+        }
+    }
+
+    private float moveX;
 
     @Override
     public void setOnDialogItemClickListener(ChatRoomRecyclerViewAdapter.OnDialogItemClickListener listener) {
@@ -114,14 +200,26 @@ public class ChatRoomView implements ChatRoomContract.View {
         return contentView.getVisibility() == View.VISIBLE;
     }
 
+
     @Override
     public void show() {
-        if (contentView.getVisibility() == View.VISIBLE) return;
+        show(ScreenUtils.getScreenWidth(mContext) + ScreenUtils.dip2px(mContext, 16));
+    }
+
+    @Override
+    public void dismiss() {
+        dismiss(0);
+    }
+
+    @Override
+    public void show(int offest) {
+        XposedBridge.log("show, offest = " + offest);
+        //       if (contentView.getVisibility() == View.VISIBLE) return;
         if (isInAnim) return;
 
         isInAnim = true;
         contentView.setVisibility(View.VISIBLE);
-        ValueAnimator animator = ValueAnimator.ofInt(1080 + ScreenUtils.dip2px(mContext, 16), -ScreenUtils.dip2px
+        ValueAnimator animator = ValueAnimator.ofInt(offest, -ScreenUtils.dip2px
                 (mContext, 16));
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -157,13 +255,12 @@ public class ChatRoomView implements ChatRoomContract.View {
     }
 
     @Override
-    public void dismiss() {
-        if (contentView.getVisibility() == View.GONE) return;
+    public void dismiss(int offest) {
+        XposedBridge.log("dismiss, offest = " + offest);
         if (isInAnim) return;
 
         isInAnim = true;
-        ValueAnimator animator = ValueAnimator.ofInt(-ScreenUtils.dip2px(mContext, 16),
-                1080 + ScreenUtils.dip2px(mContext, 16));
+        ValueAnimator animator = ValueAnimator.ofInt(offest, ScreenUtils.getScreenWidth(mContext) + ScreenUtils.dip2px(mContext, 16));
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -178,7 +275,7 @@ public class ChatRoomView implements ChatRoomContract.View {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                contentView.setVisibility(View.GONE);
+                //   contentView.setVisibility(View.GONE);
                 isInAnim = false;
             }
 

@@ -32,6 +32,10 @@ public interface ChatRoomContract {
 
         void dismiss();
 
+        void show(int offest);
+
+        void dismiss(int offest);
+
         void showMessageRefresh(String targetUserName);
 
         void showMessageRefresh(ArrayList<Integer> muteListInAdapterPositions);
