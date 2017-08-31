@@ -197,7 +197,7 @@ public class ChatRoomView implements ChatRoomContract.View {
 
     @Override
     public boolean isShowing() {
-        return contentView.getVisibility() == View.VISIBLE;
+        return contentView.getTranslationX() != ScreenUtils.getScreenWidth(mContext) + ScreenUtils.dip2px(mContext, 16);
     }
 
 
