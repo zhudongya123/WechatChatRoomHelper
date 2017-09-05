@@ -5,16 +5,16 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
-import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.Display;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 
-
 import java.lang.reflect.Method;
+
+import de.robv.android.xposed.XposedBridge;
 
 
 public class ScreenUtils {
@@ -134,12 +134,27 @@ public class ScreenUtils {
     }
 
     public static int getNavigationBarHeight(Context context) {
-        Resources resources = context.getResources();
-        int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            return resources.getDimensionPixelSize(resourceId);
+
+        boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
+        boolean hasHomeKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_HOME);
+
+
+        if (hasBackKey && hasHomeKey) {
+            XposedBridge.log("no navigation bar, unless it is enabled in the settings");
+            return 0;
+        } else {
+            //
+            Resources resources = context.getResources();
+            int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+            XposedBridge.log("99% sure there's a navigation bar, navigation_bar_height = " + resources
+                    .getDimensionPixelSize(resourceId));
+            if (resourceId > 0) {
+                return resources.getDimensionPixelSize(resourceId);
+            }
+            return 0;
         }
-        return 0;
+
+
     }
 
     /**

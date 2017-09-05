@@ -141,8 +141,6 @@ public class ChatRoomView implements ChatRoomContract.View {
         contentView.addView(mainView);
         mContainer.addView(contentView, params);
 
-        //  contentView.setBackground(new ColorDrawable(0xFFFEF5A4));
-
 //        contentView.setOnTouchListener(new View.OnTouchListener() {
 //            @Override
 //            public boolean onTouch(View v, MotionEvent event) {
