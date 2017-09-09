@@ -49,13 +49,12 @@ public class Constants {
 
     public static String Method_Message_True_Content;
     public static String Value_Message_True_Content_Params;
-
     public static String Method_Message_True_Time;
 
-    public static String Class_Tencent_Home_UI = "com.tencent.mm.ui.HomeUI";
-    public static String Method_Home_UI_Inflater_View = "af";
-    public static String Value_Home_UI_Activity = "uOv";
-    public static String Method_Conversation_List_View_Adapter_Param = "com.tencent.mm.ui.e$a";
+    public static String Class_Tencent_Home_UI;
+    public static String Method_Home_UI_Inflater_View;
+    public static String Value_Home_UI_Activity ;
+    public static String Method_Conversation_List_View_Adapter_Param ;
 
 
 
