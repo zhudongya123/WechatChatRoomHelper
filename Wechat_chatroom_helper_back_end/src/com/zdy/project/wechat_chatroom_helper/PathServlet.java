@@ -36,17 +36,17 @@ public class PathServlet extends HttpServlet {
         PrintWriter writer = resp.getWriter();
 
         String versionCode = req.getParameter("versionCode");
+        String isPlayVersion = "0";
+        isPlayVersion = req.getParameter("isPlayVersion");
 
         Integer versionCodeNumber = Integer.valueOf(versionCode);
 
         JsonObject jsonObject = new JsonObject();
         JsonObject data = new JsonObject();
         switch (versionCodeNumber) {
-
             case 1060:
                 jsonObject.addProperty("code", 0);
                 jsonObject.addProperty("msg", "success");
-
 
                 data.addProperty("cclvan", "com.tencent.mm.ui.conversation.g");
                 data.addProperty("cclvapn", "com.tencent.mm.ui.e");
@@ -92,9 +92,7 @@ public class PathServlet extends HttpServlet {
                 data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
 
                 jsonObject.add("data", data);
-
                 break;
-
             case 1080:
                 jsonObject.addProperty("code", 0);
                 jsonObject.addProperty("msg", "success");
@@ -143,63 +141,67 @@ public class PathServlet extends HttpServlet {
                 data.addProperty("vhua", "uxw");
                 data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
 
-
                 jsonObject.add("data", data);
-
                 break;
 
             case 1100:
-                jsonObject.addProperty("code", 0);
-                jsonObject.addProperty("msg", "success");
+                if (isPlayVersion.endsWith("0")) {
 
-                data.addProperty("cclvan", "com.tencent.mm.ui.conversation.g");
-                data.addProperty("cclvapn", "com.tencent.mm.ui.e");
-                data.addProperty("cclaon", "com.tencent.mm.ui.conversation.e");
+                    jsonObject.addProperty("code", 0);
+                    jsonObject.addProperty("msg", "success");
 
-                data.addProperty("cclvas", "g");
-                data.addProperty("cclvaps", "e");
+                    data.addProperty("cclvan", "com.tencent.mm.ui.conversation.g");
+                    data.addProperty("cclvapn", "com.tencent.mm.ui.e");
+                    data.addProperty("cclaon", "com.tencent.mm.ui.conversation.e");
 
-                data.addProperty("mmsb", "j");
-                data.addProperty("mago", "yL");
+                    data.addProperty("cclvas", "g");
+                    data.addProperty("cclvaps", "e");
 
-                data.addProperty("vmsim1", "waz");
-                data.addProperty("vmsim2", "vAw");
-                data.addProperty("vla", "vZM");
-                data.addProperty("vl", "vZj");
+                    data.addProperty("mmsb", "j");
+                    data.addProperty("mago", "yL");
 
-                data.addProperty("vlavt", "vtJ");
-                data.addProperty("vlava", "ipb");
-                data.addProperty("vlavc", "vtL");
+                    data.addProperty("vmsim1", "waz");
+                    data.addProperty("vmsim2", "vAw");
+                    data.addProperty("vla", "vZM");
+                    data.addProperty("vl", "vZj");
 
-                data.addProperty("magos1", "uMR");
-                data.addProperty("magos2", "uKT");
-                data.addProperty("magos3", "yL");
+                    data.addProperty("vlavt", "vtJ");
+                    data.addProperty("vlava", "ipb");
+                    data.addProperty("vlavc", "vtL");
 
-
-                data.addProperty("ctl", "com.tencent.mm.sdk.platformtools.v");
-                data.addProperty("csa", "com.tencent.mm.pluginsdk.ui.a$b");
-
-                data.addProperty("dsa", "sk");
-                data.addProperty("dss", "ao1");
-                data.addProperty("dsca", "v0");
-
-                data.addProperty("vmbc", "war");
-                data.addProperty("vmbn", "nickName");
-
-                data.addProperty("vmbt", "waq");
-
-                data.addProperty("mmtc", "b");
-                data.addProperty("vmtcp", "wax");
-                data.addProperty("mmtt", "i");
+                    data.addProperty("magos1", "uMR");
+                    data.addProperty("magos2", "uKT");
+                    data.addProperty("magos3", "yL");
 
 
-                data.addProperty("cthu", "com.tencent.mm.ui.HomeUI");
-                data.addProperty("mhuiv", "af");
-                data.addProperty("vhua", "uOv");
-                data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
+                    data.addProperty("ctl", "com.tencent.mm.sdk.platformtools.v");
+                    data.addProperty("csa", "com.tencent.mm.pluginsdk.ui.a$b");
 
-                jsonObject.add("data", data);
+                    data.addProperty("dsa", "sk");
+                    data.addProperty("dss", "ao1");
+                    data.addProperty("dsca", "v0");
 
+                    data.addProperty("vmbc", "war");
+                    data.addProperty("vmbn", "nickName");
+
+                    data.addProperty("vmbt", "waq");
+
+                    data.addProperty("mmtc", "b");
+                    data.addProperty("vmtcp", "wax");
+                    data.addProperty("mmtt", "i");
+
+
+                    data.addProperty("cthu", "com.tencent.mm.ui.HomeUI");
+                    data.addProperty("mhuiv", "af");
+                    data.addProperty("vhua", "uOv");
+                    data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
+
+                    jsonObject.add("data", data);
+
+                } else {
+                    jsonObject.addProperty("code", 1);
+                    jsonObject.addProperty("msg", "no_info");
+                }
                 break;
 
             default:
@@ -211,7 +213,6 @@ public class PathServlet extends HttpServlet {
         writer.write(jsonObject.toString());
 
     }
-
 
 
 }

@@ -212,7 +212,6 @@ public class ChatRoomView implements ChatRoomContract.View {
     @Override
     public void show(int offest) {
         XposedBridge.log("show, offest = " + offest);
-        //       if (contentView.getVisibility() == View.VISIBLE) return;
         if (isInAnim) return;
 
         isInAnim = true;
@@ -273,7 +272,6 @@ public class ChatRoomView implements ChatRoomContract.View {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                //   contentView.setVisibility(View.GONE);
                 isInAnim = false;
             }
 
@@ -407,7 +405,6 @@ public class ChatRoomView implements ChatRoomContract.View {
                 new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
         mToolbar.setNavigationIcon(mContext.getResources()
                 .getIdentifier(Drawable_String_Arrow, "drawable", mContext.getPackageName()));
-
 
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
