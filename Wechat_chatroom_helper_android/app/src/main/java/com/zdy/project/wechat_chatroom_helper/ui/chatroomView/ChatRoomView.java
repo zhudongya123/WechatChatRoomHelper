@@ -139,6 +139,7 @@ public class ChatRoomView implements ChatRoomContract.View {
 
         contentView.addView(maskView);
         contentView.addView(mainView);
+        contentView.setClickable(true);
         mContainer.addView(contentView, params);
 
 //        contentView.setOnTouchListener(new View.OnTouchListener() {

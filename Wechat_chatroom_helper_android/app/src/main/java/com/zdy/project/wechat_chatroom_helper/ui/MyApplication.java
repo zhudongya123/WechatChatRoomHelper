@@ -3,7 +3,6 @@ package com.zdy.project.wechat_chatroom_helper.ui;
 import android.app.Application;
 
 import com.tencent.bugly.Bugly;
-import com.tencent.bugly.crashreport.CrashReport;
 
 
 /**
@@ -19,8 +18,7 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-       // Bugly.init(getApplicationContext(), "ed7bb0e103", false);
-
+        Bugly.init(getApplicationContext(), "ed7bb0e103", false);
 
         INSTANCE = this;
     }

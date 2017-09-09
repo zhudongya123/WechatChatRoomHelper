@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Environment;
 import android.util.Log;
 
 import com.zdy.project.wechat_chatroom_helper.network.ApiManager;
@@ -62,13 +61,8 @@ public class CrashHandler {
         return infos;
     }
 
-    /**
-     * 保存错误信息到文件中
-     *
-     * @param ex
-     * @return 返回文件名称, 便于将文件传送到服务器
-     */
     public static void saveCrashInfo2File(Throwable ex, Context context) {
+        if (ex instanceof NoSuchFieldError) return;
         try {
             if (context == null) return;
 

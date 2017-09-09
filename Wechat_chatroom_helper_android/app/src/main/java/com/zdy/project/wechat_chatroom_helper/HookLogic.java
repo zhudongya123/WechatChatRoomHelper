@@ -116,9 +116,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                         loadPackageParam.classLoader), new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        chatRoomViewPresenter = new ChatRoomViewPresenter(context);
-                        chatRoomViewPresenter.setAdapter(param.thisObject);
-                        chatRoomViewPresenter.start();
+                        try {
+                            hookAdapterInit(param);
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                            CrashHandler.saveCrashInfo2File(e, context);
+                        }
                     }
                 });
 
@@ -221,6 +224,12 @@ public class HookLogic implements IXposedHookLoadPackage {
         //   if (!PreferencesUtils.getBugUnread()) return;
 
         //   fixUnread(loadPackageParam);
+    }
+
+    private void hookAdapterInit(XC_MethodHook.MethodHookParam param) {
+        chatRoomViewPresenter = new ChatRoomViewPresenter(context);
+        chatRoomViewPresenter.setAdapter(param.thisObject);
+        chatRoomViewPresenter.start();
     }
 
 
