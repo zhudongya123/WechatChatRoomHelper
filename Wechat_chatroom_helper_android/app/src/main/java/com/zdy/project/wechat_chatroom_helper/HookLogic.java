@@ -506,16 +506,19 @@ public class HookLogic implements IXposedHookLoadPackage {
                             if (param.args[2] != null) {
                                 Object[] arg = (Object[]) param.args[2];
 
-                                for (Object o : arg)
-                                    params = params + o.toString() + " ";
+                            //    for (Object o : arg)
+//                                    if (o != null)
+//                                        params = params + o.toString() + " ";
                             }
                         } catch (Exception e) {
+                            e.printStackTrace();
                         }
+
                         XposedBridge.log("XposedLogi, desc = " + desc + ", value = " + value + ", params = " + params);
 
                         //无奈之举，只能使用拦截日志的做法来实现部分功能
                         Object arg = param.args[1];
-                        if (arg instanceof String) {
+                        if (arg != null) {
                             //关闭聊天窗口
                             if (((String) arg).contains("closeChatting")) {
                                 isInChatting = false;
