@@ -9,13 +9,8 @@
         <SwitchPreference
             android:defaultValue="false"
             android:dependency="open"
-            android:key="auto_close"
-            android:title="@string/pref_auto_close" />
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="bug_unread"
-            android:title="@string/bug_unread_strings" />
+            android:key="play_version"
+            android:title="@string/play_version_string" />
 
 
         <EditTextPreference

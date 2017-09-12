@@ -42,27 +42,35 @@ public class PathServlet extends HttpServlet {
 
         JsonObject jsonObject = new JsonObject();
         JsonObject data = new JsonObject();
+
+        String msg;
+
         switch (versionCodeNumber) {
             case 1060:
                 jsonObject.addProperty("code", 0);
-                jsonObject.addProperty("msg", "success");
 
-                if (isPlayVersion.endsWith("0")) {
+                if (isPlayVersion.equals("0")) {
                     getConfig1060(data);
                 } else {
                     getConfig1060playVersion(data);
                 }
+
+                msg = "微信版本" + versionCodeNumber + (isPlayVersion.equals("0") ? "" : "(play)") + "已经成功适配，如未有效果，请重启微信客户端查看。";
+
                 jsonObject.add("data", data);
                 break;
             case 1080:
                 jsonObject.addProperty("code", 0);
-                jsonObject.addProperty("msg", "success");
 
-                if (isPlayVersion.endsWith("0")) {
+                if (isPlayVersion.equals("0")) {
                     getConfig1080(data);
                 } else {
                     getConfig1080playVersion(data);
                 }
+
+
+                msg = "微信版本" + versionCodeNumber + (isPlayVersion.equals("0") ? "" : "(play)") + "已经成功适配，如未有效果，请重启微信客户端查看。";
+
                 jsonObject.add("data", data);
                 break;
 
@@ -76,24 +84,28 @@ public class PathServlet extends HttpServlet {
                 break;
 
             case 1100:
-                if (isPlayVersion.endsWith("0")) {
+                if (isPlayVersion.equals("0")) {
 
                     jsonObject.addProperty("code", 0);
-                    jsonObject.addProperty("msg", "success");
 
                     getConfig1100(data);
 
                     jsonObject.add("data", data);
+
+                    msg = "微信版本" + versionCodeNumber + "已经成功适配，如未有效果，请重启微信客户端查看。";
+
                 } else {
                     jsonObject.addProperty("code", 1);
-                    jsonObject.addProperty("msg", "no_info");
+
+                    msg = "微信版本" + versionCodeNumber + "(play)" + "暂未适配，请等待开发者解决。";
                 }
                 break;
             default:
                 jsonObject.addProperty("code", 1);
-                jsonObject.addProperty("msg", "no_info");
+                msg = "微信版本" + versionCodeNumber + "暂未适配，请等待开发者解决。";
                 break;
         }
+        jsonObject.addProperty("msg", msg);
 
         writer.write(jsonObject.toString());
     }

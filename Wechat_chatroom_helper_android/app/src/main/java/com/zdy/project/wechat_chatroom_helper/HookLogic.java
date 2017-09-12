@@ -107,7 +107,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 }
                             }
                         }
-
                     }
                 });
 

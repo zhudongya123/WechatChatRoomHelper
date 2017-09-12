@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.SwitchPreference;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.Html;
@@ -77,7 +78,8 @@ public class MainActivity extends AppCompatActivity {
 
         int saveVersionCode = sharedPreferences.getInt("saveVersionCode", 0);
 
-        sendRequest(saveVersionCode);
+        boolean play_version = sharedPreferences.getBoolean("play_version", false);
+        sendRequest(saveVersionCode, play_version);
 
         settingFragment = new SettingFragment();
         getFragmentManager().beginTransaction().replace(fragmentContent.getId(), settingFragment).commit();
@@ -116,14 +118,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void sendRequest(int saveVersionCode) {
+    public void sendRequest(int saveVersionCode, boolean play_version) {
 
         int helper_versionCode = sharedPreferences.getInt("helper_versionCode", 0);
 
         if (versionCode != saveVersionCode || getVersionCode(this) != helper_versionCode) {
 
             RequestBody requestBody = new FormBody.Builder()
-                    .add("versionCode", String.valueOf(versionCode)).build();
+                    .add("versionCode", String.valueOf(versionCode))
+                    .add("isPlayVersion", play_version ? "1" : "0")
+                    .build();
 
             final Request request = new Request.Builder()
                     .url(CLASS_MAPPING)
@@ -147,21 +151,29 @@ public class MainActivity extends AppCompatActivity {
 
                         int code = jsonObject.get("code").getAsInt();
 
+                        SharedPreferences.Editor edit = sharedPreferences.edit();
                         if (code == 0) {
-                            SharedPreferences.Editor edit = sharedPreferences.edit();
+
                             edit.putString("json", jsonObject.get("data").toString());
                             edit.putInt("saveVersionCode", versionCode);
-                            edit.putInt("helper_versionCode", getVersionCode(MainActivity.this));
-                            edit.apply();
-
                             setSuccessText(versionName + "(" + versionCode + ")");
-                        } else setFailText(versionName + "(" + versionCode + ")");
+
+                        } else {
+
+                            edit.putString("json", "");
+                            edit.putInt("saveVersionCode", 0);
+                            setFailText(versionName + "(" + versionCode + ")");
+
+                        }
+
+
+                        edit.putInt("helper_versionCode", getVersionCode(MainActivity.this));
+                        edit.apply();
                     } catch (Exception e) {
                         e.printStackTrace();
                         setFailText(versionName + "(" + versionCode + ")");
                     }
                 }
-
 
             });
         } else setSuccessText(versionName + "(" + versionCode + ")");
@@ -182,6 +194,7 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                detail.setTextColor(0xFF888888);
                 detail.setText("微信版本" + versionInfo + "已经成功适配，如未有效果，请重启微信客户端查看。");
             }
         });
@@ -196,10 +209,25 @@ public class MainActivity extends AppCompatActivity {
 
             final EditTextPreference toolbarColor = ((EditTextPreference) findPreference("toolbar_color"));
             setToolbarColor(toolbarColor);
+
+
+            final SwitchPreference play_version = (SwitchPreference) findPreference("play_version");
+            setCheckPlayVersion(play_version);
+        }
+
+        private void setCheckPlayVersion(final SwitchPreference play_version) {
+            play_version.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+
+                    ((MainActivity) getActivity()).sendRequest(0, (Boolean) newValue);
+
+                    return true;
+                }
+            });
         }
 
         private void setToolbarColor(final EditTextPreference preference) {
-
 
             final PreferenceTextWatcher watcher = new PreferenceTextWatcher(preference);
             preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
