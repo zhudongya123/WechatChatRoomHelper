@@ -65,6 +65,16 @@ public class PathServlet extends HttpServlet {
                 }
                 jsonObject.add("data", data);
                 break;
+
+            case 1081:
+                jsonObject.addProperty("code", 0);
+                jsonObject.addProperty("msg", "success");
+
+
+                getConfig1081playVersion(data);
+                jsonObject.add("data", data);
+                break;
+
             case 1100:
                 if (isPlayVersion.endsWith("0")) {
 
@@ -87,6 +97,8 @@ public class PathServlet extends HttpServlet {
 
         writer.write(jsonObject.toString());
     }
+
+
 
     private void getConfig1100(JsonObject data) {
         data.addProperty("cclvan", "com.tencent.mm.ui.conversation.g");
@@ -133,6 +145,53 @@ public class PathServlet extends HttpServlet {
         data.addProperty("cthu", "com.tencent.mm.ui.HomeUI");
         data.addProperty("mhuiv", "af");
         data.addProperty("vhua", "uOv");
+        data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
+    }
+
+    private void getConfig1081playVersion(JsonObject data) {
+        data.addProperty("cclvan", "com.tencent.mm.ui.conversation.g");
+        data.addProperty("cclvapn", "com.tencent.mm.ui.e");
+        data.addProperty("cclaon", "com.tencent.mm.ui.conversation.e");
+
+        data.addProperty("cclvas", "g");
+        data.addProperty("cclvaps", "e");
+
+        data.addProperty("mmsb", "j");
+        data.addProperty("mago", "yQ");
+
+        data.addProperty("vmsim1", "wcy");
+        data.addProperty("vmsim2", "vCm");
+        data.addProperty("vla", "wbL");
+        data.addProperty("vl", "wbi");
+
+        data.addProperty("vlavt", "vvy");
+        data.addProperty("vlava", "ipv");
+        data.addProperty("vlavc", "vvA");
+
+        data.addProperty("magos1", "uOG");
+        data.addProperty("magos2", "uMI");
+        data.addProperty("magos3", "yQ");
+
+        data.addProperty("ctl", "com.tencent.mm.sdk.platformtools.w");
+        data.addProperty("csa", "com.tencent.mm.pluginsdk.ui.a$b");
+
+        data.addProperty("dsa", "sk");
+        data.addProperty("dss", "ao1");
+        data.addProperty("dsca", "v0");
+
+        data.addProperty("vmbc", "wcq");
+        data.addProperty("vmbn", "nickName");
+
+        data.addProperty("vmbt", "wcp");
+
+        data.addProperty("mmtc", "b");
+        data.addProperty("vmtcp", "wcw");
+        data.addProperty("mmtt", "i");
+
+
+        data.addProperty("cthu", "com.tencent.mm.ui.HomeUI");
+        data.addProperty("mhuiv", "af");
+        data.addProperty("vhua", "uQk");
         data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
     }
 
