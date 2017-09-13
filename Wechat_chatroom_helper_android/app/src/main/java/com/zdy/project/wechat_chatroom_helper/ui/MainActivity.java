@@ -1,5 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.ui;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -13,6 +14,7 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.menu.ExpandedMenuView;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
@@ -46,12 +48,7 @@ import static com.zdy.project.wechat_chatroom_helper.network.ApiManager.UrlPath.
 public class MainActivity extends AppCompatActivity {
 
 
-    private FrameLayout fragmentContent;
-
     SettingFragment settingFragment;
-
-    int versionCode;
-    String versionName;
 
     SharedPreferences sharedPreferences;
 
@@ -59,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView textView;
     private Button button;
     private TextView detail;
+
+    AlertDialog alertDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,41 +69,173 @@ public class MainActivity extends AppCompatActivity {
         button = (Button) findViewById(R.id.button);
         detail = (TextView) findViewById(R.id.detail);
 
-        fragmentContent = (FrameLayout) findViewById(R.id.fragment_content);
-        sharedPreferences
-                = getSharedPreferences(this.getPackageName() + "_preferences", MODE_WORLD_READABLE);
+        FrameLayout fragmentContent = (FrameLayout) findViewById(R.id.fragment_content);
+        sharedPreferences = getSharedPreferences(this.getPackageName() + "_preferences", MODE_WORLD_READABLE);
 
-        getVersion();
-
-        int saveVersionCode = sharedPreferences.getInt("saveVersionCode", 0);
-
-        boolean play_version = sharedPreferences.getBoolean("play_version", false);
-        sendRequest(saveVersionCode, play_version);
 
         settingFragment = new SettingFragment();
         getFragmentManager().beginTransaction().replace(fragmentContent.getId(), settingFragment).commit();
 
+        ApiManager.getINSTANCE().sendRequestForHomeInfo(String.valueOf(getHelperVersionCode(MainActivity.this)),
+                new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
 
-        textView.setText(Html.fromHtml(
-                "<p><a href=\"https://github.com/zhudongya123/WechatChatroomHelper/issues\">反馈地址</a></p>\n" + "鸣谢:<br>\n" +
-                        "<p><a href=\"https://www.coolapk.com/apk/com.toshiba_dealin.developerhelper\">开发者助手开发者（东芝）</a></p>\n" +
-                        "<p><a href=\"https://github.com/veryyoung\">微信红包开发者（veryyoung）</a></p>"));
-        textView.setMovementMethod(LinkMovementMethod.getInstance());
-    }
+                    }
 
-    private void getVersion() {
-        PackageManager packageManager = getPackageManager();
-        List<PackageInfo> packageInfoList = packageManager.getInstalledPackages(0);
-        for (PackageInfo packageInfo : packageInfoList) {
+                    @Override
+                    public void onResponse(Call call, final Response response) throws IOException {
+                        final String result = response.body().string();
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                alertDialog = new AlertDialog.Builder(MainActivity.this)
+                                        .setMessage(Html.fromHtml(result)).create();
 
-            if (packageInfo.packageName.equals("com.tencent.mm")) {
-                versionCode = packageInfo.versionCode;
-                versionName = packageInfo.versionName;
+                            }
+                        });
+                    }
+                });
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (alertDialog != null)
+                    alertDialog.show();
             }
+        });
+
+
+        //是否已经适配了合适的数据 的标记
+        boolean has_suit_wechat_data = sharedPreferences.getBoolean("has_suit_wechat_data", false);
+
+        //play开关是否打开 的标记
+        boolean play_version = sharedPreferences.getBoolean("play_version", false);
+
+        //当前主程序的版本好
+        int helper_versionCode = sharedPreferences.getInt("helper_versionCode", 0);
+
+        //如果没有适合的数据，或者刚刚更新了主程序版本
+        if (!has_suit_wechat_data || helper_versionCode != getHelperVersionCode(this)) {
+
+            //则发送数据请求
+            sendRequest(getWechatVersionCode(), play_version);
+        } else {
+
+            //否则则取出上次保存的合适的信息
+            detail.setTextColor(0xFF888888);
+            detail.setText(sharedPreferences.getString("show_info", ""));
         }
     }
 
-    private int getVersionCode(Context context) {
+    /**
+     * 请求服务器配置
+     *
+     * @param versionCode  微信的版本号
+     * @param play_version 是否为play版本
+     */
+    public void sendRequest(int versionCode, boolean play_version) {
+
+        RequestBody requestBody = new FormBody.Builder()
+                .add("versionCode", String.valueOf(versionCode))
+                .add("isPlayVersion", play_version ? "1" : "0")
+                .build();
+
+        final Request request = new Request.Builder()
+                .url(CLASS_MAPPING)
+                .post(requestBody)
+                .build();
+
+        ApiManager.getINSTANCE().getClient().newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                setFailText("从服务器获取数据失败，请检查网络后再试");
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    String string = response.body().string();
+                    Log.v("result = ", string);
+
+                    JsonObject jsonObject = new JsonParser().parse(string).getAsJsonObject();
+
+                    int code = jsonObject.get("code").getAsInt();
+                    String msg = jsonObject.get("msg").getAsString();
+
+                    SharedPreferences.Editor edit = sharedPreferences.edit();
+                    if (code == 0) {
+                        edit.putString("json", jsonObject.get("data").toString());
+                        setSuccessText(msg);
+
+                    } else {
+                        edit.putString("json", "");
+                        setFailText(msg);
+                    }
+
+                    edit.putInt("helper_versionCode", getHelperVersionCode(MainActivity.this));
+                    edit.apply();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    setFailText("从服务器获取数据失败，请联系开发者解决问题");
+                }
+            }
+
+        });
+    }
+
+    private void setFailText(final String msg) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                detail.setText(msg);
+                detail.setTextColor(0xFFFF0000);
+
+
+                SharedPreferences.Editor edit = sharedPreferences.edit();
+                edit.putBoolean("has_suit_wechat_data", false);
+                edit.putString("show_info", msg);
+                edit.apply();
+            }
+        });
+    }
+
+    private void setSuccessText(final String msg) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                detail.setTextColor(0xFF888888);
+                detail.setText(msg);
+
+                SharedPreferences.Editor edit = sharedPreferences.edit();
+                edit.putBoolean("has_suit_wechat_data", true);
+                edit.putString("show_info", msg);
+                edit.apply();
+            }
+        });
+    }
+
+    private int getWechatVersionCode() {
+
+        PackageManager packageManager = getPackageManager();
+        List<PackageInfo> packageInfoList = packageManager.getInstalledPackages(0);
+        try {
+            for (PackageInfo packageInfo : packageInfoList) {
+
+                if (packageInfo.packageName.equals("com.tencent.mm")) {
+                    return packageInfo.versionCode;
+                }
+            }
+            return 1060;
+
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return 1060;
+        }
+    }
+
+    private int getHelperVersionCode(Context context) {
         PackageManager packageManager = context.getPackageManager();
         PackageInfo packageInfo;
         int versionCode = 0;
@@ -117,88 +248,6 @@ public class MainActivity extends AppCompatActivity {
         return versionCode;
     }
 
-
-    public void sendRequest(int saveVersionCode, boolean play_version) {
-
-        int helper_versionCode = sharedPreferences.getInt("helper_versionCode", 0);
-
-        if (versionCode != saveVersionCode || getVersionCode(this) != helper_versionCode) {
-
-            RequestBody requestBody = new FormBody.Builder()
-                    .add("versionCode", String.valueOf(versionCode))
-                    .add("isPlayVersion", play_version ? "1" : "0")
-                    .build();
-
-            final Request request = new Request.Builder()
-                    .url(CLASS_MAPPING)
-                    .post(requestBody)
-                    .build();
-
-            ApiManager.getINSTANCE().getClient().newCall(request).enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    e.printStackTrace();
-                    setFailText(versionName + "(" + versionCode + ")");
-                }
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    try {
-                        String string = response.body().string();
-                        Log.v("result = ", string);
-
-                        JsonObject jsonObject = new JsonParser().parse(string).getAsJsonObject();
-
-                        int code = jsonObject.get("code").getAsInt();
-
-                        SharedPreferences.Editor edit = sharedPreferences.edit();
-                        if (code == 0) {
-
-                            edit.putString("json", jsonObject.get("data").toString());
-                            edit.putInt("saveVersionCode", versionCode);
-                            setSuccessText(versionName + "(" + versionCode + ")");
-
-                        } else {
-
-                            edit.putString("json", "");
-                            edit.putInt("saveVersionCode", 0);
-                            setFailText(versionName + "(" + versionCode + ")");
-
-                        }
-
-
-                        edit.putInt("helper_versionCode", getVersionCode(MainActivity.this));
-                        edit.apply();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        setFailText(versionName + "(" + versionCode + ")");
-                    }
-                }
-
-            });
-        } else setSuccessText(versionName + "(" + versionCode + ")");
-    }
-
-
-    private void setFailText(final String versionInfo) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                detail.setText("当前微信版本" + versionInfo + "暂未适配，或者出现其他问题，请等待开发者解决。");
-                detail.setTextColor(0xFFFF0000);
-            }
-        });
-    }
-
-    private void setSuccessText(final String versionInfo) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                detail.setTextColor(0xFF888888);
-                detail.setText("微信版本" + versionInfo + "已经成功适配，如未有效果，请重启微信客户端查看。");
-            }
-        });
-    }
 
     public static class SettingFragment extends PreferenceFragment {
         @Override
@@ -220,7 +269,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
 
-                    ((MainActivity) getActivity()).sendRequest(0, (Boolean) newValue);
+                    MainActivity activity = (MainActivity) getActivity();
+                    activity.sendRequest(activity.getWechatVersionCode(), (Boolean) newValue);
 
                     return true;
                 }
@@ -276,7 +326,6 @@ public class MainActivity extends AppCompatActivity {
         private int getColorInt(CharSequence colorString) {
             return Color.parseColor("#" + colorString);
         }
-
 
         private class PreferenceTextWatcher implements TextWatcher {
 
