@@ -80,6 +80,9 @@ public class PathServlet extends HttpServlet {
 
 
                 getConfig1081playVersion(data);
+
+                msg = "微信版本" + versionCodeNumber + (isPlayVersion.equals("0") ? "" : "(play)") + "已经成功适配，如未有效果，请重启微信客户端查看。";
+
                 jsonObject.add("data", data);
                 break;
 
@@ -158,6 +161,7 @@ public class PathServlet extends HttpServlet {
         data.addProperty("mhuiv", "af");
         data.addProperty("vhua", "uOv");
         data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
+        data.addProperty("mclga", "a");
     }
 
     private void getConfig1081playVersion(JsonObject data) {
@@ -205,6 +209,7 @@ public class PathServlet extends HttpServlet {
         data.addProperty("mhuiv", "af");
         data.addProperty("vhua", "uQk");
         data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
+        data.addProperty("mclga", "a");
     }
 
     private void getConfig1080playVersion(JsonObject data) {
@@ -250,6 +255,7 @@ public class PathServlet extends HttpServlet {
         data.addProperty("mhuiv", "af");
         data.addProperty("vhua", "uyd");
         data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
+        data.addProperty("mclga", "h");
     }
 
     private void getConfig1080(JsonObject data) {
@@ -296,6 +302,7 @@ public class PathServlet extends HttpServlet {
         data.addProperty("mhuiv", "af");
         data.addProperty("vhua", "uxw");
         data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
+        data.addProperty("mclga", "h");
     }
 
     private void getConfig1060playVersion(JsonObject data) {
@@ -341,6 +348,7 @@ public class PathServlet extends HttpServlet {
         data.addProperty("mhuiv", "ad");
         data.addProperty("vhua", "tPE");
         data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
+        data.addProperty("mclga", "h");
     }
 
     private void getConfig1060(JsonObject data) {
@@ -386,7 +394,7 @@ public class PathServlet extends HttpServlet {
         data.addProperty("mhuiv", "ad");
         data.addProperty("vhua", "tNB");
         data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
+        data.addProperty("mclga", "h");
     }
-
 
 }
