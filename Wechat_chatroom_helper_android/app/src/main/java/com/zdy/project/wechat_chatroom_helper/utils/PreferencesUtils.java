@@ -94,6 +94,11 @@ public class PreferencesUtils {
             Constants.Value_Home_UI_Activity = jsonObject.get("vhua").getAsString();
             Constants.Method_Conversation_List_View_Adapter_Param = jsonObject.get("mclvap").getAsString();
 
+            Constants.Method_Conversation_List_Get_Avatar = jsonObject.get("mclga").getAsString();
+
+
+
+
             return true;
         } catch (Exception e) {
             return false;

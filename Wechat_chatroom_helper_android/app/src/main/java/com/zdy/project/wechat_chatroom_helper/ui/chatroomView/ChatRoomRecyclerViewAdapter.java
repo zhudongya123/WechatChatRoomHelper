@@ -99,7 +99,7 @@ public class ChatRoomRecyclerViewAdapter extends RecyclerView.Adapter<ChatRoomVi
             e.printStackTrace();
         }
 
-        HookLogic.setAvatar(holder.avatar, entity.field_username);
+     HookLogic.setAvatar(holder.avatar, entity.field_username);
 
 
         if (entity.field_unReadCount > 0)

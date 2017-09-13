@@ -57,5 +57,8 @@ public class Constants {
     public static String Method_Conversation_List_View_Adapter_Param ;
 
 
+    public static String Method_Conversation_List_Get_Avatar ;
+
+
 
 }

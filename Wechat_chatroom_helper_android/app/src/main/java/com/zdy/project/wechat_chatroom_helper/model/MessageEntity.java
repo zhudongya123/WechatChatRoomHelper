@@ -47,6 +47,7 @@ public class MessageEntity {
             field_digest = XposedHelpers.getObjectField(value, "field_digest").toString();
         } catch (Exception e) {
             e.printStackTrace();
+            field_username = "null";
         }
 //        field_digestUser = XposedHelpers.getObjectField(value, "field_digestUser").toString();
 //        field_editingMsg = XposedHelpers.getObjectField(value, "field_editingMsg").toString();
@@ -80,6 +81,7 @@ public class MessageEntity {
             field_username = XposedHelpers.getObjectField(value, "field_username").toString();
         } catch (Exception e) {
             e.printStackTrace();
+            field_username = "null";
         }
     }
 

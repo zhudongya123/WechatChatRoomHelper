@@ -38,7 +38,29 @@ import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
-import static com.zdy.project.wechat_chatroom_helper.Constants.*;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_Adapter_OnItemClickListener_Name;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_Name;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_Parent_Name;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_SimpleName;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Set_Avatar;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Tencent_Home_UI;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Tencent_Log;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Chatroom_Avatar;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_1;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_2;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_3;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Conversation_List_View_Adapter_Param;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Home_UI_Inflater_View;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_Status_Bean;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Home_UI_Activity;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Avatar;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Content;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Title;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_Mute_1;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_Mute_2;
+import static com.zdy.project.wechat_chatroom_helper.Constants.WECHAT_PACKAGE_NAME;
 
 /**
  * Created by zhudo on 2017/7/2.
@@ -464,10 +486,8 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     public static void setAvatar(ImageView avatar, String field_username) {
         try {
-            String h = "h";
-            if (PreferencesUtils.getVersionCode() == 1100) h = "a";
             XposedHelpers.callStaticMethod(Class.forName(Class_Set_Avatar, false, mClassLoader),
-                    h, avatar, field_username);
+                    Constants.Method_Conversation_List_Get_Avatar, avatar, field_username);
         } catch (Exception e) {
             e.printStackTrace();
         }
