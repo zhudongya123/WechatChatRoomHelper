@@ -55,7 +55,7 @@ public class PathServlet extends HttpServlet {
                     getConfig1060playVersion(data);
                 }
 
-                msg = "微信版本" + versionCodeNumber + (isPlayVersion.equals("0") ? "" : "(play)") + "已经成功适配，如未有效果，请重启微信客户端查看。";
+                msg = "微信版本 6.5.8(" + versionCodeNumber + ")" + (isPlayVersion.equals("0") ? "" : "[play版] ") + "已经成功适配，如未有效果，请重启微信客户端查看。";
 
                 jsonObject.add("data", data);
                 break;
@@ -69,7 +69,7 @@ public class PathServlet extends HttpServlet {
                 }
 
 
-                msg = "微信版本" + versionCodeNumber + (isPlayVersion.equals("0") ? "" : "(play)") + "已经成功适配，如未有效果，请重启微信客户端查看。";
+                msg = "微信版本 6.5.10(" + versionCodeNumber + ")" + (isPlayVersion.equals("0") ? "" : "[play版] ") + "已经成功适配，如未有效果，请重启微信客户端查看。";
 
                 jsonObject.add("data", data);
                 break;
@@ -81,7 +81,7 @@ public class PathServlet extends HttpServlet {
 
                 getConfig1081playVersion(data);
 
-                msg = "微信版本" + versionCodeNumber + (isPlayVersion.equals("0") ? "" : "(play)") + "已经成功适配，如未有效果，请重启微信客户端查看。";
+                msg = "微信版本 6.5.13(" + versionCodeNumber + ")[play版] 已经成功适配，如未有效果，请重启微信客户端查看。";
 
                 jsonObject.add("data", data);
                 break;
@@ -95,12 +95,12 @@ public class PathServlet extends HttpServlet {
 
                     jsonObject.add("data", data);
 
-                    msg = "微信版本" + versionCodeNumber + "已经成功适配，如未有效果，请重启微信客户端查看。";
+                    msg = "微信版本 6.5.13(" + versionCodeNumber + ") 已经成功适配，如未有效果，请重启微信客户端查看。";
 
                 } else {
                     jsonObject.addProperty("code", 1);
 
-                    msg = "微信版本" + versionCodeNumber + "(play)" + "暂未适配，请等待开发者解决。";
+                    msg = "微信版本 6.5.13(" + versionCodeNumber + ")[play版] " + "暂未适配，请等待开发者解决。";
                 }
                 break;
             default:
@@ -112,7 +112,6 @@ public class PathServlet extends HttpServlet {
 
         writer.write(jsonObject.toString());
     }
-
 
 
     private void getConfig1100(JsonObject data) {

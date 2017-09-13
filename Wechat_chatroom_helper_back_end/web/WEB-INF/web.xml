@@ -16,7 +16,6 @@
     </servlet-mapping>
 
 
-
     <servlet>
         <servlet-name>ErrorReceiverServlet</servlet-name>
         <servlet-class>com.zdy.project.wechat_chatroom_helper.ErrorReceiverServlet</servlet-class>
@@ -27,4 +26,16 @@
         <servlet-name>ErrorReceiverServlet</servlet-name>
         <url-pattern>/error/receiver</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>HomeInfoServlet</servlet-name>
+        <servlet-class>com.zdy.project.wechat_chatroom_helper.HomeInfoServlet</servlet-class>
+    </servlet>
+
+
+    <servlet-mapping>
+        <servlet-name>HomeInfoServlet</servlet-name>
+        <url-pattern>/home/info</url-pattern>
+    </servlet-mapping>
+
 </web-app>
