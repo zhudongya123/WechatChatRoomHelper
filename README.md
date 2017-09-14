@@ -1,10 +1,13 @@
 # （微信群消息助手）WechatChatroomHelper
 
-![](https://img.shields.io/github/tag/zhudongya123/WechatChatroomHelper.svg)
-![](https://img.shields.io/github/release/zhudongya123/WechatChatroomHelper.svg)
-![](https://img.shields.io/github/forks/zhudongya123/WechatChatroomHelper.svg)
-![](https://img.shields.io/github/stars/zhudongya123/WechatChatroomHelper.svg)
-![](https://img.shields.io/github/issues/zhudongya123/WechatChatroomHelper.svg)
+[![](https://img.shields.io/github/tag/zhudongya123/WechatChatroomHelper.svg?style=flat-square)](https://github.com/zhudongya123/WechatChatroomHelper/tags)
+[![](https://img.shields.io/github/release/zhudongya123/WechatChatroomHelper.svg?style=flat-square)](https://github.com/zhudongya123/WechatChatroomHelper/releases)
+![](https://img.shields.io/github/forks/zhudongya123/WechatChatroomHelper.svg?style=flat-square)
+![](https://img.shields.io/github/stars/zhudongya123/WechatChatroomHelper.svg?style=flat-square)
+
+[![](https://img.shields.io/github/issues/zhudongya123/WechatChatroomHelper.svg?style=flat-square)](https://github.com/zhudongya123/WechatChatroomHelper/issues)
+
+ [![](https://img.shields.io/gitter/room/WechatChatroomHelper/nw.js.svg?style=flat-square)](https://gitter.im/WechatChatroomHelper)
 
 ## 简介
 
