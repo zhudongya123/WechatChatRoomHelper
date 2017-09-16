@@ -67,52 +67,14 @@ public class ChatRoomView implements ChatRoomContract.View {
 
 
     private boolean isInAnim = false;
-    private boolean isdragging = false;
+    private boolean isDragging = false;
 
 
     ChatRoomView(Context context, final ViewGroup container) {
         this.mContainer = (AbsoluteLayout) container;
         this.mContext = context;
 
-        contentView = new LinearLayout(mContext) {
-            @Override
-            public boolean dispatchTouchEvent(MotionEvent event) {
-
-//                float x = event.getX();
-//                float translationX = contentView.getTranslationX();
-//                switch (event.getAction()) {
-//
-//                      case MotionEvent.ACTION_DOWN:
-//                        XposedBridge.log("action = " + "ACTION_DOWN");
-//                        moveX = x;
-//                        break;
-//
-//                    case MotionEvent.ACTION_MOVE:
-//                        XposedBridge.log("action = " + "ACTION_MOVE");
-//                        float v1 = x - moveX;
-//                        XposedBridge.log("action offest= " + v1);
-//                        float value = translationX + v1;
-//                        if (Math.abs(value) < ScreenUtils.getScreenWidth(mContext) / 200)
-//                            return super.dispatchTouchEvent(event);
-//                        if (value >= -ScreenUtils.dip2px(mContext, 16)
-//                                && value <= ScreenUtils.getScreenWidth(mContext)) {
-//                            contentView.setTranslationX(value);
-//                            isdragging = true;
-//                            XposedBridge.log("action offest= drag");
-//                        }
-//                        break;
-//
-//                    case MotionEvent.ACTION_UP:
-//                        XposedBridge.log("action = " + "ACTION_UP");
-//                        setResetAnim(translationX);
-//                        if (isdragging) {
-//                            return false;
-//                        } else return super.dispatchTouchEvent(event);
-//                }
-
-                return super.dispatchTouchEvent(event);
-            }
-        };
+        initSwipeBack();
         int width = ScreenUtils.dip2px(mContext, 16) + ScreenUtils.getScreenWidth(mContext);
         AbsoluteLayout.LayoutParams params = new AbsoluteLayout.LayoutParams(width, ViewGroup.LayoutParams
                 .MATCH_PARENT, 0, 0);
@@ -130,7 +92,12 @@ public class ChatRoomView implements ChatRoomContract.View {
 
         mRecyclerView = new RecyclerView(mContext);
         mRecyclerView.setId(android.R.id.list);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext) {
+            @Override
+            public boolean canScrollVertically() {
+                return !isDragging;
+            }
+        });
 
         mainView.addView(initToolbar());
         mainView.addView(mRecyclerView);
@@ -142,43 +109,76 @@ public class ChatRoomView implements ChatRoomContract.View {
         contentView.setClickable(true);
         mContainer.addView(contentView, params);
 
-//        contentView.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                float x = event.getX();
-//                float translationX = contentView.getTranslationX();
-//                switch (event.getAction()) {
-//
-//                    case MotionEvent.ACTION_DOWN:
-//                        XposedBridge.log("action = " + "ACTION_DOWN");
-//                        moveX = x;
-//                        return true;
-//
-//                    case MotionEvent.ACTION_MOVE:
-//                        XposedBridge.log("action = " + "ACTION_MOVE");
-//                        float v1 = x - moveX;
-//                        float value = translationX + v1;
-//                        if (value >= -ScreenUtils.dip2px(mContext, 16)
-//                                && value <= ScreenUtils.getScreenWidth(mContext)) {
-//                            contentView.setTranslationX(value);
-//                        }
-//                        break;
-//
-//                    case MotionEvent.ACTION_UP:
-//                        XposedBridge.log("action = " + "ACTION_UP");
-//                        setResetAnim(translationX);
-//                        break;
-//                }
-//
-//                return false;
-//            }
-//        });
-
         dismiss();
     }
 
+    private void initSwipeBack() {
+        final int screenWidth = ScreenUtils.getScreenWidth(mContext);
+        contentView = new LinearLayout(mContext) {
+            @Override
+            public boolean dispatchTouchEvent(MotionEvent event) {
+                float x = event.getX();
+
+                float translationX = contentView.getTranslationX();
+
+                //屏幕左侧识别滑动返回
+                if (translationX == -ScreenUtils.dip2px
+                        (mContext, 16) && x > screenWidth / 10 || isInAnim)
+                    return super.dispatchTouchEvent(event);
+
+
+                switch (event.getAction()) {
+
+                    case MotionEvent.ACTION_DOWN:
+                        XposedBridge.log("XposedBridge：action = " + "ACTION_DOWN");
+                        moveX = x;
+                        break;
+
+                    case MotionEvent.ACTION_MOVE:
+                        XposedBridge.log("XposedBridge：action = " + "ACTION_MOVE");
+
+                        //v1为本次滑动的偏移量
+                        float v1 = x - moveX;
+                        XposedBridge.log("XposedBridge：action offest= " + v1);
+
+                        //忽略小范围滑动事件
+                        if (Math.abs(v1) < screenWidth / 150)
+                            return super.dispatchTouchEvent(event);
+
+                        float value = translationX + v1;
+
+                        //判断是否在滑动范围之内
+                        if (value >= -ScreenUtils.dip2px(mContext, 16) && value <= screenWidth) {
+                            contentView.setTranslationX(value);
+
+                            if (v1 > screenWidth / 15) {
+                                dismiss((int) v1);
+                                return super.dispatchTouchEvent(event);
+                            }
+
+                            isDragging = true;
+                            XposedBridge.log("XposedBridge：action offest= drag");
+                        }
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        XposedBridge.log("XposedBridge：action = " + "ACTION_UP");
+//                        if (isInAnim || translationX == -ScreenUtils.dip2px(mContext, 16))
+//                            return true;
+                        if (isDragging) {
+                            setResetAnim(translationX);
+                            isDragging = false;
+                            return false;
+                        } else return super.dispatchTouchEvent(event);
+                }
+
+                return super.dispatchTouchEvent(event);
+            }
+        };
+    }
+
     private void setResetAnim(float translationX) {
-        XposedBridge.log("translationX = " + translationX + "");
+        XposedBridge.log("XposedBridge：action translationX = " + translationX + "");
         int screenWidth = ScreenUtils.getScreenWidth(mContext);
         if (translationX >= screenWidth / 2) {
             dismiss(((int) translationX));
@@ -191,7 +191,8 @@ public class ChatRoomView implements ChatRoomContract.View {
 
     @Override
     public void setOnDialogItemClickListener(ChatRoomRecyclerViewAdapter.OnDialogItemClickListener listener) {
-        mAdapter.setOnDialogItemClickListener(listener);
+       // if (contentView.getTranslationX() == -ScreenUtils.dip2px(mContext, 16))
+            mAdapter.setOnDialogItemClickListener(listener);
     }
 
     @Override
@@ -290,6 +291,11 @@ public class ChatRoomView implements ChatRoomContract.View {
         animator.setTarget(contentView);
         animator.setDuration(200);
         animator.start();
+    }
+
+
+    public boolean isInAnim() {
+        return isInAnim;
     }
 
     @Override

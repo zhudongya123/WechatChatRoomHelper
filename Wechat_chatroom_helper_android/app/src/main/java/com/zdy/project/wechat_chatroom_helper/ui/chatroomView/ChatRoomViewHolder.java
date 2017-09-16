@@ -2,8 +2,11 @@ package com.zdy.project.wechat_chatroom_helper.ui.chatroomView;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 import static com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewHelper.*;
 
