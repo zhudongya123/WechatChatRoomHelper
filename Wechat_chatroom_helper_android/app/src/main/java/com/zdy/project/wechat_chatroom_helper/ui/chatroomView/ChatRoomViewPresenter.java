@@ -31,7 +31,7 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
         chatRoomView.setPadding(0, ScreenUtils.getStatusHeight(context),
                 0, ScreenUtils.getNavigationBarHeight(context));
 
-        mView = new ChatRoomView(context, chatRoomView);
+        mView = new ChatRoomView2(context, chatRoomView);
         mView.setPresenter(this);
 
     }

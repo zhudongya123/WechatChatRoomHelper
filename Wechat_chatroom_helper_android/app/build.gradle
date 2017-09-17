@@ -25,4 +25,5 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.8.1'
     compile files('libs/gson-2.7.jar')
     compile 'com.android.support:recyclerview-v7:25.3.0'
+    compile project(':swipeBackLibrary')
 }
