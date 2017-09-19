@@ -81,7 +81,7 @@ public class ChatRoomRecyclerViewAdapter extends RecyclerView.Adapter<ChatRoomVi
         Object item = getObject(position);
         MessageEntity entity = new MessageEntity(item);
 
-        try {
+   //     try {
             Object j = XposedHelpers.callMethod(originAdapter, Method_Message_Status_Bean, item);
 
             CharSequence content = (CharSequence) XposedHelpers.callMethod(originAdapter, Method_Message_True_Content,
@@ -95,9 +95,9 @@ public class ChatRoomRecyclerViewAdapter extends RecyclerView.Adapter<ChatRoomVi
             holder.time.setText(time);
 
             XposedBridge.log("content =" + content + ", field_digest = " + entity.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
      HookLogic.setAvatar(holder.avatar, entity.field_username);
 

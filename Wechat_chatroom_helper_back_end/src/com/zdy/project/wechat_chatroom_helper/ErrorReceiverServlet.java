@@ -18,7 +18,7 @@ public class ErrorReceiverServlet extends HttpServlet {
 
     private static DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
-    private static final String PATH = "/usr/java/tomcat/apache-tomcat-8.5.15/webapps/Wechat_chatroom_helper_back_end/crash/";
+    private static final String PATH = "/usr/java/tomcat/apache-tomcat-8.5.15/webapps/Wechat_chatroom_helper_back_end_test/crash/";
 
 
     @Override

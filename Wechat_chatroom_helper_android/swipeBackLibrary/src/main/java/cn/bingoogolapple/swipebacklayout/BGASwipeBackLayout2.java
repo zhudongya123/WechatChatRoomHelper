@@ -108,17 +108,17 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      * This is the minimum section of the sliding panel that will
      * be visible in the open state to allow for a closing drag.
      */
-    private final int mOverhangSize;
+    protected final int mOverhangSize;
 
     /**
      * True if a panel can slide with the current measurements
      */
-    private boolean mCanSlide;
+    protected boolean mCanSlide;
 
     /**
      * The child view that can slide, if any.
      */
-    View mSlideableView;
+    protected View mSlideableView;
 
     /**
      * How far the panel is offset from its closed position.
@@ -153,7 +153,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
 
     private PanelSlideListener mPanelSlideListener;
 
-    final ViewDragHelper mDragHelper;
+    protected final ViewDragHelper mDragHelper;
 
     /**
      * Stores whether or not the pane was open the last time it was slideable.
@@ -1658,13 +1658,13 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         /**
          * True if this pane is the slideable pane in the layout.
          */
-        boolean slideable;
+        public boolean slideable;
 
         /**
          * True if this view should be drawn dimmed
          * when it's been offset from its default position.
          */
-        boolean dimWhenOffset;
+        public boolean dimWhenOffset;
 
         Paint dimPaint;
 

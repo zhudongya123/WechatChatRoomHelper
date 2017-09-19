@@ -33,7 +33,7 @@ import java.util.Set;
  * 创建时间:16/12/27 下午5:26
  * 描述:
  */
-class UIUtil {
+public class UIUtil {
     static final Set<String> NO_NAVIGATION_BAR_MODEL_SET = new HashSet<>();
 
     static {

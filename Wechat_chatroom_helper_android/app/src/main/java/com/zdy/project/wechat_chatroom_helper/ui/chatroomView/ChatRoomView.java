@@ -126,7 +126,6 @@ public class ChatRoomView implements ChatRoomContract.View {
                         (mContext, 16) && x > screenWidth / 10 || isInAnim)
                     return super.dispatchTouchEvent(event);
 
-
                 switch (event.getAction()) {
 
                     case MotionEvent.ACTION_DOWN:
@@ -191,7 +190,7 @@ public class ChatRoomView implements ChatRoomContract.View {
 
     @Override
     public void setOnDialogItemClickListener(ChatRoomRecyclerViewAdapter.OnDialogItemClickListener listener) {
-       // if (contentView.getTranslationX() == -ScreenUtils.dip2px(mContext, 16))
+        if (contentView.getTranslationX() == -ScreenUtils.dip2px(mContext, 16))
             mAdapter.setOnDialogItemClickListener(listener);
     }
 

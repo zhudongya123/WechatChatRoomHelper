@@ -137,12 +137,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                         loadPackageParam.classLoader), new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        try {
+                       // try {
                             hookAdapterInit(param);
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                            CrashHandler.saveCrashInfo2File(e, context);
-                        }
+                    //    } catch (Throwable e) {
+                    //        e.printStackTrace();
+                   //         CrashHandler.saveCrashInfo2File(e, context);
+                //    }
                     }
                 });
 
@@ -160,12 +160,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                 "notifyDataSetChanged", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        try {
+                        //try {
                             hookNotifyDataSetChanged(param);
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                            CrashHandler.saveCrashInfo2File(e, context);
-                        }
+                       // } catch (Throwable e) {
+                    //        e.printStackTrace();
+                     //       CrashHandler.saveCrashInfo2File(e, context);
+                     //   }
                     }
                 });
 
@@ -173,12 +173,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                 loadPackageParam.classLoader, "getCount", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        try {
-                            hookGetCount(param);
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                            CrashHandler.saveCrashInfo2File(e, context);
-                        }
+//                      try {
+                          hookGetCount(param);
+//                        } catch (Throwable e) {
+//                            e.printStackTrace();
+//                            CrashHandler.saveCrashInfo2File(e, context);
+//                        }
                     }
                 });
 
@@ -186,12 +186,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                 loadPackageParam.classLoader, Method_Adapter_Get_Object, int.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        try {
+//                        try {
                             hookGetObject(param);
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                            CrashHandler.saveCrashInfo2File(e, context);
-                        }
+//                        } catch (Throwable e) {
+//                            e.printStackTrace();
+//                            CrashHandler.saveCrashInfo2File(e, context);
+//                        }
                     }
                 });
 
@@ -201,12 +201,12 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        try {
+//                        try {
                             hookGetView(param);
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                            CrashHandler.saveCrashInfo2File(e, context);
-                        }
+//                        } catch (Throwable e) {
+//                            e.printStackTrace();
+//                            CrashHandler.saveCrashInfo2File(e, context);
+//                        }
                     }
                 });
 
@@ -215,12 +215,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                 int.class, long.class, new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
-                        try {
+                       // try {
                             hookOnItemClick(param);
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                            CrashHandler.saveCrashInfo2File(e, context);
-                        }
+//                        } catch (Throwable e) {
+//                            e.printStackTrace();
+//                            CrashHandler.saveCrashInfo2File(e, context);
+//                        }
                     }
                 });
 
@@ -498,7 +498,7 @@ public class HookLogic implements IXposedHookLoadPackage {
      * 即为原数据
      */
     public static Object getMessageBeanForOriginIndex(Object adapter, int index) {
-        try {
+      //  try {
             Object tMb = XposedHelpers.getObjectField(adapter, Method_Adapter_Get_Object_Step_1);
 
             Object hdB = XposedHelpers.getObjectField(tMb, Method_Adapter_Get_Object_Step_2);
@@ -506,10 +506,10 @@ public class HookLogic implements IXposedHookLoadPackage {
             Object bean = XposedHelpers.callMethod(hdB, Method_Adapter_Get_Object_Step_3, index);
 
             return bean;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return null;
+//        }
     }
 
     private void hookLog(XC_LoadPackage.LoadPackageParam loadPackageParam) {
@@ -522,7 +522,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                         String desc = (String) param.args[0];
                         String value = (String) param.args[1];
                         String params = "";
-                        try {
+                       try {
                             if (param.args[2] != null) {
                                 Object[] arg = (Object[]) param.args[2];
 

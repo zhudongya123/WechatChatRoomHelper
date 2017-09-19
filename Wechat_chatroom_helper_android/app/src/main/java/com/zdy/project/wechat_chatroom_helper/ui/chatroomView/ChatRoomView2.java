@@ -8,13 +8,11 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
@@ -35,6 +33,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
@@ -72,12 +71,17 @@ public class ChatRoomView2 implements ChatRoomContract.View {
     private boolean isInAnim = false;
     private boolean isDragging = false;
 
+    private int maskWidth;
+
 
     ChatRoomView2(Context context, final ViewGroup container) {
+
+        maskWidth = 0;//ScreenUtils.dip2px(mContext, 16);
+
         this.mContainer = (AbsoluteLayout) container;
         this.mContext = context;
 
-        int width = ScreenUtils.dip2px(mContext, 16) + ScreenUtils.getScreenWidth(mContext);
+        int width = maskWidth + ScreenUtils.getScreenWidth(mContext);
         AbsoluteLayout.LayoutParams params = new AbsoluteLayout.LayoutParams(width, ViewGroup.LayoutParams
                 .MATCH_PARENT, 0, 0);
 
@@ -114,12 +118,31 @@ public class ChatRoomView2 implements ChatRoomContract.View {
 
         mContainer.addView(swipeBackLayout, params);
 
+
         dismiss();
     }
 
     private void initSwipeBack() {
         swipeBackLayout = new MySwipeBackLayout(mContext);
         swipeBackLayout.attachToView(mainView, mContext);
+
+        swipeBackLayout.setPanelSlideListener(new BGASwipeBackLayout2.PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
+                XposedBridge.log("onPanelSlide = " + panel + ", slideOffset = " + slideOffset);
+            }
+
+            @Override
+            public void onPanelOpened(View panel) {
+                XposedBridge.log("onPanelOpened = " + panel);
+            }
+
+            @Override
+            public void onPanelClosed(View panel) {
+                XposedBridge.log("onPanelClosed = " + panel);
+                dismiss();
+            }
+        });
     }
 
 
@@ -131,13 +154,13 @@ public class ChatRoomView2 implements ChatRoomContract.View {
 
     @Override
     public boolean isShowing() {
-        return swipeBackLayout.getTranslationX() != ScreenUtils.getScreenWidth(mContext) + ScreenUtils.dip2px(mContext, 16);
+        return swipeBackLayout.getTranslationX() != ScreenUtils.getScreenWidth(mContext) + maskWidth;
     }
 
 
     @Override
     public void show() {
-        show(ScreenUtils.getScreenWidth(mContext) + ScreenUtils.dip2px(mContext, 16));
+        show(ScreenUtils.getScreenWidth(mContext) + maskWidth);
     }
 
     @Override
@@ -151,8 +174,7 @@ public class ChatRoomView2 implements ChatRoomContract.View {
         if (isInAnim) return;
 
         isInAnim = true;
-        ValueAnimator animator = ValueAnimator.ofInt(offest, -ScreenUtils.dip2px
-                (mContext, 16));
+        ValueAnimator animator = ValueAnimator.ofInt(offest, -maskWidth);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -192,7 +214,7 @@ public class ChatRoomView2 implements ChatRoomContract.View {
         if (isInAnim) return;
 
         isInAnim = true;
-        ValueAnimator animator = ValueAnimator.ofInt(offest, ScreenUtils.getScreenWidth(mContext) + ScreenUtils.dip2px(mContext, 16));
+        ValueAnimator animator = ValueAnimator.ofInt(offest, ScreenUtils.getScreenWidth(mContext) + maskWidth);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
