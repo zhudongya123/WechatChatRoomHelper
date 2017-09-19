@@ -252,12 +252,23 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         mShadowView = new View(activity);
         setIsNeedShowShadow(mIsNeedShowShadow);
         addView(mShadowView, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        mShadowView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.v("Xposed", "mShadowView onClick");
+            }
+        });
 
         ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
         mContentView = decorView.getChildAt(0);
         decorView.removeView(mContentView);
         decorView.addView(this);
         addView(mContentView, 1, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+    }
+
+
+    public View getShadowView() {
+        return mShadowView;
     }
 
     /**

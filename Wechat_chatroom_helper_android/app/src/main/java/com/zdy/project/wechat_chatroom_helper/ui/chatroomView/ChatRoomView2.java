@@ -55,8 +55,6 @@ public class ChatRoomView2 implements ChatRoomContract.View {
     private Context mContext;
     private AbsoluteLayout mContainer;
 
-    //  private LinearLayout contentView;
-    //  private View maskView;
 
     private MySwipeBackLayout swipeBackLayout;
 
@@ -85,11 +83,6 @@ public class ChatRoomView2 implements ChatRoomContract.View {
         AbsoluteLayout.LayoutParams params = new AbsoluteLayout.LayoutParams(width, ViewGroup.LayoutParams
                 .MATCH_PARENT, 0, 0);
 
-//        maskView = new View(mContext);
-//        maskView.setLayoutParams(new ViewGroup.LayoutParams(ScreenUtils.dip2px(mContext, 16),
-//                ViewGroup.LayoutParams.MATCH_PARENT));
-//        maskView.setBackground(new GradientDrawable(
-//                GradientDrawable.Orientation.RIGHT_LEFT, new int[]{0x55000000, 0x2A000000, 0x00000000}));
 
         mainView = new LinearLayout(mContext);
         mainView.setLayoutParams(new ViewGroup.LayoutParams(ScreenUtils.getScreenWidth(mContext),
@@ -110,39 +103,37 @@ public class ChatRoomView2 implements ChatRoomContract.View {
 
         mainView.setBackground(new ColorDrawable(0xFFFFFFFF));
 
-        //   contentView.addView(maskView);
-        //   contentView.addView(mainView);
-        //   contentView.setClickable(true);
-
         initSwipeBack();
 
         mContainer.addView(swipeBackLayout, params);
 
+        swipeBackLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                dismiss();
 
-        dismiss();
+            }
+        });
+
+        swipeBackLayout.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
+            @Override
+            public void onChildViewAdded(View parent, View child) {
+
+                child.setClickable(false);
+                child.setFocusableInTouchMode(false);
+                child.setFocusable(false);
+            }
+
+            @Override
+            public void onChildViewRemoved(View parent, View child) {
+
+            }
+        });
     }
 
     private void initSwipeBack() {
         swipeBackLayout = new MySwipeBackLayout(mContext);
         swipeBackLayout.attachToView(mainView, mContext);
-
-        swipeBackLayout.setPanelSlideListener(new BGASwipeBackLayout2.PanelSlideListener() {
-            @Override
-            public void onPanelSlide(View panel, float slideOffset) {
-                XposedBridge.log("onPanelSlide = " + panel + ", slideOffset = " + slideOffset);
-            }
-
-            @Override
-            public void onPanelOpened(View panel) {
-                XposedBridge.log("onPanelOpened = " + panel);
-            }
-
-            @Override
-            public void onPanelClosed(View panel) {
-                XposedBridge.log("onPanelClosed = " + panel);
-                dismiss();
-            }
-        });
     }
 
 
@@ -154,7 +145,8 @@ public class ChatRoomView2 implements ChatRoomContract.View {
 
     @Override
     public boolean isShowing() {
-        return swipeBackLayout.getTranslationX() != ScreenUtils.getScreenWidth(mContext) + maskWidth;
+//        return swipeBackLayout.getTranslationX() != ScreenUtils.getScreenWidth(mContext) + maskWidth;
+        return !swipeBackLayout.isOpen();
     }
 
 
@@ -170,82 +162,98 @@ public class ChatRoomView2 implements ChatRoomContract.View {
 
     @Override
     public void show(int offest) {
-        XposedBridge.log("show, offest = " + offest);
-        if (isInAnim) return;
 
-        isInAnim = true;
-        ValueAnimator animator = ValueAnimator.ofInt(offest, -maskWidth);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                swipeBackLayout.setTranslationX((int) animation.getAnimatedValue());
-            }
-        });
-        animator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
 
-            }
+        View shadowView = swipeBackLayout.getShadowView();
+        shadowView.setClickable(false);
+        shadowView.setFocusableInTouchMode(false);
+        shadowView.setFocusable(false);
 
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                isInAnim = false;
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-        animator.setDuration(200);
-        animator.setRepeatMode(ValueAnimator.REVERSE);
-        animator.setTarget(swipeBackLayout);
-        animator.start();
+        swipeBackLayout.closePane();
+//        XposedBridge.log("show, offest = " + offest);
+//        if (isInAnim) return;
+//
+//        isInAnim = true;
+//        ValueAnimator animator = ValueAnimator.ofInt(offest, -maskWidth);
+//        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+//            @Override
+//            public void onAnimationUpdate(ValueAnimator animation) {
+//                swipeBackLayout.setTranslationX((int) animation.getAnimatedValue());
+//            }
+//        });
+//        animator.addListener(new Animator.AnimatorListener() {
+//            @Override
+//            public void onAnimationStart(Animator animation) {
+//
+//            }
+//
+//            @Override
+//            public void onAnimationEnd(Animator animation) {
+//                isInAnim = false;
+//            }
+//
+//            @Override
+//            public void onAnimationCancel(Animator animation) {
+//
+//            }
+//
+//            @Override
+//            public void onAnimationRepeat(Animator animation) {
+//
+//            }
+//        });
+//        animator.setDuration(200);
+//        animator.setRepeatMode(ValueAnimator.REVERSE);
+//        animator.setTarget(swipeBackLayout);
+//        animator.start();
     }
 
     @Override
     public void dismiss(int offest) {
-        XposedBridge.log("dismiss, offest = " + offest);
-        if (isInAnim) return;
 
-        isInAnim = true;
-        ValueAnimator animator = ValueAnimator.ofInt(offest, ScreenUtils.getScreenWidth(mContext) + maskWidth);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                swipeBackLayout.setTranslationX((int) animation.getAnimatedValue());
-            }
-        });
-        animator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
 
-            }
+        View shadowView = swipeBackLayout.getShadowView();
+        shadowView.setClickable(false);
+        shadowView.setFocusableInTouchMode(false);
+        shadowView.setFocusable(false);
 
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                isInAnim = false;
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-        animator.setRepeatMode(ValueAnimator.REVERSE);
-        animator.setTarget(swipeBackLayout);
-        animator.setDuration(200);
-        animator.start();
+        swipeBackLayout.openPane();
+//        XposedBridge.log("dismiss, offest = " + offest);
+//        if (isInAnim) return;
+//
+//        isInAnim = true;
+//        ValueAnimator animator = ValueAnimator.ofInt(offest, ScreenUtils.getScreenWidth(mContext) + maskWidth);
+//        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+//            @Override
+//            public void onAnimationUpdate(ValueAnimator animation) {
+//                swipeBackLayout.setTranslationX((int) animation.getAnimatedValue());
+//            }
+//        });
+//        animator.addListener(new Animator.AnimatorListener() {
+//            @Override
+//            public void onAnimationStart(Animator animation) {
+//
+//            }
+//
+//            @Override
+//            public void onAnimationEnd(Animator animation) {
+//                isInAnim = false;
+//            }
+//
+//            @Override
+//            public void onAnimationCancel(Animator animation) {
+//
+//            }
+//
+//            @Override
+//            public void onAnimationRepeat(Animator animation) {
+//
+//            }
+//        });
+//        animator.setRepeatMode(ValueAnimator.REVERSE);
+//        animator.setTarget(swipeBackLayout);
+//        animator.setDuration(200);
+//        animator.start();
     }
 
 
