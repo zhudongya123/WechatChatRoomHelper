@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -137,12 +138,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                         loadPackageParam.classLoader), new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                       // try {
-                            hookAdapterInit(param);
-                    //    } catch (Throwable e) {
-                    //        e.printStackTrace();
-                   //         CrashHandler.saveCrashInfo2File(e, context);
-                //    }
+                        // try {
+                        hookAdapterInit(param);
+                        //    } catch (Throwable e) {
+                        //        e.printStackTrace();
+                        //         CrashHandler.saveCrashInfo2File(e, context);
+                        //    }
                     }
                 });
 
@@ -161,11 +162,11 @@ public class HookLogic implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         //try {
-                            hookNotifyDataSetChanged(param);
-                       // } catch (Throwable e) {
-                    //        e.printStackTrace();
-                     //       CrashHandler.saveCrashInfo2File(e, context);
-                     //   }
+                        hookNotifyDataSetChanged(param);
+                        // } catch (Throwable e) {
+                        //        e.printStackTrace();
+                        //       CrashHandler.saveCrashInfo2File(e, context);
+                        //   }
                     }
                 });
 
@@ -174,7 +175,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 //                      try {
-                          hookGetCount(param);
+                        hookGetCount(param);
 //                        } catch (Throwable e) {
 //                            e.printStackTrace();
 //                            CrashHandler.saveCrashInfo2File(e, context);
@@ -187,7 +188,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 //                        try {
-                            hookGetObject(param);
+                        hookGetObject(param);
 //                        } catch (Throwable e) {
 //                            e.printStackTrace();
 //                            CrashHandler.saveCrashInfo2File(e, context);
@@ -202,7 +203,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 //                        try {
-                            hookGetView(param);
+                        hookGetView(param);
 //                        } catch (Throwable e) {
 //                            e.printStackTrace();
 //                            CrashHandler.saveCrashInfo2File(e, context);
@@ -215,8 +216,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                 int.class, long.class, new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
-                       // try {
-                            hookOnItemClick(param);
+                        // try {
+                        hookOnItemClick(param);
 //                        } catch (Throwable e) {
 //                            e.printStackTrace();
 //                            CrashHandler.saveCrashInfo2File(e, context);
@@ -231,7 +232,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                         KeyEvent keyEvent = (KeyEvent) param.args[0];
                         if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_BACK
                                 && keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
-                            if (!isInChatting && chatRoomViewPresenter.isShowing()) {
+                            if (!isInChatting ) {
                                 chatRoomViewPresenter.dismiss();
                                 param.setResult(true);
                             }
@@ -245,6 +246,34 @@ public class HookLogic implements IXposedHookLoadPackage {
         //   if (!PreferencesUtils.getBugUnread()) return;
 
         //   fixUnread(loadPackageParam);
+
+        XposedHelpers.findAndHookMethod(View.class, "dispatchTouchEvent",
+                MotionEvent.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        boolean result = (boolean) param.getResult();
+
+                        XposedBridge.log("XposedHelpers, " + param.thisObject.toString() + ", dispatchTouchEvent return =" + result);
+                    }
+                });
+        XposedHelpers.findAndHookMethod(ViewGroup.class, "onInterceptTouchEvent",
+                MotionEvent.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        boolean result = (boolean) param.getResult();
+
+                        XposedBridge.log("XposedHelpers, " + param.thisObject.toString() + ",onInterceptTouchEvent return =" + result);
+                    }
+                });
+        XposedHelpers.findAndHookMethod(View.class, "onTouchEvent",
+                MotionEvent.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        boolean result = (boolean) param.getResult();
+
+                        XposedBridge.log("XposedHelpers, " + param.thisObject.toString() + ",onTouchEvent return =" + result);
+                    }
+                });
     }
 
     private void hookAdapterInit(XC_MethodHook.MethodHookParam param) {
@@ -498,14 +527,14 @@ public class HookLogic implements IXposedHookLoadPackage {
      * 即为原数据
      */
     public static Object getMessageBeanForOriginIndex(Object adapter, int index) {
-      //  try {
-            Object tMb = XposedHelpers.getObjectField(adapter, Method_Adapter_Get_Object_Step_1);
+        //  try {
+        Object tMb = XposedHelpers.getObjectField(adapter, Method_Adapter_Get_Object_Step_1);
 
-            Object hdB = XposedHelpers.getObjectField(tMb, Method_Adapter_Get_Object_Step_2);
+        Object hdB = XposedHelpers.getObjectField(tMb, Method_Adapter_Get_Object_Step_2);
 
-            Object bean = XposedHelpers.callMethod(hdB, Method_Adapter_Get_Object_Step_3, index);
+        Object bean = XposedHelpers.callMethod(hdB, Method_Adapter_Get_Object_Step_3, index);
 
-            return bean;
+        return bean;
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //            return null;
@@ -522,11 +551,11 @@ public class HookLogic implements IXposedHookLoadPackage {
                         String desc = (String) param.args[0];
                         String value = (String) param.args[1];
                         String params = "";
-                       try {
+                        try {
                             if (param.args[2] != null) {
                                 Object[] arg = (Object[]) param.args[2];
 
-                            //    for (Object o : arg)
+                                //    for (Object o : arg)
 //                                    if (o != null)
 //                                        params = params + o.toString() + " ";
                             }

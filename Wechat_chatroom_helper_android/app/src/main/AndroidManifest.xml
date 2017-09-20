@@ -18,11 +18,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".ui.MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
         </activity>
 
         <meta-data
@@ -38,6 +33,17 @@
         <meta-data
             android:name="BUGLY_APP_CHANNEL"
             android:value="dev" />
+
+        <activity android:name=".crash.TestActivity">
+
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+
+        </activity>
 
         <activity
             android:name="com.tencent.bugly.beta.ui.BetaActivity"

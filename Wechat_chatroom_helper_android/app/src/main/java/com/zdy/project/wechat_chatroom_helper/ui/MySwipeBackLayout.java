@@ -41,6 +41,7 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
 
         mContentView = childView;
         addView(mContentView, 1, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+
     }
 
     @Override

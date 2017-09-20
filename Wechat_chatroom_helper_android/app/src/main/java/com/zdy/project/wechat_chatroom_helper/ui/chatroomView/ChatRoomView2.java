@@ -111,24 +111,10 @@ public class ChatRoomView2 implements ChatRoomContract.View {
             @Override
             public void run() {
                 dismiss();
-
             }
         });
 
-        swipeBackLayout.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
-            @Override
-            public void onChildViewAdded(View parent, View child) {
 
-                child.setClickable(false);
-                child.setFocusableInTouchMode(false);
-                child.setFocusable(false);
-            }
-
-            @Override
-            public void onChildViewRemoved(View parent, View child) {
-
-            }
-        });
     }
 
     private void initSwipeBack() {
@@ -145,7 +131,6 @@ public class ChatRoomView2 implements ChatRoomContract.View {
 
     @Override
     public boolean isShowing() {
-//        return swipeBackLayout.getTranslationX() != ScreenUtils.getScreenWidth(mContext) + maskWidth;
         return !swipeBackLayout.isOpen();
     }
 
@@ -162,12 +147,6 @@ public class ChatRoomView2 implements ChatRoomContract.View {
 
     @Override
     public void show(int offest) {
-
-
-        View shadowView = swipeBackLayout.getShadowView();
-        shadowView.setClickable(false);
-        shadowView.setFocusableInTouchMode(false);
-        shadowView.setFocusable(false);
 
         swipeBackLayout.closePane();
 //        XposedBridge.log("show, offest = " + offest);
@@ -210,12 +189,6 @@ public class ChatRoomView2 implements ChatRoomContract.View {
 
     @Override
     public void dismiss(int offest) {
-
-
-        View shadowView = swipeBackLayout.getShadowView();
-        shadowView.setClickable(false);
-        shadowView.setFocusableInTouchMode(false);
-        shadowView.setFocusable(false);
 
         swipeBackLayout.openPane();
 //        XposedBridge.log("dismiss, offest = " + offest);

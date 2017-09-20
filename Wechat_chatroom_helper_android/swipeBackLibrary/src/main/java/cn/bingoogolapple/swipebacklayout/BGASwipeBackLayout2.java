@@ -252,12 +252,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         mShadowView = new View(activity);
         setIsNeedShowShadow(mIsNeedShowShadow);
         addView(mShadowView, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        mShadowView.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.v("Xposed", "mShadowView onClick");
-            }
-        });
+
 
         ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
         mContentView = decorView.getChildAt(0);
@@ -315,9 +310,9 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         mIsNeedShowShadow = isNeedShowShadow;
         if (mShadowView != null) {
             if (mIsNeedShowShadow) {
-                mShadowView.setBackgroundResource(mShadowResId);
+                // mShadowView.setBackgroundResource(mShadowResId);
             } else {
-                mShadowView.setBackgroundResource(android.R.color.transparent);
+                // mShadowView.setBackgroundResource(android.R.color.transparent);
             }
         }
     }
@@ -1018,6 +1013,9 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         }
 
         mDragHelper.processTouchEvent(ev);
+
+        if (mSlideOffset == 1)
+            return super.onTouchEvent(ev);
 
         final int action = ev.getAction();
         boolean wantTouchEvents = true;
