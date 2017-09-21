@@ -16,7 +16,7 @@
 
     <Button
         android:id="@+id/button"
-        android:text="点我查看公告"
+        android:text="点我"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

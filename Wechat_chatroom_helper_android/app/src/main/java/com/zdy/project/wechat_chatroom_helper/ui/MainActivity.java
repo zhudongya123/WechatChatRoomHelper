@@ -21,6 +21,7 @@ import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -89,8 +90,11 @@ public class MainActivity extends AppCompatActivity {
                         MainActivity.this.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+
+                                WebView webView = new WebView(MainActivity.this);
+                                webView.loadData(result,"text/html; charset=UTF-8", null);
                                 alertDialog = new AlertDialog.Builder(MainActivity.this)
-                                        .setMessage(Html.fromHtml(result)).create();
+                                        .setView(webView).create();
 
                             }
                         });
