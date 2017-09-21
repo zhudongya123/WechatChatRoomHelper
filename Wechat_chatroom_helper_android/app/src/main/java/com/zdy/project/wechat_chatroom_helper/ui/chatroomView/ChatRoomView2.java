@@ -23,6 +23,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toolbar;
 
+import com.umeng.analytics.MobclickAgent;
 import com.zdy.project.wechat_chatroom_helper.HookLogic;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.MySwipeBackLayout;
@@ -69,17 +70,13 @@ public class ChatRoomView2 implements ChatRoomContract.View {
     private boolean isInAnim = false;
     private boolean isDragging = false;
 
-    private int maskWidth;
-
 
     ChatRoomView2(Context context, final ViewGroup container) {
-
-        maskWidth = 0;//ScreenUtils.dip2px(mContext, 16);
 
         this.mContainer = (AbsoluteLayout) container;
         this.mContext = context;
 
-        int width = maskWidth + ScreenUtils.getScreenWidth(mContext);
+        int width = ScreenUtils.getScreenWidth(mContext);
         AbsoluteLayout.LayoutParams params = new AbsoluteLayout.LayoutParams(width, ViewGroup.LayoutParams
                 .MATCH_PARENT, 0, 0);
 
@@ -100,6 +97,7 @@ public class ChatRoomView2 implements ChatRoomContract.View {
 
         mainView.addView(initToolbar());
         mainView.addView(mRecyclerView);
+        mainView.setClickable(true);
 
         mainView.setBackground(new ColorDrawable(0xFFFFFFFF));
 
@@ -137,7 +135,7 @@ public class ChatRoomView2 implements ChatRoomContract.View {
 
     @Override
     public void show() {
-        show(ScreenUtils.getScreenWidth(mContext) + maskWidth);
+        show(ScreenUtils.getScreenWidth(mContext));
     }
 
     @Override
@@ -149,84 +147,11 @@ public class ChatRoomView2 implements ChatRoomContract.View {
     public void show(int offest) {
 
         swipeBackLayout.closePane();
-//        XposedBridge.log("show, offest = " + offest);
-//        if (isInAnim) return;
-//
-//        isInAnim = true;
-//        ValueAnimator animator = ValueAnimator.ofInt(offest, -maskWidth);
-//        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-//            @Override
-//            public void onAnimationUpdate(ValueAnimator animation) {
-//                swipeBackLayout.setTranslationX((int) animation.getAnimatedValue());
-//            }
-//        });
-//        animator.addListener(new Animator.AnimatorListener() {
-//            @Override
-//            public void onAnimationStart(Animator animation) {
-//
-//            }
-//
-//            @Override
-//            public void onAnimationEnd(Animator animation) {
-//                isInAnim = false;
-//            }
-//
-//            @Override
-//            public void onAnimationCancel(Animator animation) {
-//
-//            }
-//
-//            @Override
-//            public void onAnimationRepeat(Animator animation) {
-//
-//            }
-//        });
-//        animator.setDuration(200);
-//        animator.setRepeatMode(ValueAnimator.REVERSE);
-//        animator.setTarget(swipeBackLayout);
-//        animator.start();
     }
 
     @Override
     public void dismiss(int offest) {
-
         swipeBackLayout.openPane();
-//        XposedBridge.log("dismiss, offest = " + offest);
-//        if (isInAnim) return;
-//
-//        isInAnim = true;
-//        ValueAnimator animator = ValueAnimator.ofInt(offest, ScreenUtils.getScreenWidth(mContext) + maskWidth);
-//        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-//            @Override
-//            public void onAnimationUpdate(ValueAnimator animation) {
-//                swipeBackLayout.setTranslationX((int) animation.getAnimatedValue());
-//            }
-//        });
-//        animator.addListener(new Animator.AnimatorListener() {
-//            @Override
-//            public void onAnimationStart(Animator animation) {
-//
-//            }
-//
-//            @Override
-//            public void onAnimationEnd(Animator animation) {
-//                isInAnim = false;
-//            }
-//
-//            @Override
-//            public void onAnimationCancel(Animator animation) {
-//
-//            }
-//
-//            @Override
-//            public void onAnimationRepeat(Animator animation) {
-//
-//            }
-//        });
-//        animator.setRepeatMode(ValueAnimator.REVERSE);
-//        animator.setTarget(swipeBackLayout);
-//        animator.setDuration(200);
-//        animator.start();
     }
 
 

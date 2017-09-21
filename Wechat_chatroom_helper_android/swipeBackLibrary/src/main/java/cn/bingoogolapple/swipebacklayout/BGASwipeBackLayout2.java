@@ -23,12 +23,17 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
+import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.Shape;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -259,6 +264,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         decorView.removeView(mContentView);
         decorView.addView(this);
         addView(mContentView, 1, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+
     }
 
 
@@ -309,11 +315,27 @@ public class BGASwipeBackLayout2 extends ViewGroup {
     public void setIsNeedShowShadow(boolean isNeedShowShadow) {
         mIsNeedShowShadow = isNeedShowShadow;
         if (mShadowView != null) {
-            if (mIsNeedShowShadow) {
-                // mShadowView.setBackgroundResource(mShadowResId);
-            } else {
-                // mShadowView.setBackgroundResource(android.R.color.transparent);
-            }
+//            if (mIsNeedShowShadow) {
+//                // mShadowView.setBackgroundResource(mShadowResId);
+//            } else {
+//                // mShadowView.setBackgroundResource(android.R.color.transparent);
+//            }
+            mShadowView.setBackground(new ShapeDrawable(new Shape() {
+                @Override
+                public void draw(Canvas canvas, Paint paint) {
+                    int width = canvas.getWidth();
+                    int height = canvas.getHeight();
+
+                    paint.setColor(0xFFFFFFFF);
+
+                    LinearGradient linearGradient = new LinearGradient(width / 30 * 29, 0, width, 0, 0x00000000, 0x88000000, Shader.TileMode.CLAMP);
+
+                    paint.setShader(linearGradient);
+
+                    canvas.drawRect(0, 0, width, height, paint);
+                }
+            }));
+
         }
     }
 
@@ -1014,8 +1036,6 @@ public class BGASwipeBackLayout2 extends ViewGroup {
 
         mDragHelper.processTouchEvent(ev);
 
-        if (mSlideOffset == 1)
-            return super.onTouchEvent(ev);
 
         final int action = ev.getAction();
         boolean wantTouchEvents = true;
@@ -1064,6 +1084,10 @@ public class BGASwipeBackLayout2 extends ViewGroup {
             default:
                 break;
         }
+
+        if (mSlideOffset == 1)
+            wantTouchEvents = false;
+
 
         return wantTouchEvents;
     }

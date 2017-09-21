@@ -2,13 +2,22 @@ package com.zdy.project.wechat_chatroom_helper.ui;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.LinearGradient;
+import android.graphics.Paint;
+import android.graphics.Shader;
+import android.graphics.drawable.ShapeDrawable;
+import android.graphics.drawable.shapes.Shape;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
+import java.util.Arrays;
+
 import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2;
+import cn.bingoogolapple.swipebacklayout.BGASwipeBackManager;
 import cn.bingoogolapple.swipebacklayout.UIUtil;
 
 /**
@@ -39,6 +48,7 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
         setIsNeedShowShadow(mIsNeedShowShadow);
         addView(mShadowView, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
+
         mContentView = childView;
         addView(mContentView, 1, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
@@ -48,7 +58,6 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
     protected boolean isSwipeBackEnable() {
         return mSwipeBackEnable;
     }
-
 
 
     @Override
