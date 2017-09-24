@@ -103,6 +103,20 @@ public class PathServlet extends HttpServlet {
                     msg = "微信版本 6.5.13(" + versionCodeNumber + ")[play版] " + "暂未适配，请等待开发者解决。";
                 }
                 break;
+            case 1120:
+                jsonObject.addProperty("code", 0);
+
+                if (isPlayVersion.equals("0")) {
+                    getConfig1120(data);
+                } else {
+                    getConfig1120(data);
+                }
+
+                msg = "微信版本 6.5.14(" + versionCodeNumber + ")" + (isPlayVersion.equals("0") ? "" : "[play版] ") + "已经成功适配，如未有效果，请重启微信客户端查看。";
+
+                jsonObject.add("data", data);
+                break;
+
             default:
                 jsonObject.addProperty("code", 1);
                 msg = "微信版本" + versionCodeNumber + "暂未适配，请等待开发者解决。";
@@ -111,6 +125,53 @@ public class PathServlet extends HttpServlet {
         jsonObject.addProperty("msg", msg);
 
         writer.write(jsonObject.toString());
+    }
+
+    private void getConfig1120(JsonObject data) {
+        data.addProperty("cclvan", "com.tencent.mm.ui.conversation.g");
+        data.addProperty("cclvapn", "com.tencent.mm.ui.e");
+        data.addProperty("cclaon", "com.tencent.mm.ui.conversation.e");
+
+        data.addProperty("cclvas", "g");
+        data.addProperty("cclvaps", "e");
+
+        data.addProperty("mmsb", "j");
+        data.addProperty("mago", "yQ");
+
+        data.addProperty("vmsim1", "wcZ");
+        data.addProperty("vmsim2", "vCN");
+        data.addProperty("vla", "wbJ");
+        data.addProperty("vl", "wcm");
+
+        data.addProperty("vlavt", "vvZ");
+        data.addProperty("vlava", "ipK");
+        data.addProperty("vlavc", "vwb");
+
+        data.addProperty("magos1", "uOU");
+        data.addProperty("magos2", "uMW");
+        data.addProperty("magos3", "yQ");
+
+        data.addProperty("ctl", "com.tencent.mm.sdk.platformtools.w");
+        data.addProperty("csa", "com.tencent.mm.pluginsdk.ui.a$b");
+
+        data.addProperty("dsa", "sk");
+        data.addProperty("dss", "ao1");
+        data.addProperty("dsca", "v0");
+
+        data.addProperty("vmbc", "wcR");
+        data.addProperty("vmbn", "nickName");
+
+        data.addProperty("vmbt", "wcQ");
+
+        data.addProperty("mmtc", "b");
+        data.addProperty("vmtcp", "wcX");
+        data.addProperty("mmtt", "i");
+
+        data.addProperty("cthu", "com.tencent.mm.ui.HomeUI");
+        data.addProperty("mhuiv", "af");
+        data.addProperty("vhua", "uQy");
+        data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
+        data.addProperty("mclga", "a");
     }
 
 
@@ -154,7 +215,6 @@ public class PathServlet extends HttpServlet {
         data.addProperty("mmtc", "b");
         data.addProperty("vmtcp", "wax");
         data.addProperty("mmtt", "i");
-
 
         data.addProperty("cthu", "com.tencent.mm.ui.HomeUI");
         data.addProperty("mhuiv", "af");
