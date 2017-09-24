@@ -100,23 +100,23 @@ public class PathServlet extends HttpServlet {
                 } else {
                     jsonObject.addProperty("code", 1);
 
-                    msg = "微信版本 6.5.13(" + versionCodeNumber + ")[play版] " + "暂未适配，请等待开发者解决。";
+                    msg = "老哥，你是不是点错了？？ 你这明明不是play版……";
                 }
                 break;
             case 1120:
-                jsonObject.addProperty("code", 0);
 
                 if (isPlayVersion.equals("0")) {
+                    jsonObject.addProperty("code", 0);
                     getConfig1120(data);
+                    msg = "微信版本 6.5.14(1100)" + (isPlayVersion.equals("0") ? "" : "[play版] ") + "已经成功适配，如未有效果，请重启微信客户端查看。";
                 } else {
-                    getConfig1120(data);
+                    msg = "老哥，6.5.14哪里来的play版本？";
+                    jsonObject.addProperty("code", 1);
                 }
 
-                msg = "微信版本 6.5.14(" + versionCodeNumber + ")" + (isPlayVersion.equals("0") ? "" : "[play版] ") + "已经成功适配，如未有效果，请重启微信客户端查看。";
 
                 jsonObject.add("data", data);
                 break;
-
             default:
                 jsonObject.addProperty("code", 1);
                 msg = "微信版本" + versionCodeNumber + "暂未适配，请等待开发者解决。";
@@ -140,8 +140,8 @@ public class PathServlet extends HttpServlet {
 
         data.addProperty("vmsim1", "wcZ");
         data.addProperty("vmsim2", "vCN");
-        data.addProperty("vla", "wbJ");
-        data.addProperty("vl", "wcm");
+        data.addProperty("vla", "wcm");
+        data.addProperty("vl", "wbJ");
 
         data.addProperty("vlavt", "vvZ");
         data.addProperty("vlava", "ipK");

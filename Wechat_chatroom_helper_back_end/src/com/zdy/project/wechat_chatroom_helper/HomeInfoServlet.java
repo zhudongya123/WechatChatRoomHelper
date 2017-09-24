@@ -50,7 +50,7 @@ public class HomeInfoServlet extends HttpServlet {
                 "\n" +
                 "\n" +
                 "\n" +
-                "<p>微信6.5.14即将支持，请耐心等候~</p>\n" +
+                "<p>微信6.5.14已经支持~</p>\n" +
                 "\n" +
                 "<p>欢迎加入反馈群，测试版本在此提供，同时可以更好的反馈BUG及建议~</p>\n" +
                 "\n" +
