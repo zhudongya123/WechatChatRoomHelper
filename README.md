@@ -3,7 +3,7 @@
 [![](https://img.shields.io/github/tag/zhudongya123/WechatChatroomHelper.svg?style=flat-square)](https://github.com/zhudongya123/WechatChatroomHelper/tags)
 [![](https://img.shields.io/github/release/zhudongya123/WechatChatroomHelper.svg?style=flat-square)](https://github.com/zhudongya123/WechatChatroomHelper/releases)
 ![](https://img.shields.io/github/forks/zhudongya123/WechatChatroomHelper.svg?style=flat-square)
-![](https://img.shields.io/github/stars/zhudongya123/WechatChatroomHelper.svg?style=flat-square)
+[![](https://img.shields.io/github/stars/zhudongya123/WechatChatroomHelper.svg?style=flat-square)](https://github.com/zhudongya123/WechatChatroomHelper/stargazers)
 
 [![](https://img.shields.io/github/issues/zhudongya123/WechatChatroomHelper.svg?style=flat-square)](https://github.com/zhudongya123/WechatChatroomHelper/issues)
 
@@ -41,10 +41,9 @@
 
  6.5.13（1100）
 
-
+ 6.5.14（1100）
 
 ## 目前存在的问题
 
 - 部分情况下未读消息存在异常。
-- 群助手界面无法滑动返回。
 - 部分情况下无法打开群消息助手。
