@@ -1,15 +1,18 @@
 package com.zdy.project.wechat_chatroom_helper.ui.chatroomView;
 
+import android.bluetooth.le.AdvertiseSettings;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Handler;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.telephony.TelephonyManager;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +26,9 @@ import android.widget.Toolbar;
 
 import com.zdy.project.wechat_chatroom_helper.HookLogic;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
+import com.zdy.project.wechat_chatroom_helper.network.ApiManager;
 import com.zdy.project.wechat_chatroom_helper.ui.MySwipeBackLayout;
+import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
@@ -65,6 +70,7 @@ public class ChatRoomView2 implements ChatRoomContract.View {
     private boolean isInAnim = false;
     private boolean isDragging = false;
 
+    String uuid = "0";
 
     ChatRoomView2(Context context, final ViewGroup container) {
 
@@ -107,8 +113,9 @@ public class ChatRoomView2 implements ChatRoomContract.View {
             }
         });
 
-
+        uuid = DeviceUtils.getIMELCode(context);
     }
+
 
     private void initSwipeBack() {
         swipeBackLayout = new MySwipeBackLayout(mContext);
@@ -142,11 +149,13 @@ public class ChatRoomView2 implements ChatRoomContract.View {
     public void show(int offest) {
 
         swipeBackLayout.closePane();
+        ApiManager.getINSTANCE().sendRequestForUserStatistics("open", uuid, Build.MODEL);
     }
 
     @Override
     public void dismiss(int offest) {
         swipeBackLayout.openPane();
+        ApiManager.getINSTANCE().sendRequestForUserStatistics("close", uuid, Build.MODEL);
     }
 
 

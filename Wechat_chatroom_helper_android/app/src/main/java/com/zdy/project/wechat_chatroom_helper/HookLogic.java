@@ -138,12 +138,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                         loadPackageParam.classLoader), new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        // try {
-                        hookAdapterInit(param);
-                        //    } catch (Throwable e) {
-                        //        e.printStackTrace();
-                        //         CrashHandler.saveCrashInfo2File(e, context);
-                        //    }
+                        try {
+                            hookAdapterInit(param);
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                            CrashHandler.saveCrashInfo2File(e, context);
+                        }
                     }
                 });
 
@@ -161,12 +161,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                 "notifyDataSetChanged", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        //try {
-                        hookNotifyDataSetChanged(param);
-                        // } catch (Throwable e) {
-                        //        e.printStackTrace();
-                        //       CrashHandler.saveCrashInfo2File(e, context);
-                        //   }
+                        try {
+                            hookNotifyDataSetChanged(param);
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                            CrashHandler.saveCrashInfo2File(e, context);
+                        }
                     }
                 });
 
@@ -174,12 +174,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                 loadPackageParam.classLoader, "getCount", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-//                      try {
-                        hookGetCount(param);
-//                        } catch (Throwable e) {
-//                            e.printStackTrace();
-//                            CrashHandler.saveCrashInfo2File(e, context);
-//                        }
+                        try {
+                            hookGetCount(param);
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                            CrashHandler.saveCrashInfo2File(e, context);
+                        }
                     }
                 });
 
@@ -187,12 +187,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                 loadPackageParam.classLoader, Method_Adapter_Get_Object, int.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-//                        try {
-                        hookGetObject(param);
-//                        } catch (Throwable e) {
-//                            e.printStackTrace();
-//                            CrashHandler.saveCrashInfo2File(e, context);
-//                        }
+                        try {
+                            hookGetObject(param);
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                            CrashHandler.saveCrashInfo2File(e, context);
+                        }
                     }
                 });
 
@@ -202,12 +202,12 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-//                        try {
-                        hookGetView(param);
-//                        } catch (Throwable e) {
-//                            e.printStackTrace();
-//                            CrashHandler.saveCrashInfo2File(e, context);
-//                        }
+                        try {
+                            hookGetView(param);
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                            CrashHandler.saveCrashInfo2File(e, context);
+                        }
                     }
                 });
 
@@ -216,12 +216,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                 int.class, long.class, new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
-                        // try {
-                        hookOnItemClick(param);
-//                        } catch (Throwable e) {
-//                            e.printStackTrace();
-//                            CrashHandler.saveCrashInfo2File(e, context);
-//                        }
+                        try {
+                            hookOnItemClick(param);
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                            CrashHandler.saveCrashInfo2File(e, context);
+                        }
                     }
                 });
 
@@ -232,7 +232,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                         KeyEvent keyEvent = (KeyEvent) param.args[0];
                         if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_BACK
                                 && keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
-                            if (!isInChatting ) {
+                            if (!isInChatting && chatRoomViewPresenter.isShowing()) {
                                 chatRoomViewPresenter.dismiss();
                                 param.setResult(true);
                             }
@@ -316,6 +316,9 @@ public class HookLogic implements IXposedHookLoadPackage {
                     clickChatRoomFlag = true;
                     XposedHelpers.callMethod(param.thisObject, "onItemClick"
                             , param.args[0], view, relativePosition + headerViewsCount, id);
+
+                    if (PreferencesUtils.auto_close())
+                        chatRoomViewPresenter.dismiss();
                 }
             });
             chatRoomViewPresenter.show();
@@ -495,19 +498,28 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         drawable = Bitmap.createScaledBitmap(drawable, size / 2, size / 2, false).copy(Bitmap.Config.ARGB_8888, false);
 
+        //生成图
         Bitmap raw = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
 
         Canvas bitmapCanvas = new Canvas(raw);
 
+        //绘制logo
         bitmapCanvas.drawBitmap(drawable, size / 4, size / 4, paint);
 
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
 
+        //给logo染色
         bitmapCanvas.drawBitmap(whiteMask, 0, 0, paint);
 
         paint.setXfermode(null);
 
-        canvas.drawColor(0xFF12B7F6);
+
+        if (PreferencesUtils.getCircleAvatar()) {
+            paint.setColor(0xFF12B7F6);
+            canvas.drawCircle(size / 2, size / 2, size / 2, paint);
+        } else {
+            canvas.drawColor(0xFF12B7F6);
+        }
 
         canvas.drawBitmap(raw, 0, 0, paint);
 

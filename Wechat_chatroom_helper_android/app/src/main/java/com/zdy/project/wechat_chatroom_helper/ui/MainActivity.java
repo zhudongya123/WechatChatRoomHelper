@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                             public void run() {
 
                                 WebView webView = new WebView(MainActivity.this);
-                                webView.loadData(result,"text/html; charset=UTF-8", null);
+                                webView.loadData(result, "text/html; charset=UTF-8", null);
                                 alertDialog = new AlertDialog.Builder(MainActivity.this)
                                         .setView(webView).create();
 
@@ -116,20 +116,28 @@ public class MainActivity extends AppCompatActivity {
         //play开关是否打开 的标记
         boolean play_version = sharedPreferences.getBoolean("play_version", false);
 
-        //当前主程序的版本好
+        //当前主程序的版本号
         int helper_versionCode = sharedPreferences.getInt("helper_versionCode", 0);
 
+        //当前保存的微信版本号
+        int wechat_version = sharedPreferences.getInt("wechat_version", 0);
+
+
+        int wechatVersionCode = getWechatVersionCode();
+
         //如果没有适合的数据，或者刚刚更新了主程序版本
-        if (!has_suit_wechat_data || helper_versionCode != getHelperVersionCode(this)) {
+        if ((wechatVersionCode != wechat_version && wechat_version != 0) || !has_suit_wechat_data
+                || helper_versionCode != getHelperVersionCode(this)) {
 
             //则发送数据请求
-            sendRequest(getWechatVersionCode(), play_version);
+            sendRequest(wechatVersionCode, play_version);
         } else {
 
             //否则则取出上次保存的合适的信息
             detail.setTextColor(0xFF888888);
             detail.setText(sharedPreferences.getString("show_info", ""));
         }
+        ApiManager.getINSTANCE().sendRequestForUserStatistics("oepn","asda","asdasd");
     }
 
     /**
@@ -214,6 +222,7 @@ public class MainActivity extends AppCompatActivity {
 
                 SharedPreferences.Editor edit = sharedPreferences.edit();
                 edit.putBoolean("has_suit_wechat_data", true);
+                edit.putInt("wechat_version", getWechatVersionCode());
                 edit.putString("show_info", msg);
                 edit.apply();
             }
@@ -228,6 +237,8 @@ public class MainActivity extends AppCompatActivity {
             for (PackageInfo packageInfo : packageInfoList) {
 
                 if (packageInfo.packageName.equals("com.tencent.mm")) {
+                    if (packageInfo.versionName.equals("6.5.14"))
+                        return 1120;
                     return packageInfo.versionCode;
                 }
             }

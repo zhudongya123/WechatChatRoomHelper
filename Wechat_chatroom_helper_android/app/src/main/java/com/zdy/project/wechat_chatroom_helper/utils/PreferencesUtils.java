@@ -37,6 +37,10 @@ public class PreferencesUtils {
         return getInstance().getString("toolbar_color", Constants.DEFAULT_TOOLBAR_COLOR);
     }
 
+    public static boolean getCircleAvatar() {
+        return getInstance().getBoolean("is_circle_avatar", false);
+    }
+
     public static boolean getBugUnread() {
         return getInstance().getBoolean("bug_unread", false);
     }
@@ -95,8 +99,6 @@ public class PreferencesUtils {
             Constants.Method_Conversation_List_View_Adapter_Param = jsonObject.get("mclvap").getAsString();
 
             Constants.Method_Conversation_List_Get_Avatar = jsonObject.get("mclga").getAsString();
-
-
 
 
             return true;

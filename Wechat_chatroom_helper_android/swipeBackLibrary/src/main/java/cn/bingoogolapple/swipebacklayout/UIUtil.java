@@ -45,6 +45,9 @@ public class UIUtil {
         NO_NAVIGATION_BAR_MODEL_SET.add("OPPO R7s");
         NO_NAVIGATION_BAR_MODEL_SET.add("Xiaomi HM Note 1S");
         NO_NAVIGATION_BAR_MODEL_SET.add("E6683");
+        NO_NAVIGATION_BAR_MODEL_SET.add("M3X");
+        NO_NAVIGATION_BAR_MODEL_SET.add("dream2qltezc");
+        NO_NAVIGATION_BAR_MODEL_SET.add("SM-G550");
     }
 
     private UIUtil() {
