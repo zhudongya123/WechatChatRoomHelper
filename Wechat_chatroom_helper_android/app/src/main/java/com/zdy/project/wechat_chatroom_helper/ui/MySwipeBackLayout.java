@@ -2,23 +2,21 @@ package com.zdy.project.wechat_chatroom_helper.ui;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Canvas;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
-import android.graphics.LinearGradient;
-import android.graphics.Paint;
-import android.graphics.Shader;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.Shape;
+import android.os.Build;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
-import java.util.Arrays;
+import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
 
 import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2;
-import cn.bingoogolapple.swipebacklayout.BGASwipeBackManager;
-import cn.bingoogolapple.swipebacklayout.UIUtil;
+
+import static cn.bingoogolapple.swipebacklayout.UIUtil.NO_NAVIGATION_BAR_MODEL_SET;
+import static cn.bingoogolapple.swipebacklayout.UIUtil.newCheckDeviceHasNavigationBar;
+import static cn.bingoogolapple.swipebacklayout.UIUtil.oldCheckDeviceHasNavigationBar;
 
 /**
  * Created by Mr.Zdy on 2017/9/17.
@@ -108,7 +106,7 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
         }
 
         // ======================== 新加的 START ========================
-        maxLayoutHeight -= UIUtil.getNavigationBarHeight((Activity) mContentView.getContext());
+        maxLayoutHeight -= getNavigationBarHeight((Activity) mContentView.getContext());
         // ======================== 新加的 END ========================
 
         float weightSum = 0;
@@ -274,5 +272,35 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
             // Cancel scrolling in progress, it's no longer relevant.
             mDragHelper.abort();
         }
+    }
+
+
+    private static int getNavigationBarHeight(Activity activity) {
+        int navigationBarHeight = 0;
+        Resources resources = activity.getResources();
+        int resourceId = resources.getIdentifier(resources.getConfiguration().orientation == Configuration
+                        .ORIENTATION_PORTRAIT ? "navigation_bar_height" : "navigation_bar_height_landscape", "dimen",
+                "android");
+        if (resourceId > 0 && checkDeviceHasNavigationBar(activity)) {
+            navigationBarHeight = resources.getDimensionPixelSize(resourceId);
+        }
+        return navigationBarHeight;
+    }
+
+    private static boolean checkDeviceHasNavigationBar(Activity activity) {
+        boolean hasNavigationBar = false;
+
+        if (PreferencesUtils.getForceHideNaviBar()) return false;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            if (NO_NAVIGATION_BAR_MODEL_SET.contains(Build.MODEL)) {
+                hasNavigationBar = false;
+            } else {
+                hasNavigationBar = newCheckDeviceHasNavigationBar(activity);
+            }
+        } else {
+            hasNavigationBar = oldCheckDeviceHasNavigationBar(activity);
+        }
+        return hasNavigationBar;
     }
 }

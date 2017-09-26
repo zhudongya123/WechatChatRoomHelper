@@ -29,6 +29,10 @@ public class PreferencesUtils {
         return getInstance().getBoolean("auto_close", false);
     }
 
+    public static boolean getForceHideNaviBar() {
+        return getInstance().getBoolean("force_hide_navi_bar", false);
+    }
+
     public static int getVersionCode() {
         return getInstance().getInt("saveVersionCode", 0);
     }

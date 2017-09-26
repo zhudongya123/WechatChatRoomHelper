@@ -18,6 +18,12 @@
             android:key="is_circle_avatar"
             android:title="@string/is_circle_avatar_string"
             />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="open"
+            android:key="force_hide_navi_bar"
+            android:title="@string/force_hide_navi_bar_string"
+            />
 
         <SwitchPreference android:defaultValue="false"
             android:dependency="open"
