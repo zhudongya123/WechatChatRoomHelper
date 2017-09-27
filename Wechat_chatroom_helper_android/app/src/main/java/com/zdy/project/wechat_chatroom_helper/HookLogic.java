@@ -73,13 +73,31 @@ public class HookLogic implements IXposedHookLoadPackage {
     private ArrayList<Integer> muteListInAdapterPositions = new ArrayList<>();
 
     //映射免打扰群组的数据位置和实际View位置
-    private SparseIntArray newViewPositionWithDataPositionList = new SparseIntArray();
+    private SparseIntArray newViewPositionWithDataPositionListForMute = new SparseIntArray();
 
     //记录当前有多少个免打扰群有新消息
-    private SparseIntArray unReadCountList = new SparseIntArray();
+    private SparseIntArray unReadCountListForMute = new SparseIntArray();
 
     //第一个免打扰群组的下标
     private int firstMutePosition = -1;
+
+    private ChatRoomViewPresenter muteChatRoomViewPresenter;
+
+    //免打扰公众号的数据位置
+    private ArrayList<Integer> officalListInAdapterPositions = new ArrayList<>();
+
+    //映射公众号群组的数据位置和实际View位置
+    private SparseIntArray newViewPositionWithDataPositionListForOffical = new SparseIntArray();
+
+    //记录当前有多少个公众号有新消息
+    private SparseIntArray unReadCountListForOffical = new SparseIntArray();
+
+    //第一个公众号的下标
+    private int firstOfficalPosition = -1;
+
+
+    private ChatRoomViewPresenter officalChatRoomViewPresenter;
+
 
     //标记位，当点击Dialog内的免打扰群组时，防止onItemClick与getObject方法的position冲突
     private boolean clickChatRoomFlag = false;
@@ -92,8 +110,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     private static ClassLoader mClassLoader;
     private Context context;
-
-    private ChatRoomViewPresenter chatRoomViewPresenter;
 
 
     @Override
@@ -126,7 +142,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 ViewGroup fitSystemWindowLayoutView = (ViewGroup) viewGroup.getChildAt(i);
 
                                 if (fitSystemWindowLayoutView.getChildCount() == 2) {
-                                    fitSystemWindowLayoutView.addView(chatRoomViewPresenter.getPresenterView(), 1);
+                                    fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter.getPresenterView(), 1);
+                                    fitSystemWindowLayoutView.addView(officalChatRoomViewPresenter.getPresenterView(), 2);
                                 }
                             }
                         }
@@ -232,8 +249,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                         KeyEvent keyEvent = (KeyEvent) param.args[0];
                         if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_BACK
                                 && keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
-                            if (!isInChatting && chatRoomViewPresenter.isShowing()) {
-                                chatRoomViewPresenter.dismiss();
+                            if (!isInChatting && muteChatRoomViewPresenter.isShowing()) {
+                                muteChatRoomViewPresenter.dismiss();
                                 param.setResult(true);
                             }
                         }
@@ -277,9 +294,13 @@ public class HookLogic implements IXposedHookLoadPackage {
     }
 
     private void hookAdapterInit(XC_MethodHook.MethodHookParam param) {
-        chatRoomViewPresenter = new ChatRoomViewPresenter(context);
-        chatRoomViewPresenter.setAdapter(param.thisObject);
-        chatRoomViewPresenter.start();
+        muteChatRoomViewPresenter = new ChatRoomViewPresenter(context);
+        muteChatRoomViewPresenter.setAdapter(param.thisObject);
+        muteChatRoomViewPresenter.start();
+
+        officalChatRoomViewPresenter = new ChatRoomViewPresenter(context);
+        officalChatRoomViewPresenter.setAdapter(param.thisObject);
+        officalChatRoomViewPresenter.start();
     }
 
 
@@ -309,8 +330,8 @@ public class HookLogic implements IXposedHookLoadPackage {
         if (position == firstMutePosition && !clickChatRoomFlag) {
             XposedBridge.log("XposedBridge, onItemClick, firstMutePosition");
 
-            chatRoomViewPresenter.setMuteListInAdapterPositions(muteListInAdapterPositions);
-            chatRoomViewPresenter.setOnDialogItemClickListener(new ChatRoomRecyclerViewAdapter.OnDialogItemClickListener() {
+            muteChatRoomViewPresenter.setMuteListInAdapterPositions(muteListInAdapterPositions);
+            muteChatRoomViewPresenter.setOnDialogItemClickListener(new ChatRoomRecyclerViewAdapter.OnDialogItemClickListener() {
                 @Override
                 public void onItemClick(int relativePosition) {
                     clickChatRoomFlag = true;
@@ -318,10 +339,10 @@ public class HookLogic implements IXposedHookLoadPackage {
                             , param.args[0], view, relativePosition + headerViewsCount, id);
 
                     if (PreferencesUtils.auto_close())
-                        chatRoomViewPresenter.dismiss();
+                        muteChatRoomViewPresenter.dismiss();
                 }
             });
-            chatRoomViewPresenter.show();
+            muteChatRoomViewPresenter.show();
             param.setResult(null);
         }
     }
@@ -371,8 +392,8 @@ public class HookLogic implements IXposedHookLoadPackage {
             XposedHelpers.callMethod(avatar, "setVisibility", View.VISIBLE);
 
             int newMessageCount = 0;
-            for (int k = 0; k < unReadCountList.size(); k++) {
-                int itemValue = unReadCountList.valueAt(k);
+            for (int k = 0; k < unReadCountListForMute.size(); k++) {
+                int itemValue = unReadCountListForMute.valueAt(k);
 
                 XposedBridge.log("Message position = " + k + ", unreadCount = " + itemValue);
                 if (itemValue > 0) {
@@ -386,6 +407,8 @@ public class HookLogic implements IXposedHookLoadPackage {
             }
         } else
             XposedHelpers.callMethod(avatar, "setBackgroundDrawable", new BitmapDrawable());
+
+
     }
 
     private void hookGetObject(XC_MethodHook.MethodHookParam param) {
@@ -398,8 +421,8 @@ public class HookLogic implements IXposedHookLoadPackage {
         if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
             return;
 
-        if (newViewPositionWithDataPositionList.size() != 0)
-            index = newViewPositionWithDataPositionList.get(index, index);
+        if (newViewPositionWithDataPositionListForMute.size() != 0)
+            index = newViewPositionWithDataPositionListForMute.get(index, index);
 
         //如果刚刚点击了群消息助手中的item，则因为模拟分发点击事件会调用getObject方法，
         // 则这一次getObject方法，不再修改数据和View的位置
@@ -428,6 +451,10 @@ public class HookLogic implements IXposedHookLoadPackage {
         if (notifyMuteList) {
             int count = result - muteListInAdapterPositions.size();//减去免打扰消息的數量
             count++;//增加入口位置
+
+            count = count - officalListInAdapterPositions.size();
+            count++;
+
             param.setResult(count);
         }
     }
@@ -443,21 +470,24 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         //代码保护区，此段执行时getCount逻辑跳过
         {
-            newViewPositionWithDataPositionList.clear();
+            newViewPositionWithDataPositionListForMute.clear();
             muteListInAdapterPositions.clear();
-            unReadCountList.clear();
-            //  muteCount = 0;//免打扰消息群组的的數量
+            unReadCountListForMute.clear();
             firstMutePosition = -1;
 
+            newViewPositionWithDataPositionListForOffical.clear();
+            officalListInAdapterPositions.clear();
+            unReadCountListForOffical.clear();
+            firstOfficalPosition = -1;
 
-            //逐一判断是否为免打扰群组
+
             for (int i = 0; i < ((BaseAdapter) param.thisObject).getCount(); i++) {
                 Object value = getMessageBeanForOriginIndex(param.thisObject, i);
 
                 Object messageStatus = XposedHelpers.callMethod(param.thisObject,
-                        Method_Message_Status_Bean,
-                        value);
+                        Method_Message_Status_Bean, value);
 
+                //逐一判断是否为免打扰群组
                 boolean uyI = XposedHelpers.getBooleanField(messageStatus,
                         Value_Message_Status_Is_Mute_1);
                 boolean uXX = XposedHelpers.getBooleanField(messageStatus,
@@ -468,25 +498,56 @@ public class HookLogic implements IXposedHookLoadPackage {
                     if (firstMutePosition == -1)
                         firstMutePosition = i;
 
-                    //    muteCount++;
                     muteListInAdapterPositions.add(i);
 
                     MessageEntity entity = new MessageEntity(value);
 
-                    unReadCountList.put(i, entity.field_unReadCount);
+                    unReadCountListForMute.put(i, entity.field_unReadCount);
                 }
                 int muteCount = muteListInAdapterPositions.size();
+
+
                 if (!(uyI && uXX) || muteCount == 1) {
-                    newViewPositionWithDataPositionList.put(i - (muteCount >= 1 ? muteCount - 1 :
-                            muteCount), i);
+                    newViewPositionWithDataPositionListForMute
+                            .put(i - (muteCount >= 1 ? muteCount - 1 :muteCount), i);
                 }
+
+
+
+
+
+
+
+
+//                boolean wcY = XposedHelpers.getBooleanField(messageStatus, "wcY");
+//                int wcU = XposedHelpers.getIntField(messageStatus, "wcU");
+//                String field_username = ((String) XposedHelpers.getObjectField(value, "field_username"));
+//
+//                if (!"gh_43f2581f6fd6".equals(field_username) &&
+//                        wcY && (wcU == 1 || wcU == 2 || wcU == 3)) {
+//
+//                    XposedBridge.log("恭喜 user = " + field_username + ", 是一个公众号");
+//
+//
+//                    if (firstOfficalPosition == -1)
+//                        firstOfficalPosition = i;
+//
+//                    officalListInAdapterPositions.add(i);
+//
+//                    int officalCount = muteListInAdapterPositions.size();
+//
+//                }
+//                if (!(uyI && uXX) || muteCount == 1) {
+//                    newViewPositionWithDataPositionListForMute.put(i - (muteCount >= 1 ? muteCount - 1 :
+//                            muteCount), i);
+//                }
 
             }
         }
         notifyMuteList = true;
 
-        if (chatRoomViewPresenter != null) {
-            chatRoomViewPresenter.setMuteListInAdapterPositions(muteListInAdapterPositions);
+        if (muteChatRoomViewPresenter != null) {
+            muteChatRoomViewPresenter.setMuteListInAdapterPositions(muteListInAdapterPositions);
         }
     }
 
@@ -593,8 +654,8 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                                 String sendUsername = (String) objects[0];
                                 if (sendUsername.contains("chatroom")) {
-                                    if (chatRoomViewPresenter != null) {
-                                        chatRoomViewPresenter.setMessageRefresh(sendUsername);
+                                    if (muteChatRoomViewPresenter != null) {
+                                        muteChatRoomViewPresenter.setMessageRefresh(sendUsername);
                                     }
                                 }
                             }
@@ -632,8 +693,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         int arg = (int) param.args[0];
 
-                        if (chatRoomViewPresenter == null) return;
-                        Object adapter = chatRoomViewPresenter.getOriginAdapter();
+                        if (muteChatRoomViewPresenter == null) return;
+                        Object adapter = muteChatRoomViewPresenter.getOriginAdapter();
                         int count = (int) XposedHelpers.callMethod(adapter, "getCount");
 
                         int unReadCount = 0;
