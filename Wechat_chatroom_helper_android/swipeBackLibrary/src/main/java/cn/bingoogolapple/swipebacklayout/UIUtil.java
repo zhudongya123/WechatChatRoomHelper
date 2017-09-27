@@ -34,7 +34,7 @@ import java.util.Set;
  * 描述:
  */
 public class UIUtil {
-    static final Set<String> NO_NAVIGATION_BAR_MODEL_SET = new HashSet<>();
+    public static final Set<String> NO_NAVIGATION_BAR_MODEL_SET = new HashSet<>();
 
     static {
         NO_NAVIGATION_BAR_MODEL_SET.add("Nexus 4");
@@ -44,7 +44,7 @@ public class UIUtil {
         NO_NAVIGATION_BAR_MODEL_SET.add("HUAWEI P7-L07");
         NO_NAVIGATION_BAR_MODEL_SET.add("OPPO R7s");
         NO_NAVIGATION_BAR_MODEL_SET.add("Xiaomi HM Note 1S");
-        NO_NAVIGATION_BAR_MODEL_SET.add("E6683");
+       // NO_NAVIGATION_BAR_MODEL_SET.add("E6683");
         NO_NAVIGATION_BAR_MODEL_SET.add("M3X");
         NO_NAVIGATION_BAR_MODEL_SET.add("dream2qltezc");
         NO_NAVIGATION_BAR_MODEL_SET.add("SM-G550");
@@ -89,7 +89,7 @@ public class UIUtil {
         return hasNavigationBar;
     }
 
-    private static boolean oldCheckDeviceHasNavigationBar(Activity activity) {
+    public  static boolean oldCheckDeviceHasNavigationBar(Activity activity) {
         boolean hasNavigationBar = false;
         Resources resources = activity.getResources();
         int id = resources.getIdentifier("config_showNavigationBar", "bool", "android");
@@ -110,7 +110,7 @@ public class UIUtil {
         return hasNavigationBar;
     }
 
-    private static boolean newCheckDeviceHasNavigationBar(Activity activity) {
+    public static boolean newCheckDeviceHasNavigationBar(Activity activity) {
         WindowManager windowManager = activity.getWindowManager();
         Display display = windowManager.getDefaultDisplay();
         DisplayMetrics realDisplayMetrics = new DisplayMetrics();

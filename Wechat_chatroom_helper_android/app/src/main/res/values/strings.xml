@@ -5,5 +5,6 @@
     <string name="pref_open">功能开关</string>
     <string name="play_version_string">我使用的是play版本</string>
     <string name="is_circle_avatar_string">群消息助手圆形头像</string>
+    <string name="force_hide_navi_bar_string">修复群聊天助手底部显示异常</string>
 
 </resources>
