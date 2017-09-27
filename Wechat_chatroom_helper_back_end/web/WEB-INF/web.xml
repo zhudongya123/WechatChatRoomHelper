@@ -6,7 +6,7 @@
 
     <servlet>
         <servlet-name>PathServlet</servlet-name>
-        <servlet-class>com.zdy.project.wechat_chatroom_helper.PathServlet</servlet-class>
+        <servlet-class>com.zdy.project.wechat_chatroom_helper.servlet.PathServlet</servlet-class>
     </servlet>
 
 
@@ -18,7 +18,7 @@
 
     <servlet>
         <servlet-name>ErrorReceiverServlet</servlet-name>
-        <servlet-class>com.zdy.project.wechat_chatroom_helper.ErrorReceiverServlet</servlet-class>
+        <servlet-class>com.zdy.project.wechat_chatroom_helper.servlet.ErrorReceiverServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -28,7 +28,7 @@
 
     <servlet>
         <servlet-name>HomeInfoServlet</servlet-name>
-        <servlet-class>com.zdy.project.wechat_chatroom_helper.HomeInfoServlet</servlet-class>
+        <servlet-class>com.zdy.project.wechat_chatroom_helper.servlet.HomeInfoServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -39,7 +39,7 @@
 
     <servlet>
         <servlet-name>UserStatisticsServlet</servlet-name>
-        <servlet-class>com.zdy.project.wechat_chatroom_helper.UserStatisticsServlet</servlet-class>
+        <servlet-class>com.zdy.project.wechat_chatroom_helper.servlet.UserStatisticsServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>

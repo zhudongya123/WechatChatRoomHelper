@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper;
+package com.zdy.project.wechat_chatroom_helper.servlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
