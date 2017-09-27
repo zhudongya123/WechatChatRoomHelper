@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
@@ -16,7 +17,6 @@ import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2;
 
 import static cn.bingoogolapple.swipebacklayout.UIUtil.NO_NAVIGATION_BAR_MODEL_SET;
 import static cn.bingoogolapple.swipebacklayout.UIUtil.newCheckDeviceHasNavigationBar;
-import static cn.bingoogolapple.swipebacklayout.UIUtil.oldCheckDeviceHasNavigationBar;
 
 /**
  * Created by Mr.Zdy on 2017/9/17.
@@ -284,22 +284,22 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
         if (resourceId > 0 && checkDeviceHasNavigationBar(activity)) {
             navigationBarHeight = resources.getDimensionPixelSize(resourceId);
         }
+
+        Log.v("Xposed","navigationBarHeight = " + String.valueOf(navigationBarHeight));
+
         return navigationBarHeight;
     }
 
     private static boolean checkDeviceHasNavigationBar(Activity activity) {
+
         boolean hasNavigationBar = false;
 
         if (PreferencesUtils.getForceHideNaviBar()) return false;
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            if (NO_NAVIGATION_BAR_MODEL_SET.contains(Build.MODEL)) {
-                hasNavigationBar = false;
-            } else {
-                hasNavigationBar = newCheckDeviceHasNavigationBar(activity);
-            }
+        if (NO_NAVIGATION_BAR_MODEL_SET.contains(Build.MODEL)) {
+            hasNavigationBar = false;
         } else {
-            hasNavigationBar = oldCheckDeviceHasNavigationBar(activity);
+            hasNavigationBar = newCheckDeviceHasNavigationBar(activity);
         }
         return hasNavigationBar;
     }

@@ -1,6 +1,8 @@
 package com.zdy.project.wechat_chatroom_helper.utils;
 
 
+import android.util.Log;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.zdy.project.wechat_chatroom_helper.Constants;
@@ -30,7 +32,8 @@ public class PreferencesUtils {
     }
 
     public static boolean getForceHideNaviBar() {
-        return getInstance().getBoolean("force_hide_navi_bar", false);
+        return  getInstance().getBoolean("force_hide_navi_bar", false);
+
     }
 
     public static int getVersionCode() {
