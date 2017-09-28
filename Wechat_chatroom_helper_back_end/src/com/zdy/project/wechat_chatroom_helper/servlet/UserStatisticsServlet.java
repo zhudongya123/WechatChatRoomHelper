@@ -24,10 +24,14 @@ public class UserStatisticsServlet extends HttpServlet {
         String action = req.getParameter("action");
         String uuidCode = req.getParameter("uuidCode");
         String model = req.getParameter("model");
+        String version = req.getParameter("version");
+
+        if (version == null)
+            version = "< 16";
 
 
         if (action.equals("open") || action.equals("close"))
-            SQLiteManager.getInstance().insertUserStatisticsData(uuidCode, model, action);
+            SQLiteManager.getInstance().insertUserStatisticsData(uuidCode, model, action, version);
 
         writer.write("感谢每个用户，给了我很多自信以至于我不觉得自己是一个废柴。。");
     }

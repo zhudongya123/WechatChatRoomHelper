@@ -172,6 +172,10 @@ public class PathServlet extends HttpServlet {
         data.addProperty("vhua", "uQy");
         data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
         data.addProperty("mclga", "a");
+
+        data.addProperty("vmsio1", "wcY");
+        data.addProperty("vmsio2", "wcU");
+        data.addProperty("vmsio3", "field_username");
     }
 
 
@@ -221,6 +225,10 @@ public class PathServlet extends HttpServlet {
         data.addProperty("vhua", "uOv");
         data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
         data.addProperty("mclga", "a");
+
+        data.addProperty("vmsio1", "way");
+        data.addProperty("vmsio2", "wau");
+        data.addProperty("vmsio3", "field_username");
     }
 
     private void getConfig1081playVersion(JsonObject data) {
@@ -269,6 +277,10 @@ public class PathServlet extends HttpServlet {
         data.addProperty("vhua", "uQk");
         data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
         data.addProperty("mclga", "a");
+
+        data.addProperty("vmsio1", "wcx");
+        data.addProperty("vmsio2", "wct");
+        data.addProperty("vmsio3", "field_username");
     }
 
     private void getConfig1080playVersion(JsonObject data) {
@@ -315,6 +327,10 @@ public class PathServlet extends HttpServlet {
         data.addProperty("vhua", "uyd");
         data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
         data.addProperty("mclga", "h");
+
+        data.addProperty("vmsio1", "vJs");
+        data.addProperty("vmsio2", "vJo");
+        data.addProperty("vmsio3", "field_username");
     }
 
     private void getConfig1080(JsonObject data) {
@@ -362,6 +378,10 @@ public class PathServlet extends HttpServlet {
         data.addProperty("vhua", "uxw");
         data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
         data.addProperty("mclga", "h");
+
+        data.addProperty("vmsio1", "vIK");
+        data.addProperty("vmsio2", "vIG");
+        data.addProperty("vmsio3", "field_username");
     }
 
     private void getConfig1060playVersion(JsonObject data) {
@@ -408,6 +428,10 @@ public class PathServlet extends HttpServlet {
         data.addProperty("vhua", "tPE");
         data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
         data.addProperty("mclga", "h");
+
+        data.addProperty("vmsio1", "vae");
+        data.addProperty("vmsio2", "vaa");
+        data.addProperty("vmsio3", "field_username");
     }
 
     private void getConfig1060(JsonObject data) {
@@ -454,6 +478,10 @@ public class PathServlet extends HttpServlet {
         data.addProperty("vhua", "tNB");
         data.addProperty("mclvap", "com.tencent.mm.ui.e$a");
         data.addProperty("mclga", "h");
+
+        data.addProperty("vmsio1", "uXW");
+        data.addProperty("vmsio2", "uXS");
+        data.addProperty("vmsio3", "field_username");
     }
 
 }

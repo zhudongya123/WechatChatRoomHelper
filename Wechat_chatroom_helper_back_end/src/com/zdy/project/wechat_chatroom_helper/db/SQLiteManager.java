@@ -28,13 +28,13 @@ public class SQLiteManager {
         return INSTANCE;
     }
 
-    public void insertUserStatisticsData(String uuid, String model, String action) {
+    public void insertUserStatisticsData(String uuid, String model, String action, String version) {
         String sql;
         try {
             Statement stmt = c.createStatement();
 
-            sql = "INSERT INTO user_statistics " + "(uuid,model,action,time) " + "VALUES ('"
-                    + uuid + "', '" + model + "', '" + action + "', " + System.currentTimeMillis() + " );";
+            sql = "INSERT INTO user_statistics " + "(uuid,model,action,time,version) " + "VALUES ('"
+                    + uuid + "', '" + model + "', '" + action + "', " + System.currentTimeMillis() + ", '" + version + "' );";
             stmt.executeUpdate(sql);
 
             stmt.close();
