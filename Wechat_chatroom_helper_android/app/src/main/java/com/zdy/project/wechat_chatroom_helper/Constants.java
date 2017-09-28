@@ -56,9 +56,10 @@ public class Constants {
     public static String Value_Home_UI_Activity ;
     public static String Method_Conversation_List_View_Adapter_Param ;
 
-
     public static String Method_Conversation_List_Get_Avatar ;
 
-
+    public static String Value_Message_Status_Is_OFFICIAL_1;
+    public static String Value_Message_Status_Is_OFFICIAL_2;
+    public static String Value_Message_Status_Is_OFFICIAL_3;
 
 }

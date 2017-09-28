@@ -61,6 +61,9 @@ import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Ad
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Title;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_Mute_1;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_Mute_2;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_OFFICIAL_1;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_OFFICIAL_2;
+import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_OFFICIAL_3;
 import static com.zdy.project.wechat_chatroom_helper.Constants.WECHAT_PACKAGE_NAME;
 
 /**
@@ -72,8 +75,8 @@ public class HookLogic implements IXposedHookLoadPackage {
     //免打扰群组的数据位置
     private ArrayList<Integer> muteListInAdapterPositions = new ArrayList<>();
 
-    //映射免打扰群组的数据位置和实际View位置
-    private SparseIntArray newViewPositionWithDataPositionListForMute = new SparseIntArray();
+    //映射普通回话的数据位置和实际View位置
+    //   private SparseIntArray newViewPositionWithDataPositionListForMute = new SparseIntArray();
 
     //记录当前有多少个免打扰群有新消息
     private SparseIntArray unReadCountListForMute = new SparseIntArray();
@@ -81,22 +84,22 @@ public class HookLogic implements IXposedHookLoadPackage {
     //第一个免打扰群组的下标
     private int firstMutePosition = -1;
 
-    private ChatRoomViewPresenter muteChatRoomViewPresenter;
 
     //免打扰公众号的数据位置
-    private ArrayList<Integer> officalListInAdapterPositions = new ArrayList<>();
+    private ArrayList<Integer> officialListInAdapterPositions = new ArrayList<>();
 
     //映射公众号群组的数据位置和实际View位置
-    private SparseIntArray newViewPositionWithDataPositionListForOffical = new SparseIntArray();
+    private SparseIntArray newViewPositionWithDataPositionListForOfficial = new SparseIntArray();
 
     //记录当前有多少个公众号有新消息
-    private SparseIntArray unReadCountListForOffical = new SparseIntArray();
+    private SparseIntArray unReadCountListForOfficial = new SparseIntArray();
 
     //第一个公众号的下标
-    private int firstOfficalPosition = -1;
+    private int firstOfficialPosition = -1;
 
 
-    private ChatRoomViewPresenter officalChatRoomViewPresenter;
+    private ChatRoomViewPresenter muteChatRoomViewPresenter;
+    private ChatRoomViewPresenter officialChatRoomViewPresenter;
 
 
     //标记位，当点击Dialog内的免打扰群组时，防止onItemClick与getObject方法的position冲突
@@ -143,7 +146,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                                 if (fitSystemWindowLayoutView.getChildCount() == 2) {
                                     fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter.getPresenterView(), 1);
-                                    fitSystemWindowLayoutView.addView(officalChatRoomViewPresenter.getPresenterView(), 2);
+                                    fitSystemWindowLayoutView.addView(officialChatRoomViewPresenter.getPresenterView(), 2);
                                 }
                             }
                         }
@@ -249,9 +252,17 @@ public class HookLogic implements IXposedHookLoadPackage {
                         KeyEvent keyEvent = (KeyEvent) param.args[0];
                         if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_BACK
                                 && keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
-                            if (!isInChatting && muteChatRoomViewPresenter.isShowing()) {
-                                muteChatRoomViewPresenter.dismiss();
-                                param.setResult(true);
+                            if (!isInChatting) {
+
+                                if (muteChatRoomViewPresenter.isShowing()) {
+                                    muteChatRoomViewPresenter.dismiss();
+                                    param.setResult(true);
+                                }
+
+                                if (officialChatRoomViewPresenter.isShowing()) {
+                                    officialChatRoomViewPresenter.dismiss();
+                                    param.setResult(true);
+                                }
                             }
                         }
                     }
@@ -294,13 +305,13 @@ public class HookLogic implements IXposedHookLoadPackage {
     }
 
     private void hookAdapterInit(XC_MethodHook.MethodHookParam param) {
-        muteChatRoomViewPresenter = new ChatRoomViewPresenter(context);
+        muteChatRoomViewPresenter = new ChatRoomViewPresenter(context, "群消息助手");
         muteChatRoomViewPresenter.setAdapter(param.thisObject);
         muteChatRoomViewPresenter.start();
 
-        officalChatRoomViewPresenter = new ChatRoomViewPresenter(context);
-        officalChatRoomViewPresenter.setAdapter(param.thisObject);
-        officalChatRoomViewPresenter.start();
+        officialChatRoomViewPresenter = new ChatRoomViewPresenter(context, "公众号助手");
+        officialChatRoomViewPresenter.setAdapter(param.thisObject);
+        officialChatRoomViewPresenter.start();
     }
 
 
@@ -324,7 +335,11 @@ public class HookLogic implements IXposedHookLoadPackage {
         XposedBridge.log("XposedBridge, onItemClick, getHeaderViewsCount =" + headerViewsCount);
 
         XposedBridge.log("XposedBridge, onItemClick, position =" + position);
+        XposedBridge.log("XposedBridge, onItemClick, firstMutePosition =" + firstMutePosition);
+        XposedBridge.log("XposedBridge, onItemClick, firstOfficialPosition =" + firstOfficialPosition);
 
+        XposedBridge.log("XposedBridge, onItemClick, newViewPositionWithDataPositionListForOfficial = " +
+                newViewPositionWithDataPositionListForOfficial.toString());
 
         //如果点击的是免打扰消息的入口，且不是在群消息助手里面所做的模拟点击（注意！此方法本身就为点击后的处理方法）
         if (position == firstMutePosition && !clickChatRoomFlag) {
@@ -343,6 +358,26 @@ public class HookLogic implements IXposedHookLoadPackage {
                 }
             });
             muteChatRoomViewPresenter.show();
+            param.setResult(null);
+        }
+
+        if (position == firstOfficialPosition && !clickChatRoomFlag) {
+            XposedBridge.log("XposedBridge, onItemClick, firstOfficialPosition");
+
+            officialChatRoomViewPresenter.setMuteListInAdapterPositions(officialListInAdapterPositions);
+            officialChatRoomViewPresenter.setOnDialogItemClickListener(new ChatRoomRecyclerViewAdapter
+                    .OnDialogItemClickListener() {
+                @Override
+                public void onItemClick(int relativePosition) {
+                    clickChatRoomFlag = true;
+                    XposedHelpers.callMethod(param.thisObject, "onItemClick"
+                            , param.args[0], view, relativePosition + headerViewsCount, id);
+
+                    if (PreferencesUtils.auto_close())
+                        muteChatRoomViewPresenter.dismiss();
+                }
+            });
+            officialChatRoomViewPresenter.show();
             param.setResult(null);
         }
     }
@@ -384,7 +419,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     int drawableId = context.getResources().getIdentifier(Drawable_String_Chatroom_Avatar, "drawable", context.getPackageName());
                     Bitmap temp = BitmapFactory.decodeResource(context.getResources(), drawableId);
 
-                    handlerBitmap(canvas, paint, size, temp);
+                    handlerChatRoomBitmap(canvas, paint, size, temp);
                 }
             });
             XposedHelpers.callMethod(avatar, "setBackgroundDrawable", shapeDrawable);
@@ -405,6 +440,44 @@ public class HookLogic implements IXposedHookLoadPackage {
                 XposedHelpers.callMethod(content, "setText", "[" + newMessageCount + "个群有新消息]");
                 XposedHelpers.callMethod(content, "setTextColor", Color.rgb(242, 140, 72));
             }
+        } else if (position == firstOfficialPosition) {
+
+            XposedHelpers.callMethod(title, "setText", "公众号助手");
+            XposedHelpers.callMethod(title, "setTextColor", Color.rgb(87, 107, 149));
+
+            final Context context = itemView.getContext();
+
+            ShapeDrawable shapeDrawable = new ShapeDrawable(new Shape() {
+                @Override
+                public void draw(Canvas canvas, Paint paint) {
+                    paint.setColor(0xFF12B7F6);
+                    int size = canvas.getWidth();
+
+                    int drawableId = context.getResources().getIdentifier(Drawable_String_Chatroom_Avatar,
+                            "drawable", context.getPackageName());
+                    Bitmap temp = BitmapFactory.decodeResource(context.getResources(), drawableId);
+
+                    handlerOfficialBitmap(canvas, paint, size, temp);
+                }
+            });
+            XposedHelpers.callMethod(avatar, "setBackgroundDrawable", shapeDrawable);
+            XposedHelpers.callMethod(avatar, "setImageDrawable", shapeDrawable);
+            XposedHelpers.callMethod(avatar, "setVisibility", View.VISIBLE);
+
+            int newMessageCount = 0;
+            for (int k = 0; k < unReadCountListForOfficial.size(); k++) {
+                int itemValue = unReadCountListForOfficial.valueAt(k);
+
+                XposedBridge.log("Message position = " + k + ", unreadCount = " + itemValue);
+                if (itemValue > 0) {
+                    newMessageCount++;
+                }
+            }
+
+            if (newMessageCount > 0) {
+                XposedHelpers.callMethod(content, "setText", "[" + newMessageCount + "个公众号有新消息]");
+                XposedHelpers.callMethod(content, "setTextColor", Color.rgb(242, 140, 72));
+            }
         } else
             XposedHelpers.callMethod(avatar, "setBackgroundDrawable", new BitmapDrawable());
 
@@ -421,8 +494,8 @@ public class HookLogic implements IXposedHookLoadPackage {
         if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
             return;
 
-        if (newViewPositionWithDataPositionListForMute.size() != 0)
-            index = newViewPositionWithDataPositionListForMute.get(index, index);
+        if (newViewPositionWithDataPositionListForOfficial.size() != 0)
+            index = newViewPositionWithDataPositionListForOfficial.get(index, index);
 
         //如果刚刚点击了群消息助手中的item，则因为模拟分发点击事件会调用getObject方法，
         // 则这一次getObject方法，不再修改数据和View的位置
@@ -452,9 +525,12 @@ public class HookLogic implements IXposedHookLoadPackage {
             int count = result - muteListInAdapterPositions.size();//减去免打扰消息的數量
             count++;//增加入口位置
 
-            count = count - officalListInAdapterPositions.size();
+            count = count - officialListInAdapterPositions.size();//减去公众号的数量
             count++;
 
+            XposedBridge.log("XposedBridge = adapter mute size = " + muteListInAdapterPositions.size());
+            XposedBridge.log("XposedBridge = adapter official size = " + officialListInAdapterPositions.size());
+            XposedBridge.log("XposedBridge = adapter size = " + count);
             param.setResult(count);
         }
     }
@@ -470,16 +546,19 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         //代码保护区，此段执行时getCount逻辑跳过
         {
-            newViewPositionWithDataPositionListForMute.clear();
+
+            XposedBridge.log("newViewPositionWithDataPositionListForOfficial = " +
+                    newViewPositionWithDataPositionListForOfficial.toString());
+
             muteListInAdapterPositions.clear();
             unReadCountListForMute.clear();
             firstMutePosition = -1;
 
-            newViewPositionWithDataPositionListForOffical.clear();
-            officalListInAdapterPositions.clear();
-            unReadCountListForOffical.clear();
-            firstOfficalPosition = -1;
+            officialListInAdapterPositions.clear();
+            unReadCountListForOfficial.clear();
+            firstOfficialPosition = -1;
 
+            newViewPositionWithDataPositionListForOfficial.clear();
 
             for (int i = 0; i < ((BaseAdapter) param.thisObject).getCount(); i++) {
                 Object value = getMessageBeanForOriginIndex(param.thisObject, i);
@@ -487,60 +566,59 @@ public class HookLogic implements IXposedHookLoadPackage {
                 Object messageStatus = XposedHelpers.callMethod(param.thisObject,
                         Method_Message_Status_Bean, value);
 
-                //逐一判断是否为免打扰群组
-                boolean uyI = XposedHelpers.getBooleanField(messageStatus,
-                        Value_Message_Status_Is_Mute_1);
-                boolean uXX = XposedHelpers.getBooleanField(messageStatus,
-                        Value_Message_Status_Is_Mute_2);
+                MessageEntity entity = new MessageEntity(value);
 
+                //是否为免打扰群组
+                boolean isMuteConversation = isMuteConversation(messageStatus);
 
-                if (uyI && uXX) {
-                    if (firstMutePosition == -1)
+                //是否为公众号
+                boolean isOfficialConversation = isOfficialConversation(value, messageStatus);
+
+                if (isMuteConversation) {
+                    if (firstMutePosition == -1) {
+
                         firstMutePosition = i;
+
+                        if (officialListInAdapterPositions.size() != 0)
+                            firstMutePosition = firstMutePosition - officialListInAdapterPositions.size() + 1;
+                    }
 
                     muteListInAdapterPositions.add(i);
 
-                    MessageEntity entity = new MessageEntity(value);
-
                     unReadCountListForMute.put(i, entity.field_unReadCount);
                 }
-                int muteCount = muteListInAdapterPositions.size();
 
+                String field_username = ((String) XposedHelpers.getObjectField(value, "field_username"));//
 
-                if (!(uyI && uXX) || muteCount == 1) {
-                    newViewPositionWithDataPositionListForMute
-                            .put(i - (muteCount >= 1 ? muteCount - 1 :muteCount), i);
+                if (isOfficialConversation) {
+
+                    XposedBridge.log("恭喜 user = " + field_username + ", 是一个公众号");//
+
+                    if (firstOfficialPosition == -1) {
+                        firstOfficialPosition = i;
+
+                        if (muteListInAdapterPositions.size() != 0)
+                            firstOfficialPosition = firstOfficialPosition - muteListInAdapterPositions.size() + 1;
+                    }
+
+                    officialListInAdapterPositions.add(i);
+
+                    unReadCountListForOfficial.put(i, entity.field_unReadCount);
                 }
 
+                int muteCount = muteListInAdapterPositions.size();
+                int officialCount = officialListInAdapterPositions.size();
 
 
+                //非群免打扰消息或者是公众号消息 或者是最新的群消息和公众号消息（入口）   即需要在微信主界面展示的回话
+                if (!isMuteConversation && !isOfficialConversation ||
+                        (muteCount == 1 && isMuteConversation && !isOfficialConversation) ||
+                        (officialCount == 1 && isOfficialConversation && !isMuteConversation)) {
+                    int key = i - (muteCount >= 1 ? (muteCount - 1) : muteCount);
+                    key = key - (officialCount >= 1 ? (officialCount - 1) : officialCount);
+                    newViewPositionWithDataPositionListForOfficial.put(key, i);
+                }
 
-
-
-
-
-//                boolean wcY = XposedHelpers.getBooleanField(messageStatus, "wcY");
-//                int wcU = XposedHelpers.getIntField(messageStatus, "wcU");
-//                String field_username = ((String) XposedHelpers.getObjectField(value, "field_username"));
-//
-//                if (!"gh_43f2581f6fd6".equals(field_username) &&
-//                        wcY && (wcU == 1 || wcU == 2 || wcU == 3)) {
-//
-//                    XposedBridge.log("恭喜 user = " + field_username + ", 是一个公众号");
-//
-//
-//                    if (firstOfficalPosition == -1)
-//                        firstOfficalPosition = i;
-//
-//                    officalListInAdapterPositions.add(i);
-//
-//                    int officalCount = muteListInAdapterPositions.size();
-//
-//                }
-//                if (!(uyI && uXX) || muteCount == 1) {
-//                    newViewPositionWithDataPositionListForMute.put(i - (muteCount >= 1 ? muteCount - 1 :
-//                            muteCount), i);
-//                }
 
             }
         }
@@ -549,10 +627,31 @@ public class HookLogic implements IXposedHookLoadPackage {
         if (muteChatRoomViewPresenter != null) {
             muteChatRoomViewPresenter.setMuteListInAdapterPositions(muteListInAdapterPositions);
         }
+
+        if (officialChatRoomViewPresenter != null) {
+            officialChatRoomViewPresenter.setMuteListInAdapterPositions(officialListInAdapterPositions);
+        }
+    }
+
+    private boolean isOfficialConversation(Object value, Object messageStatus) {
+
+        boolean wcY = XposedHelpers.getBooleanField(messageStatus, Value_Message_Status_Is_OFFICIAL_1);
+        int wcU = XposedHelpers.getIntField(messageStatus, Value_Message_Status_Is_OFFICIAL_2);
+        String field_username = ((String) XposedHelpers.getObjectField(value, Value_Message_Status_Is_OFFICIAL_3));
+
+        return !"gh_43f2581f6fd6".equals(field_username) && wcY && (wcU == 1 || wcU == 2 || wcU == 3);
+    }
+
+    private boolean isMuteConversation(Object messageStatus) {
+
+        boolean uyI = XposedHelpers.getBooleanField(messageStatus, Value_Message_Status_Is_Mute_1);
+        boolean uXX = XposedHelpers.getBooleanField(messageStatus, Value_Message_Status_Is_Mute_2);
+
+        return uyI && uXX;
     }
 
     //自造群消息助手头像
-    private static void handlerBitmap(Canvas canvas, Paint paint, int size, Bitmap drawable) {
+    private static void handlerChatRoomBitmap(Canvas canvas, Paint paint, int size, Bitmap drawable) {
         Bitmap whiteMask = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
 
         whiteMask.eraseColor(Color.WHITE);
@@ -580,6 +679,42 @@ public class HookLogic implements IXposedHookLoadPackage {
             canvas.drawCircle(size / 2, size / 2, size / 2, paint);
         } else {
             canvas.drawColor(0xFF12B7F6);
+        }
+
+        canvas.drawBitmap(raw, 0, 0, paint);
+
+    }
+
+    //自造群消息助手头像
+    private static void handlerOfficialBitmap(Canvas canvas, Paint paint, int size, Bitmap drawable) {
+        Bitmap whiteMask = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+
+        whiteMask.eraseColor(Color.WHITE);
+
+        drawable = Bitmap.createScaledBitmap(drawable, size / 2, size / 2, false).copy(Bitmap.Config.ARGB_8888,
+                false);
+
+        //生成图
+        Bitmap raw = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+
+        Canvas bitmapCanvas = new Canvas(raw);
+
+        //绘制logo
+        bitmapCanvas.drawBitmap(drawable, size / 4, size / 4, paint);
+
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+
+        //给logo染色
+        bitmapCanvas.drawBitmap(whiteMask, 0, 0, paint);
+
+        paint.setXfermode(null);
+
+
+        if (PreferencesUtils.getCircleAvatar()) {
+            paint.setColor(0xFFF5CB00);
+            canvas.drawCircle(size / 2, size / 2, size / 2, paint);
+        } else {
+            canvas.drawColor(0xFFF5CB00);
         }
 
         canvas.drawBitmap(raw, 0, 0, paint);
@@ -657,6 +792,9 @@ public class HookLogic implements IXposedHookLoadPackage {
                                     if (muteChatRoomViewPresenter != null) {
                                         muteChatRoomViewPresenter.setMessageRefresh(sendUsername);
                                     }
+                                }
+                                if (officialChatRoomViewPresenter != null) {
+                                    officialChatRoomViewPresenter.setMessageRefresh(sendUsername);
                                 }
                             }
                         }

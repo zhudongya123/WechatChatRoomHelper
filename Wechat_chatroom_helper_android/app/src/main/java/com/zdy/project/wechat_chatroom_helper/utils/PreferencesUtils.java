@@ -1,8 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.utils;
 
 
-import android.util.Log;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.zdy.project.wechat_chatroom_helper.Constants;
@@ -21,6 +19,11 @@ public class PreferencesUtils {
             instance.reload();
         }
         return instance;
+    }
+
+
+    public static int helper_versionCode() {
+        return getInstance().getInt("helper_versionCode", 0);
     }
 
     public static boolean open() {
@@ -107,6 +110,9 @@ public class PreferencesUtils {
 
             Constants.Method_Conversation_List_Get_Avatar = jsonObject.get("mclga").getAsString();
 
+            Constants.Value_Message_Status_Is_OFFICIAL_1 = jsonObject.get("vmsio1").getAsString();
+            Constants.Value_Message_Status_Is_OFFICIAL_2 = jsonObject.get("vmsio2").getAsString();
+            Constants.Value_Message_Status_Is_OFFICIAL_3 = jsonObject.get("vmsio3").getAsString();
 
             return true;
         } catch (Exception e) {

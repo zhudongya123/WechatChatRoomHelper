@@ -9,7 +9,6 @@ import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
 import java.io.File;
 import java.io.IOException;
 
-import de.robv.android.xposed.XposedBridge;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -20,10 +19,9 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static com.zdy.project.wechat_chatroom_helper.network.ApiManager.UrlPath.CLASS_MAPPING;
 import static com.zdy.project.wechat_chatroom_helper.network.ApiManager.UrlPath.ERROR_RECEIVER;
 import static com.zdy.project.wechat_chatroom_helper.network.ApiManager.UrlPath.HOME_INFO;
-import static com.zdy.project.wechat_chatroom_helper.network.ApiManager.UrlPath.USER_STATISTICES;
+import static com.zdy.project.wechat_chatroom_helper.network.ApiManager.UrlPath.USER_STATISTICS;
 
 /**
  * Created by zhudo on 2017/8/11.
@@ -54,7 +52,7 @@ public class ApiManager {
         public static String CLASS_MAPPING = getHost() + "wechat/class/mapping";
         public static String ERROR_RECEIVER = getHost() + "wechat/error/receiver";
         public static String HOME_INFO = getHost() + "wechat/home/info";
-        public static String USER_STATISTICES = getHost() + "wechat/user/statistics";
+        public static String USER_STATISTICS = getHost() + "wechat/user/statistics";
     }
 
     @NonNull
@@ -72,10 +70,11 @@ public class ApiManager {
                 .add("action", action)
                 .add("uuidCode", uuid)
                 .add("model", model)
+                .add("version", String.valueOf(PreferencesUtils.helper_versionCode()))
                 .build();
 
         final Request request = new Request.Builder()
-                .url(USER_STATISTICES)
+                .url(USER_STATISTICS)
                 .post(requestBody)
                 .build();
 

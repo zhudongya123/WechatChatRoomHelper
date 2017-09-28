@@ -1,6 +1,5 @@
 package com.zdy.project.wechat_chatroom_helper.ui.chatroomView;
 
-import android.bluetooth.le.AdvertiseSettings;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +11,6 @@ import android.os.Handler;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.telephony.TelephonyManager;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +34,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 
 import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Arrow;
@@ -70,12 +69,14 @@ public class ChatRoomView2 implements ChatRoomContract.View {
     private boolean isInAnim = false;
     private boolean isDragging = false;
 
-    String uuid = "0";
+    private String uuid = "0";
+    private String title;
 
-    ChatRoomView2(Context context, final ViewGroup container) {
+    ChatRoomView2(Context context, final ViewGroup container, String title) {
 
         this.mContainer = (AbsoluteLayout) container;
         this.mContext = context;
+        this.title = title;
 
         int width = ScreenUtils.getScreenWidth(mContext);
         AbsoluteLayout.LayoutParams params = new AbsoluteLayout.LayoutParams(width, ViewGroup.LayoutParams
@@ -116,6 +117,10 @@ public class ChatRoomView2 implements ChatRoomContract.View {
         uuid = DeviceUtils.getIMELCode(context);
     }
 
+    @Override
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     private void initSwipeBack() {
         swipeBackLayout = new MySwipeBackLayout(mContext);
@@ -147,7 +152,6 @@ public class ChatRoomView2 implements ChatRoomContract.View {
 
     @Override
     public void show(int offest) {
-
         swipeBackLayout.closePane();
         ApiManager.getINSTANCE().sendRequestForUserStatistics("open", uuid, Build.MODEL);
     }
@@ -178,6 +182,8 @@ public class ChatRoomView2 implements ChatRoomContract.View {
                 for (int i = 0; i < data.size(); i++) {
                     Object item = data.get(i);
                     MessageEntity entity = new MessageEntity(item);
+                    XposedBridge.log("showMessageRefresh, entity.field_username = " + entity.field_username
+                            + ", targetUserName = " + targetUserName);
                     if (entity.field_username.equals(targetUserName)) {
 
                         Object object = HookLogic.getMessageBeanForOriginIndex(mPresenter.getOriginAdapter(),
@@ -285,7 +291,9 @@ public class ChatRoomView2 implements ChatRoomContract.View {
             }
         });
         mToolbar.setBackgroundColor(Color.parseColor("#" + PreferencesUtils.getToolBarColor()));
-        mToolbar.setTitle("群消息助手");
+
+
+        mToolbar.setTitle(title);
         mToolbar.setTitleTextColor(0xFFFAFAFA);
 
         Class<?> clazz;

@@ -22,7 +22,7 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
 
     private ViewGroup chatRoomView;
 
-    public ChatRoomViewPresenter(Context context) {
+    public ChatRoomViewPresenter(Context context, String title) {
         mContext = context;
 
         chatRoomView = new AbsoluteLayout(context);
@@ -31,9 +31,9 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
         chatRoomView.setPadding(0, ScreenUtils.getStatusHeight(context),
                 0, ScreenUtils.getNavigationBarHeight(context));
 
-        mView = new ChatRoomView2(context, chatRoomView);
-        mView.setPresenter(this);
+        mView = new ChatRoomView2(context, chatRoomView, title);
 
+        mView.setPresenter(this);
     }
 
 
@@ -63,8 +63,6 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
     public boolean isShowing() {
         return mView.isShowing();
     }
-
-
 
     public void show() {
         mView.show();

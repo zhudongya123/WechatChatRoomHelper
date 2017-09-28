@@ -50,6 +50,24 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
         mContentView = childView;
         addView(mContentView, 1, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
+
+
+        setPanelSlideListener(new PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
+
+            }
+
+            @Override
+            public void onPanelOpened(View panel) {
+                mShadowView.setVisibility(INVISIBLE);
+            }
+
+            @Override
+            public void onPanelClosed(View panel) {
+                mShadowView.setVisibility(VISIBLE);
+            }
+        });
     }
 
     @Override

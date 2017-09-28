@@ -137,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
             detail.setTextColor(0xFF888888);
             detail.setText(sharedPreferences.getString("show_info", ""));
         }
-        ApiManager.getINSTANCE().sendRequestForUserStatistics("oepn","asda","asdasd");
     }
 
     /**

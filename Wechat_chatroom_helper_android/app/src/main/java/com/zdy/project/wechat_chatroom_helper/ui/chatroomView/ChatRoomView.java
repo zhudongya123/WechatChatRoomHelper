@@ -189,6 +189,11 @@ public class ChatRoomView implements ChatRoomContract.View {
     private float moveX;
 
     @Override
+    public void setTitle(String title) {
+
+    }
+
+    @Override
     public void setOnDialogItemClickListener(ChatRoomRecyclerViewAdapter.OnDialogItemClickListener listener) {
         if (contentView.getTranslationX() == -ScreenUtils.dip2px(mContext, 16))
             mAdapter.setOnDialogItemClickListener(listener);
