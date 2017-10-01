@@ -14,6 +14,7 @@ import android.view.View;
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
 
 import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2;
+import de.robv.android.xposed.XposedBridge;
 
 import static cn.bingoogolapple.swipebacklayout.UIUtil.NO_NAVIGATION_BAR_MODEL_SET;
 import static cn.bingoogolapple.swipebacklayout.UIUtil.newCheckDeviceHasNavigationBar;
@@ -50,7 +51,7 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
         mContentView = childView;
         addView(mContentView, 1, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
-
+        setVisibility(INVISIBLE);
 
         setPanelSlideListener(new PanelSlideListener() {
             @Override
@@ -60,12 +61,12 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
 
             @Override
             public void onPanelOpened(View panel) {
-                mShadowView.setVisibility(INVISIBLE);
+                XposedBridge.log("Xposed panel = onPanelOpened");
             }
 
             @Override
             public void onPanelClosed(View panel) {
-                mShadowView.setVisibility(VISIBLE);
+                XposedBridge.log("Xposed panel = onPanelClosed");
             }
         });
     }
@@ -75,6 +76,12 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
         return mSwipeBackEnable;
     }
 
+    @Override
+    public boolean closePane() {
+        if (getVisibility() == INVISIBLE)
+            setVisibility(VISIBLE);
+        return super.closePane();
+    }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -303,7 +310,7 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
             navigationBarHeight = resources.getDimensionPixelSize(resourceId);
         }
 
-        Log.v("Xposed","navigationBarHeight = " + String.valueOf(navigationBarHeight));
+        Log.v("Xposed", "navigationBarHeight = " + String.valueOf(navigationBarHeight));
 
         return navigationBarHeight;
     }
