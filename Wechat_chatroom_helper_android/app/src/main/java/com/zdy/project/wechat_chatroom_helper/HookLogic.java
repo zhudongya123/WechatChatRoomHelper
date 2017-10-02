@@ -724,6 +724,8 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         if (PreferencesUtils.getCircleAvatar()) {
             paint.setColor(0xFFF5CB00);
+            paint.setStrokeWidth(0);
+            paint.setStyle(Paint.Style.FILL_AND_STROKE);
             canvas.drawCircle(size / 2, size / 2, size / 2, paint);
         } else {
             canvas.drawColor(0xFFF5CB00);
