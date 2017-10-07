@@ -130,7 +130,6 @@ public class ChatRoomView2 implements ChatRoomContract.View {
 
     @Override
     public void setOnDialogItemClickListener(ChatRoomRecyclerViewAdapter.OnDialogItemClickListener listener) {
-        // if (contentView.getTranslationX() == -ScreenUtils.dip2px(mContext, 16))
         mAdapter.setOnDialogItemClickListener(listener);
     }
 

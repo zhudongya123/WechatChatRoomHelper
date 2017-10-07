@@ -30,6 +30,7 @@ import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomRecyclerViewAdapter;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter;
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
+import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 import java.util.ArrayList;
 
@@ -75,9 +76,6 @@ public class HookLogic implements IXposedHookLoadPackage {
     //免打扰群组的数据位置
     private ArrayList<Integer> muteListInAdapterPositions = new ArrayList<>();
 
-    //映射普通回话的数据位置和实际View位置
-    //   private SparseIntArray newViewPositionWithDataPositionListForMute = new SparseIntArray();
-
     //记录当前有多少个免打扰群有新消息
     private SparseIntArray unReadCountListForMute = new SparseIntArray();
 
@@ -88,14 +86,15 @@ public class HookLogic implements IXposedHookLoadPackage {
     //免打扰公众号的数据位置
     private ArrayList<Integer> officialListInAdapterPositions = new ArrayList<>();
 
-    //映射公众号群组的数据位置和实际View位置
-    private SparseIntArray newViewPositionWithDataPositionListForOfficial = new SparseIntArray();
-
     //记录当前有多少个公众号有新消息
     private SparseIntArray unReadCountListForOfficial = new SparseIntArray();
 
     //第一个公众号的下标
     private int firstOfficialPosition = -1;
+
+
+    //映射出现在主界面的回话的数据位置和实际View位置
+    private SparseIntArray newViewPositionWithDataPositionListForOfficial = new SparseIntArray();
 
 
     private ChatRoomViewPresenter muteChatRoomViewPresenter;
@@ -106,7 +105,7 @@ public class HookLogic implements IXposedHookLoadPackage {
     private boolean clickChatRoomFlag = false;
 
     //标记位，数据刷新时不更新微信主界面的ListView
-    private boolean notifyMuteList = true;
+    private boolean notifyList = true;
 
     //是否在聊天界面
     private boolean isInChatting = false;
@@ -322,9 +321,9 @@ public class HookLogic implements IXposedHookLoadPackage {
         int position = (int) param.args[2];
         final long id = (long) param.args[3];
 
-        XposedBridge.log("XposedBridge, onItemClick, view =" + view + " ,position = " + position + " ,id = " + id);
+        //      XposedBridge.log("XposedBridge, onItemClick, view =" + view + " ,position = " + position + " ,id = " + id);
 
-        XposedBridge.log("XposedBridge, onItemClick, originPosition =" + position);
+        //      XposedBridge.log("XposedBridge, onItemClick, originPosition =" + position);
 
         //移除頭部View的position
         Object listView = XposedHelpers.getObjectField(param.thisObject, Value_ListView);
@@ -332,18 +331,18 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         position = position - headerViewsCount;
 
-        XposedBridge.log("XposedBridge, onItemClick, getHeaderViewsCount =" + headerViewsCount);
+        //       XposedBridge.log("XposedBridge, onItemClick, getHeaderViewsCount =" + headerViewsCount);
 
-        XposedBridge.log("XposedBridge, onItemClick, position =" + position);
-        XposedBridge.log("XposedBridge, onItemClick, firstMutePosition =" + firstMutePosition);
-        XposedBridge.log("XposedBridge, onItemClick, firstOfficialPosition =" + firstOfficialPosition);
+        //      XposedBridge.log("XposedBridge, onItemClick, position =" + position);
+        //     XposedBridge.log("XposedBridge, onItemClick, firstMutePosition =" + firstMutePosition);
+        //       XposedBridge.log("XposedBridge, onItemClick, firstOfficialPosition =" + firstOfficialPosition);
 
-        XposedBridge.log("XposedBridge, onItemClick, newViewPositionWithDataPositionListForOfficial = " +
-                newViewPositionWithDataPositionListForOfficial.toString());
+//        XposedBridge.log("XposedBridge, onItemClick, newViewPositionWithDataPositionListForOfficial = " +
+        //             newViewPositionWithDataPositionListForOfficial.toString());
 
         //如果点击的是免打扰消息的入口，且不是在群消息助手里面所做的模拟点击（注意！此方法本身就为点击后的处理方法）
         if (position == firstMutePosition && !clickChatRoomFlag) {
-            XposedBridge.log("XposedBridge, onItemClick, firstMutePosition");
+            //         XposedBridge.log("XposedBridge, onItemClick, firstMutePosition");
 
             muteChatRoomViewPresenter.setMuteListInAdapterPositions(muteListInAdapterPositions);
             muteChatRoomViewPresenter.setOnDialogItemClickListener(new ChatRoomRecyclerViewAdapter.OnDialogItemClickListener() {
@@ -362,7 +361,7 @@ public class HookLogic implements IXposedHookLoadPackage {
         }
 
         if (position == firstOfficialPosition && !clickChatRoomFlag) {
-            XposedBridge.log("XposedBridge, onItemClick, firstOfficialPosition");
+            //       XposedBridge.log("XposedBridge, onItemClick, firstOfficialPosition");
 
             officialChatRoomViewPresenter.setMuteListInAdapterPositions(officialListInAdapterPositions);
             officialChatRoomViewPresenter.setOnDialogItemClickListener(new ChatRoomRecyclerViewAdapter
@@ -521,7 +520,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         if (result == 0) return;
 
-        if (notifyMuteList) {
+        if (notifyList) {
             int count = result - muteListInAdapterPositions.size();//减去免打扰消息的數量
             count++;//增加入口位置
 
@@ -542,7 +541,7 @@ public class HookLogic implements IXposedHookLoadPackage {
             return;//是否为正确的Adapter
 
 
-        notifyMuteList = false;
+        notifyList = false;
 
         //代码保护区，此段执行时getCount逻辑跳过
         {
@@ -622,7 +621,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
             }
         }
-        notifyMuteList = true;
+        notifyList = true;
 
         if (muteChatRoomViewPresenter != null) {
             muteChatRoomViewPresenter.setMuteListInAdapterPositions(muteListInAdapterPositions);
@@ -691,8 +690,21 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         whiteMask.eraseColor(Color.WHITE);
 
-        drawable = Bitmap.createScaledBitmap(drawable, size / 2, size / 2, false).copy(Bitmap.Config.ARGB_8888,
-                false);
+        //    drawable = Bitmap.createScaledBitmap(drawable, size / 2, size / 2, false).copy(Bitmap.Config.ARGB_8888,
+        //            false);
+
+        drawable = Bitmap.createBitmap(size / 2, size / 2, Bitmap.Config.ARGB_8888);
+
+        Canvas logoCanvas = new Canvas(drawable);
+
+        paint.setStrokeWidth(size / 20);
+
+        paint.setStyle(Paint.Style.STROKE);
+
+        paint.setColor(0xFF9F289F);
+
+        logoCanvas.drawCircle(size / 8 + size / 20, size / 4, size / 8, paint);
+        logoCanvas.drawCircle(size / 2 - size / 8 - size / 20, size / 4, size / 8, paint);
 
         //生成图
         Bitmap raw = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
@@ -712,6 +724,8 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         if (PreferencesUtils.getCircleAvatar()) {
             paint.setColor(0xFFF5CB00);
+            paint.setStrokeWidth(0);
+            paint.setStyle(Paint.Style.FILL_AND_STROKE);
             canvas.drawCircle(size / 2, size / 2, size / 2, paint);
         } else {
             canvas.drawColor(0xFFF5CB00);
