@@ -36,7 +36,6 @@ public class Constants {
     public static String Method_Adapter_Get_Object_Step_3;
 
     public static String Class_Tencent_Log;
-    public static String Class_Set_Avatar;
 
     public static String Drawable_String_Arrow;
     public static String Drawable_String_Setting;
@@ -49,6 +48,8 @@ public class Constants {
     public static String Method_Message_True_Content;
     public static String Value_Message_True_Content_Params;
     public static String Method_Message_True_Time;
+
+    public static String Class_Set_Avatar;
     public static String Method_Conversation_List_Get_Avatar ;
 
     public static String Value_Message_Status_Is_OFFICIAL_1;
