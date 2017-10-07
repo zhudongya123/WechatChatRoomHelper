@@ -38,7 +38,6 @@ public class Constants {
     public static String Class_Tencent_Log;
     public static String Class_Set_Avatar;
 
-
     public static String Drawable_String_Arrow;
     public static String Drawable_String_Setting;
     public static String Drawable_String_Chatroom_Avatar;
@@ -50,16 +49,15 @@ public class Constants {
     public static String Method_Message_True_Content;
     public static String Value_Message_True_Content_Params;
     public static String Method_Message_True_Time;
-
-    public static String Class_Tencent_Home_UI;
-    public static String Method_Home_UI_Inflater_View;
-    public static String Value_Home_UI_Activity ;
-    public static String Method_Conversation_List_View_Adapter_Param ;
-
     public static String Method_Conversation_List_Get_Avatar ;
 
     public static String Value_Message_Status_Is_OFFICIAL_1;
     public static String Value_Message_Status_Is_OFFICIAL_2;
     public static String Value_Message_Status_Is_OFFICIAL_3;
 
+    public static String Method_Conversation_List_View_Adapter_Param ;
+
+    public static String Class_Tencent_Home_UI;
+    public static String Method_Home_UI_Inflater_View;
+    public static String Value_Home_UI_Activity ;
 }
