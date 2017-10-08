@@ -1,9 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.db;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class SQLiteManager {
 
@@ -42,6 +39,27 @@ public class SQLiteManager {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+
+    public int queryDataByTime(long start, long end) {
+
+        String sql;
+        try {
+            Statement stmt = c.createStatement();
+
+
+            sql = "SELECT count(DISTINCT uuid) FROM user_statistics where time BETWEEN " + start + " AND " + end;
+            ResultSet resultSet = stmt.executeQuery(sql);
+
+            stmt.close();
+
+
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return 0;
     }
 
 }

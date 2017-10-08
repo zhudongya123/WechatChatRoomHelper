@@ -30,7 +30,6 @@ import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomRecyclerViewAdapter;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter;
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
-import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 import java.util.ArrayList;
 
