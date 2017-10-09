@@ -16,7 +16,6 @@
 
 
 <%
-
     long currentTime = System.currentTimeMillis();
 
     Calendar instance = Calendar.getInstance();
@@ -26,9 +25,9 @@
 
     long time = instance.getTimeInMillis();
 
-
     int todayCount = SQLiteManager.getInstance().queryDataByTime(time, currentTime);
 
+    out.println(todayCount);
 %>
 
 <p><a href="https://github.com/zhudongya123/WechatChatroomHelper/issues">反馈地址</a></p>
@@ -41,6 +40,8 @@
 <p>微信6.5.14即将支持，请耐心等候~</p>
 
 <p>欢迎加入反馈群，测试版本在此提供，同时可以更好的反馈BUG及建议~</p>
+
+
 
 <img src="http://mr-zdy-shanghai.oss-cn-shanghai.aliyuncs.com/wechat_chatroom_helper/feedback_chatroom.png" width="300"
      height="412">

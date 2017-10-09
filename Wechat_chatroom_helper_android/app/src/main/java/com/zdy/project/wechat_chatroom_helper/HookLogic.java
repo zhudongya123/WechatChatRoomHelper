@@ -253,14 +253,18 @@ public class HookLogic implements IXposedHookLoadPackage {
                             if (!isInChatting) {
 
                                 if (muteChatRoomViewPresenter.isShowing()) {
+                                    XposedBridge.log("dispatchKeyEvent, muteChatRoomViewPresenter.isShowing");
                                     muteChatRoomViewPresenter.dismiss();
                                     param.setResult(true);
                                 }
 
                                 if (officialChatRoomViewPresenter.isShowing()) {
+                                    XposedBridge.log("dispatchKeyEvent, officialChatRoomViewPresenter.isShowing");
                                     officialChatRoomViewPresenter.dismiss();
                                     param.setResult(true);
                                 }
+                            } else {
+                                XposedBridge.log("dispatchKeyEvent, isInChatting");
                             }
                         }
                     }
@@ -269,37 +273,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         hookLog(loadPackageParam);
 
-        //   if (!PreferencesUtils.getBugUnread()) return;
-
-        //   fixUnread(loadPackageParam);
-
-        XposedHelpers.findAndHookMethod(View.class, "dispatchTouchEvent",
-                MotionEvent.class, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        boolean result = (boolean) param.getResult();
-
-                        XposedBridge.log("XposedHelpers, " + param.thisObject.toString() + ", dispatchTouchEvent return =" + result);
-                    }
-                });
-        XposedHelpers.findAndHookMethod(ViewGroup.class, "onInterceptTouchEvent",
-                MotionEvent.class, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        boolean result = (boolean) param.getResult();
-
-                        XposedBridge.log("XposedHelpers, " + param.thisObject.toString() + ",onInterceptTouchEvent return =" + result);
-                    }
-                });
-        XposedHelpers.findAndHookMethod(View.class, "onTouchEvent",
-                MotionEvent.class, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        boolean result = (boolean) param.getResult();
-
-                        XposedBridge.log("XposedHelpers, " + param.thisObject.toString() + ",onTouchEvent return =" + result);
-                    }
-                });
     }
 
     private void hookAdapterInit(XC_MethodHook.MethodHookParam param) {
@@ -526,9 +499,6 @@ public class HookLogic implements IXposedHookLoadPackage {
             count = count - officialListInAdapterPositions.size();//减去公众号的数量
             count++;
 
-            XposedBridge.log("XposedBridge = adapter mute size = " + muteListInAdapterPositions.size());
-            XposedBridge.log("XposedBridge = adapter official size = " + officialListInAdapterPositions.size());
-            XposedBridge.log("XposedBridge = adapter size = " + count);
             param.setResult(count);
         }
     }
@@ -545,8 +515,6 @@ public class HookLogic implements IXposedHookLoadPackage {
         //代码保护区，此段执行时getCount逻辑跳过
         {
 
-            XposedBridge.log("newViewPositionWithDataPositionListForOfficial = " +
-                    newViewPositionWithDataPositionListForOfficial.toString());
 
             muteListInAdapterPositions.clear();
             unReadCountListForMute.clear();
@@ -574,7 +542,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                 if (isMuteConversation) {
                     if (firstMutePosition == -1) {
-
                         firstMutePosition = i;
 
                         if (officialListInAdapterPositions.size() != 0)
@@ -582,15 +549,10 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
 
                     muteListInAdapterPositions.add(i);
-
                     unReadCountListForMute.put(i, entity.field_unReadCount);
                 }
 
-                String field_username = ((String) XposedHelpers.getObjectField(value, "field_username"));//
-
                 if (isOfficialConversation) {
-
-                    XposedBridge.log("恭喜 user = " + field_username + ", 是一个公众号");//
 
                     if (firstOfficialPosition == -1) {
                         firstOfficialPosition = i;
@@ -600,7 +562,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
 
                     officialListInAdapterPositions.add(i);
-
                     unReadCountListForOfficial.put(i, entity.field_unReadCount);
                 }
 
@@ -683,14 +644,11 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     }
 
-    //自造群消息助手头像
+    //自造公众号助手头像
     private static void handlerOfficialBitmap(Canvas canvas, Paint paint, int size, Bitmap drawable) {
         Bitmap whiteMask = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
 
         whiteMask.eraseColor(Color.WHITE);
-
-        //    drawable = Bitmap.createScaledBitmap(drawable, size / 2, size / 2, false).copy(Bitmap.Config.ARGB_8888,
-        //            false);
 
         drawable = Bitmap.createBitmap(size / 2, size / 2, Bitmap.Config.ARGB_8888);
 
@@ -719,7 +677,6 @@ public class HookLogic implements IXposedHookLoadPackage {
         bitmapCanvas.drawBitmap(whiteMask, 0, 0, paint);
 
         paint.setXfermode(null);
-
 
         if (PreferencesUtils.getCircleAvatar()) {
             paint.setColor(0xFFF5CB00);
@@ -763,28 +720,11 @@ public class HookLogic implements IXposedHookLoadPackage {
     }
 
     private void hookLog(XC_LoadPackage.LoadPackageParam loadPackageParam) {
-        XposedHelpers.findAndHookMethod(Class_Tencent_Log,
-                loadPackageParam.classLoader, "i", String.class, String.class, Object[].class, new XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(Class_Tencent_Log, loadPackageParam.classLoader, "i",
+                String.class, String.class, Object[].class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         if (!PreferencesUtils.open()) return;
-
-                        String desc = (String) param.args[0];
-                        String value = (String) param.args[1];
-                        String params = "";
-                        try {
-                            if (param.args[2] != null) {
-                                Object[] arg = (Object[]) param.args[2];
-
-                                //    for (Object o : arg)
-//                                    if (o != null)
-//                                        params = params + o.toString() + " ";
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        XposedBridge.log("XposedLogi, desc = " + desc + ", value = " + value + ", params = " + params);
 
                         //无奈之举，只能使用拦截日志的做法来实现部分功能
                         Object arg = param.args[1];
@@ -813,82 +753,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                         }
                     }
                 });
-
     }
-
-
-    private void fixUnread(XC_LoadPackage.LoadPackageParam loadPackageParam) {
-        int versionCode = PreferencesUtils.getVersionCode();
-        String methodHomeUIGetUnRead = null;
-        String actionbarName = null;
-        String bottomViewName = null;
-        String bottomViewIndicatorName = null;
-        if (versionCode == 1080) {
-            methodHomeUIGetUnRead = "yI";
-            actionbarName = "Gx";
-            bottomViewName = "uxn";
-            bottomViewIndicatorName = "uzx";
-        } else if (versionCode == 1060) {
-            methodHomeUIGetUnRead = "xu";
-            actionbarName = "Gy";
-            bottomViewName = "tNs";
-            bottomViewIndicatorName = "tPz";
-        }
-
-        final String finalActionbarName = actionbarName;
-        final String finalBottomViewName = bottomViewName;
-        final String finalBottomViewIndicatorName = bottomViewIndicatorName;
-        XposedHelpers.findAndHookMethod("com.tencent.mm.ui.HomeUI",
-                loadPackageParam.classLoader, methodHomeUIGetUnRead, int.class, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        int arg = (int) param.args[0];
-
-                        if (muteChatRoomViewPresenter == null) return;
-                        Object adapter = muteChatRoomViewPresenter.getOriginAdapter();
-                        int count = (int) XposedHelpers.callMethod(adapter, "getCount");
-
-                        int unReadCount = 0;
-                        String unReadString = "[";
-                        for (int i = 0; i < count; i++) {
-                            Object message = getMessageBeanForOriginIndex(adapter, i);
-                            MessageEntity messageEntity = new MessageEntity(message);
-
-                            unReadString = unReadString + messageEntity.field_unReadCount;
-
-                            for (Integer muteListInAdapterPosition : muteListInAdapterPositions) {
-                                if (muteListInAdapterPosition == i) break;
-                            }
-
-                            unReadCount = +messageEntity.field_unReadCount;
-
-                            if (i != count - 1) unReadString += ",";
-                            else unReadString += "]";
-                        }
-
-                        Object actionBar = XposedHelpers
-                                .getObjectField(param.thisObject, finalActionbarName);
-
-                        View customView = (View) XposedHelpers.callMethod(actionBar, "getCustomView");
-
-                        @IdRes
-                        int textViewId = 16908308;
-
-                        TextView textView = (TextView) customView.findViewById(textViewId);
-                        String text = "微信(" + unReadCount + ")";
-                        if (unReadCount == 0)
-                            text = "微信";
-                        textView.setText(text);
-
-
-                        Object bottomView = XposedHelpers.getObjectField(param.thisObject, finalBottomViewName);
-                        XposedHelpers.setIntField(bottomView, finalBottomViewIndicatorName, unReadCount);
-
-                        XposedBridge.log("currentUnreadCount = " + arg + ", trueUnreadCount = "
-                                + unReadString + ", unReadCount = " + unReadCount);
-                    }
-                });
-    }
-
 
 }
