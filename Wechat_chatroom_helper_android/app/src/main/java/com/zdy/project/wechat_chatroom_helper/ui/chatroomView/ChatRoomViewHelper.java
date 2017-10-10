@@ -106,7 +106,7 @@ public class ChatRoomViewHelper {
                 .LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         contentContainerParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         contentContainerParams.addRule(RelativeLayout.RIGHT_OF, avatarContainer.getId());
-        contentContainer.setPadding(0, 0, 0, ScreenUtils.dip2px(mContext, 12));
+        contentContainer.setPadding(0, 0, ScreenUtils.dip2px(mContext, 48), ScreenUtils.dip2px(mContext, 12));
 
         {
             LinearLayout.LayoutParams msgStateParams = new LinearLayout.LayoutParams(ScreenUtils.dip2px(mContext, 20)
@@ -115,7 +115,6 @@ public class ChatRoomViewHelper {
             msgState.setVisibility(View.GONE);
 
             content.setEllipsize(TextUtils.TruncateAt.END);
-            content.setMaxEms(15);
             content.setSingleLine();
 
             contentContainer.addView(msgState, msgStateParams);
