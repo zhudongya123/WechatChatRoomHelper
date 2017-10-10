@@ -14,7 +14,6 @@ import android.view.View;
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
 
 import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2;
-import de.robv.android.xposed.XposedBridge;
 
 import static cn.bingoogolapple.swipebacklayout.UIUtil.NO_NAVIGATION_BAR_MODEL_SET;
 import static cn.bingoogolapple.swipebacklayout.UIUtil.newCheckDeviceHasNavigationBar;
@@ -47,7 +46,6 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
         setIsNeedShowShadow(mIsNeedShowShadow);
         addView(mShadowView, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
-
         mContentView = childView;
         addView(mContentView, 1, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
@@ -62,8 +60,7 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
 
     @Override
     public boolean closePane() {
-        if (getVisibility() == INVISIBLE)
-            setVisibility(VISIBLE);
+        if (getVisibility() == INVISIBLE) setVisibility(VISIBLE);
         return super.closePane();
     }
 
@@ -115,7 +112,7 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
         }
 
         // ======================== 新加的 START ========================
-        maxLayoutHeight -= getNavigationBarHeight((Activity) mContentView.getContext());
+      //  maxLayoutHeight -= getNavigationBarHeight((Activity) mContentView.getContext());
         // ======================== 新加的 END ========================
 
         float weightSum = 0;

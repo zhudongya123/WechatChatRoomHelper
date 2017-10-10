@@ -31,7 +31,6 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.Shape;
 import android.os.Build;
@@ -129,7 +128,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      * How far the panel is offset from its closed position.
      * range [0, 1] where 0 = closed, 1 = open.
      */
-    float mSlideOffset;
+    public float mSlideOffset;
 
     /**
      * How far the non-sliding panel is parallaxed from its usual position when open.
@@ -1151,6 +1150,8 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      * @return true if sliding panels are completely open
      */
     public boolean isOpen() {
+     //   Log.v("dispatchKeyEvent, mCanSlide = ", mCanSlide + "");
+    //    Log.v("dispatchKeyEvent, mSlideOffset = ", mSlideOffset + "");
         return !mCanSlide || mSlideOffset == 1;
     }
 

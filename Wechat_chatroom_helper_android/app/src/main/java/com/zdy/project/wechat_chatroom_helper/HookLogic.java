@@ -13,19 +13,15 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.Shape;
 import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.zdy.project.wechat_chatroom_helper.crash.CrashHandler;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomRecyclerViewAdapter;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter;
@@ -156,12 +152,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                         loadPackageParam.classLoader), new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        try {
+                    //    try {
                             hookAdapterInit(param);
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                            CrashHandler.saveCrashInfo2File(e, context);
-                        }
+//                        } catch (Throwable e) {
+//                            e.printStackTrace();
+//                            CrashHandler.saveCrashInfo2File(e, context);
+//                        }
                     }
                 });
 
@@ -179,12 +175,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                 "notifyDataSetChanged", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        try {
+                     //   try {
                             hookNotifyDataSetChanged(param);
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                            CrashHandler.saveCrashInfo2File(e, context);
-                        }
+//                        } catch (Throwable e) {
+//                            e.printStackTrace();
+//                            CrashHandler.saveCrashInfo2File(e, context);
+//                        }
                     }
                 });
 
@@ -192,12 +188,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                 loadPackageParam.classLoader, "getCount", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        try {
+//                        try {
                             hookGetCount(param);
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                            CrashHandler.saveCrashInfo2File(e, context);
-                        }
+//                        } catch (Throwable e) {
+//                            e.printStackTrace();
+//                            CrashHandler.saveCrashInfo2File(e, context);
+//                        }
                     }
                 });
 
@@ -205,12 +201,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                 loadPackageParam.classLoader, Method_Adapter_Get_Object, int.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        try {
+//                        try {
                             hookGetObject(param);
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                            CrashHandler.saveCrashInfo2File(e, context);
-                        }
+//                        } catch (Throwable e) {
+//                            e.printStackTrace();
+//                            CrashHandler.saveCrashInfo2File(e, context);
+//                        }
                     }
                 });
 
@@ -220,12 +216,12 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        try {
+                     //   try {
                             hookGetView(param);
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                            CrashHandler.saveCrashInfo2File(e, context);
-                        }
+//                        } catch (Throwable e) {
+//                            e.printStackTrace();
+//                            CrashHandler.saveCrashInfo2File(e, context);
+//                        }
                     }
                 });
 
@@ -234,12 +230,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                 int.class, long.class, new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
-                        try {
+                      //  try {
                             hookOnItemClick(param);
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                            CrashHandler.saveCrashInfo2File(e, context);
-                        }
+//                        } catch (Throwable e) {
+//                            e.printStackTrace();
+//                            CrashHandler.saveCrashInfo2File(e, context);
+//                        }
                     }
                 });
 
@@ -253,18 +249,19 @@ public class HookLogic implements IXposedHookLoadPackage {
                             if (!isInChatting) {
 
                                 if (muteChatRoomViewPresenter.isShowing()) {
-                                    XposedBridge.log("dispatchKeyEvent, muteChatRoomViewPresenter.isShowing");
+                                    //     XposedBridge.log("dispatchKeyEvent, muteChatRoomViewPresenter.isShowing");
                                     muteChatRoomViewPresenter.dismiss();
                                     param.setResult(true);
                                 }
 
                                 if (officialChatRoomViewPresenter.isShowing()) {
-                                    XposedBridge.log("dispatchKeyEvent, officialChatRoomViewPresenter.isShowing");
+                                    //      XposedBridge.log("dispatchKeyEvent, officialChatRoomViewPresenter
+                                    // .isShowing");
                                     officialChatRoomViewPresenter.dismiss();
                                     param.setResult(true);
                                 }
                             } else {
-                                XposedBridge.log("dispatchKeyEvent, isInChatting");
+                                //      XposedBridge.log("dispatchKeyEvent, isInChatting");
                             }
                         }
                     }
@@ -366,12 +363,9 @@ public class HookLogic implements IXposedHookLoadPackage {
         Object viewHolder = itemView.getTag();
 
 
-        Object title = XposedHelpers.getObjectField(viewHolder,
-                Value_ListView_Adapter_ViewHolder_Title);
-        final Object avatar = XposedHelpers.getObjectField(viewHolder,
-                Value_ListView_Adapter_ViewHolder_Avatar);
-        final Object content = XposedHelpers.getObjectField(viewHolder,
-                Value_ListView_Adapter_ViewHolder_Content);
+        Object title = XposedHelpers.getObjectField(viewHolder, Value_ListView_Adapter_ViewHolder_Title);
+        final Object avatar = XposedHelpers.getObjectField(viewHolder, Value_ListView_Adapter_ViewHolder_Avatar);
+        final Object content = XposedHelpers.getObjectField(viewHolder, Value_ListView_Adapter_ViewHolder_Content);
 
 
         //將第一個免打擾的itemView更改為群消息助手入口，更新其UI
@@ -444,6 +438,14 @@ public class HookLogic implements IXposedHookLoadPackage {
                     newMessageCount++;
                 }
             }
+
+            ViewGroup parent = (ViewGroup) ((ImageView) avatar).getParent();
+            parent.getChildAt(1).setVisibility(View.INVISIBLE);
+
+            if (unReadCountListForOfficial.valueAt(0) > 0)
+                parent.getChildAt(2).setVisibility(View.VISIBLE);
+
+
 
             if (newMessageCount > 0) {
                 XposedHelpers.callMethod(content, "setText", "[" + newMessageCount + "个公众号有新消息]");
