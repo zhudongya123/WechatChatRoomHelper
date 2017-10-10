@@ -72,7 +72,6 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
         mView.dismiss();
     }
 
-
     @Override
     public void start() {
         mView.init();

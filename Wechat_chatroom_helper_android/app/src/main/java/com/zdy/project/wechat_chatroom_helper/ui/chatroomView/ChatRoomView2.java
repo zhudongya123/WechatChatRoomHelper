@@ -8,7 +8,6 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Handler;
-import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
@@ -32,16 +31,11 @@ import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.List;
 
 import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 
 import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Arrow;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Setting;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_Status_Bean;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_True_Content;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_True_Content_Params;
 
 /**
  * Created by Mr.Zdy on 2017/8/27.
@@ -111,6 +105,7 @@ public class ChatRoomView2 implements ChatRoomContract.View {
             @Override
             public void run() {
                 dismiss();
+                swipeBackLayout.mSlideOffset = 1;
             }
         });
 
@@ -135,6 +130,9 @@ public class ChatRoomView2 implements ChatRoomContract.View {
 
     @Override
     public boolean isShowing() {
+
+        XposedBridge.log("dispatchKeyEvent, ChatRoomView2.isShowing = " + !swipeBackLayout.isOpen());
+
         return !swipeBackLayout.isOpen();
     }
 
@@ -151,12 +149,15 @@ public class ChatRoomView2 implements ChatRoomContract.View {
 
     @Override
     public void show(int offest) {
+     //   XposedBridge.log("ChatRoomView2, show");
         swipeBackLayout.closePane();
         ApiManager.getINSTANCE().sendRequestForUserStatistics("open", uuid, Build.MODEL);
     }
 
     @Override
     public void dismiss(int offest) {
+
+    //    XposedBridge.log("ChatRoomView2, dismiss");
         swipeBackLayout.openPane();
         ApiManager.getINSTANCE().sendRequestForUserStatistics("close", uuid, Build.MODEL);
     }
@@ -181,8 +182,6 @@ public class ChatRoomView2 implements ChatRoomContract.View {
                 for (int i = 0; i < data.size(); i++) {
                     Object item = data.get(i);
                     MessageEntity entity = new MessageEntity(item);
-                    XposedBridge.log("showMessageRefresh, entity.field_username = " + entity.field_username
-                            + ", targetUserName = " + targetUserName);
                     if (entity.field_username.equals(targetUserName)) {
 
                         Object object = HookLogic.getMessageBeanForOriginIndex(mPresenter.getOriginAdapter(),
@@ -208,66 +207,9 @@ public class ChatRoomView2 implements ChatRoomContract.View {
         }
 
         mAdapter.setMuteListInAdapterPositions(muteListInAdapterPositions);
-//        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(
-//                new DiffCallBack(mAdapter.getData(), data), true);
-//        diffResult.dispatchUpdatesTo(mAdapter);
-
         mAdapter.setData(data);
 
         mAdapter.notifyDataSetChanged();
-    }
-
-
-    private class DiffCallBack extends DiffUtil.Callback {
-        private List<Object> mOldDatas, mNewDatas;
-
-        DiffCallBack(List<Object> mOldDatas, List<Object> mNewDatas) {
-            this.mOldDatas = mOldDatas;
-            this.mNewDatas = mNewDatas;
-        }
-
-        @Override
-        public int getOldListSize() {
-            return mOldDatas != null ? mOldDatas.size() : 0;
-        }
-
-        @Override
-        public int getNewListSize() {
-            return mNewDatas != null ? mNewDatas.size() : 0;
-        }
-
-        @Override
-        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-            return true;
-        }
-
-        @Override
-        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-            Object oldItem = mOldDatas.get(oldItemPosition);
-            Object newItem = mNewDatas.get(newItemPosition);
-
-            CharSequence oldContent = (CharSequence) XposedHelpers.callMethod(
-                    mPresenter.getOriginAdapter(),
-                    Method_Message_True_Content,
-                    oldItem,
-                    ScreenUtils.dip2px(mContext, 13),
-                    XposedHelpers.getBooleanField(XposedHelpers.callMethod(
-                            mPresenter.getOriginAdapter(),
-                            Method_Message_Status_Bean, oldItem),
-                            Value_Message_True_Content_Params));
-
-            CharSequence newContent = (CharSequence) XposedHelpers.callMethod(
-                    mPresenter.getOriginAdapter(),
-                    Method_Message_True_Content,
-                    newItem,
-                    ScreenUtils.dip2px(mContext, 13),
-                    XposedHelpers.getBooleanField(XposedHelpers.callMethod(
-                            mPresenter.getOriginAdapter(),
-                            Method_Message_Status_Bean, newItem),
-                            Value_Message_True_Content_Params));
-
-            return newContent.equals(oldContent);
-        }
     }
 
 

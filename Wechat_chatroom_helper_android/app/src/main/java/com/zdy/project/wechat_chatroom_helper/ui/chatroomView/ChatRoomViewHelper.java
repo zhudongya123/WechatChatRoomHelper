@@ -74,7 +74,6 @@ public class ChatRoomViewHelper {
         unread.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
 
         nickName.setEllipsize(TextUtils.TruncateAt.END);
-        //nickName.setMaxEms(12);
         nickName.setSingleLine();
 
         contentContainer.setOrientation(LinearLayout.HORIZONTAL);
@@ -107,7 +106,7 @@ public class ChatRoomViewHelper {
                 .LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         contentContainerParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
         contentContainerParams.addRule(RelativeLayout.RIGHT_OF, avatarContainer.getId());
-        contentContainer.setPadding(0, 0, 0, ScreenUtils.dip2px(mContext, 12));
+        contentContainer.setPadding(0, 0, ScreenUtils.dip2px(mContext, 48), ScreenUtils.dip2px(mContext, 12));
 
         {
             LinearLayout.LayoutParams msgStateParams = new LinearLayout.LayoutParams(ScreenUtils.dip2px(mContext, 20)
@@ -116,7 +115,6 @@ public class ChatRoomViewHelper {
             msgState.setVisibility(View.GONE);
 
             content.setEllipsize(TextUtils.TruncateAt.END);
-            content.setMaxEms(15);
             content.setSingleLine();
 
             contentContainer.addView(msgState, msgStateParams);
@@ -124,10 +122,10 @@ public class ChatRoomViewHelper {
         }
 
         RelativeLayout.LayoutParams unReadParams =
-                new RelativeLayout.LayoutParams(ScreenUtils.dip2px(mContext, 8), ScreenUtils.dip2px(mContext, 8));
+                new RelativeLayout.LayoutParams(ScreenUtils.dip2px(mContext, 10), ScreenUtils.dip2px(mContext, 10));
         unReadParams.addRule(RelativeLayout.ALIGN_RIGHT, avatarContainer.getId());
         unReadParams.addRule(RelativeLayout.ALIGN_TOP, avatarContainer.getId());
-        unReadParams.setMargins(0, ScreenUtils.dip2px(mContext, 8), ScreenUtils.dip2px(mContext, 10), ScreenUtils.dip2px(mContext, 7));
+        unReadParams.setMargins(0, ScreenUtils.dip2px(mContext, 5), ScreenUtils.dip2px(mContext, 7), 0);
 
         RelativeLayout.LayoutParams dividerParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams
                 .MATCH_PARENT, 1);
