@@ -1,4 +1,4 @@
-<%@ page import="com.zdy.project.wechat_chatroom_helper.db.SQLiteManager" %>
+<%@ page import="com.zdy.project.wechat_chatroom_helper.db.DataBaseManager" %>
 <%@ page import="java.util.Calendar" %>
 <%@ page import="java.util.Date" %><%--
   Created by IntelliJ IDEA.
@@ -25,7 +25,7 @@
 
     long time = instance.getTimeInMillis();
 
-    int todayCount = SQLiteManager.getInstance().queryDataByTime(time, currentTime);
+    int todayCount = DataBaseManager.getInstance().queryDataByTime(time, currentTime);
 
     out.println(todayCount);
 %>

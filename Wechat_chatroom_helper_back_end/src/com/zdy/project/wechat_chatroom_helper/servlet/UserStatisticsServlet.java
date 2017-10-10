@@ -1,6 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.servlet;
 
-import com.zdy.project.wechat_chatroom_helper.db.SQLiteManager;
+import com.zdy.project.wechat_chatroom_helper.db.DataBaseManager;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -31,7 +31,7 @@ public class UserStatisticsServlet extends HttpServlet {
 
 
         if (action.equals("open") || action.equals("close"))
-            SQLiteManager.getInstance().insertUserStatisticsData(uuidCode, model, action, version);
+            DataBaseManager.getInstance().insertUserStatisticsData(uuidCode, model, action, version);
 
         writer.write("感谢每个用户，给了我很多自信以至于我不觉得自己是一个废柴。。");
     }
