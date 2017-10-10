@@ -74,7 +74,7 @@ public class ChatRoomViewHelper {
         unread.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
 
         nickName.setEllipsize(TextUtils.TruncateAt.END);
-        nickName.setMaxEms(12);
+        //nickName.setMaxEms(12);
         nickName.setSingleLine();
 
         contentContainer.setOrientation(LinearLayout.HORIZONTAL);
@@ -95,6 +95,7 @@ public class ChatRoomViewHelper {
                 .WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         nickNameParams.setMargins(0, ScreenUtils.dip2px(mContext, 10), 0, 0);
         nickNameParams.addRule(RelativeLayout.RIGHT_OF, avatarContainer.getId());
+        nickNameParams.addRule(RelativeLayout.LEFT_OF, time.getId());
 
         RelativeLayout.LayoutParams timeParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams
                 .WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);

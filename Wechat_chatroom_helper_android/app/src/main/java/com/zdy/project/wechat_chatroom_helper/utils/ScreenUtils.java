@@ -140,14 +140,11 @@ public class ScreenUtils {
 
 
         if (hasBackKey && hasHomeKey) {
-            XposedBridge.log("no navigation bar, unless it is enabled in the settings");
             return 0;
         } else {
             //
             Resources resources = context.getResources();
             int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
-            XposedBridge.log("99% sure there's a navigation bar, navigation_bar_height = " + resources
-                    .getDimensionPixelSize(resourceId));
             if (resourceId > 0) {
                 return resources.getDimensionPixelSize(resourceId);
             }

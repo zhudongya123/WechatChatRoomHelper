@@ -53,22 +53,6 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
 
         setVisibility(INVISIBLE);
 
-        setPanelSlideListener(new PanelSlideListener() {
-            @Override
-            public void onPanelSlide(View panel, float slideOffset) {
-
-            }
-
-            @Override
-            public void onPanelOpened(View panel) {
-                XposedBridge.log("Xposed panel = onPanelOpened");
-            }
-
-            @Override
-            public void onPanelClosed(View panel) {
-                XposedBridge.log("Xposed panel = onPanelClosed");
-            }
-        });
     }
 
     @Override
