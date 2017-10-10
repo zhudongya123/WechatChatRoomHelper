@@ -345,7 +345,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                             , param.args[0], view, relativePosition + headerViewsCount, id);
 
                     if (PreferencesUtils.auto_close())
-                        muteChatRoomViewPresenter.dismiss();
+                        officialChatRoomViewPresenter.dismiss();
                 }
             });
             officialChatRoomViewPresenter.show();

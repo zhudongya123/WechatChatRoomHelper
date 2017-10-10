@@ -181,8 +181,6 @@ public class ChatRoomView2 implements ChatRoomContract.View {
                 for (int i = 0; i < data.size(); i++) {
                     Object item = data.get(i);
                     MessageEntity entity = new MessageEntity(item);
-                    XposedBridge.log("showMessageRefresh, entity.field_username = " + entity.field_username
-                            + ", targetUserName = " + targetUserName);
                     if (entity.field_username.equals(targetUserName)) {
 
                         Object object = HookLogic.getMessageBeanForOriginIndex(mPresenter.getOriginAdapter(),
@@ -208,66 +206,9 @@ public class ChatRoomView2 implements ChatRoomContract.View {
         }
 
         mAdapter.setMuteListInAdapterPositions(muteListInAdapterPositions);
-//        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(
-//                new DiffCallBack(mAdapter.getData(), data), true);
-//        diffResult.dispatchUpdatesTo(mAdapter);
-
         mAdapter.setData(data);
 
         mAdapter.notifyDataSetChanged();
-    }
-
-
-    private class DiffCallBack extends DiffUtil.Callback {
-        private List<Object> mOldDatas, mNewDatas;
-
-        DiffCallBack(List<Object> mOldDatas, List<Object> mNewDatas) {
-            this.mOldDatas = mOldDatas;
-            this.mNewDatas = mNewDatas;
-        }
-
-        @Override
-        public int getOldListSize() {
-            return mOldDatas != null ? mOldDatas.size() : 0;
-        }
-
-        @Override
-        public int getNewListSize() {
-            return mNewDatas != null ? mNewDatas.size() : 0;
-        }
-
-        @Override
-        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-            return true;
-        }
-
-        @Override
-        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-            Object oldItem = mOldDatas.get(oldItemPosition);
-            Object newItem = mNewDatas.get(newItemPosition);
-
-            CharSequence oldContent = (CharSequence) XposedHelpers.callMethod(
-                    mPresenter.getOriginAdapter(),
-                    Method_Message_True_Content,
-                    oldItem,
-                    ScreenUtils.dip2px(mContext, 13),
-                    XposedHelpers.getBooleanField(XposedHelpers.callMethod(
-                            mPresenter.getOriginAdapter(),
-                            Method_Message_Status_Bean, oldItem),
-                            Value_Message_True_Content_Params));
-
-            CharSequence newContent = (CharSequence) XposedHelpers.callMethod(
-                    mPresenter.getOriginAdapter(),
-                    Method_Message_True_Content,
-                    newItem,
-                    ScreenUtils.dip2px(mContext, 13),
-                    XposedHelpers.getBooleanField(XposedHelpers.callMethod(
-                            mPresenter.getOriginAdapter(),
-                            Method_Message_Status_Bean, newItem),
-                            Value_Message_True_Content_Params));
-
-            return newContent.equals(oldContent);
-        }
     }
 
 
