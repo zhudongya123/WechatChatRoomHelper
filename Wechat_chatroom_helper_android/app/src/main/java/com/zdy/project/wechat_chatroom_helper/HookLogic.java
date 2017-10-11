@@ -109,6 +109,8 @@ public class HookLogic implements IXposedHookLoadPackage {
     private Context context;
 
 
+    private View maskView;
+
     @Override
 
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam loadPackageParam) throws Throwable {
@@ -141,6 +143,14 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 if (fitSystemWindowLayoutView.getChildCount() == 2) {
                                     fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter.getPresenterView(), 1);
                                     fitSystemWindowLayoutView.addView(officialChatRoomViewPresenter.getPresenterView(), 2);
+
+//                                    maskView = new View(context);
+//                                    maskView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+//                                    maskView.setBackgroundColor(0xFF000000);
+//                                    fitSystemWindowLayoutView.addView(maskView, 3);
+//
+//                                    maskView.setVisibility(View.INVISIBLE);
+//                                    maskView.setClickable(false);
                                 }
                             }
                         }
@@ -152,8 +162,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                         loadPackageParam.classLoader), new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    //    try {
-                            hookAdapterInit(param);
+                        //    try {
+                        hookAdapterInit(param);
 //                        } catch (Throwable e) {
 //                            e.printStackTrace();
 //                            CrashHandler.saveCrashInfo2File(e, context);
@@ -175,8 +185,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                 "notifyDataSetChanged", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                     //   try {
-                            hookNotifyDataSetChanged(param);
+                        //   try {
+                        hookNotifyDataSetChanged(param);
 //                        } catch (Throwable e) {
 //                            e.printStackTrace();
 //                            CrashHandler.saveCrashInfo2File(e, context);
@@ -189,7 +199,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 //                        try {
-                            hookGetCount(param);
+                        hookGetCount(param);
 //                        } catch (Throwable e) {
 //                            e.printStackTrace();
 //                            CrashHandler.saveCrashInfo2File(e, context);
@@ -202,7 +212,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 //                        try {
-                            hookGetObject(param);
+                        hookGetObject(param);
 //                        } catch (Throwable e) {
 //                            e.printStackTrace();
 //                            CrashHandler.saveCrashInfo2File(e, context);
@@ -216,8 +226,8 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                     //   try {
-                            hookGetView(param);
+                        //   try {
+                        hookGetView(param);
 //                        } catch (Throwable e) {
 //                            e.printStackTrace();
 //                            CrashHandler.saveCrashInfo2File(e, context);
@@ -230,8 +240,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                 int.class, long.class, new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
-                      //  try {
-                            hookOnItemClick(param);
+                        //  try {
+                        hookOnItemClick(param);
 //                        } catch (Throwable e) {
 //                            e.printStackTrace();
 //                            CrashHandler.saveCrashInfo2File(e, context);
@@ -262,6 +272,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 }
                             } else {
                                 //      XposedBridge.log("dispatchKeyEvent, isInChatting");
+
                             }
                         }
                     }
@@ -444,7 +455,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
             if (unReadCountListForOfficial.valueAt(0) > 0)
                 parent.getChildAt(2).setVisibility(View.VISIBLE);
-
 
 
             if (newMessageCount > 0) {
@@ -735,8 +745,9 @@ public class HookLogic implements IXposedHookLoadPackage {
                             if (((String) arg).contains("closeChatting")) {
                                 isInChatting = false;
                             }
-                            if (((String) arg).contains("startChatting"))
+                            if (((String) arg).contains("startChatting")) {
                                 isInChatting = true;
+                            }
 
                             //收到新消息
                             if (((String) arg).contains("summerbadcr updateConversation talker")) {
