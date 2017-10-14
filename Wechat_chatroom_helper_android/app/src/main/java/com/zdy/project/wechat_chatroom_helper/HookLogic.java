@@ -27,6 +27,7 @@ import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomRecyclerVi
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter;
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -105,7 +106,7 @@ public class HookLogic implements IXposedHookLoadPackage {
     //是否在聊天界面
     private boolean isInChatting = false;
 
-    private static ClassLoader mClassLoader;
+    public static ClassLoader mClassLoader;
     private Context context;
 
 
@@ -152,6 +153,8 @@ public class HookLogic implements IXposedHookLoadPackage {
 //                                    maskView.setVisibility(View.INVISIBLE);
 //                                    maskView.setClickable(false);
                                 }
+
+
                             }
                         }
                     }
