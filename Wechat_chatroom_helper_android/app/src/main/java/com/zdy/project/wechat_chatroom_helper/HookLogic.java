@@ -145,13 +145,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                                     fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter.getPresenterView(), 1);
                                     fitSystemWindowLayoutView.addView(officialChatRoomViewPresenter.getPresenterView(), 2);
 
-//                                    maskView = new View(context);
-//                                    maskView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-//                                    maskView.setBackgroundColor(0xFF000000);
-//                                    fitSystemWindowLayoutView.addView(maskView, 3);
-//
-//                                    maskView.setVisibility(View.INVISIBLE);
-//                                    maskView.setClickable(false);
+
                                 }
 
 
@@ -766,6 +760,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                                     officialChatRoomViewPresenter.setMessageRefresh(sendUsername);
                                 }
                             }
+
+
+                            String desc = (String) param.args[0];
+                            String value = (String) param.args[1];
+                            XposedBridge.log("XposedLogi, desc = " + desc + ", value = " + value );
+
                         }
                     }
                 });
