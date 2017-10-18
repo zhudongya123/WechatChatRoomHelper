@@ -99,18 +99,17 @@ public class PathServlet extends HttpServlet {
 
                 } else {
                     jsonObject.addProperty("code", 1);
-
                     msg = "老哥，你是不是点错了？？ 你这明明不是play版……";
                 }
                 break;
             case 1101:
+                jsonObject.addProperty("code", 0);
                 if (isPlayVersion.equals("0")) {
-                    jsonObject.addProperty("code", 0);
                     getConfig1101(data);
                     msg = "微信版本 6.5.14(1100) 已经成功适配，如未有效果，请重启微信客户端查看。";
                 } else {
-                    msg = "老哥，6.5.14哪里来的play版本？";
-                    jsonObject.addProperty("code", 1);
+                    msg = "微信版本 6.5.16(1101)[play版] 已经成功适配，如未有效果，请重启微信客户端查看。";
+                    getConfig1101playVersion(data);
                 }
 
                 jsonObject.add("data", data);
@@ -136,6 +135,60 @@ public class PathServlet extends HttpServlet {
         jsonObject.addProperty("msg", msg);
 
         writer.write(jsonObject.toString());
+    }
+
+    private void getConfig1101playVersion(JsonObject data) {
+        data.addProperty("cclvan", "com.tencent.mm.ui.conversation.g");//主界面 listView 的 adapter
+        data.addProperty("cclvapn", "com.tencent.mm.ui.f");//主界面 adapter 的实现类的父类
+        data.addProperty("cclaon", "com.tencent.mm.ui.conversation.e");// 主界面 listView 的 onItemListener 的实现类
+
+        data.addProperty("cclvas", "g");
+        data.addProperty("cclvaps", "f");
+
+        data.addProperty("mmsb", "j");//adapter 中绑定 itemView 的 model 获取方法
+        data.addProperty("mago", "Ab");//adapter 父类中（等同于） getObject 方法
+
+        data.addProperty("vmsim1", "wAf");//adapter 中判断一个 item 是否为免打扰群消息的依据1
+        data.addProperty("vmsim2", "vZk");//adapter 中判断一个 item 是否为免打扰群消息的依据2
+        data.addProperty("vla", "wzs");//onItemListener 中 adapter 的变量名
+        data.addProperty("vl", "wyM");//onItemListener 中 listView 的变量名
+
+        data.addProperty("vlavt", "vSr");//adapter 中 itemView 中 显示 nickname 的 TextView
+        data.addProperty("vlava", "iiB");//adapter 中 itemView 中 显示 avatar 的 ImageView
+        data.addProperty("vlavc", "vSt");//adapter 中 itemView 中 显示 content 的 TextView
+
+        data.addProperty("magos1", "vkD");//adapter 父类中获取 getObject 的第一步
+        data.addProperty("magos2", "vhW");//adapter 父类中获取 getObject 的第二步
+        data.addProperty("magos3", "Ab");//adapter 父类中获取 getObject 的第三步
+
+        data.addProperty("ctl", "com.tencent.mm.sdk.platformtools.w");//微信的日志打印类
+
+        data.addProperty("dsa", "rz");//返回 drawable
+        data.addProperty("dss", "ak2");//设置 drawable
+        data.addProperty("dsca", "ty");//群头像的 drawable
+
+        data.addProperty("vmbc", "wzX");//adapter 中获取 item 的 content 字段
+        data.addProperty("vmbn", "nickName");//adapter 中获取 item 的 nickName 字段
+
+        data.addProperty("vmbt", "wzW");//adapter 中获取 item 的 time 字段
+
+        data.addProperty("mmtc", "b");//adapter 中获取 item 的 content 方法
+        data.addProperty("vmtcp", "wAd");//adapter 中获取 item 的 content 方法中的参数
+        data.addProperty("mmtt", "i");//adapter 中获取 item 的 time 方法
+
+        data.addProperty("csa", "com.tencent.mm.pluginsdk.ui.a$b");//头像的处理生成方法
+        data.addProperty("mclga", "a");//adapter 中获取 item 的 avatar 方法
+
+        data.addProperty("vmsio1", "wAe");//判断一个 item 是否为公众号的依据1
+        data.addProperty("vmsio2", "wAa");//判断一个 item 是否为公众号的依据2
+        data.addProperty("vmsio3", "field_username");//判断一个 item 是否为公众号的依据3
+
+        data.addProperty("mclvap", "com.tencent.mm.ui.f$a");//adapter 构造函数的参数
+
+        data.addProperty("cthu", "com.tencent.mm.ui.d");
+        data.addProperty("mhuiv", "aj");//HomeUI 中初始化 View 的方法
+        data.addProperty("vhua", "vjF");//HomeUI 中 Activity 的变量名
+
     }
 
     private void getConfig1120(JsonObject data) {
