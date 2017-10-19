@@ -1,4 +1,4 @@
-package kt
+package com.zdy.project.wechat_chatroom_helper.kt.ui
 
 import android.app.Activity
 import android.app.AlertDialog
@@ -20,10 +20,7 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.webkit.WebView
-import android.widget.Button
-import android.widget.FrameLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import com.google.gson.JsonParser
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
@@ -232,79 +229,71 @@ class MainActivity : AppCompatActivity() {
             preferenceManager.sharedPreferencesMode = Context.MODE_WORLD_READABLE
             addPreferencesFromResource(R.xml.pref_setting)
 
-            var toolbar_color = findPreference("toolbar_color") as EditTextPreference
-            var play_version = findPreference("play_version") as SwitchPreference
+            val toolbarColor = findPreference("toolbar_color") as EditTextPreference
+            val playVersion = findPreference("play_version") as SwitchPreference
 
-            var onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener {
-                override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
-
-                    val activity = getActivity() as kt.MainActivity
-                    activity.sendRequest(activity.getWechatVersionCode(), newValue as Boolean)
-                    return true
-                }
-            }
-            setToolbarColor(toolbar_color)
-            setCheckPlayVersion(play_version)
+            setToolbarColor(toolbarColor)
+            setCheckPlayVersion(playVersion)
         }
 
-        fun setCheckPlayVersion(play_version: SwitchPreference): Unit {
+        private fun setCheckPlayVersion(play_version: SwitchPreference): Unit {
 
-            play_version.onPreferenceChangeListener = object : Preference.OnPreferenceChangeListener {
-
-                override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
-
-                    val activity = activity as kt.MainActivity
-                    activity.sendRequest(activity.getWechatVersionCode(), newValue as Boolean)
-
-                    return true
-                }
+            play_version.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
+                val activity = activity as kt.MainActivity
+                activity.sendRequest(activity.getWechatVersionCode(), newValue as Boolean)
+                true
             }
         }
 
 
-        private fun setToolbarColor(preference: EditTextPreference) {
+        private fun setToolbarColor(preference: EditTextPreference): Unit {
 
             val watcher = PreferenceTextWatcher(preference)
-            preference.onPreferenceClickListener = Preference.OnPreferenceClickListener { preference ->
-                val toolbar_color = preference.sharedPreferences.getString("toolbar_color", Constants.DEFAULT_TOOLBAR_COLOR)
+            preference.onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
 
-                val editText = (preference as EditTextPreference).editText
-                editText.backgroundTintList = ColorStateList.valueOf(getColorInt(toolbar_color))
+                val toolbarColor = preference.sharedPreferences.getString("toolbar_color", Constants.DEFAULT_TOOLBAR_COLOR)
+                val toolbarColorInt = getColorInt(toolbarColor)
+
+                val editText = preference.editText as EditText
+
+                editText.backgroundTintList = ColorStateList.valueOf(toolbarColorInt)
                 editText.backgroundTintMode = PorterDuff.Mode.SRC_IN
-                editText.setTextColor(getColorInt(toolbar_color))
-                editText.hint = "当前值：" + toolbar_color!!
+                editText.setTextColor(toolbarColorInt)
+                editText.hint = "当前值" + toolbarColor
                 editText.setSingleLine()
                 editText.setSelection(editText.text.length)
                 editText.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-                    override fun onViewAttachedToWindow(v: View) {
+                    override fun onViewAttachedToWindow(v: View?) {
                         editText.addTextChangedListener(watcher)
                     }
 
-                    override fun onViewDetachedFromWindow(v: View) {
+                    override fun onViewDetachedFromWindow(v: View?) {
                         editText.removeTextChangedListener(watcher)
                     }
                 })
 
                 false
             }
-            preference.onPreferenceChangeListener =
-                    Preference.OnPreferenceChangeListener { preference, newValue ->
-                        try {
-                            getColorInt(newValue as String)
-                            Toast.makeText(activity, "颜色已更新", Toast.LENGTH_SHORT).show()
-                            return@OnPreferenceChangeListener true
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            return@OnPreferenceChangeListener false
-                        }
-                    }
+
+            preference.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
+                try {
+                    getColorInt(newValue.toString())
+                    Toast.makeText(activity, "颜色已更新", Toast.LENGTH_SHORT).show()
+                    true
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    false
+                }
+            }
         }
+
 
         private fun getColorInt(colorString: CharSequence?): Int {
             return Color.parseColor("#" + colorString!!)
         }
 
-        private inner class PreferenceTextWatcher internal constructor(internal var preference: EditTextPreference) : TextWatcher {
+        private inner class PreferenceTextWatcher
+        internal constructor(internal var preference: EditTextPreference) : TextWatcher {
 
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
 
@@ -330,7 +319,6 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun afterTextChanged(s: Editable) {
-
             }
         }
     }

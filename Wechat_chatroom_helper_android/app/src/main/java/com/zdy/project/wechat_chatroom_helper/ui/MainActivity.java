@@ -282,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        private void setToolbarColor(final EditTextPreference preference) {
+        private void setToolbarColor(EditTextPreference preference) {
 
             final PreferenceTextWatcher watcher = new PreferenceTextWatcher(preference);
             preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
