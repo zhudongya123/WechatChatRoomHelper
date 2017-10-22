@@ -14,11 +14,8 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.view.menu.ExpandedMenuView;
 import android.text.Editable;
-import android.text.Html;
 import android.text.TextWatcher;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
@@ -229,33 +226,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private int getWechatVersionCode() {
-
-        PackageManager packageManager = getPackageManager();
-        List<PackageInfo> packageInfoList = packageManager.getInstalledPackages(0);
+        List<PackageInfo> packageInfoList = getPackageManager().getInstalledPackages(0);
         try {
             for (PackageInfo packageInfo : packageInfoList) {
-
                 if (packageInfo.packageName.equals("com.tencent.mm")) {
                     if (packageInfo.versionName.equals("6.5.14"))
-                        return 1120;
+                        return 1101;
                     return packageInfo.versionCode;
                 }
             }
-            return 1060;
+            return -1;
 
         } catch (Throwable e) {
             e.printStackTrace();
-            return 1060;
+            return -1;
         }
     }
 
     private int getHelperVersionCode(Context context) {
         PackageManager packageManager = context.getPackageManager();
-        PackageInfo packageInfo;
         int versionCode = 0;
         try {
-            packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
-            versionCode = packageInfo.versionCode;
+            versionCode = packageManager.getPackageInfo(context.getPackageName(), 0).versionCode;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -271,10 +263,9 @@ public class MainActivity extends AppCompatActivity {
             addPreferencesFromResource(R.xml.pref_setting);
 
             final EditTextPreference toolbarColor = ((EditTextPreference) findPreference("toolbar_color"));
-            setToolbarColor(toolbarColor);
-
-
             final SwitchPreference play_version = (SwitchPreference) findPreference("play_version");
+
+            setToolbarColor(toolbarColor);
             setCheckPlayVersion(play_version);
         }
 
@@ -291,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        private void setToolbarColor(final EditTextPreference preference) {
+        private void setToolbarColor(EditTextPreference preference) {
 
             final PreferenceTextWatcher watcher = new PreferenceTextWatcher(preference);
             preference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

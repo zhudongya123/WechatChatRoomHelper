@@ -27,6 +27,7 @@ import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomRecyclerVi
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter;
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -105,9 +106,11 @@ public class HookLogic implements IXposedHookLoadPackage {
     //是否在聊天界面
     private boolean isInChatting = false;
 
-    private static ClassLoader mClassLoader;
+    public static ClassLoader mClassLoader;
     private Context context;
 
+
+    private View maskView;
 
     @Override
 
@@ -141,7 +144,11 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 if (fitSystemWindowLayoutView.getChildCount() == 2) {
                                     fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter.getPresenterView(), 1);
                                     fitSystemWindowLayoutView.addView(officialChatRoomViewPresenter.getPresenterView(), 2);
+
+
                                 }
+
+
                             }
                         }
                     }
@@ -152,8 +159,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                         loadPackageParam.classLoader), new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                    //    try {
-                            hookAdapterInit(param);
+                        //    try {
+                        hookAdapterInit(param);
 //                        } catch (Throwable e) {
 //                            e.printStackTrace();
 //                            CrashHandler.saveCrashInfo2File(e, context);
@@ -175,8 +182,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                 "notifyDataSetChanged", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                     //   try {
-                            hookNotifyDataSetChanged(param);
+                        //   try {
+                        hookNotifyDataSetChanged(param);
 //                        } catch (Throwable e) {
 //                            e.printStackTrace();
 //                            CrashHandler.saveCrashInfo2File(e, context);
@@ -189,7 +196,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 //                        try {
-                            hookGetCount(param);
+                        hookGetCount(param);
 //                        } catch (Throwable e) {
 //                            e.printStackTrace();
 //                            CrashHandler.saveCrashInfo2File(e, context);
@@ -202,7 +209,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 //                        try {
-                            hookGetObject(param);
+                        hookGetObject(param);
 //                        } catch (Throwable e) {
 //                            e.printStackTrace();
 //                            CrashHandler.saveCrashInfo2File(e, context);
@@ -216,8 +223,8 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                     //   try {
-                            hookGetView(param);
+                        //   try {
+                        hookGetView(param);
 //                        } catch (Throwable e) {
 //                            e.printStackTrace();
 //                            CrashHandler.saveCrashInfo2File(e, context);
@@ -230,8 +237,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                 int.class, long.class, new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
-                      //  try {
-                            hookOnItemClick(param);
+                        //  try {
+                        hookOnItemClick(param);
 //                        } catch (Throwable e) {
 //                            e.printStackTrace();
 //                            CrashHandler.saveCrashInfo2File(e, context);
@@ -262,6 +269,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 }
                             } else {
                                 //      XposedBridge.log("dispatchKeyEvent, isInChatting");
+
                             }
                         }
                     }
@@ -444,7 +452,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
             if (unReadCountListForOfficial.valueAt(0) > 0)
                 parent.getChildAt(2).setVisibility(View.VISIBLE);
-
 
 
             if (newMessageCount > 0) {
@@ -735,8 +742,9 @@ public class HookLogic implements IXposedHookLoadPackage {
                             if (((String) arg).contains("closeChatting")) {
                                 isInChatting = false;
                             }
-                            if (((String) arg).contains("startChatting"))
+                            if (((String) arg).contains("startChatting")) {
                                 isInChatting = true;
+                            }
 
                             //收到新消息
                             if (((String) arg).contains("summerbadcr updateConversation talker")) {
@@ -752,6 +760,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                                     officialChatRoomViewPresenter.setMessageRefresh(sendUsername);
                                 }
                             }
+
+
+                            String desc = (String) param.args[0];
+                            String value = (String) param.args[1];
+                            XposedBridge.log("XposedLogi, desc = " + desc + ", value = " + value );
+
                         }
                     }
                 });
