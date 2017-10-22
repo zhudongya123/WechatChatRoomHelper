@@ -239,7 +239,7 @@ class MainActivity : AppCompatActivity() {
         private fun setCheckPlayVersion(play_version: SwitchPreference): Unit {
 
             play_version.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-                val activity = activity as kt.MainActivity
+                val activity = activity as MainActivity
                 activity.sendRequest(activity.getWechatVersionCode(), newValue as Boolean)
                 true
             }
