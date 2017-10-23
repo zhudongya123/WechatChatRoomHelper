@@ -29,7 +29,7 @@ import static com.zdy.project.wechat_chatroom_helper.network.ApiManager.UrlPath.
 
 public class ApiManager {
 
-    private OkHttpClient okHttpClient;
+    private OkHttpClient okHttpClient=new OkHttpClient();
 
     private static final ApiManager INSTANCE = new ApiManager();
 

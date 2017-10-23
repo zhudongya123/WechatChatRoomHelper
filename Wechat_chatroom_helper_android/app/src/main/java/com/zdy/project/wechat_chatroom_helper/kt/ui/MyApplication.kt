@@ -15,11 +15,15 @@ class MyApplication : Application() {
         Bugly.init(applicationContext, "ed7bb0e103", false)
 
         instance = this
+
     }
 
     companion object {
+        private var instance: com.zdy.project.wechat_chatroom_helper.kt.ui.MyApplication? = null
 
-        var instance: MyApplication? = null
-            private set
+        fun get(): com.zdy.project.wechat_chatroom_helper.kt.ui.MyApplication {
+            return instance!!
+        }
+
     }
 }
