@@ -13,11 +13,11 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.Shape;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -27,7 +27,6 @@ import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomRecyclerVi
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter;
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -51,7 +50,6 @@ import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Ge
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Conversation_List_View_Adapter_Param;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Home_UI_Inflater_View;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_Status_Bean;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Home_UI_Activity;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Avatar;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Content;
@@ -126,27 +124,46 @@ public class HookLogic implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 
-                        Object activity = XposedHelpers.getObjectField(param.thisObject, Value_Home_UI_Activity);
+//                        Object activity = XposedHelpers.getObjectField(param.thisObject, Value_Home_UI_Activity);
+//
+//                        Window window = (Window) XposedHelpers.callMethod(activity, "getWindow");
+//
+//                        ViewGroup viewGroup = (ViewGroup) window.getDecorView();
+//
+//                        for (int i = 0; i < viewGroup.getChildCount(); i++) {
+//
+//                            String simpleName = viewGroup.getChildAt(i).getClass().getSimpleName();
+//
+//                            if (simpleName.equals("FitSystemWindowLayoutView")) {
+//
+//                                ViewGroup fitSystemWindowLayoutView = (ViewGroup) viewGroup.getChildAt(i);
+//
+//                                if (fitSystemWindowLayoutView.getChildCount() == 2) {
+//                                    fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter.getPresenterView(),
+// 1);
+//                                    fitSystemWindowLayoutView.addView(officialChatRoomViewPresenter
+// .getPresenterView(), 2);
+//                                }
+//
+//                            }
+//                        }
+                    }
+                });
 
-                        Window window = (Window) XposedHelpers.callMethod(activity, "getWindow");
 
-                        ViewGroup viewGroup = (ViewGroup) window.getDecorView();
+        XposedHelpers.findAndHookConstructor("com.tencent.mm.ui.HomeUI.FitSystemWindowLayoutView",
+                loadPackageParam.classLoader, Context.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        hookFitSystemWindowLayoutViewConstructor(param);
+                    }
+                });
 
-                        for (int i = 0; i < viewGroup.getChildCount(); i++) {
-
-                            String simpleName = viewGroup.getChildAt(i).getClass().getSimpleName();
-
-                            if (simpleName.equals("FitSystemWindowLayoutView")) {
-
-                                ViewGroup fitSystemWindowLayoutView = (ViewGroup) viewGroup.getChildAt(i);
-
-                                if (fitSystemWindowLayoutView.getChildCount() == 2) {
-                                    fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter.getPresenterView(), 1);
-                                    fitSystemWindowLayoutView.addView(officialChatRoomViewPresenter.getPresenterView(), 2);
-                                }
-
-                            }
-                        }
+        XposedHelpers.findAndHookConstructor("com.tencent.mm.ui.HomeUI.FitSystemWindowLayoutView",
+                loadPackageParam.classLoader, Context.class, AttributeSet.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        hookFitSystemWindowLayoutViewConstructor(param);
                     }
                 });
 
@@ -243,6 +260,32 @@ public class HookLogic implements IXposedHookLoadPackage {
 
 
         hookLog(loadPackageParam);
+
+    }
+
+    private void hookFitSystemWindowLayoutViewConstructor(final XC_MethodHook.MethodHookParam param) {
+        final ViewGroup fitSystemWindowLayoutView = (ViewGroup) param.thisObject;
+
+        fitSystemWindowLayoutView.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
+            @Override
+            public void onChildViewAdded(View parent, View child) {
+                XposedBridge.log("parent = " + parent + ", child = " + child);
+
+                for (int i = 0; i < fitSystemWindowLayoutView.getChildCount(); i++) {
+                    if (fitSystemWindowLayoutView.getChildCount() == 2) {
+                        fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter.getPresenterView(), 1);
+                        fitSystemWindowLayoutView.addView(officialChatRoomViewPresenter.getPresenterView(), 2);
+                    }
+
+                }
+            }
+
+            @Override
+            public void onChildViewRemoved(View parent, View child) {
+                XposedBridge.log("parent = " + parent + ", child = " + child);
+            }
+        });
+
 
     }
 
