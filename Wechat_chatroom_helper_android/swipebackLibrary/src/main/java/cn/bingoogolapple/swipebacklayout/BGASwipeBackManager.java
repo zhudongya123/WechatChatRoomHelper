@@ -20,10 +20,13 @@ import android.app.Activity;
 import android.app.Application;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.view.ViewCompat;
+import android.view.SurfaceView;
 import android.view.View;
+import android.webkit.WebView;
 
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -31,9 +34,10 @@ import java.util.Stack;
  * 创建时间:16/12/28 下午11:42
  * 描述:
  */
-public class BGASwipeBackManager implements Application.ActivityLifecycleCallbacks {
+class BGASwipeBackManager implements Application.ActivityLifecycleCallbacks {
     private static final BGASwipeBackManager sInstance = new BGASwipeBackManager();
     private Stack<Activity> mActivityStack = new Stack<>();
+    private Set<Class<? extends View>> mProblemViewClassSet = new HashSet<>();
 
     public static BGASwipeBackManager getInstance() {
         return sInstance;
@@ -42,21 +46,13 @@ public class BGASwipeBackManager implements Application.ActivityLifecycleCallbac
     private BGASwipeBackManager() {
     }
 
-    /**
-     * 必须在 Application 的 onCreate 方法中调用
-     */
-    public void init(Application application) {
+    public void init(Application application, List<Class<? extends View>> problemViewClassList) {
         application.registerActivityLifecycleCallbacks(this);
-    }
 
-    /**
-     * 忽略底部出现空白区域的手机对应的 android.Build.MODEL
-     *
-     * @param models
-     */
-    public static void ignoreNavigationBarModels(Collection<String> models) {
-        if (models != null && models.size() > 0) {
-            UIUtil.NO_NAVIGATION_BAR_MODEL_SET.addAll(models);
+        mProblemViewClassSet.add(WebView.class);
+        mProblemViewClassSet.add(SurfaceView.class);
+        if (problemViewClassList != null) {
+            mProblemViewClassSet.addAll(problemViewClassList);
         }
     }
 
@@ -96,36 +92,44 @@ public class BGASwipeBackManager implements Application.ActivityLifecycleCallbac
      * @return
      */
     @Nullable
-    public Activity getPenultimateActivity() {
+    public Activity getPenultimateActivity(Activity currentActivity) {
         Activity activity = null;
         try {
             if (mActivityStack.size() > 1) {
                 activity = mActivityStack.get(mActivityStack.size() - 2);
+
+                if (currentActivity.equals(activity)) {
+                    int index = mActivityStack.indexOf(currentActivity);
+                    if (index > 0) {
+                        // 处理内存泄漏或最后一个 Activity 正在 finishing 的情况
+                        activity = mActivityStack.get(index - 1);
+                    } else if (mActivityStack.size() == 2) {
+                        // 处理屏幕旋转后 mActivityStack 中顺序错乱
+                        activity = mActivityStack.lastElement();
+                    }
+                }
             }
         } catch (Exception e) {
         }
         return activity;
     }
 
-    public static void onPanelSlide(float slideOffset) {
-        try {
-            Activity activity = getInstance().getPenultimateActivity();
-            if (activity != null) {
-                View decorView = activity.getWindow().getDecorView();
-                ViewCompat.setTranslationX(decorView, -(decorView.getMeasuredWidth() / 3.0f) * (1 - slideOffset));
-            }
-        } catch (Exception e) {
-        }
+    /**
+     * 滑动返回是否可用
+     *
+     * @return
+     */
+    public boolean isSwipeBackEnable() {
+        return mActivityStack.size() > 1;
     }
 
-    public static void onPanelClosed() {
-        try {
-            Activity activity = getInstance().getPenultimateActivity();
-            if (activity != null) {
-                View decorView = activity.getWindow().getDecorView();
-                ViewCompat.setTranslationX(decorView, 0);
-            }
-        } catch (Exception e) {
-        }
+    /**
+     * 某个 view 是否会导致滑动返回后立即触摸界面时应用崩溃
+     *
+     * @param view
+     * @return
+     */
+    public boolean isProblemView(View view) {
+        return mProblemViewClassSet.contains(view.getClass());
     }
 }

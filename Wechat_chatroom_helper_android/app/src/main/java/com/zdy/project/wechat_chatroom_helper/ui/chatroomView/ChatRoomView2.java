@@ -24,18 +24,13 @@ import android.widget.Toolbar;
 import com.zdy.project.wechat_chatroom_helper.HookLogic;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.network.ApiManager;
-import com.zdy.project.wechat_chatroom_helper.ui.MySwipeBackLayout;
+import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout;
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 
 import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Arrow;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Setting;
@@ -123,21 +118,6 @@ public class ChatRoomView2 implements ChatRoomContract.View {
     private void initSwipeBack() {
         swipeBackLayout = new MySwipeBackLayout(mContext);
         swipeBackLayout.attachToView(mainView, mContext);
-
-
-//        Class<?> aClass = XposedHelpers.findClass("com.tencent.mm.ui.widget.SwipeBackLayout", HookLogic.mClassLoader);
-//
-//        Constructor c1 = null;
-//        try {
-//            c1 = aClass.getDeclaredConstructor(Context.class);
-//            Object o = c1.newInstance(mContext);
-//
-//            XposedHelpers.callMethod(o,"init");
-//        } catch (NoSuchMethodException | IllegalAccessException |
-//                InstantiationException | InvocationTargetException e) {
-//            e.printStackTrace();
-//        }
-
     }
 
 
@@ -148,9 +128,6 @@ public class ChatRoomView2 implements ChatRoomContract.View {
 
     @Override
     public boolean isShowing() {
-
-        XposedBridge.log("dispatchKeyEvent, ChatRoomView2.isShowing = " + !swipeBackLayout.isOpen());
-
         return !swipeBackLayout.isOpen();
     }
 
@@ -167,15 +144,12 @@ public class ChatRoomView2 implements ChatRoomContract.View {
 
     @Override
     public void show(int offest) {
-        //   XposedBridge.log("ChatRoomView2, show");
         swipeBackLayout.closePane();
         ApiManager.getINSTANCE().sendRequestForUserStatistics("open", uuid, Build.MODEL);
     }
 
     @Override
     public void dismiss(int offest) {
-
-        //    XposedBridge.log("ChatRoomView2, dismiss");
         swipeBackLayout.openPane();
         ApiManager.getINSTANCE().sendRequestForUserStatistics("close", uuid, Build.MODEL);
     }

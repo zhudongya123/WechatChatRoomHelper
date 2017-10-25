@@ -23,16 +23,12 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
-import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.Shape;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -112,17 +108,17 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      * This is the minimum section of the sliding panel that will
      * be visible in the open state to allow for a closing drag.
      */
-    protected final int mOverhangSize;
+    private final int mOverhangSize;
 
     /**
      * True if a panel can slide with the current measurements
      */
-    protected boolean mCanSlide;
+    private boolean mCanSlide;
 
     /**
      * The child view that can slide, if any.
      */
-    protected View mSlideableView;
+    View mSlideableView;
 
     /**
      * How far the panel is offset from its closed position.
@@ -157,7 +153,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
 
     private PanelSlideListener mPanelSlideListener;
 
-    protected final ViewDragHelper mDragHelper;
+    final ViewDragHelper mDragHelper;
 
     /**
      * Stores whether or not the pane was open the last time it was slideable.
@@ -189,57 +185,34 @@ public class BGASwipeBackLayout2 extends ViewGroup {
     /**
      * 滑动返回是否可用
      */
-    protected boolean mSwipeBackEnable = true;
+    private boolean mSwipeBackEnable = true;
     /**
      * 是否仅仅跟踪左侧边缘的滑动返回
      */
     private boolean mIsOnlyTrackingLeftEdge = true;
     /**
-     * 是否是微信滑动返回样式
-     */
-    protected boolean mIsWeChatStyle = true;
-    /**
-     * 是否显示滑动返回的阴影效果
-     */
-    protected boolean mIsNeedShowShadow = true;
-    /**
-     * 阴影区域的透明度是否根据滑动的距离渐变
-     */
-    private boolean mIsShadowAlphaGradient = true;
-    /**
-     * 阴影资源 id
-     */
-    private int mShadowResId = R.drawable.bga_sbl_shadow;
-    /**
      * 滑动返回时的阴影视图
      */
-    protected View mShadowView;
+    protected BGASwipeBackShadowView mShadowView;
     /**
      * 内容视图
      */
     protected View mContentView;
-
-    private Activity mActivity;
-
+    /**
+     * 当前 Activity
+     */
+    protected Activity mActivity;
     /**
      * 触发滑动返回的滑动范围
      */
     private float mSwipeBackThreshold = 0.3f;
     /**
-     * 释放后的自动滑动状态
-     * 无状态,
-     * 向左滑动,
-     * 向右滑动
+     * 底部导航条是否悬浮在内容上
      */
-    private final static byte MOVE_STATE_NONE = -1;
-    private final static byte MOVE_STATE_LEFT = MOVE_STATE_NONE + 1;
-    private final static byte MOVE_STATE_RIGHT = MOVE_STATE_LEFT + 1;
-    private byte mMoveState = MOVE_STATE_NONE;
+    private boolean mIsNavigationBarOverlap = false;
     /**
-     * 记录上一次offset的变化值
+     * 是否正在滑动
      */
-    private float mLastOffsetDelta;
-
     private boolean mIsSliding;
     //===========================新增END=======================
 
@@ -248,27 +221,20 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      *
      * @param activity
      */
-    public void attachToActivity(Activity activity) {
+    void attachToActivity(Activity activity) {
         mActivity = activity;
 
         setSliderFadeColor(Color.TRANSPARENT);
 
-        mShadowView = new View(activity);
-        setIsNeedShowShadow(mIsNeedShowShadow);
-        addView(mShadowView, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        mShadowView = new BGASwipeBackShadowView(activity);
 
+        addView(mShadowView, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
         ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
         mContentView = decorView.getChildAt(0);
         decorView.removeView(mContentView);
         decorView.addView(this);
         addView(mContentView, 1, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-
-    }
-
-
-    public View getShadowView() {
-        return mShadowView;
     }
 
     /**
@@ -276,7 +242,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      *
      * @param swipeBackEnable
      */
-    public void setSwipeBackEnable(boolean swipeBackEnable) {
+    void setSwipeBackEnable(boolean swipeBackEnable) {
         mSwipeBackEnable = swipeBackEnable;
     }
 
@@ -285,57 +251,15 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      *
      * @param isOnlyTrackingLeftEdge
      */
-    public void setIsOnlyTrackingLeftEdge(boolean isOnlyTrackingLeftEdge) {
+    void setIsOnlyTrackingLeftEdge(boolean isOnlyTrackingLeftEdge) {
         mIsOnlyTrackingLeftEdge = isOnlyTrackingLeftEdge;
     }
 
     /**
-     * 设置是否是微信滑动返回样式。默认值为 true
+     * 设置是否是微信滑动返回样式
      */
-    public void setIsWeChatStyle(boolean isWeChatStyle) {
-        mIsWeChatStyle = isWeChatStyle;
-    }
-
-    /**
-     * 设置阴影资源 id。默认值为 R.drawable.bga_sbl_shadow
-     *
-     * @param shadowResId
-     */
-    public void setShadowResId(@DrawableRes int shadowResId) {
-        mShadowResId = shadowResId;
-        setIsNeedShowShadow(mIsNeedShowShadow);
-    }
-
-    /**
-     * 设置是否显示滑动返回的阴影效果。默认值为 true
-     *
-     * @param isNeedShowShadow
-     */
-    public void setIsNeedShowShadow(boolean isNeedShowShadow) {
-        mIsNeedShowShadow = isNeedShowShadow;
-        if (mShadowView != null) {
-//            if (mIsNeedShowShadow) {
-//                // mShadowView.setBackgroundResource(mShadowResId);
-//            } else {
-//                // mShadowView.setBackgroundResource(android.R.color.transparent);
-//            }
-            mShadowView.setBackground(new ShapeDrawable(new Shape() {
-                @Override
-                public void draw(Canvas canvas, Paint paint) {
-                    int width = canvas.getWidth();
-                    int height = canvas.getHeight();
-
-                    paint.setColor(0xFFFFFFFF);
-
-                    LinearGradient linearGradient = new LinearGradient(width / 30 * 29, 0, width, 0, 0x00000000, 0x88000000, Shader.TileMode.CLAMP);
-
-                    paint.setShader(linearGradient);
-
-                    canvas.drawRect(0, 0, width, height, paint);
-                }
-            }));
-
-        }
+    void setIsWeChatStyle(boolean isWeChatStyle) {
+        mShadowView.setIsWeChatStyle(isWeChatStyle);
     }
 
     /**
@@ -343,8 +267,17 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      *
      * @param threshold 触发释放后自动滑动返回的阈值
      */
-    public void setSwipeBackThreshold(@FloatRange(from = 0.0f, to = 1.0f) float threshold) {
+    void setSwipeBackThreshold(@FloatRange(from = 0.0f, to = 1.0f) float threshold) {
         mSwipeBackThreshold = threshold;
+    }
+
+    /**
+     * 设置底部导航条是否悬浮在内容上
+     *
+     * @param overlap
+     */
+    void setIsNavigationBarOverlap(boolean overlap) {
+        mIsNavigationBarOverlap = overlap;
     }
 
     /**
@@ -352,17 +285,8 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      *
      * @return
      */
-    public boolean isSliding() {
+    boolean isSliding() {
         return this.mIsSliding;
-    }
-
-    /**
-     * 设置阴影区域的透明度是否根据滑动的距离渐变。默认值为 true
-     *
-     * @param isShadowAlphaGradient
-     */
-    public void setIsShadowAlphaGradient(boolean isShadowAlphaGradient) {
-        mIsShadowAlphaGradient = isShadowAlphaGradient;
     }
 
     /**
@@ -370,8 +294,35 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      *
      * @return
      */
-    protected boolean isSwipeBackEnable() {
-        return mSwipeBackEnable && BGASwipeBackManager.getInstance().getPenultimateActivity() != null;
+    public  boolean isSwipeBackEnable() {
+        return mSwipeBackEnable && BGASwipeBackManager.getInstance().isSwipeBackEnable();
+    }
+
+    /**
+     * 设置阴影资源 id
+     *
+     * @param shadowResId
+     */
+    void setShadowResId(@DrawableRes int shadowResId) {
+        mShadowView.setShadowResId(shadowResId);
+    }
+
+    /**
+     * 设置是否显示滑动返回的阴影效果
+     *
+     * @param isNeedShowShadow
+     */
+    void setIsNeedShowShadow(boolean isNeedShowShadow) {
+        mShadowView.setIsNeedShowShadow(isNeedShowShadow);
+    }
+
+    /**
+     * 设置阴影区域的透明度是否根据滑动的距离渐变
+     *
+     * @param isShadowAlphaGradient
+     */
+    void setIsShadowAlphaGradient(boolean isShadowAlphaGradient) {
+        mShadowView.setIsShadowAlphaGradient(isShadowAlphaGradient);
     }
     // ======================== 新加的 END ========================
 
@@ -512,9 +463,8 @@ public class BGASwipeBackLayout2 extends ViewGroup {
 
     void dispatchOnPanelSlide(View panel) {
         // ======================== 新加的 START ========================
-        if (mIsWeChatStyle) {
-            BGASwipeBackManager.onPanelSlide(mSlideOffset);
-        }
+        mShadowView.setShadowAlpha(1.0f - mSlideOffset);
+        mShadowView.onPanelSlide(mSlideOffset);
         // ======================== 新加的 END ========================
 
         if (mPanelSlideListener != null) {
@@ -522,18 +472,20 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         }
     }
 
-    void dispatchOnPanelOpened(View panel) {
+    void dispatchOnPanelOpened(final View panel) {
         if (mPanelSlideListener != null) {
             mPanelSlideListener.onPanelOpened(panel);
         }
         sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+
+        // ======================== 新加的 START ========================
+        mShadowView.unBindPreActivity(true);
+        // ======================== 新加的 END ========================
     }
 
     void dispatchOnPanelClosed(View panel) {
         // ======================== 新加的 START ========================
-        if (mIsWeChatStyle) {
-            BGASwipeBackManager.onPanelClosed();
-        }
+        mShadowView.onPanelClosed();
         // ======================== 新加的 END ========================
 
         if (mPanelSlideListener != null) {
@@ -637,9 +589,13 @@ public class BGASwipeBackLayout2 extends ViewGroup {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+        // ======================== 新加的 START ========================
+//        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        int widthSize = UIUtil.getRealScreenWidth(mActivity);
+//        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+        int heightSize = UIUtil.getRealScreenHeight(mActivity);
+        // ======================== 新加的 END ========================
 
         if (widthMode != MeasureSpec.EXACTLY) {
             if (isInEditMode()) {
@@ -682,7 +638,13 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         }
 
         // ======================== 新加的 START ========================
-        maxLayoutHeight -= UIUtil.getNavigationBarHeight(mActivity);
+        if (!mIsNavigationBarOverlap && UIUtil.isPortrait(mActivity)) {
+            maxLayoutHeight -= UIUtil.getNavigationBarHeight(mActivity);
+        }
+
+        if (mIsNavigationBarOverlap && !UIUtil.isPortrait(mActivity)) {
+            widthSize += UIUtil.getNavigationBarHeight(mActivity);
+        }
         // ======================== 新加的 END ========================
 
         float weightSum = 0;
@@ -1035,13 +997,11 @@ public class BGASwipeBackLayout2 extends ViewGroup {
 
         mDragHelper.processTouchEvent(ev);
 
-
         final int action = ev.getAction();
         boolean wantTouchEvents = true;
 
         switch (action & MotionEventCompat.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN: {
-                mMoveState = MOVE_STATE_LEFT;
                 final float x = ev.getX();
                 final float y = ev.getY();
                 mInitialMotionX = x;
@@ -1050,11 +1010,6 @@ public class BGASwipeBackLayout2 extends ViewGroup {
             }
 
             case MotionEvent.ACTION_UP: {
-                if (mSlideableView.getLeft() > mSlideRange * mSwipeBackThreshold) {
-                    mMoveState = MOVE_STATE_RIGHT;
-                } else {
-                    mMoveState = MOVE_STATE_LEFT;
-                }
                 if (isDimmed(mSlideableView)) {
                     final float x = ev.getX();
                     final float y = ev.getY();
@@ -1070,23 +1025,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
                 }
                 break;
             }
-
-            case MotionEvent.ACTION_CANCEL: {
-                if (mSlideableView.getLeft() > mSlideRange * mSwipeBackThreshold) {
-                    mMoveState = MOVE_STATE_RIGHT;
-                } else {
-                    mMoveState = MOVE_STATE_LEFT;
-                }
-                break;
-            }
-
-            default:
-                break;
         }
-
-        if (mSlideOffset == 1)
-            wantTouchEvents = false;
-
 
         return wantTouchEvents;
     }
@@ -1150,8 +1089,6 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      * @return true if sliding panels are completely open
      */
     public boolean isOpen() {
-     //   Log.v("dispatchKeyEvent, mCanSlide = ", mCanSlide + "");
-    //    Log.v("dispatchKeyEvent, mSlideOffset = ", mSlideOffset + "");
         return !mCanSlide || mSlideOffset == 1;
     }
 
@@ -1190,21 +1127,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         final int lpMargin = isLayoutRtl ? lp.rightMargin : lp.leftMargin;
         final int startBound = paddingStart + lpMargin;
 
-        float lastSlideOffset = mSlideOffset;
         mSlideOffset = (float) (newStart - startBound) / mSlideRange;
-        float curOffsetDelta = mSlideOffset - lastSlideOffset;
-        if (mMoveState == MOVE_STATE_RIGHT) {
-            if (curOffsetDelta < mLastOffsetDelta) {
-                curOffsetDelta = mLastOffsetDelta;
-                mSlideOffset = lastSlideOffset + curOffsetDelta;
-                mSlideOffset += 0.05f;
-                if (mSlideOffset > 1.0f) {
-                    mSlideOffset = 1.0f;
-                }
-            } else {
-                mLastOffsetDelta = curOffsetDelta;
-            }
-        }
 
         if (mParallaxBy != 0) {
             parallaxOtherViews(mSlideOffset);
@@ -1215,12 +1138,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         }
 
         // ======================== 新加的 START ========================
-        if (mIsNeedShowShadow && mShadowView != null) {
-            if (mIsShadowAlphaGradient) {
-                ViewCompat.setAlpha(mShadowView, 1.0f - mSlideOffset);
-            }
-            ViewCompat.setTranslationX(mShadowView, -mShadowView.getMeasuredWidth() + newLeft);
-        }
+        ViewCompat.setTranslationX(mShadowView, -mShadowView.getMeasuredWidth() + newLeft);
         // ======================== 新加的 END ========================
 
         dispatchOnPanelSlide(mSlideableView);
@@ -1604,6 +1522,11 @@ public class BGASwipeBackLayout2 extends ViewGroup {
 
         @Override
         public void onViewCaptured(View capturedChild, int activePointerId) {
+            // ======================== 新加的 START ========================
+            if (isSwipeBackEnable()) {
+                mShadowView.bindPreActivity();
+            }
+            // ======================== 新加的 END ========================
             // Make all child views visible in preparation for sliding things around
             setAllChildrenVisible();
         }
@@ -1692,13 +1615,13 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         /**
          * True if this pane is the slideable pane in the layout.
          */
-        public boolean slideable;
+        boolean slideable;
 
         /**
          * True if this view should be drawn dimmed
          * when it's been offset from its default position.
          */
-        public boolean dimWhenOffset;
+        boolean dimWhenOffset;
 
         Paint dimPaint;
 

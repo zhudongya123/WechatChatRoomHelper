@@ -106,7 +106,6 @@ public class HookLogic implements IXposedHookLoadPackage {
     public static ClassLoader mClassLoader;
     private Context context;
 
-
     private View maskView;
 
     @Override
@@ -149,7 +148,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 //                        }
                     }
                 });
-
 
         XposedHelpers.findAndHookConstructor("com.tencent.mm.ui.HomeUI.FitSystemWindowLayoutView",
                 loadPackageParam.classLoader, Context.class, new XC_MethodHook() {
@@ -224,7 +222,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                 loadPackageParam.classLoader, "onItemClick", AdapterView.class, View.class,
                 int.class, long.class, new XC_MethodHook() {
                     @Override
-                    protected void beforeHookedMethod(final MethodHookParam param) throws Throwable {
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         hookOnItemClick(param);
                     }
                 });
@@ -269,23 +267,22 @@ public class HookLogic implements IXposedHookLoadPackage {
         fitSystemWindowLayoutView.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
             @Override
             public void onChildViewAdded(View parent, View child) {
-                XposedBridge.log("parent = " + parent + ", child = " + child);
+                if (fitSystemWindowLayoutView.getChildCount() != 2) return;
 
-                for (int i = 0; i < fitSystemWindowLayoutView.getChildCount(); i++) {
-                    if (fitSystemWindowLayoutView.getChildCount() == 2) {
-                        fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter.getPresenterView(), 1);
-                        fitSystemWindowLayoutView.addView(officialChatRoomViewPresenter.getPresenterView(), 2);
-                    }
+                if (!fitSystemWindowLayoutView.getChildAt(0).getClass().getSimpleName().equals("LinearLayout"))
+                    return;
+                if (!fitSystemWindowLayoutView.getChildAt(1).getClass().getSimpleName().equals("TestTimeForChatting"))
+                    return;
 
-                }
+                fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter.getPresenterView(), 1);
+                fitSystemWindowLayoutView.addView(officialChatRoomViewPresenter.getPresenterView(), 2);
+
             }
 
             @Override
             public void onChildViewRemoved(View parent, View child) {
-                XposedBridge.log("parent = " + parent + ", child = " + child);
             }
         });
-
 
     }
 
@@ -398,7 +395,6 @@ public class HookLogic implements IXposedHookLoadPackage {
             for (int k = 0; k < unReadCountListForMute.size(); k++) {
                 int itemValue = unReadCountListForMute.valueAt(k);
 
-                XposedBridge.log("Message position = " + k + ", unreadCount = " + itemValue);
                 if (itemValue > 0) {
                     newMessageCount++;
                 }
@@ -436,7 +432,6 @@ public class HookLogic implements IXposedHookLoadPackage {
             for (int k = 0; k < unReadCountListForOfficial.size(); k++) {
                 int itemValue = unReadCountListForOfficial.valueAt(k);
 
-                XposedBridge.log("Message position = " + k + ", unreadCount = " + itemValue);
                 if (itemValue > 0) {
                     newMessageCount++;
                 }
@@ -757,9 +752,9 @@ public class HookLogic implements IXposedHookLoadPackage {
                             }
 
 
-                            String desc = (String) param.args[0];
-                            String value = (String) param.args[1];
-                            XposedBridge.log("XposedLogi, desc = " + desc + ", value = " + value);
+//                            String desc = (String) param.args[0];
+//                            String value = (String) param.args[1];
+//                            XposedBridge.log("XposedLogi, desc = " + desc + ", value = " + value);
 
                         }
                     }
