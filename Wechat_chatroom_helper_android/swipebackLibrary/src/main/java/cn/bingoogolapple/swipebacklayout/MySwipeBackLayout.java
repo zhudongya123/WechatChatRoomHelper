@@ -30,6 +30,8 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
         setSliderFadeColor(Color.TRANSPARENT);
 
         mShadowView = new BGASwipeBackShadowView(((Activity) context));
+        mShadowView.setIsWeChatStyle(true);
+        mShadowView.setIsNeedShowShadow(true);
         addView(mShadowView, 0, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
         mContentView = childView;
