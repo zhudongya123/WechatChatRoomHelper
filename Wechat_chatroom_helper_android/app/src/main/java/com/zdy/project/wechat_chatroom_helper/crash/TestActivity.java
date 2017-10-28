@@ -47,9 +47,7 @@ public class TestActivity extends Activity {
 
         mainView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        mainView.setBackground(new GradientDrawable(GradientDrawable.Orientation.RIGHT_LEFT,
-                new int[]{0xFF000000, 0x2A000000, 0xFF000000}));
-
+        mainView.setBackground(new GradientDrawable(GradientDrawable.Orientation.RIGHT_LEFT, new int[]{0xAA888888, 0x00888888}));
 
         AbsoluteLayout.LayoutParams params = new AbsoluteLayout.LayoutParams(
                 ScreenUtils.getScreenWidth(this), ViewGroup.LayoutParams.MATCH_PARENT, 0, 0);

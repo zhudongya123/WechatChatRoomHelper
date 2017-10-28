@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.DrawableRes;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
@@ -106,7 +107,10 @@ class BGASwipeBackShadowView extends FrameLayout {
                     mShadowView = new View(getContext());
                     addView(mShadowView, getChildCount(), new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
                 }
-                mShadowView.setBackgroundResource(mShadowResId);
+//                mShadowView.setBackgroundResource(mShadowResId);
+
+                mShadowView.setBackground(new GradientDrawable(
+                        GradientDrawable.Orientation.RIGHT_LEFT, new int[]{0xAA888888, 0x00888888}));
             } else {
                 if (mShadowView != null) {
                     removeView(mShadowView);
