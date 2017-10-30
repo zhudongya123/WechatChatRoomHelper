@@ -34,11 +34,6 @@ public class PreferencesUtils {
         return getInstance().getBoolean("auto_close", false);
     }
 
-    public static boolean getForceHideNaviBar() {
-        return  getInstance().getBoolean("force_hide_navi_bar", false);
-
-    }
-
     public static int getVersionCode() {
         return getInstance().getInt("saveVersionCode", 0);
     }
@@ -50,11 +45,6 @@ public class PreferencesUtils {
     public static boolean getCircleAvatar() {
         return getInstance().getBoolean("is_circle_avatar", false);
     }
-
-    public static boolean getBugUnread() {
-        return getInstance().getBoolean("bug_unread", false);
-    }
-
 
     public static boolean initVariableName() {
 

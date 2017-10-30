@@ -31,6 +31,7 @@ import com.zdy.project.wechat_chatroom_helper.Constants;
 import com.zdy.project.wechat_chatroom_helper.R;
 import com.zdy.project.wechat_chatroom_helper.network.ApiManager;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -68,7 +69,10 @@ public class MainActivity extends AppCompatActivity {
         detail = (TextView) findViewById(R.id.detail);
 
         FrameLayout fragmentContent = (FrameLayout) findViewById(R.id.fragment_content);
-        sharedPreferences = getSharedPreferences(this.getPackageName() + "_preferences", MODE_WORLD_READABLE);
+
+        File prefsFile = new File(getFilesDir() + "/shared_prefs/" + this.getPackageName() + "_preferences.xml");
+        prefsFile.setReadable(true, false);
+        sharedPreferences = getSharedPreferences(this.getPackageName() + "_preferences", MODE_PRIVATE);
 
 
         settingFragment = new SettingFragment();
@@ -259,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            getPreferenceManager().setSharedPreferencesMode(MODE_WORLD_READABLE);
+            getPreferenceManager().setSharedPreferencesMode(MODE_PRIVATE);
             addPreferencesFromResource(R.xml.pref_setting);
 
             final EditTextPreference toolbarColor = ((EditTextPreference) findPreference("toolbar_color"));

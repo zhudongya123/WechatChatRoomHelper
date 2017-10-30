@@ -103,10 +103,9 @@ public class HookLogic implements IXposedHookLoadPackage {
     //是否在聊天界面
     private boolean isInChatting = false;
 
-    public static ClassLoader mClassLoader;
+    private static ClassLoader mClassLoader;
     private Context context;
 
-    private View maskView;
 
     @Override
 
