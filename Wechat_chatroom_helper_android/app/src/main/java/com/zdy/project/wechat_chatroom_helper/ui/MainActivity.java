@@ -70,9 +70,12 @@ public class MainActivity extends AppCompatActivity {
 
         FrameLayout fragmentContent = (FrameLayout) findViewById(R.id.fragment_content);
 
-        File prefsFile = new File(getFilesDir() + "/shared_prefs/" + this.getPackageName() + "_preferences.xml");
-        prefsFile.setReadable(true, false);
         sharedPreferences = getSharedPreferences(this.getPackageName() + "_preferences", MODE_PRIVATE);
+        String pathname = "/data/data/com.zdy.project.wechat_chatroom_helper/shared_prefs/" + this.getPackageName() +
+                "_preferences.xml";
+        Log.v("pathname = ", pathname);
+        File prefsFile = new File(pathname);
+        prefsFile.setReadable(true, false);
 
 
         settingFragment = new SettingFragment();
@@ -264,6 +267,11 @@ public class MainActivity extends AppCompatActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             getPreferenceManager().setSharedPreferencesMode(MODE_PRIVATE);
+            String pathname = "/data/data/com.zdy.project.wechat_chatroom_helper/shared_prefs/" + getActivity()
+                    .getPackageName() +  "_preferences.xml";
+            File prefsFile = new File(pathname);
+            prefsFile.setReadable(true, false);
+
             addPreferencesFromResource(R.xml.pref_setting);
 
             final EditTextPreference toolbarColor = ((EditTextPreference) findPreference("toolbar_color"));
@@ -294,7 +302,6 @@ public class MainActivity extends AppCompatActivity {
 
                     String toolbar_color = preference.getSharedPreferences().
                             getString("toolbar_color", Constants.DEFAULT_TOOLBAR_COLOR);
-
                     final EditText editText = ((EditTextPreference) preference).getEditText();
                     editText.setBackgroundTintList(ColorStateList.valueOf(getColorInt(toolbar_color)));
                     editText.setBackgroundTintMode(PorterDuff.Mode.SRC_IN);
