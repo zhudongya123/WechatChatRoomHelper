@@ -13,6 +13,7 @@ public class Constants {
 
     public static final String Prefer_File_String = "com.zdy.project.wechat_chatroom_helper_preferences";
 
+    public static final int WRITE_EXTERNAL_STORAGE_RESULT_CODE = 124;
 
     public static String Class_Conversation_List_View_Adapter_Name;
     public static String Class_Conversation_List_View_Adapter_Parent_Name;

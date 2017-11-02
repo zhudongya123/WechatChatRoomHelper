@@ -1,13 +1,9 @@
 package network
 
-import android.util.Log
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils
 import okhttp3.*
 import java.io.IOException
 
-/**
- * Created by Mr.Zdy on 2017/10/23.
- */
 object ApiManager {
 
     var okHttpClient = OkHttpClient()
@@ -16,7 +12,6 @@ object ApiManager {
 
     object UrlPath {
         var CLASS_MAPPING = getHost() + "wechat/class/mapping"
-        var ERROR_RECEIVER = getHost() + "wechat/error/receiver"
         var HOME_INFO = getHost() + "wechat/home/info"
         var USER_STATISTICS = getHost() + "wechat/user/statistics"
     }
@@ -48,13 +43,12 @@ object ApiManager {
 
             override fun onResponse(call: Call?, response: Response?) {
                 val string = response?.body()?.string()
-                Log.v(string, string)
                 sendTime = System.currentTimeMillis()
             }
         })
     }
 
-    public fun sendRequestForHomeInfo(helpVersion: String, callback: Callback) {
+    fun sendRequestForHomeInfo(helpVersion: String, callback: Callback) {
 
         val requestBody = FormBody.Builder()
                 .add("versionCode", helpVersion)

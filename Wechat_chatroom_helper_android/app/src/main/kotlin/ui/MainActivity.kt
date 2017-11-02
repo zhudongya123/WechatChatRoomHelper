@@ -1,6 +1,6 @@
 package ui
 
-import android.app.Activity
+import android.Manifest
 import android.app.AlertDialog
 import android.content.Context
 import android.content.SharedPreferences
@@ -14,6 +14,7 @@ import android.preference.EditTextPreference
 import android.preference.Preference
 import android.preference.PreferenceFragment
 import android.preference.SwitchPreference
+import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
@@ -23,24 +24,22 @@ import android.webkit.WebView
 import android.widget.*
 import com.google.gson.JsonParser
 import com.zdy.project.wechat_chatroom_helper.Constants
+import com.zdy.project.wechat_chatroom_helper.Constants.WRITE_EXTERNAL_STORAGE_RESULT_CODE
 import com.zdy.project.wechat_chatroom_helper.R
 import network.ApiManager
 import okhttp3.*
 import java.io.IOException
 
-/**
- * Created by Mr.Zdy on 2017/10/17.
- */
 class MainActivity : AppCompatActivity() {
 
-    private var thisActivity: Activity? = null
+    private lateinit var thisActivity: MainActivity
 
-    private var settingFragment: SettingFragment? = null
-    private var sharedPreferences: SharedPreferences? = null
+    private lateinit var settingFragment: SettingFragment
+    private lateinit var sharedPreferences: SharedPreferences
 
-    private var textView: TextView? = null
-    private var clickMe: Button? = null
-    private var detail: TextView? = null
+    private lateinit var textView: TextView
+    private lateinit var clickMe: Button
+    private lateinit var detail: TextView
 
     internal var alertDialog: AlertDialog? = null
 
@@ -48,7 +47,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         thisActivity = this@MainActivity
-
         setContentView(R.layout.activity_main)
 
         textView = findViewById(R.id.textView) as TextView
@@ -63,8 +61,8 @@ class MainActivity : AppCompatActivity() {
 
         fragmentManager.beginTransaction().replace(fragmentContent.id, settingFragment).commit()
 
-
-        val callback = object : Callback {
+        ApiManager.sendRequestForHomeInfo(
+                getHelperVersionCode(this@MainActivity).toString(), object : Callback {
             override fun onResponse(call: Call?, response: Response) {
                 val result = response.body()?.string()
                 this@MainActivity.runOnUiThread {
@@ -75,43 +73,48 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call?, e: IOException?) {}
-        }
+        })
 
-        ApiManager.sendRequestForHomeInfo(
-                getHelperVersionCode(this@MainActivity).toString(), callback)
-
-        clickMe!!.setOnClickListener { if (alertDialog != null) alertDialog!!.show() }
+        clickMe.setOnClickListener { if (alertDialog != null) alertDialog!!.show() }
 
         //是否已经适配了合适的数据 的标记
-        val has_suit_wechat_data = sharedPreferences!!.getBoolean("has_suit_wechat_data", false)
+        val hasSuitWechatData = sharedPreferences.getBoolean("has_suit_wechat_data", false)
 
         //play开关是否打开 的标记
-        val play_version = sharedPreferences!!.getBoolean("play_version", false)
+        val playVersion = sharedPreferences.getBoolean("play_version", false)
 
         //当前主程序的版本号
-        val helper_versionCode = sharedPreferences!!.getInt("helper_versionCode", 0)
+        val helperVersionCode = sharedPreferences.getInt("helper_versionCode", 0)
 
         //当前保存的微信版本号
-        val wechat_version = sharedPreferences!!.getInt("wechat_version", 0)
+        val wechatVersion = sharedPreferences.getInt("wechat_version", 0)
 
         val wechatVersionCode = getWechatVersionCode()
 
         //如果没有适合的数据，或者刚刚更新了主程序版本
-        if (wechatVersionCode != wechat_version && wechat_version != 0 || !has_suit_wechat_data
-                || helper_versionCode != getHelperVersionCode(this)) {
+        if (wechatVersionCode != wechatVersion && wechatVersion != 0 || !hasSuitWechatData
+                || helperVersionCode != getHelperVersionCode(this)) {
 
             //则发送数据请求
-            sendRequest(wechatVersionCode, play_version)
+            sendRequest(wechatVersionCode, playVersion)
         } else {
 
             //否则则取出上次保存的合适的信息
-            detail!!.setTextColor(0xFF888888.toInt())
-            detail!!.text = sharedPreferences!!.getString("show_info", "")
+            detail.setTextColor(0xFF888888.toInt())
+            detail.text = sharedPreferences.getString("show_info", "")
         }
 
     }
 
-    private fun sendRequest(versionCode: Int, play_version: Boolean): Unit {
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+
+        ActivityCompat.requestPermissions(thisActivity,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), WRITE_EXTERNAL_STORAGE_RESULT_CODE)
+
+    }
+
+    private fun sendRequest(versionCode: Int, play_version: Boolean) {
 
         val requestBody = FormBody.Builder()
                 .add("versionCode", versionCode.toString())
@@ -138,7 +141,7 @@ class MainActivity : AppCompatActivity() {
                     val code = jsonObject.get("code").asInt
                     val msg = jsonObject.get("msg").asString
 
-                    val edit = sharedPreferences!!.edit()
+                    val edit = sharedPreferences.edit()
                     if (code == 0) {
                         edit.putString("json", jsonObject.get("data").toString())
                         setSuccessText(msg)
@@ -148,7 +151,7 @@ class MainActivity : AppCompatActivity() {
                         setFailText(msg)
                     }
 
-                    edit.putInt("helper_versionCode", getHelperVersionCode(thisActivity!!))
+                    edit.putInt("helper_versionCode", getHelperVersionCode(thisActivity))
                     edit.apply()
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -160,28 +163,24 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun setFailText(msg: String): Unit {
+    private fun setFailText(msg: String) {
+        runOnUiThread {
+            detail.text = msg
+            detail.setTextColor(0xFFFF0000.toInt())
 
-        runOnUiThread(object : Runnable {
-            override fun run() {
-                detail!!.text = msg
-                detail!!.setTextColor(0xFFFF0000.toInt())
-
-
-                val edit = sharedPreferences!!.edit()
-                edit!!.putBoolean("has_suit_wechat_data", false)
-                        .putString("show_info", msg)
-                edit.apply()
-            }
-        })
+            val edit = sharedPreferences.edit()
+            edit!!.putBoolean("has_suit_wechat_data", false)
+                    .putString("show_info", msg)
+            edit.apply()
+        }
     }
 
     private fun setSuccessText(msg: String) {
         runOnUiThread {
-            detail!!.setTextColor(0xFF888888.toInt())
-            detail!!.text = msg
+            detail.setTextColor(0xFF888888.toInt())
+            detail.text = msg
 
-            val edit = sharedPreferences!!.edit()
+            val edit = sharedPreferences.edit()
             edit.putBoolean("has_suit_wechat_data", true)
             edit.putInt("wechat_version", getWechatVersionCode())
             edit.putString("show_info", msg)
@@ -197,7 +196,7 @@ class MainActivity : AppCompatActivity() {
         try {
             for (packageInfo in list) {
                 if (packageInfo.packageName == Constants.WECHAT_PACKAGE_NAME) {
-                    wechatVersionCode = if (packageInfo.versionName.equals("6.5.14")) 1101
+                    wechatVersionCode = if (packageInfo.versionName == "6.5.14") 1101
                     else packageInfo.versionCode
                     break
                 }
@@ -210,7 +209,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getHelperVersionCode(context: Context): Int {
-
         val packageManager = context.packageManager as PackageManager
         var versionCode = 0
 
@@ -236,7 +234,7 @@ class MainActivity : AppCompatActivity() {
             setCheckPlayVersion(playVersion)
         }
 
-        private fun setCheckPlayVersion(play_version: SwitchPreference): Unit {
+        private fun setCheckPlayVersion(play_version: SwitchPreference) {
 
             play_version.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
                 val activity = activity as MainActivity
@@ -246,7 +244,7 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        private fun setToolbarColor(preference: EditTextPreference): Unit {
+        private fun setToolbarColor(preference: EditTextPreference) {
 
             val watcher = PreferenceTextWatcher(preference)
             preference.onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
@@ -292,8 +290,8 @@ class MainActivity : AppCompatActivity() {
             return Color.parseColor("#" + colorString!!)
         }
 
-        private inner class PreferenceTextWatcher
-        internal constructor(internal var preference: EditTextPreference) : TextWatcher {
+        private inner class PreferenceTextWatcher internal
+        constructor(internal var preference: EditTextPreference) : TextWatcher {
 
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
 
