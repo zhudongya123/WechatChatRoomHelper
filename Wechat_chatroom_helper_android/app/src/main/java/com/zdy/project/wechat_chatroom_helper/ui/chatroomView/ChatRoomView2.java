@@ -23,8 +23,9 @@ import android.widget.Toolbar;
 
 import com.zdy.project.wechat_chatroom_helper.HookLogic;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
-import com.zdy.project.wechat_chatroom_helper.network.ApiManager;
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout;
+import network.ApiManager;
+
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
@@ -145,13 +146,13 @@ public class ChatRoomView2 implements ChatRoomContract.View {
     @Override
     public void show(int offest) {
         swipeBackLayout.closePane();
-        ApiManager.getINSTANCE().sendRequestForUserStatistics("open", uuid, Build.MODEL);
+        ApiManager.INSTANCE.sendRequestForUserStatistics("open", uuid, Build.MODEL);
     }
 
     @Override
     public void dismiss(int offest) {
         swipeBackLayout.openPane();
-        ApiManager.getINSTANCE().sendRequestForUserStatistics("close", uuid, Build.MODEL);
+        ApiManager.INSTANCE.sendRequestForUserStatistics("close", uuid, Build.MODEL);
     }
 
 

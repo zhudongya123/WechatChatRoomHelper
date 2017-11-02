@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.kt.network
+package network
 
 import android.util.Log
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils
@@ -10,7 +10,7 @@ import java.io.IOException
  */
 object ApiManager {
 
-    private var okHttpClient = OkHttpClient()
+    var okHttpClient = OkHttpClient()
     private var sendTime: Long = 0
 
 
@@ -26,8 +26,7 @@ object ApiManager {
         return "http://116.62.247.71:8080/"
     }
 
-
-    public fun sendRequestForUserStatistics(action: String, uuid: String, model: String): Unit {
+    fun sendRequestForUserStatistics(action: String, uuid: String, model: String) {
 
         if (System.currentTimeMillis() - sendTime < 60000) return
 
@@ -43,7 +42,7 @@ object ApiManager {
                 .post(requestBody)
                 .build()
 
-        ApiManager.okHttpClient.newCall(request).enqueue(object : Callback {
+        okHttpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call?, e: IOException?) {
             }
 
@@ -66,7 +65,7 @@ object ApiManager {
                 .post(requestBody)
                 .build()
 
-        ApiManager.okHttpClient.newCall(request).enqueue(callback)
+        okHttpClient.newCall(request).enqueue(callback)
     }
 
 }

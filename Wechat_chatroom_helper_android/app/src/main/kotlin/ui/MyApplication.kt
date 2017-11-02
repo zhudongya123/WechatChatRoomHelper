@@ -1,8 +1,7 @@
-package com.zdy.project.wechat_chatroom_helper.kt.ui
+package ui
 
 import android.app.Application
 import com.tencent.bugly.Bugly
-import com.zdy.project.wechat_chatroom_helper.ui.MyApplication
 
 /**
  * Created by Mr.Zdy on 2017/10/19.
@@ -19,9 +18,9 @@ class MyApplication : Application() {
     }
 
     companion object {
-        private var instance: com.zdy.project.wechat_chatroom_helper.kt.ui.MyApplication? = null
+        private var instance: MyApplication? = null
 
-        fun get(): com.zdy.project.wechat_chatroom_helper.kt.ui.MyApplication {
+        fun get(): MyApplication {
             return instance!!
         }
 

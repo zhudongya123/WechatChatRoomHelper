@@ -5,6 +5,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.zdy.project.wechat_chatroom_helper.Constants;
 
+import java.io.File;
+
 import de.robv.android.xposed.XSharedPreferences;
 
 public class PreferencesUtils {
@@ -13,7 +15,8 @@ public class PreferencesUtils {
 
     private static XSharedPreferences getInstance() {
         if (instance == null) {
-            instance = new XSharedPreferences("com.zdy.project.wechat_chatroom_helper");
+            instance = new XSharedPreferences(new File("data/data/com.zdy.project.wechat_chatroom_helper/" +
+                    "shared_prefs/com.zdy.project.wechat_chatroom_helper_preferences.xml"));
             instance.makeWorldReadable();
         } else {
             instance.reload();

@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.kt.ui
+package ui
 
 import android.app.Activity
 import android.app.AlertDialog
@@ -24,7 +24,7 @@ import android.widget.*
 import com.google.gson.JsonParser
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
-import com.zdy.project.wechat_chatroom_helper.network.ApiManager
+import network.ApiManager
 import okhttp3.*
 import java.io.IOException
 
@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
             override fun onFailure(call: Call?, e: IOException?) {}
         }
 
-        ApiManager.getINSTANCE().sendRequestForHomeInfo(
+        ApiManager.sendRequestForHomeInfo(
                 getHelperVersionCode(this@MainActivity).toString(), callback)
 
         clickMe!!.setOnClickListener { if (alertDialog != null) alertDialog!!.show() }
@@ -122,7 +122,7 @@ class MainActivity : AppCompatActivity() {
                 .post(requestBody)
                 .build()
 
-        ApiManager.getINSTANCE().client.newCall(request).enqueue(object : Callback {
+        ApiManager.okHttpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call?, e: IOException?) {
 
             }
