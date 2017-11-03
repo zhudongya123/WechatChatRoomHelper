@@ -15,8 +15,7 @@ public class PreferencesUtils {
 
     private static XSharedPreferences getInstance() {
         if (instance == null) {
-            instance = new XSharedPreferences(new File("data/data/com.zdy.project.wechat_chatroom_helper/" +
-                    "shared_prefs/com.zdy.project.wechat_chatroom_helper_preferences.xml"));
+
             instance.makeWorldReadable();
         } else {
             instance.reload();
