@@ -26,6 +26,7 @@ import com.google.gson.JsonParser
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.Constants.WRITE_EXTERNAL_STORAGE_RESULT_CODE
 import com.zdy.project.wechat_chatroom_helper.R
+import manager.PermissionHelper
 import network.ApiManager
 import okhttp3.*
 import java.io.IOException
@@ -41,7 +42,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var clickMe: Button
     private lateinit var detail: TextView
 
-    internal var alertDialog: AlertDialog? = null
+    private lateinit var alertDialog: AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +56,7 @@ class MainActivity : AppCompatActivity() {
 
         val fragmentContent: FrameLayout = findViewById(R.id.fragment_content) as FrameLayout
 
-        sharedPreferences = getSharedPreferences(this.packageName + "_preferences", Context.MODE_WORLD_READABLE)
+        sharedPreferences = getSharedPreferences(this.packageName + "_preferences", Context.MODE_PRIVATE)
 
         settingFragment = SettingFragment()
 
@@ -75,7 +76,7 @@ class MainActivity : AppCompatActivity() {
             override fun onFailure(call: Call?, e: IOException?) {}
         })
 
-        clickMe.setOnClickListener { if (alertDialog != null) alertDialog!!.show() }
+        clickMe.setOnClickListener { alertDialog.show() }
 
         //是否已经适配了合适的数据 的标记
         val hasSuitWechatData = sharedPreferences.getBoolean("has_suit_wechat_data", false)
@@ -104,15 +105,21 @@ class MainActivity : AppCompatActivity() {
             detail.text = sharedPreferences.getString("show_info", "")
         }
 
+        permissionHelper = PermissionHelper.check(thisActivity)
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
+    private var permissionHelper: PermissionHelper? = null
 
-        ActivityCompat.requestPermissions(thisActivity,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), WRITE_EXTERNAL_STORAGE_RESULT_CODE)
-
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        permissionHelper?.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
+
+    override fun onRestart() {
+        super.onRestart()
+        permissionHelper = PermissionHelper.check(thisActivity)
+    }
+
 
     private fun sendRequest(versionCode: Int, play_version: Boolean) {
 
@@ -224,7 +231,7 @@ class MainActivity : AppCompatActivity() {
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            preferenceManager.sharedPreferencesMode = Context.MODE_WORLD_READABLE
+            preferenceManager.sharedPreferencesMode = Context.MODE_PRIVATE
             addPreferencesFromResource(R.xml.pref_setting)
 
             val toolbarColor = findPreference("toolbar_color") as EditTextPreference

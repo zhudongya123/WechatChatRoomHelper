@@ -1,6 +1,7 @@
 package utils
 
 import android.os.Environment
+import android.util.Log
 import java.io.File
 
 /**
@@ -10,6 +11,9 @@ class FileUtils {
 
     companion object {
         fun init() {
+
+            Log.v("FileUtils", "init")
+
             val externalStorageDirectory = Environment.getExternalStorageDirectory()
 
             val folder = File(externalStorageDirectory.absolutePath + "/WechatChatroomHelper")
