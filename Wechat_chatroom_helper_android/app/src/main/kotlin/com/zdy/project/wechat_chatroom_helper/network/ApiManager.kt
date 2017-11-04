@@ -1,7 +1,7 @@
 package network
 
-import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils
 import okhttp3.*
+import utils.AppSaveInfoUtils
 import java.io.IOException
 
 object ApiManager {
@@ -29,7 +29,7 @@ object ApiManager {
                 .add("action", action)
                 .add("uuidCode", uuid)
                 .add("model", model)
-                .add("version", PreferencesUtils.helper_versionCode().toString())
+                .add("version", AppSaveInfoUtils.helpVersionCodeInfo())
                 .build()
 
         val request = Request.Builder()

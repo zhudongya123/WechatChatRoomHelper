@@ -17,6 +17,7 @@
 package cn.bingoogolapple.swipebacklayout;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
@@ -51,6 +52,10 @@ class UIUtil {
             navigationBarHeight = resources.getDimensionPixelSize(resourceId);
         }
         return navigationBarHeight;
+    }
+    public static int dip2px(Context context, float dipValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dipValue * scale + 0.5f);
     }
 
     /**

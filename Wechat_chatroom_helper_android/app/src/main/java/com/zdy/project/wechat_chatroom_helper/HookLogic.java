@@ -25,7 +25,6 @@ import android.widget.ImageView;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomRecyclerViewAdapter;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter;
-import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
 
 import java.util.ArrayList;
 
@@ -34,6 +33,7 @@ import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
+import utils.AppSaveInfoUtils;
 
 import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_Adapter_OnItemClickListener_Name;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_Name;
@@ -115,7 +115,9 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         mClassLoader = loadPackageParam.classLoader;
 
-        if (!PreferencesUtils.initVariableName()) return;//判断是否获取了配置
+        if (!AppSaveInfoUtils.Companion.initVariableName()) return;//判断是否获取了配置
+
+        if (!AppSaveInfoUtils.Companion.openInfo()) return;
 
         XposedHelpers.findAndHookMethod(Class_Tencent_Home_UI, loadPackageParam.classLoader, Method_Home_UI_Inflater_View,
                 Intent.class, new XC_MethodHook() {
@@ -236,19 +238,18 @@ public class HookLogic implements IXposedHookLoadPackage {
                             if (!isInChatting) {
 
                                 if (muteChatRoomViewPresenter.isShowing()) {
-                                    //     XposedBridge.log("dispatchKeyEvent, muteChatRoomViewPresenter.isShowing");
+                                    XposedBridge.log("dispatchKeyEvent, muteChatRoomViewPresenter.isShowing");
                                     muteChatRoomViewPresenter.dismiss();
                                     param.setResult(true);
                                 }
 
                                 if (officialChatRoomViewPresenter.isShowing()) {
-                                    //      XposedBridge.log("dispatchKeyEvent, officialChatRoomViewPresenter
-                                    // .isShowing");
+                                    XposedBridge.log("dispatchKeyEvent, officialChatRoomViewPresenter.isShowing");
                                     officialChatRoomViewPresenter.dismiss();
                                     param.setResult(true);
                                 }
                             } else {
-                                //      XposedBridge.log("dispatchKeyEvent, isInChatting");
+                                XposedBridge.log("dispatchKeyEvent, isInChatting");
 
                             }
                         }
@@ -297,7 +298,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
 
     private void hookOnItemClick(final XC_MethodHook.MethodHookParam param) {
-        if (!PreferencesUtils.open()) return;
 
         final View view = (View) param.args[1];
         int position = (int) param.args[2];
@@ -322,7 +322,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     XposedHelpers.callMethod(param.thisObject, "onItemClick"
                             , param.args[0], view, relativePosition + headerViewsCount, id);
 
-                    if (PreferencesUtils.auto_close())
+                    if (AppSaveInfoUtils.Companion.autoCloseInfo())
                         muteChatRoomViewPresenter.dismiss();
                 }
             });
@@ -340,7 +340,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     XposedHelpers.callMethod(param.thisObject, "onItemClick"
                             , param.args[0], view, relativePosition + headerViewsCount, id);
 
-                    if (PreferencesUtils.auto_close())
+                    if (AppSaveInfoUtils.Companion.autoCloseInfo())
                         officialChatRoomViewPresenter.dismiss();
                 }
             });
@@ -350,7 +350,6 @@ public class HookLogic implements IXposedHookLoadPackage {
     }
 
     private void hookGetView(XC_MethodHook.MethodHookParam param) {
-        if (!PreferencesUtils.open()) return;
 
         int position = (int) param.args[0];
         View itemView = (View) param.args[1];
@@ -454,7 +453,6 @@ public class HookLogic implements IXposedHookLoadPackage {
     }
 
     private void hookGetObject(XC_MethodHook.MethodHookParam param) {
-        if (!PreferencesUtils.open()) return;//开关
 
         int index = (int) param.args[0];//要取的数据下标
 
@@ -479,7 +477,6 @@ public class HookLogic implements IXposedHookLoadPackage {
     }
 
     private void hookGetCount(XC_MethodHook.MethodHookParam param) {
-        if (!PreferencesUtils.open()) return;//开关
 
         int result = (int) param.getResult();//原有会话数量
 
@@ -631,7 +628,7 @@ public class HookLogic implements IXposedHookLoadPackage {
         paint.setXfermode(null);
 
 
-        if (PreferencesUtils.getCircleAvatar()) {
+        if (AppSaveInfoUtils.Companion.isCircleAvatarInfo()) {
             paint.setColor(0xFF12B7F6);
             canvas.drawCircle(size / 2, size / 2, size / 2, paint);
         } else {
@@ -676,7 +673,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         paint.setXfermode(null);
 
-        if (PreferencesUtils.getCircleAvatar()) {
+        if (AppSaveInfoUtils.Companion.isCircleAvatarInfo()) {
             paint.setColor(0xFFF5CB00);
             paint.setStrokeWidth(0);
             paint.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -703,7 +700,6 @@ public class HookLogic implements IXposedHookLoadPackage {
      * 即为原数据
      */
     public static Object getMessageBeanForOriginIndex(Object adapter, int index) {
-        //  try {
         Object tMb = XposedHelpers.getObjectField(adapter, Method_Adapter_Get_Object_Step_1);
 
         Object hdB = XposedHelpers.getObjectField(tMb, Method_Adapter_Get_Object_Step_2);
@@ -711,10 +707,6 @@ public class HookLogic implements IXposedHookLoadPackage {
         Object bean = XposedHelpers.callMethod(hdB, Method_Adapter_Get_Object_Step_3, index);
 
         return bean;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return null;
-//        }
     }
 
     private void hookLog(XC_LoadPackage.LoadPackageParam loadPackageParam) {
@@ -722,7 +714,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                 String.class, String.class, Object[].class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (!PreferencesUtils.open()) return;
+                        if (!AppSaveInfoUtils.Companion.openInfo()) return;
 
                         //无奈之举，只能使用拦截日志的做法来实现部分功能
                         Object arg = param.args[1];
@@ -749,11 +741,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                                     officialChatRoomViewPresenter.setMessageRefresh(sendUsername);
                                 }
                             }
-
-
-//                            String desc = (String) param.args[0];
-//                            String value = (String) param.args[1];
-//                            XposedBridge.log("XposedLogi, desc = " + desc + ", value = " + value);
 
                         }
                     }

@@ -21,16 +21,15 @@ import com.zdy.project.wechat_chatroom_helper.Constants.*
 import com.zdy.project.wechat_chatroom_helper.HookLogic
 import com.zdy.project.wechat_chatroom_helper.HookLogic.getMessageBeanForOriginIndex
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity
-import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomRecyclerViewAdapter
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter
-import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import de.robv.android.xposed.callbacks.XC_LoadPackage
 import de.robv.android.xposed.XposedHelpers.*
-import java.util.ArrayList
+import de.robv.android.xposed.callbacks.XC_LoadPackage
+import utils.AppSaveInfoUtils
+import java.util.*
 
 /**
  * Created by Mr.Zdy on 2017/10/23.
@@ -80,7 +79,7 @@ class HookWeChatKT : IXposedHookLoadPackage {
 
         mClassLoader = param.classLoader
 
-        if (!PreferencesUtils.initVariableName()) return //判断是否获取了配置
+        if (!AppSaveInfoUtils.initVariableName()) return //判断是否获取了配置
 
         findAndHookMethod(Class_Tencent_Home_UI, param.classLoader, Method_Home_UI_Inflater_View,
                 Intent::class.java, object : XC_MethodHook() {
@@ -184,7 +183,7 @@ class HookWeChatKT : IXposedHookLoadPackage {
 
 
     private fun hookOnItemClick(param: XC_MethodHook.MethodHookParam) {
-        if (!PreferencesUtils.open()) return
+        if (!AppSaveInfoUtils.openInfo()) return
 
         val view = param.args[1] as View
         var position = param.args[2] as Int
@@ -206,7 +205,7 @@ class HookWeChatKT : IXposedHookLoadPackage {
                 clickChatRoomFlag = true
                 XposedHelpers.callMethod(param.thisObject, "onItemClick", param.args[0], view, relativePosition + headerViewsCount, id)
 
-                if (PreferencesUtils.auto_close())
+                if (AppSaveInfoUtils.autoCloseInfo())
                     muteChatRoomViewPresenter?.dismiss()
             })
             muteChatRoomViewPresenter?.show()
@@ -219,7 +218,7 @@ class HookWeChatKT : IXposedHookLoadPackage {
                 clickChatRoomFlag = true
                 XposedHelpers.callMethod(param.thisObject, "onItemClick", param.args[0], view, relativePosition + headerViewsCount, id)
 
-                if (PreferencesUtils.auto_close())
+                if (AppSaveInfoUtils.autoCloseInfo())
                     officialChatRoomViewPresenter?.dismiss()
             })
             officialChatRoomViewPresenter?.show()
@@ -228,7 +227,7 @@ class HookWeChatKT : IXposedHookLoadPackage {
     }
 
     private fun hookGetView(param: XC_MethodHook.MethodHookParam) {
-        if (!PreferencesUtils.open()) return
+        if (!AppSaveInfoUtils.openInfo()) return
 
         val position = param.args[0] as Int
         val itemView = param.args[1] as View
@@ -331,7 +330,7 @@ class HookWeChatKT : IXposedHookLoadPackage {
     }
 
     private fun hookGetObject(param: XC_MethodHook.MethodHookParam) {
-        if (!PreferencesUtils.open()) return //开关
+        if (!AppSaveInfoUtils.openInfo()) return //开关
 
         var index = param.args[0] as Int//要取的数据下标
 
@@ -356,7 +355,7 @@ class HookWeChatKT : IXposedHookLoadPackage {
     }
 
     private fun hookGetCount(param: XC_MethodHook.MethodHookParam) {
-        if (!PreferencesUtils.open()) return //开关
+        if (!AppSaveInfoUtils.openInfo()) return //开关
 
         val result = param.result as Int//原有会话数量
 

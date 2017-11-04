@@ -1,9 +1,10 @@
 package ui
 
-import android.Manifest
 import android.app.AlertDialog
+import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.SharedPreferences
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -14,21 +15,20 @@ import android.preference.EditTextPreference
 import android.preference.Preference
 import android.preference.PreferenceFragment
 import android.preference.SwitchPreference
-import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.webkit.WebView
 import android.widget.*
 import com.google.gson.JsonParser
 import com.zdy.project.wechat_chatroom_helper.Constants
-import com.zdy.project.wechat_chatroom_helper.Constants.WRITE_EXTERNAL_STORAGE_RESULT_CODE
 import com.zdy.project.wechat_chatroom_helper.R
 import manager.PermissionHelper
 import network.ApiManager
 import okhttp3.*
+import utils.AppSaveInfoUtils
+import utils.FileUtils
 import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
@@ -36,27 +36,44 @@ class MainActivity : AppCompatActivity() {
     private lateinit var thisActivity: MainActivity
 
     private lateinit var settingFragment: SettingFragment
-    private lateinit var sharedPreferences: SharedPreferences
 
     private lateinit var textView: TextView
     private lateinit var clickMe: Button
     private lateinit var detail: TextView
 
     private lateinit var alertDialog: AlertDialog
+    private lateinit var receiver: PermissionBroadCastReceiver
+
+
+    inner class PermissionBroadCastReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            bindView()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         thisActivity = this@MainActivity
+
+        receiver = PermissionBroadCastReceiver()
+        registerReceiver(receiver, IntentFilter(Constants.FILE_INIT_SUCCESS))
+
+        permissionHelper = PermissionHelper.check(thisActivity)
+
         setContentView(R.layout.activity_main)
 
         textView = findViewById(R.id.textView) as TextView
         clickMe = findViewById(R.id.button) as Button
         detail = findViewById(R.id.detail) as TextView
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(receiver)
+    }
+
+    private fun bindView() {
         val fragmentContent: FrameLayout = findViewById(R.id.fragment_content) as FrameLayout
-
-        sharedPreferences = getSharedPreferences(this.packageName + "_preferences", Context.MODE_PRIVATE)
 
         settingFragment = SettingFragment()
 
@@ -79,22 +96,23 @@ class MainActivity : AppCompatActivity() {
         clickMe.setOnClickListener { alertDialog.show() }
 
         //是否已经适配了合适的数据 的标记
-        val hasSuitWechatData = sharedPreferences.getBoolean("has_suit_wechat_data", false)
+        val hasSuitWechatData = AppSaveInfoUtils.hasSuitWechatDataInfo()
 
         //play开关是否打开 的标记
-        val playVersion = sharedPreferences.getBoolean("play_version", false)
+        val playVersion = AppSaveInfoUtils.isplayVersionInfo()
 
         //当前主程序的版本号
-        val helperVersionCode = sharedPreferences.getInt("helper_versionCode", 0)
+        val helperVersionCode = AppSaveInfoUtils.helpVersionCodeInfo()
 
         //当前保存的微信版本号
-        val wechatVersion = sharedPreferences.getInt("wechat_version", 0)
+        val wechatVersion = AppSaveInfoUtils.wechatVersionInfo()
 
+        //当前的微信版本号
         val wechatVersionCode = getWechatVersionCode()
 
         //如果没有适合的数据，或者刚刚更新了主程序版本
-        if (wechatVersionCode != wechatVersion && wechatVersion != 0 || !hasSuitWechatData
-                || helperVersionCode != getHelperVersionCode(this)) {
+        if (wechatVersionCode.toString() != wechatVersion && wechatVersion != "0" || !hasSuitWechatData
+                || helperVersionCode != getHelperVersionCode(this).toString()) {
 
             //则发送数据请求
             sendRequest(wechatVersionCode, playVersion)
@@ -102,10 +120,8 @@ class MainActivity : AppCompatActivity() {
 
             //否则则取出上次保存的合适的信息
             detail.setTextColor(0xFF888888.toInt())
-            detail.text = sharedPreferences.getString("show_info", "")
+            detail.text = AppSaveInfoUtils.showInfo()
         }
-
-        permissionHelper = PermissionHelper.check(thisActivity)
     }
 
     private var permissionHelper: PermissionHelper? = null
@@ -141,28 +157,25 @@ class MainActivity : AppCompatActivity() {
 
                 try {
                     val string = response!!.body()!!.string()
-                    Log.v("result = ", string)
 
                     val jsonObject = JsonParser().parse(string).asJsonObject
 
                     val code = jsonObject.get("code").asInt
                     val msg = jsonObject.get("msg").asString
 
-                    val edit = sharedPreferences.edit()
                     if (code == 0) {
-                        edit.putString("json", jsonObject.get("data").toString())
+                        FileUtils.putJsonValue("json", jsonObject.get("data").toString())
                         setSuccessText(msg)
 
                     } else {
-                        edit.putString("json", "")
+                        FileUtils.putJsonValue("json", "")
                         setFailText(msg)
                     }
 
-                    edit.putInt("helper_versionCode", getHelperVersionCode(thisActivity))
-                    edit.apply()
+                    FileUtils.putJsonValue("helper_versionCode", getHelperVersionCode(thisActivity).toString())
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    setFailText("从服务器获取数据失败，请联系开发者解决问题")
+                    setFailText("从服务器获取数据失败，请联系检查网络链接")
                 }
 
             }
@@ -175,10 +188,8 @@ class MainActivity : AppCompatActivity() {
             detail.text = msg
             detail.setTextColor(0xFFFF0000.toInt())
 
-            val edit = sharedPreferences.edit()
-            edit!!.putBoolean("has_suit_wechat_data", false)
-                    .putString("show_info", msg)
-            edit.apply()
+            FileUtils.putJsonValue("has_suit_wechat_data", false)
+            FileUtils.putJsonValue("show_info", msg)
         }
     }
 
@@ -187,11 +198,9 @@ class MainActivity : AppCompatActivity() {
             detail.setTextColor(0xFF888888.toInt())
             detail.text = msg
 
-            val edit = sharedPreferences.edit()
-            edit.putBoolean("has_suit_wechat_data", true)
-            edit.putInt("wechat_version", getWechatVersionCode())
-            edit.putString("show_info", msg)
-            edit.apply()
+            FileUtils.putJsonValue("has_suit_wechat_data", true)
+            FileUtils.putJsonValue("wechat_version", getWechatVersionCode().toString())
+            FileUtils.putJsonValue("show_info", msg)
         }
     }
 

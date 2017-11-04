@@ -9,7 +9,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
-import android.util.Log
 import com.zdy.project.wechat_chatroom_helper.Constants
 import utils.FileUtils
 
@@ -20,6 +19,7 @@ class PermissionHelper(private var activity: Activity) {
 
     companion object {
         fun check(activity: Activity): PermissionHelper? {
+
             if (ContextCompat.checkSelfPermission(activity,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
@@ -35,9 +35,10 @@ class PermissionHelper(private var activity: Activity) {
 
                 return permissionHelper
             } else {
-                FileUtils.init()
+                FileUtils.init(activity)
+                return null
             }
-            return null
+
         }
     }
 
@@ -80,7 +81,7 @@ class PermissionHelper(private var activity: Activity) {
             Constants.WRITE_EXTERNAL_STORAGE_RESULT_CODE -> {
                 if (grantResults.isNotEmpty()
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    FileUtils.init()
+                    FileUtils.init(activity)
                 } else {
                     settingDialog.show()
                 }
