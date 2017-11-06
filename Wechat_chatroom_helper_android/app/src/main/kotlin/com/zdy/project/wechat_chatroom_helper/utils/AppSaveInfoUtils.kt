@@ -23,6 +23,8 @@ import com.zdy.project.wechat_chatroom_helper.Constants
         var WECHAT_VERSION = "wechat_version"
         var JSON = "json"
 
+        var CHAT_ROOM_TYPE = "chatRoom_type"
+
         fun openInfo(): Boolean {
             return FileUtils.getJsonValue(OPEN, true)
         }
@@ -57,6 +59,14 @@ import com.zdy.project.wechat_chatroom_helper.Constants
 
         fun wechatVersionInfo(): String {
             return FileUtils.getJsonValue(WECHAT_VERSION, "0")
+        }
+
+        fun chatRoomTypeInfo(): String {
+            return FileUtils.getJsonValue(CHAT_ROOM_TYPE, "2")
+        }
+
+        fun setChatRoomType(value: String) {
+            FileUtils.putJsonValue(CHAT_ROOM_TYPE, value)
         }
 
 

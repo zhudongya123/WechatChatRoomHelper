@@ -13,6 +13,7 @@ import com.zdy.project.wechat_chatroom_helper.R;
 
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout;
 
+import com.zdy.project.wechat_chatroom_helper.ui.ConfigChatRoomDialog;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 /**
@@ -40,7 +41,11 @@ public class TestActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Log.v("TestActivity", "button onClick");
-                swipeBackLayout.closePane();
+             //   swipeBackLayout.closePane();
+
+                ConfigChatRoomDialog configChatRoomDialog = new ConfigChatRoomDialog(TestActivity.this);
+                configChatRoomDialog.show();
+
             }
         });
         View mainView = new View(this);

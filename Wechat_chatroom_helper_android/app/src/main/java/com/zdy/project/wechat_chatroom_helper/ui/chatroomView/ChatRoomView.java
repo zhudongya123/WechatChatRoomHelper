@@ -1,8 +1,7 @@
 package com.zdy.project.wechat_chatroom_helper.ui.chatroomView;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
@@ -23,6 +22,7 @@ import android.widget.Toolbar;
 
 import com.zdy.project.wechat_chatroom_helper.HookLogic;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
+import com.zdy.project.wechat_chatroom_helper.ui.ConfigChatRoomDialog;
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
@@ -30,6 +30,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout;
+import de.robv.android.xposed.XposedHelpers;
 import network.ApiManager;
 import utils.AppSaveInfoUtils;
 
@@ -261,12 +262,18 @@ public class ChatRoomView implements ChatRoomContract.View {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_MAIN);
-                intent.addCategory(Intent.CATEGORY_LAUNCHER);
-                ComponentName cn = new ComponentName("com.zdy.project.wechat_chatroom_helper",
-                        "com.zdy.project.wechat_chatroom_helper.com.zdy.project.wechat_chatroom_helper.MainActivity");
-                intent.setComponent(cn);
-                mContext.startActivity(intent);
+                if (title.equals("群消息助手")) {
+                    ConfigChatRoomDialog configChatRoomDialog = new ConfigChatRoomDialog(mContext);
+                    configChatRoomDialog.show();
+
+                    configChatRoomDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            dismiss();
+                            XposedHelpers.callMethod(mPresenter.getOriginAdapter(), "notifyDataSetChanged");
+                        }
+                    });
+                }
             }
         });
 

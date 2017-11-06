@@ -250,7 +250,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 }
                             } else {
                                 XposedBridge.log("dispatchKeyEvent, isInChatting");
-
                             }
                         }
                     }
@@ -303,7 +302,6 @@ public class HookLogic implements IXposedHookLoadPackage {
         int position = (int) param.args[2];
         final long id = (long) param.args[3];
 
-
         //移除頭部View的position
         Object listView = XposedHelpers.getObjectField(param.thisObject, Value_ListView);
         final int headerViewsCount = (int) XposedHelpers.callMethod(listView, "getHeaderViewsCount");
@@ -322,8 +320,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     XposedHelpers.callMethod(param.thisObject, "onItemClick"
                             , param.args[0], view, relativePosition + headerViewsCount, id);
 
-                    if (AppSaveInfoUtils.Companion.autoCloseInfo())
-                        muteChatRoomViewPresenter.dismiss();
+                    if (AppSaveInfoUtils.Companion.autoCloseInfo()) muteChatRoomViewPresenter.dismiss();
                 }
             });
             muteChatRoomViewPresenter.show();
@@ -340,8 +337,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     XposedHelpers.callMethod(param.thisObject, "onItemClick"
                             , param.args[0], view, relativePosition + headerViewsCount, id);
 
-                    if (AppSaveInfoUtils.Companion.autoCloseInfo())
-                        officialChatRoomViewPresenter.dismiss();
+                    if (AppSaveInfoUtils.Companion.autoCloseInfo()) officialChatRoomViewPresenter.dismiss();
                 }
             });
             officialChatRoomViewPresenter.show();
@@ -601,7 +597,9 @@ public class HookLogic implements IXposedHookLoadPackage {
         boolean uyI = XposedHelpers.getBooleanField(messageStatus, Value_Message_Status_Is_Mute_1);
         boolean uXX = XposedHelpers.getBooleanField(messageStatus, Value_Message_Status_Is_Mute_2);
 
-        return uyI && uXX;
+
+        if (AppSaveInfoUtils.Companion.chatRoomTypeInfo().equals("1")) return uXX;
+        else return uyI && uXX;
     }
 
     //自造群消息助手头像
