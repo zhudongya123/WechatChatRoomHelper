@@ -1,5 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.ui.chatroomView;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
@@ -7,6 +8,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Handler;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -19,9 +21,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.Toolbar;
 
 import com.zdy.project.wechat_chatroom_helper.HookLogic;
+import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.ConfigChatRoomDialog;
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils;
@@ -170,7 +174,7 @@ public class ChatRoomView implements ChatRoomContract.View {
         new Handler(mContext.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                ArrayList data = mAdapter.getData();
+                ArrayList<ChatInfoModel> data = mAdapter.getData();
                 for (int i = 0; i < data.size(); i++) {
                     Object item = data.get(i);
                     MessageEntity entity = new MessageEntity(item);
@@ -179,7 +183,7 @@ public class ChatRoomView implements ChatRoomContract.View {
                         Object object = HookLogic.getMessageBeanForOriginIndex(mPresenter.getOriginAdapter(),
                                 mAdapter.getMuteListInAdapterPositions().get(i));
 
-                        data.set(i, object);
+                        data.set(i, ChatInfoModel.Companion.convertFromObject(object, mPresenter.getOriginAdapter(), mContext));
                         mAdapter.setData(data);
                         mAdapter.notifyItemChanged(i);
                     }
@@ -191,11 +195,12 @@ public class ChatRoomView implements ChatRoomContract.View {
 
     @Override
     public void showMessageRefresh(ArrayList<Integer> muteListInAdapterPositions) {
-        ArrayList<Object> data = new ArrayList<>();
+        ArrayList<ChatInfoModel> data = new ArrayList<>();
         for (Integer muteListInAdapterPosition : muteListInAdapterPositions) {
             Object object = HookLogic.getMessageBeanForOriginIndex(mPresenter.getOriginAdapter(),
                     muteListInAdapterPosition);
-            data.add(object);
+
+            data.add(ChatInfoModel.Companion.convertFromObject(object, mPresenter.getOriginAdapter(), mContext));
         }
 
         mAdapter.setMuteListInAdapterPositions(muteListInAdapterPositions);
@@ -273,16 +278,40 @@ public class ChatRoomView implements ChatRoomContract.View {
                         break;
                     case CHATROOM:
                         ConfigChatRoomDialog configChatRoomDialog = new ConfigChatRoomDialog(mContext);
-                        configChatRoomDialog.show();
-
-                        configChatRoomDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        configChatRoomDialog.setOnModeChangedListener(new ConfigChatRoomDialog.OnModeChangedListener() {
                             @Override
-                            public void onDismiss(DialogInterface dialog) {
-                                dismiss();
+                            public void onChanged() {
                                 XposedHelpers.callMethod(mPresenter.getOriginAdapter(), "notifyDataSetChanged");
                             }
                         });
+                        configChatRoomDialog.setOnWhiteListClickListener(new ConfigChatRoomDialog.OnWhiteListClickListener() {
+                            @Override
+                            public void onClick() {
+                                ChatRoomRecyclerViewAdapter adapter = (ChatRoomRecyclerViewAdapter) mRecyclerView.getAdapter();
+
+
+                                ArrayList<ChatInfoModel> data = adapter.getData();
+                                CharSequence[] arg = new String[data.size()];
+
+                                StringBuilder raw = new StringBuilder();
+                                for (int i = 0; i < data.size(); i++) {
+                                    arg[i] = data.get(i).getNickname();
+                                    raw.append(arg[i]).append("\n");
+                                }
+
+                                Toast.makeText(mContext, raw, Toast.LENGTH_SHORT).show();
+
+//                                Dialog alertDialog = new Dialog(mContext);
+//                                alertDialog.setTitle(raw);
+//                                alertDialog.show();
+
+                            }
+                        });
+                        configChatRoomDialog.show();
+
                         break;
+
+
                 }
             }
         });

@@ -21,6 +21,9 @@ class ConfigChatRoomDialog(private var mContext: Context) : Dialog(mContext) {
     private lateinit var radioGroup: RadioGroup
     private lateinit var button: Button
 
+    private var onModeChangedListener: OnModeChangedListener? = null
+    private var onWhiteListClickListener: OnWhiteListClickListener? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(getContentView(mContext))
@@ -30,14 +33,28 @@ class ConfigChatRoomDialog(private var mContext: Context) : Dialog(mContext) {
             (radioGroup.findViewById(MUTE_CHAT_ROOM_ID) as RadioButton).isChecked = true
         } else (radioGroup.findViewById(ALL_CHAT_ROOM_ID) as RadioButton).isChecked = true
 
-        radioGroup.setOnCheckedChangeListener(object : RadioGroup.OnCheckedChangeListener {
-            override fun onCheckedChanged(group: RadioGroup?, checkedId: Int) {
-                if (AppSaveInfoUtils.chatRoomTypeInfo().toInt() != checkedId) {
-                    AppSaveInfoUtils.setChatRoomType(checkedId.toString())
-                    dismiss()
-                }
+        radioGroup.setOnCheckedChangeListener { _, checkedId ->
+            if (AppSaveInfoUtils.chatRoomTypeInfo().toInt() != checkedId) {
+                AppSaveInfoUtils.setChatRoomType(checkedId.toString())
+
+                if (onModeChangedListener != null)
+                    onModeChangedListener!!.onChanged()
             }
-        })
+        }
+
+        button.setOnClickListener {
+            if (onWhiteListClickListener != null)
+                onWhiteListClickListener!!.onClick()
+        }
+    }
+
+    fun setOnModeChangedListener(onModeChangedListener: OnModeChangedListener) {
+        this.onModeChangedListener = onModeChangedListener
+    }
+
+
+    fun setOnWhiteListClickListener(onWhiteListClickListener: OnWhiteListClickListener) {
+        this.onWhiteListClickListener = onWhiteListClickListener
     }
 
 
@@ -57,7 +74,7 @@ class ConfigChatRoomDialog(private var mContext: Context) : Dialog(mContext) {
         radioGroup = RadioGroup(context)
         val radioButton1 = RadioButton(context)
 
-        var layoutParams = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        val layoutParams = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         layoutParams.setMargins(0, 0, 0, padding)
         radioButton1.layoutParams = layoutParams
 
@@ -88,4 +105,14 @@ class ConfigChatRoomDialog(private var mContext: Context) : Dialog(mContext) {
     private var ALL_CHAT_ROOM_ID = 1
     @IdRes
     private var MUTE_CHAT_ROOM_ID = 2
+
+
+    interface OnModeChangedListener {
+        fun onChanged()
+    }
+
+    interface OnWhiteListClickListener {
+        fun onClick()
+    }
+
 }

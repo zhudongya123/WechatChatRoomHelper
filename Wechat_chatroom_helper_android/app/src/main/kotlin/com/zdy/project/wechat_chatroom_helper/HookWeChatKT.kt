@@ -21,6 +21,7 @@ import com.zdy.project.wechat_chatroom_helper.Constants.*
 import com.zdy.project.wechat_chatroom_helper.HookLogic
 import com.zdy.project.wechat_chatroom_helper.HookLogic.getMessageBeanForOriginIndex
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity
+import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomRecyclerViewAdapter
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodHook
@@ -106,9 +107,9 @@ class HookWeChatKT : IXposedHookLoadPackage {
 
             }
         })
-       findAndHookConstructor(Class_Conversation_List_View_Adapter_Name, param.classLoader,
+        findAndHookConstructor(Class_Conversation_List_View_Adapter_Name, param.classLoader,
                 Context::class.java, XposedHelpers.findClass(Method_Conversation_List_View_Adapter_Param,
-               param.classLoader), object : XC_MethodHook() {
+                param.classLoader), object : XC_MethodHook() {
             @Throws(Throwable::class)
             override fun afterHookedMethod(param: XC_MethodHook.MethodHookParam?) {
                 hookAdapterInit(param)
@@ -167,7 +168,7 @@ class HookWeChatKT : IXposedHookLoadPackage {
                 hookOnItemClick(param!!)
             }
         })
-        
+
     }
 
 
@@ -200,28 +201,33 @@ class HookWeChatKT : IXposedHookLoadPackage {
         //如果点击的是免打扰消息的入口，且不是在群消息助手里面所做的模拟点击（注意！此方法本身就为点击后的处理方法）
         if (position == firstMutePosition && !clickChatRoomFlag) {
 
-            muteChatRoomViewPresenter?.setMuteListInAdapterPositions(muteListInAdapterPositions)
-            muteChatRoomViewPresenter?.setOnDialogItemClickListener({ relativePosition ->
-                clickChatRoomFlag = true
-                XposedHelpers.callMethod(param.thisObject, "onItemClick", param.args[0], view, relativePosition + headerViewsCount, id)
+            muteChatRoomViewPresenter.setMuteListInAdapterPositions(muteListInAdapterPositions)
+            muteChatRoomViewPresenter.setOnDialogItemClickListener(object : ChatRoomRecyclerViewAdapter.OnDialogItemClickListener {
+                override fun onItemClick(relativePosition: Int) {
+                    clickChatRoomFlag = true
+                    XposedHelpers.callMethod(param.thisObject, "onItemClick", param.args[0], view, relativePosition + headerViewsCount, id)
 
-                if (AppSaveInfoUtils.autoCloseInfo())
-                    muteChatRoomViewPresenter?.dismiss()
+                    if (AppSaveInfoUtils.autoCloseInfo())
+                        muteChatRoomViewPresenter.dismiss()
+                }
+
             })
-            muteChatRoomViewPresenter?.show()
+            muteChatRoomViewPresenter.show()
             param.result = null
         }
 
         if (position == firstOfficialPosition && !clickChatRoomFlag) {
-            officialChatRoomViewPresenter?.setMuteListInAdapterPositions(officialListInAdapterPositions)
-            officialChatRoomViewPresenter?.setOnDialogItemClickListener({ relativePosition ->
-                clickChatRoomFlag = true
-                XposedHelpers.callMethod(param.thisObject, "onItemClick", param.args[0], view, relativePosition + headerViewsCount, id)
+            officialChatRoomViewPresenter.setMuteListInAdapterPositions(officialListInAdapterPositions)
+            officialChatRoomViewPresenter.setOnDialogItemClickListener(object : ChatRoomRecyclerViewAdapter.OnDialogItemClickListener {
+                override fun onItemClick(relativePosition: Int) {
+                    clickChatRoomFlag = true
+                    XposedHelpers.callMethod(param.thisObject, "onItemClick", param.args[0], view, relativePosition + headerViewsCount, id)
 
-                if (AppSaveInfoUtils.autoCloseInfo())
-                    officialChatRoomViewPresenter?.dismiss()
+                    if (AppSaveInfoUtils.autoCloseInfo())
+                        officialChatRoomViewPresenter.dismiss()
+                }
             })
-            officialChatRoomViewPresenter?.show()
+            officialChatRoomViewPresenter.show()
             param.result = null
         }
     }
@@ -258,7 +264,7 @@ class HookWeChatKT : IXposedHookLoadPackage {
                     val drawableId = context.resources.getIdentifier(Drawable_String_Chatroom_Avatar, "drawable", context.packageName)
                     val temp = BitmapFactory.decodeResource(context.resources, drawableId)
 
-                    HookLogic. handlerChatRoomBitmap(canvas, paint, size, temp)
+                    HookLogic.handlerChatRoomBitmap(canvas, paint, size, temp)
                 }
             })
             XposedHelpers.callMethod(avatar, "setBackgroundDrawable", shapeDrawable)
