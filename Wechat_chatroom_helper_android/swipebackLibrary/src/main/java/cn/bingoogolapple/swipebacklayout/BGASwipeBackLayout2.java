@@ -831,7 +831,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
 
         if (mFirstLayout) {
          //   mSlideOffset = mCanSlide && mPreservedOpenState ? 1.f : 0.f;
-            Log.v("dispatchKeyEvent", " 834, mSlideOffset = " + mSlideOffset);
+         //   Log.v("dispatchKeyEvent", " 834, mSlideOffset = " + mSlideOffset);
         }
 
         for (int i = 0; i < childCount; i++) {
@@ -856,7 +856,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
                 final int pos = (int) (range * mSlideOffset);
                 xStart += pos + lpMargin;
                 mSlideOffset = (float) pos / mSlideRange;
-                Log.v("dispatchKeyEvent", " 859, mSlideOffset = " + mSlideOffset);
+         //       Log.v("dispatchKeyEvent", " 859, mSlideOffset = " + mSlideOffset);
             } else if (mCanSlide && mParallaxBy != 0) {
                 offset = (int) ((1 - mSlideOffset) * mParallaxBy);
                 xStart = nextXStart;
@@ -1091,7 +1091,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      * @return true if sliding panels are completely open
      */
     public boolean isOpen() {
-        Log.v("dispatchKeyEvent"," 1094, mSlideOffset = " + mSlideOffset+",  mCanSlide = "+ mCanSlide);
+   //     Log.v("dispatchKeyEvent"," 1094, mSlideOffset = " + mSlideOffset+",  mCanSlide = "+ mCanSlide);
         return !mCanSlide || mSlideOffset == 1;
     }
 
@@ -1118,7 +1118,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         if (mSlideableView == null) {
             // This can happen if we're aborting motion during layout because everything now fits.
             mSlideOffset = 0;
-            Log.v("dispatchKeyEvent", " 1121, mSlideOffset = " + mSlideOffset);
+      //      Log.v("dispatchKeyEvent", " 1121, mSlideOffset = " + mSlideOffset);
             return;
         }
         final boolean isLayoutRtl = isLayoutRtlSupport();
@@ -1132,7 +1132,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         final int startBound = paddingStart + lpMargin;
 
         mSlideOffset = (float) (newStart - startBound) / mSlideRange;
-        Log.v("dispatchKeyEvent", " 1135, mSlideOffset = " + mSlideOffset);
+   //    Log.v("dispatchKeyEvent", " 1135, mSlideOffset = " + mSlideOffset);
 
         if (mParallaxBy != 0) {
             parallaxOtherViews(mSlideOffset);
