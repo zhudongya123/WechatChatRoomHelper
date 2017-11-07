@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,13 +65,13 @@ public class ChatRoomView implements ChatRoomContract.View {
     private boolean isDragging = false;
 
     private String uuid = "0";
-    private String title;
+    private ChatRoomViewPresenter.Type type;
 
-    ChatRoomView(Context context, final ViewGroup container, String title) {
+    ChatRoomView(Context context, final ViewGroup container, ChatRoomViewPresenter.Type type) {
 
         this.mContainer = (AbsoluteLayout) container;
         this.mContext = context;
-        this.title = title;
+        this.type = type;
 
         int width = ScreenUtils.getScreenWidth(mContext);
         AbsoluteLayout.LayoutParams params = new AbsoluteLayout.LayoutParams(width, ViewGroup.LayoutParams
@@ -105,16 +106,14 @@ public class ChatRoomView implements ChatRoomContract.View {
             @Override
             public void run() {
                 swipeBackLayout.mSlideOffset = 1;
+                Log.v("dispatchKeyEvent", " isShowing, mSlideOffset = " + swipeBackLayout.mSlideOffset);
             }
         });
+        swipeBackLayout.mSlideOffset = 1;
 
         uuid = DeviceUtils.getIMELCode(context);
     }
 
-    @Override
-    public void setTitle(String title) {
-        this.title = title;
-    }
 
     private void initSwipeBack() {
         swipeBackLayout = new MySwipeBackLayout(mContext);
@@ -227,7 +226,14 @@ public class ChatRoomView implements ChatRoomContract.View {
         mToolbar.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.Companion.toolbarColorInfo()));
 
 
-        mToolbar.setTitle(title);
+        switch (type) {
+            case CHATROOM:
+                mToolbar.setTitle("群消息助手");
+                break;
+            case OFFICIAL:
+                mToolbar.setTitle("公众号助手");
+                break;
+        }
         mToolbar.setTitleTextColor(0xFFFAFAFA);
 
         Class<?> clazz;
@@ -262,17 +268,21 @@ public class ChatRoomView implements ChatRoomContract.View {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (title.equals("群消息助手")) {
-                    ConfigChatRoomDialog configChatRoomDialog = new ConfigChatRoomDialog(mContext);
-                    configChatRoomDialog.show();
+                switch (type) {
+                    case OFFICIAL:
+                        break;
+                    case CHATROOM:
+                        ConfigChatRoomDialog configChatRoomDialog = new ConfigChatRoomDialog(mContext);
+                        configChatRoomDialog.show();
 
-                    configChatRoomDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            dismiss();
-                            XposedHelpers.callMethod(mPresenter.getOriginAdapter(), "notifyDataSetChanged");
-                        }
-                    });
+                        configChatRoomDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialog) {
+                                dismiss();
+                                XposedHelpers.callMethod(mPresenter.getOriginAdapter(), "notifyDataSetChanged");
+                            }
+                        });
+                        break;
                 }
             }
         });

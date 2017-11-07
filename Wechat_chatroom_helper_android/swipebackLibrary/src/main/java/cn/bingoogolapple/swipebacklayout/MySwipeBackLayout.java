@@ -40,6 +40,25 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
         setVisibility(INVISIBLE);
 
         mActivity = ((Activity) context);
+
+//
+//        setPanelSlideListener(new PanelSlideListener() {
+//            @Override
+//            public void onPanelSlide(View panel, float slideOffset) {
+//
+//            }
+//
+//            @Override
+//            public void onPanelOpened(View panel) {
+//
+//            }
+//
+//            @Override
+//            public void onPanelClosed(View panel) {
+//                if (getVisibility() == INVISIBLE) setVisibility(VISIBLE);
+//            }
+//        });
+//        closePane();
     }
 
 

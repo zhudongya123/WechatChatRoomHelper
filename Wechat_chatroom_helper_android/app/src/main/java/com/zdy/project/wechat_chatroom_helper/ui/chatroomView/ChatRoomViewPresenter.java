@@ -22,7 +22,7 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
 
     private ViewGroup chatRoomView;
 
-    public ChatRoomViewPresenter(Context context, String title) {
+    public ChatRoomViewPresenter(Context context, ChatRoomViewPresenter.Type type) {
         mContext = context;
 
         chatRoomView = new AbsoluteLayout(context);
@@ -31,7 +31,7 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
         chatRoomView.setPadding(0, ScreenUtils.getStatusHeight(context),
                 0, ScreenUtils.getNavigationBarHeight(context));
 
-        mView = new ChatRoomView(context, chatRoomView, title);
+        mView = new ChatRoomView(context, chatRoomView, type);
 
         mView.setPresenter(this);
     }
@@ -82,4 +82,9 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
         return mAdapter;
     }
 
+
+    public  enum Type {
+        CHATROOM,
+        OFFICIAL
+    }
 }

@@ -58,8 +58,8 @@ class HookWeChatKT : IXposedHookLoadPackage {
     //映射出现在主界面的回话的数据位置和实际View位置
     private val newViewPositionWithDataPositionListForOfficial = SparseIntArray()
 
-    private var muteChatRoomViewPresenter: ChatRoomViewPresenter? = null
-    private var officialChatRoomViewPresenter: ChatRoomViewPresenter? = null
+    private lateinit var muteChatRoomViewPresenter: ChatRoomViewPresenter
+    private lateinit var officialChatRoomViewPresenter: ChatRoomViewPresenter
 
 
     //标记位，当点击Dialog内的免打扰群组时，防止onItemClick与getObject方法的position冲突
@@ -172,11 +172,11 @@ class HookWeChatKT : IXposedHookLoadPackage {
 
 
     private fun hookAdapterInit(param: XC_MethodHook.MethodHookParam?) {
-        muteChatRoomViewPresenter = ChatRoomViewPresenter(context, "群消息助手")
+        muteChatRoomViewPresenter = ChatRoomViewPresenter(context, ChatRoomViewPresenter.Type.CHATROOM)
         muteChatRoomViewPresenter?.setAdapter(param?.thisObject)
         muteChatRoomViewPresenter?.start()
 
-        officialChatRoomViewPresenter = ChatRoomViewPresenter(context, "公众号助手")
+        officialChatRoomViewPresenter = ChatRoomViewPresenter(context, ChatRoomViewPresenter.Type.OFFICIAL)
         officialChatRoomViewPresenter?.setAdapter(param?.thisObject)
         officialChatRoomViewPresenter?.start()
     }
@@ -458,11 +458,11 @@ class HookWeChatKT : IXposedHookLoadPackage {
         notifyList = true
 
         if (muteChatRoomViewPresenter != null) {
-            muteChatRoomViewPresenter?.setMuteListInAdapterPositions(muteListInAdapterPositions)
+            muteChatRoomViewPresenter.setMuteListInAdapterPositions(muteListInAdapterPositions)
         }
 
         if (officialChatRoomViewPresenter != null) {
-            officialChatRoomViewPresenter?.setMuteListInAdapterPositions(officialListInAdapterPositions)
+            officialChatRoomViewPresenter.setMuteListInAdapterPositions(officialListInAdapterPositions)
         }
     }
 

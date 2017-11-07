@@ -24,9 +24,6 @@ public interface ChatRoomContract {
 
     interface View {
 
-
-        void setTitle(String title);
-
         void setOnDialogItemClickListener(ChatRoomRecyclerViewAdapter.OnDialogItemClickListener listener);
 
         boolean isShowing();

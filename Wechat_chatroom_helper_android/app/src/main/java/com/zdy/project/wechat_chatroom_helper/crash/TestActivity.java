@@ -41,10 +41,10 @@ public class TestActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Log.v("TestActivity", "button onClick");
-             //   swipeBackLayout.closePane();
-
-                ConfigChatRoomDialog configChatRoomDialog = new ConfigChatRoomDialog(TestActivity.this);
-                configChatRoomDialog.show();
+             swipeBackLayout.closePane();
+//
+//                ConfigChatRoomDialog configChatRoomDialog = new ConfigChatRoomDialog(TestActivity.this);
+//                configChatRoomDialog.show();
 
             }
         });

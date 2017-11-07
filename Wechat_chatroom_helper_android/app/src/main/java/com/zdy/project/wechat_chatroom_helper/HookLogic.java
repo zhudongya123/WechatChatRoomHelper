@@ -1,7 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -40,7 +39,6 @@ import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversatio
 import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_Parent_Name;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_SimpleName;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Set_Avatar;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Tencent_Home_UI;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Tencent_Log;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Chatroom_Avatar;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object;
@@ -48,7 +46,6 @@ import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Ge
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_2;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_3;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Conversation_List_View_Adapter_Param;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Home_UI_Inflater_View;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_Status_Bean;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Avatar;
@@ -119,10 +116,11 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         if (!AppSaveInfoUtils.Companion.openInfo()) return;
 
-        XposedHelpers.findAndHookMethod(Class_Tencent_Home_UI, loadPackageParam.classLoader, Method_Home_UI_Inflater_View,
-                Intent.class, new XC_MethodHook() {
-                    @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+        //    XposedHelpers.findAndHookMethod(Class_Tencent_Home_UI, loadPackageParam.classLoader,
+        // Method_Home_UI_Inflater_View,
+        //             Intent.class, new XC_MethodHook() {
+        //                    @Override
+        //                   protected void afterHookedMethod(MethodHookParam param) throws Throwable {
 
 //                        Object activity = XposedHelpers.getObjectField(param.thisObject, Value_Home_UI_Activity);
 //
@@ -147,8 +145,8 @@ public class HookLogic implements IXposedHookLoadPackage {
 //
 //                            }
 //                        }
-                    }
-                });
+//                    }
+//                });
 
         XposedHelpers.findAndHookConstructor("com.tencent.mm.ui.HomeUI.FitSystemWindowLayoutView",
                 loadPackageParam.classLoader, Context.class, new XC_MethodHook() {
@@ -286,11 +284,11 @@ public class HookLogic implements IXposedHookLoadPackage {
     }
 
     private void hookAdapterInit(XC_MethodHook.MethodHookParam param) {
-        muteChatRoomViewPresenter = new ChatRoomViewPresenter(context, "群消息助手");
+        muteChatRoomViewPresenter = new ChatRoomViewPresenter(context, ChatRoomViewPresenter.Type.CHATROOM);
         muteChatRoomViewPresenter.setAdapter(param.thisObject);
         muteChatRoomViewPresenter.start();
 
-        officialChatRoomViewPresenter = new ChatRoomViewPresenter(context, "公众号助手");
+        officialChatRoomViewPresenter = new ChatRoomViewPresenter(context, ChatRoomViewPresenter.Type.OFFICIAL);
         officialChatRoomViewPresenter.setAdapter(param.thisObject);
         officialChatRoomViewPresenter.start();
     }
