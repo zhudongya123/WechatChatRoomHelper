@@ -1,6 +1,8 @@
 package utils
 
+import com.google.gson.JsonElement
 import com.google.gson.JsonParser
+import com.google.gson.JsonPrimitive
 import com.zdy.project.wechat_chatroom_helper.Constants
 
 
@@ -8,7 +10,6 @@ import com.zdy.project.wechat_chatroom_helper.Constants
  * Created by zhudo on 2017/11/4.
  */
  class AppSaveInfoUtils {
-
 
     companion object {
 
@@ -22,8 +23,10 @@ import com.zdy.project.wechat_chatroom_helper.Constants
         var HELPER_VERSIONCODE = "helper_versionCode"
         var WECHAT_VERSION = "wechat_version"
         var JSON = "json"
-
         var CHAT_ROOM_TYPE = "chatRoom_type"
+
+        var WHITE_LIST_CHAT_ROOM = "white_list_chat_room"
+        var WHITE_LIST_OFFICIAL = "white_list_official"
 
         fun openInfo(): Boolean {
             return FileUtils.getJsonValue(OPEN, true)
@@ -67,6 +70,41 @@ import com.zdy.project.wechat_chatroom_helper.Constants
 
         fun setChatRoomType(value: String) {
             FileUtils.putJsonValue(CHAT_ROOM_TYPE, value)
+        }
+
+
+        fun getWhiteList(key: String): ArrayList<String> {
+            val value = FileUtils.getJsonValue(key, "[]")
+            val jsonArray = JsonParser().parse(value).asJsonArray
+            val arrayList = ArrayList<String>()
+            jsonArray.mapTo(arrayList) { it.asString }
+            return arrayList
+        }
+
+        fun removeWhitList(key: String, item: String) {
+            val value = FileUtils.getJsonValue(key, "[]")
+            val jsonArray = JsonParser().parse(value).asJsonArray
+
+            jsonArray.remove(JsonPrimitive(item))
+            FileUtils.putJsonValue(key, jsonArray.toString())
+        }
+
+        fun setWhiteList(key: String, item: String) {
+            val value = FileUtils.getJsonValue(key, "[]")
+            val jsonArray = JsonParser().parse(value).asJsonArray
+
+            for (i in 0 until jsonArray.size()) {
+                val string = jsonArray[i].asString
+                if (item == string)
+                    return
+            }
+
+            jsonArray.add(item)
+            FileUtils.putJsonValue(key, jsonArray.toString())
+        }
+
+        fun clearWhiteList(key: String) {
+            FileUtils.putJsonValue(key, "[]")
         }
 
 

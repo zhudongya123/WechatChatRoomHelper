@@ -12,6 +12,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.Shape;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.SpannedString;
 import android.util.AttributeSet;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
@@ -21,6 +23,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
+import com.zdy.project.wechat_chatroom_helper.manager.Type;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomRecyclerViewAdapter;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter;
@@ -284,11 +287,11 @@ public class HookLogic implements IXposedHookLoadPackage {
     }
 
     private void hookAdapterInit(XC_MethodHook.MethodHookParam param) {
-        muteChatRoomViewPresenter = new ChatRoomViewPresenter(context, ChatRoomViewPresenter.Type.CHATROOM);
+        muteChatRoomViewPresenter = new ChatRoomViewPresenter(context, Type.CHAT_ROOMS);
         muteChatRoomViewPresenter.setAdapter(param.thisObject);
         muteChatRoomViewPresenter.start();
 
-        officialChatRoomViewPresenter = new ChatRoomViewPresenter(context, ChatRoomViewPresenter.Type.OFFICIAL);
+        officialChatRoomViewPresenter = new ChatRoomViewPresenter(context, Type.OFFICIAL);
         officialChatRoomViewPresenter.setAdapter(param.thisObject);
         officialChatRoomViewPresenter.start();
     }
@@ -521,6 +524,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                 Object messageStatus = XposedHelpers.callMethod(param.thisObject,
                         Method_Message_Status_Bean, value);
 
+
                 MessageEntity entity = new MessageEntity(value);
 
                 //是否为免打扰群组
@@ -582,6 +586,7 @@ public class HookLogic implements IXposedHookLoadPackage {
     }
 
     private boolean isOfficialConversation(Object value, Object messageStatus) {
+        Object username = XposedHelpers.getObjectField(messageStatus, Constants.Value_Message_Bean_NickName);
 
         boolean wcY = XposedHelpers.getBooleanField(messageStatus, Value_Message_Status_Is_OFFICIAL_1);
         int wcU = XposedHelpers.getIntField(messageStatus, Value_Message_Status_Is_OFFICIAL_2);
@@ -595,9 +600,29 @@ public class HookLogic implements IXposedHookLoadPackage {
         boolean uyI = XposedHelpers.getBooleanField(messageStatus, Value_Message_Status_Is_Mute_1);
         boolean uXX = XposedHelpers.getBooleanField(messageStatus, Value_Message_Status_Is_Mute_2);
 
+        ArrayList<String> list = AppSaveInfoUtils.Companion.getWhiteList("white_list_chat_room");
+        SpannableString username = (SpannableString) XposedHelpers.getObjectField(messageStatus, Constants
+                .Value_Message_Bean_NickName);
+        //这是个群聊
+        if (uXX) {
+            //搜集所有群聊的标记
+            if (AppSaveInfoUtils.Companion.chatRoomTypeInfo().equals("1")) {
+                for (String s : list) {
+                    XposedBridge.log("username 1 = " + username + ", username 2 = " + s + ", isTrue = " + s.trim().equals(username.toString()));
+                    if (s.trim().equals(username.toString())) return false;
+                }
+                return true;
+            }
 
-        if (AppSaveInfoUtils.Companion.chatRoomTypeInfo().equals("1")) return uXX;
-        else return uyI && uXX;
+            //还是一个免打扰的群聊
+            if (uyI) {
+                for (String s : list)
+                    if (s.trim().equals(username.toString())) return false;
+
+                return true;
+            }
+        }
+        return false;
     }
 
     //自造群消息助手头像

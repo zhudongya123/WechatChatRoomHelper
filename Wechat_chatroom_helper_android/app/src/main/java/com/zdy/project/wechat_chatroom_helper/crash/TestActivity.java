@@ -10,11 +10,14 @@ import android.widget.AbsoluteLayout;
 import android.widget.Button;
 
 import com.zdy.project.wechat_chatroom_helper.R;
+import com.zdy.project.wechat_chatroom_helper.manager.Type;
+import com.zdy.project.wechat_chatroom_helper.ui.WhiteListDialog;
+import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
+
+import java.util.ArrayList;
 
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout;
-
-import com.zdy.project.wechat_chatroom_helper.ui.ConfigChatRoomDialog;
-import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
+import utils.AppSaveInfoUtils;
 
 /**
  * Created by Zdy on 2016/12/16.
@@ -69,6 +72,13 @@ public class TestActivity extends Activity {
             }
         });
         swipeBackLayout.openPane();
+
+        ArrayList<String> list = AppSaveInfoUtils.Companion.getWhiteList("white_list_chat_room");
+        WhiteListDialog dialog = new WhiteListDialog(this);
+        dialog.setType(Type.OFFICIAL);
+
+        dialog.setList(list);
+        dialog.show();
     }
 
     @Override

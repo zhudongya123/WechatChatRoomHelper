@@ -35,16 +35,18 @@ class ConfigChatRoomDialog(private var mContext: Context) : Dialog(mContext) {
 
         radioGroup.setOnCheckedChangeListener { _, checkedId ->
             if (AppSaveInfoUtils.chatRoomTypeInfo().toInt() != checkedId) {
+                AppSaveInfoUtils.clearWhiteList(AppSaveInfoUtils.WHITE_LIST_CHAT_ROOM)
                 AppSaveInfoUtils.setChatRoomType(checkedId.toString())
-
                 if (onModeChangedListener != null)
                     onModeChangedListener!!.onChanged()
+                dismiss()
             }
         }
 
         button.setOnClickListener {
             if (onWhiteListClickListener != null)
                 onWhiteListClickListener!!.onClick()
+            dismiss()
         }
     }
 
@@ -60,7 +62,7 @@ class ConfigChatRoomDialog(private var mContext: Context) : Dialog(mContext) {
 
     private fun getContentView(context: Context): View {
 
-        var padding = ScreenUtils.dip2px(context, 16f)
+        val padding = ScreenUtils.dip2px(context, 16f)
         rootView = LinearLayout(context)
         rootView.orientation = LinearLayout.VERTICAL
         rootView.setPadding(padding, padding, padding, padding)
