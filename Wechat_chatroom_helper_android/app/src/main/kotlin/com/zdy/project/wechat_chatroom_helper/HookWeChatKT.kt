@@ -20,6 +20,7 @@ import android.widget.ImageView
 import com.zdy.project.wechat_chatroom_helper.Constants.*
 import com.zdy.project.wechat_chatroom_helper.HookLogic
 import com.zdy.project.wechat_chatroom_helper.HookLogic.getMessageBeanForOriginIndex
+import com.zdy.project.wechat_chatroom_helper.manager.Type
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomRecyclerViewAdapter
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter
@@ -173,11 +174,11 @@ class HookWeChatKT : IXposedHookLoadPackage {
 
 
     private fun hookAdapterInit(param: XC_MethodHook.MethodHookParam?) {
-        muteChatRoomViewPresenter = ChatRoomViewPresenter(context, ChatRoomViewPresenter.Type.CHATROOM)
+        muteChatRoomViewPresenter = ChatRoomViewPresenter(context, Type.CHAT_ROOMS)
         muteChatRoomViewPresenter?.setAdapter(param?.thisObject)
         muteChatRoomViewPresenter?.start()
 
-        officialChatRoomViewPresenter = ChatRoomViewPresenter(context, ChatRoomViewPresenter.Type.OFFICIAL)
+        officialChatRoomViewPresenter = ChatRoomViewPresenter(context, Type.OFFICIAL)
         officialChatRoomViewPresenter?.setAdapter(param?.thisObject)
         officialChatRoomViewPresenter?.start()
     }

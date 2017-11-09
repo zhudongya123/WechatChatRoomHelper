@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
 
+import com.zdy.project.wechat_chatroom_helper.manager.Type;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
 
     private ViewGroup chatRoomView;
 
-    public ChatRoomViewPresenter(Context context, ChatRoomViewPresenter.Type type) {
+    public ChatRoomViewPresenter(Context context, Type type) {
         mContext = context;
 
         chatRoomView = new AbsoluteLayout(context);
@@ -83,8 +84,5 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
     }
 
 
-    public  enum Type {
-        CHATROOM,
-        OFFICIAL
-    }
+
 }

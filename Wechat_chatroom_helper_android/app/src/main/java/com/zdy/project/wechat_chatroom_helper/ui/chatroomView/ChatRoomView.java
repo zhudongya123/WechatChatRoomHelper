@@ -1,14 +1,11 @@
 package com.zdy.project.wechat_chatroom_helper.ui.chatroomView;
 
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Handler;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -21,18 +18,19 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.Toolbar;
 
 import com.zdy.project.wechat_chatroom_helper.HookLogic;
+import com.zdy.project.wechat_chatroom_helper.manager.Type;
 import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel;
-import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.ConfigChatRoomDialog;
+import com.zdy.project.wechat_chatroom_helper.ui.WhiteListDialog;
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout;
 import de.robv.android.xposed.XposedHelpers;
@@ -69,9 +67,9 @@ public class ChatRoomView implements ChatRoomContract.View {
     private boolean isDragging = false;
 
     private String uuid = "0";
-    private ChatRoomViewPresenter.Type type;
+    private Type type;
 
-    ChatRoomView(Context context, final ViewGroup container, ChatRoomViewPresenter.Type type) {
+    ChatRoomView(Context context, final ViewGroup container, Type type) {
 
         this.mContainer = (AbsoluteLayout) container;
         this.mContext = context;
@@ -176,10 +174,8 @@ public class ChatRoomView implements ChatRoomContract.View {
             public void run() {
                 ArrayList<ChatInfoModel> data = mAdapter.getData();
                 for (int i = 0; i < data.size(); i++) {
-                    Object item = data.get(i);
-                    MessageEntity entity = new MessageEntity(item);
-                    if (entity.field_username.equals(targetUserName)) {
-
+                    ChatInfoModel item = data.get(i);
+                    if (Objects.equals(item.getAvatarString(), targetUserName)) {
                         Object object = HookLogic.getMessageBeanForOriginIndex(mPresenter.getOriginAdapter(),
                                 mAdapter.getMuteListInAdapterPositions().get(i));
 
@@ -232,7 +228,7 @@ public class ChatRoomView implements ChatRoomContract.View {
 
 
         switch (type) {
-            case CHATROOM:
+            case CHAT_ROOMS:
                 mToolbar.setTitle("群消息助手");
                 break;
             case OFFICIAL:
@@ -276,7 +272,7 @@ public class ChatRoomView implements ChatRoomContract.View {
                 switch (type) {
                     case OFFICIAL:
                         break;
-                    case CHATROOM:
+                    case CHAT_ROOMS:
                         ConfigChatRoomDialog configChatRoomDialog = new ConfigChatRoomDialog(mContext);
                         configChatRoomDialog.setOnModeChangedListener(new ConfigChatRoomDialog.OnModeChangedListener() {
                             @Override
@@ -289,21 +285,23 @@ public class ChatRoomView implements ChatRoomContract.View {
                             public void onClick() {
                                 ChatRoomRecyclerViewAdapter adapter = (ChatRoomRecyclerViewAdapter) mRecyclerView.getAdapter();
 
-
                                 ArrayList<ChatInfoModel> data = adapter.getData();
-                                CharSequence[] arg = new String[data.size()];
 
-                                StringBuilder raw = new StringBuilder();
+                                ArrayList<String> list = new ArrayList<>();
                                 for (int i = 0; i < data.size(); i++) {
-                                    arg[i] = data.get(i).getNickname();
-                                    raw.append(arg[i]).append("\n");
+                                    list.add(String.valueOf(data.get(i).getNickname()));
                                 }
 
-                                Toast.makeText(mContext, raw, Toast.LENGTH_SHORT).show();
-
-//                                Dialog alertDialog = new Dialog(mContext);
-//                                alertDialog.setTitle(raw);
-//                                alertDialog.show();
+                                WhiteListDialog dialog = new WhiteListDialog(mContext);
+                                dialog.setList(list);
+                                dialog.setType(Type.CHAT_ROOMS);
+                                dialog.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        XposedHelpers.callMethod(mPresenter.getOriginAdapter(), "notifyDataSetChanged");
+                                    }
+                                });
+                                dialog.show();
 
                             }
                         });
