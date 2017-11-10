@@ -72,13 +72,13 @@
 <br>
 
 
-<p>微信6.5.16及其 play 版本已经支持，请耐心等候~</p>
+<p>微信6.5.19正在支持，请耐心等候~</p>
 
 <p>欢迎加入反馈群，测试版本在此提供，同时可以更好的反馈BUG及建议~</p>
 
 
-<img src="http://mr-zdy-shanghai.oss-cn-shanghai.aliyuncs.com/wechat_chatroom_helper/feedback_chatroom.png" width="800"
-     height="495">
+<img src="http://mr-zdy-shanghai.oss-cn-shanghai.aliyuncs.com/wechat_chatroom_helper/feedback_chatroom.png" width="400"
+     height="250">
 
 
 </body>
