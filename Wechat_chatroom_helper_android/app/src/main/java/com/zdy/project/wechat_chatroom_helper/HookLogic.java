@@ -295,7 +295,7 @@ public class HookLogic implements IXposedHookLoadPackage {
             @Override
             public void onChildViewAdded(View parent, View child) {
 
-                if (PreferencesUtils.helper_versionCode() == 1140) {
+                if (PreferencesUtils.getVersionCode() == 1140) {
                     if (fitSystemWindowLayoutView.getChildCount() != 3) return;
 
                     if (!fitSystemWindowLayoutView.getChildAt(0).getClass().getSimpleName().equals("LinearLayout"))

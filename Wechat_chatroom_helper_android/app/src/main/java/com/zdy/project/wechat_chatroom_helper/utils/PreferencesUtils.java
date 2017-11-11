@@ -40,7 +40,7 @@ public class PreferencesUtils {
     }
 
     public static int getVersionCode() {
-        return getInstance().getInt("saveVersionCode", 0);
+        return getInstance().getInt("wechat_version", 0);
     }
 
     public static String getToolBarColor() {
