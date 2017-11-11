@@ -129,9 +129,9 @@ public class PathServlet extends HttpServlet {
                 break;
             case 1140:
                 if (isPlayVersion.equals("0")) {
-                    jsonObject.addProperty("code", 1);
+                    jsonObject.addProperty("code", 0);
                     getConfig1140(data);
-                    msg = "微信版本 6.5.19(1140) 暂未成功适配，请等待。";
+                    msg = "微信版本 6.5.19(1140) 已经成功适配，如未有效果，请重启微信客户端查看。";
                 } else {
                     msg = "老哥，6.5.19哪里来的 play 版本？";
                     jsonObject.addProperty("code", 1);
