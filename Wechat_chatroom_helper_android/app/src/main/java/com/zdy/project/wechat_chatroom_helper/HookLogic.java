@@ -1,7 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -13,11 +12,11 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.Shape;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -40,7 +39,6 @@ import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversatio
 import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_Parent_Name;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_SimpleName;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Set_Avatar;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Tencent_Home_UI;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Tencent_Log;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Chatroom_Avatar;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object;
@@ -48,9 +46,7 @@ import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Ge
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_2;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_3;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Conversation_List_View_Adapter_Param;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Home_UI_Inflater_View;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_Status_Bean;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Home_UI_Activity;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Avatar;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Content;
@@ -119,33 +115,53 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         if (!PreferencesUtils.initVariableName()) return;//判断是否获取了配置
 
-        XposedHelpers.findAndHookMethod(Class_Tencent_Home_UI, loadPackageParam.classLoader, Method_Home_UI_Inflater_View,
-                Intent.class, new XC_MethodHook() {
+//        XposedHelpers.findAndHookMethod(Class_Tencent_Home_UI, loadPackageParam.classLoader,
+// Method_Home_UI_Inflater_View,
+//                Intent.class, new XC_MethodHook() {
+//                    @Override
+//                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//
+//                        Object activity = XposedHelpers.getObjectField(param.thisObject, Value_Home_UI_Activity);
+//
+//                        Window window = (Window) XposedHelpers.callMethod(activity, "getWindow");
+//
+//                        ViewGroup viewGroup = (ViewGroup) window.getDecorView();
+//
+//                        for (int i = 0; i < viewGroup.getChildCount(); i++) {
+//
+//                            String simpleName = viewGroup.getChildAt(i).getClass().getSimpleName();
+//
+//                            if (simpleName.equals("FitSystemWindowLayoutView")) {
+//
+//                                ViewGroup fitSystemWindowLayoutView = (ViewGroup) viewGroup.getChildAt(i);
+//
+//                                if (fitSystemWindowLayoutView.getChildCount() == 2) {
+//                                    fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter.getPresenterView(),
+// 1);
+//                                    fitSystemWindowLayoutView.addView(officialChatRoomViewPresenter
+// .getPresenterView(), 2);
+//                                }
+//                            }
+//                        }
+//                    }
+//                });
+
+        XposedHelpers.findAndHookConstructor("com.tencent.mm.ui.HomeUI.FitSystemWindowLayoutView",
+                loadPackageParam.classLoader, Context.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-
-                        Object activity = XposedHelpers.getObjectField(param.thisObject, Value_Home_UI_Activity);
-
-                        Window window = (Window) XposedHelpers.callMethod(activity, "getWindow");
-
-                        ViewGroup viewGroup = (ViewGroup) window.getDecorView();
-
-                        for (int i = 0; i < viewGroup.getChildCount(); i++) {
-
-                            String simpleName = viewGroup.getChildAt(i).getClass().getSimpleName();
-
-                            if (simpleName.equals("FitSystemWindowLayoutView")) {
-
-                                ViewGroup fitSystemWindowLayoutView = (ViewGroup) viewGroup.getChildAt(i);
-
-                                if (fitSystemWindowLayoutView.getChildCount() == 2) {
-                                    fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter.getPresenterView(), 1);
-                                    fitSystemWindowLayoutView.addView(officialChatRoomViewPresenter.getPresenterView(), 2);
-                                }
-                            }
-                        }
+                        hookFitSystemWindowLayoutViewConstructor(param);
                     }
                 });
+
+        XposedHelpers.findAndHookConstructor("com.tencent.mm.ui.HomeUI.FitSystemWindowLayoutView",
+                loadPackageParam.classLoader, Context.class, AttributeSet.class, new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        hookFitSystemWindowLayoutViewConstructor(param);
+                    }
+                });
+
 
         XposedHelpers.findAndHookConstructor(Class_Conversation_List_View_Adapter_Name, loadPackageParam.classLoader,
                 Context.class, XposedHelpers.findClass(Method_Conversation_List_View_Adapter_Param,
@@ -271,6 +287,47 @@ public class HookLogic implements IXposedHookLoadPackage {
         hookLog(loadPackageParam);
 
     }
+
+    private void hookFitSystemWindowLayoutViewConstructor(final XC_MethodHook.MethodHookParam param) {
+        final ViewGroup fitSystemWindowLayoutView = (ViewGroup) param.thisObject;
+
+        fitSystemWindowLayoutView.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
+            @Override
+            public void onChildViewAdded(View parent, View child) {
+
+                if (PreferencesUtils.helper_versionCode() == 1140) {
+                    if (fitSystemWindowLayoutView.getChildCount() != 3) return;
+
+                    if (!fitSystemWindowLayoutView.getChildAt(0).getClass().getSimpleName().equals("LinearLayout"))
+                        return;
+                    if (!fitSystemWindowLayoutView.getChildAt(2).getClass().getSimpleName().equals
+                            ("TestTimeForChatting"))
+                        return;
+
+                    fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter.getPresenterView(), 2);
+                    fitSystemWindowLayoutView.addView(officialChatRoomViewPresenter.getPresenterView(), 3);
+                } else {
+                    if (fitSystemWindowLayoutView.getChildCount() != 2) return;
+
+                    if (!fitSystemWindowLayoutView.getChildAt(0).getClass().getSimpleName().equals("LinearLayout"))
+                        return;
+                    if (!fitSystemWindowLayoutView.getChildAt(1).getClass().getSimpleName().equals
+                            ("TestTimeForChatting"))
+                        return;
+
+                    fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter.getPresenterView(), 1);
+                    fitSystemWindowLayoutView.addView(officialChatRoomViewPresenter.getPresenterView(), 2);
+                }
+
+            }
+
+            @Override
+            public void onChildViewRemoved(View parent, View child) {
+            }
+        });
+
+    }
+
 
     private void hookAdapterInit(XC_MethodHook.MethodHookParam param) {
         muteChatRoomViewPresenter = new ChatRoomViewPresenter(context, "群消息助手");
