@@ -1,6 +1,5 @@
 package utils
 
-import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import com.google.gson.JsonPrimitive
 import com.zdy.project.wechat_chatroom_helper.Constants
@@ -32,12 +31,24 @@ import com.zdy.project.wechat_chatroom_helper.Constants
             return FileUtils.getJsonValue(OPEN, true)
         }
 
+        fun setJson(value: String) {
+            return FileUtils.putJsonValue(JSON, value)
+        }
+
+        fun getJson(): String {
+            return FileUtils.getJsonValue(JSON, "")
+        }
+
         fun isCircleAvatarInfo(): Boolean {
             return FileUtils.getJsonValue(IS_CIRCLE_AVATAR, false)
         }
 
         fun showInfo(): String {
             return FileUtils.getJsonValue(SHOW_INFO, "")
+        }
+
+        fun setShowInfo(value: String) {
+            FileUtils.putJsonValue(SHOW_INFO, value)
         }
 
         fun autoCloseInfo(): Boolean {
@@ -52,6 +63,10 @@ import com.zdy.project.wechat_chatroom_helper.Constants
             return FileUtils.getJsonValue(HAS_SUIT_WECHAT_DATA, false)
         }
 
+        fun setHasSuitWechatDataInfo(value: Boolean) {
+            FileUtils.putJsonValue(HAS_SUIT_WECHAT_DATA, value)
+        }
+
         fun isplayVersionInfo(): Boolean {
             return FileUtils.getJsonValue(IS_PLAY_VERSION, false)
         }
@@ -60,8 +75,16 @@ import com.zdy.project.wechat_chatroom_helper.Constants
             return FileUtils.getJsonValue(HELPER_VERSIONCODE, "0")
         }
 
+        fun setHelpVersionCodeInfo(value: String) {
+            FileUtils.putJsonValue(HELPER_VERSIONCODE, value)
+        }
+
         fun wechatVersionInfo(): String {
             return FileUtils.getJsonValue(WECHAT_VERSION, "0")
+        }
+
+        fun setWechatVersionInfo(value: String) {
+            FileUtils.putJsonValue(WECHAT_VERSION, value)
         }
 
         fun chatRoomTypeInfo(): String {

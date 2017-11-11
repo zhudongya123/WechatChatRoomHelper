@@ -23,8 +23,9 @@ import android.widget.Toolbar;
 import com.zdy.project.wechat_chatroom_helper.HookLogic;
 import com.zdy.project.wechat_chatroom_helper.manager.Type;
 import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel;
-import com.zdy.project.wechat_chatroom_helper.ui.ConfigChatRoomDialog;
-import com.zdy.project.wechat_chatroom_helper.ui.WhiteListDialog;
+import com.zdy.project.wechat_chatroom_helper.ui.wechat.ConfigChatRoomDialog;
+import com.zdy.project.wechat_chatroom_helper.ui.wechat.WhiteListDialog;
+import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
@@ -293,7 +294,11 @@ public class ChatRoomView implements ChatRoomContract.View {
                                 }
 
                                 WhiteListDialog dialog = new WhiteListDialog(mContext);
-                                dialog.setList(list);
+
+                                if (AppSaveInfoUtils.Companion.chatRoomTypeInfo().equals("1"))
+                                    dialog.setList(HookLogic.allChatRoomNickNameEntries);
+                                else dialog.setList(HookLogic.muteChatRoomNickNameEntries);
+
                                 dialog.setType(Type.CHAT_ROOMS);
                                 dialog.setOnClickListener(new View.OnClickListener() {
                                     @Override

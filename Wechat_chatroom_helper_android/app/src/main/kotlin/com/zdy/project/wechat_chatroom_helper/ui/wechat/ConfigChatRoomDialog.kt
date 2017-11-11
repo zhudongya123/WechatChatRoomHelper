@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.ui
+package com.zdy.project.wechat_chatroom_helper.ui.wechat
 
 import android.app.Dialog
 import android.content.Context
@@ -76,7 +76,7 @@ class ConfigChatRoomDialog(private var mContext: Context) : Dialog(mContext) {
         radioGroup = RadioGroup(context)
         val radioButton1 = RadioButton(context)
 
-        val layoutParams = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        val layoutParams = RadioGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         layoutParams.setMargins(0, 0, 0, padding)
         radioButton1.layoutParams = layoutParams
 

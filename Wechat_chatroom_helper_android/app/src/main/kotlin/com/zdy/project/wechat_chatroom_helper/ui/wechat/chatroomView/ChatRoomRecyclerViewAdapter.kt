@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.ui.chatroomView
+package com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView
 
 import android.content.Context
 import android.graphics.Canvas
@@ -10,6 +10,8 @@ import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.zdy.project.wechat_chatroom_helper.HookLogic
 import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewHelper
+import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewHolder
 import java.util.*
 
 /**

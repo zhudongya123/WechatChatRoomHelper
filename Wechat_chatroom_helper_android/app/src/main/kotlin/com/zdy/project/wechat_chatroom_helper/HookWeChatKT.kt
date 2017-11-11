@@ -22,7 +22,7 @@ import com.zdy.project.wechat_chatroom_helper.HookLogic
 import com.zdy.project.wechat_chatroom_helper.HookLogic.getMessageBeanForOriginIndex
 import com.zdy.project.wechat_chatroom_helper.manager.Type
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity
-import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomRecyclerViewAdapter
+import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodHook
@@ -99,8 +99,8 @@ class HookWeChatKT : IXposedHookLoadPackage {
                         val fitSystemWindowLayoutView = viewGroup.getChildAt(i) as ViewGroup
 
                         if (fitSystemWindowLayoutView.childCount == 2) {
-                            fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter?.presenterView, 1)
-                            fitSystemWindowLayoutView.addView(officialChatRoomViewPresenter?.presenterView, 2)
+                            fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter.presenterView, 1)
+                            fitSystemWindowLayoutView.addView(officialChatRoomViewPresenter.presenterView, 2)
                         }
 
                     }
@@ -202,7 +202,7 @@ class HookWeChatKT : IXposedHookLoadPackage {
         //如果点击的是免打扰消息的入口，且不是在群消息助手里面所做的模拟点击（注意！此方法本身就为点击后的处理方法）
         if (position == firstMutePosition && !clickChatRoomFlag) {
 
-            muteChatRoomViewPresenter.setMuteListInAdapterPositions(muteListInAdapterPositions)
+            muteChatRoomViewPresenter.setListInAdapterPositions(muteListInAdapterPositions)
             muteChatRoomViewPresenter.setOnDialogItemClickListener(object : ChatRoomRecyclerViewAdapter.OnDialogItemClickListener {
                 override fun onItemClick(relativePosition: Int) {
                     clickChatRoomFlag = true
@@ -218,7 +218,7 @@ class HookWeChatKT : IXposedHookLoadPackage {
         }
 
         if (position == firstOfficialPosition && !clickChatRoomFlag) {
-            officialChatRoomViewPresenter.setMuteListInAdapterPositions(officialListInAdapterPositions)
+            officialChatRoomViewPresenter.setListInAdapterPositions(officialListInAdapterPositions)
             officialChatRoomViewPresenter.setOnDialogItemClickListener(object : ChatRoomRecyclerViewAdapter.OnDialogItemClickListener {
                 override fun onItemClick(relativePosition: Int) {
                     clickChatRoomFlag = true
@@ -465,11 +465,11 @@ class HookWeChatKT : IXposedHookLoadPackage {
         notifyList = true
 
         if (muteChatRoomViewPresenter != null) {
-            muteChatRoomViewPresenter.setMuteListInAdapterPositions(muteListInAdapterPositions)
+            muteChatRoomViewPresenter.setListInAdapterPositions(muteListInAdapterPositions)
         }
 
         if (officialChatRoomViewPresenter != null) {
-            officialChatRoomViewPresenter.setMuteListInAdapterPositions(officialListInAdapterPositions)
+            officialChatRoomViewPresenter.setListInAdapterPositions(officialListInAdapterPositions)
         }
     }
 

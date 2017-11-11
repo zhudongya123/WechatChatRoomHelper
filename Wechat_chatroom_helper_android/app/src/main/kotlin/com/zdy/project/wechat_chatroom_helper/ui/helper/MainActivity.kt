@@ -5,8 +5,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -16,33 +14,35 @@ import android.preference.Preference
 import android.preference.PreferenceFragment
 import android.preference.SwitchPreference
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.SwitchCompat
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.LayoutInflater
 import android.view.View
-import android.webkit.WebView
 import android.widget.*
 import com.google.gson.JsonParser
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
+import com.zdy.project.wechat_chatroom_helper.ui.helper.InfoDialogBuilder
 import manager.PermissionHelper
 import network.ApiManager
 import okhttp3.*
 import utils.AppSaveInfoUtils
-import utils.FileUtils
 import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var thisActivity: MainActivity
 
-    private lateinit var settingFragment: SettingFragment
-
-    private lateinit var textView: TextView
     private lateinit var clickMe: Button
     private lateinit var detail: TextView
+    private lateinit var listContent: LinearLayout
 
-    private lateinit var alertDialog: AlertDialog
     private lateinit var receiver: PermissionBroadCastReceiver
+
+    private lateinit var infoDialog: AlertDialog
+
+    private var permissionHelper: PermissionHelper? = null
 
 
     inner class PermissionBroadCastReceiver : BroadcastReceiver() {
@@ -55,16 +55,53 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         thisActivity = this@MainActivity
 
+        //权限检查广播
         receiver = PermissionBroadCastReceiver()
         registerReceiver(receiver, IntentFilter(Constants.FILE_INIT_SUCCESS))
 
+        //检查权限
         permissionHelper = PermissionHelper.check(thisActivity)
 
-        setContentView(R.layout.activity_main)
 
-        textView = findViewById(R.id.textView) as TextView
+        //加載佈局
+        setContentView(R.layout.activity_main)
         clickMe = findViewById(R.id.button) as Button
         detail = findViewById(R.id.detail) as TextView
+        listContent = findViewById(R.id.list_content) as LinearLayout
+
+
+        initSetting()
+    }
+
+    private fun initSetting() {
+        val titles = arrayOf("功能开关", "群消息助手开关", "公众号助手开关", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手Toolbar颜色")
+
+
+
+        for (i in 0 until titles.size) {
+            title = titles[i]
+
+            val itemView = LayoutInflater.from(thisActivity).inflate(R.layout.layout_setting_item, listContent, false)
+
+            val text = itemView.findViewById(android.R.id.text1) as TextView
+            var switch = itemView.findViewById(android.R.id.button1) as SwitchCompat
+
+            text.text = title
+
+            itemView.setOnClickListener { switch.performClick() }
+
+            when (i) {
+                0 -> switch.isChecked = AppSaveInfoUtils.openInfo()
+                3 -> switch.isChecked = AppSaveInfoUtils.isCircleAvatarInfo()
+                4 -> switch.isChecked = AppSaveInfoUtils.autoCloseInfo()
+                5 -> {
+                    switch.visibility = View.INVISIBLE
+                }
+
+            }
+
+            listContent.addView(itemView)
+        }
     }
 
     override fun onDestroy() {
@@ -73,46 +110,43 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun bindView() {
-        val fragmentContent: FrameLayout = findViewById(R.id.fragment_content) as FrameLayout
 
-        settingFragment = SettingFragment()
-
-        fragmentManager.beginTransaction().replace(fragmentContent.id, settingFragment).commit()
-
-        ApiManager.sendRequestForHomeInfo(
-                getHelperVersionCode(this@MainActivity).toString(), object : Callback {
-            override fun onResponse(call: Call?, response: Response) {
-                val result = response.body()?.string()
-                this@MainActivity.runOnUiThread {
-                    val webView = WebView(thisActivity)
-                    webView.loadData(result, "text/html; charset=UTF-8", null)
-                    alertDialog = AlertDialog.Builder(thisActivity).setView(webView).create()
-                }
+        //获取公告及其Dialog
+        InfoDialogBuilder.buildInfoDialog(thisActivity, object : InfoDialogBuilder.CallBack {
+            override fun receive(dialog: AlertDialog) {
+                clickMe.setOnClickListener { infoDialog.show() }
             }
-
-            override fun onFailure(call: Call?, e: IOException?) {}
         })
 
-        clickMe.setOnClickListener { alertDialog.show() }
+        //檢查配置
+        loadConfig()
+    }
 
-        //是否已经适配了合适的数据 的标记
+    private fun loadConfig() {
+        //是否已经适配了合适的数据的标记(已经成功匹配过)
         val hasSuitWechatData = AppSaveInfoUtils.hasSuitWechatDataInfo()
 
-        //play开关是否打开 的标记
+        //play开关是否打开的标记
         val playVersion = AppSaveInfoUtils.isplayVersionInfo()
 
-        //当前主程序的版本号
-        val helperVersionCode = AppSaveInfoUtils.helpVersionCodeInfo()
-
         //当前保存的微信版本号
-        val wechatVersion = AppSaveInfoUtils.wechatVersionInfo()
+        val saveWechatVersionCode = AppSaveInfoUtils.wechatVersionInfo()
+
+        //当前保存的主程序版本号
+        val saveHelperVersionCode = AppSaveInfoUtils.helpVersionCodeInfo()
 
         //当前的微信版本号
-        val wechatVersionCode = getWechatVersionCode()
+        val wechatVersionCode = MyApplication.get().getWechatVersionCode().toString()
 
-        //如果没有适合的数据，或者刚刚更新了主程序版本
-        if (wechatVersionCode.toString() != wechatVersion && wechatVersion != "0" || !hasSuitWechatData
-                || helperVersionCode != getHelperVersionCode(this).toString()) {
+        //当前的主程序版本号
+        val helperVersionCode = MyApplication.get().getHelperVersionCode().toString()
+
+        //  如果微信版本号发生了变化且保存过版本号（上次使用别的版本加载过）
+        //  或者保存的数据中是 没有适合的数据的标记
+        //  或者主程序版本号发生了改变
+        if (wechatVersionCode != saveWechatVersionCode && saveWechatVersionCode != "0"
+                || !hasSuitWechatData
+                || saveHelperVersionCode != helperVersionCode) {
 
             //则发送数据请求
             sendRequest(wechatVersionCode, playVersion)
@@ -124,60 +158,42 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private var permissionHelper: PermissionHelper? = null
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        permissionHelper?.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        permissionHelper = PermissionHelper.check(thisActivity)
-    }
-
-
-    private fun sendRequest(versionCode: Int, play_version: Boolean) {
+    private fun sendRequest(versionCode: String, play_version: Boolean) {
 
         val requestBody = FormBody.Builder()
-                .add("versionCode", versionCode.toString())
+                .add("versionCode", versionCode)
                 .add("isPlayVersion", if (play_version) "1" else "0").build()
 
-        val request = Request.Builder()
-                .url(ApiManager.UrlPath.CLASS_MAPPING)
-                .post(requestBody)
-                .build()
+        val request = Request.Builder().url(ApiManager.UrlPath.CLASS_MAPPING).post(requestBody).build()
 
         ApiManager.okHttpClient.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call?, e: IOException?) {
-
             }
 
-            override fun onResponse(call: Call?, response: Response?) {
+            override fun onResponse(call: Call, response: Response) {
 
                 try {
-                    val string = response!!.body()!!.string()
-
+                    val string = response.body()!!.string()
                     val jsonObject = JsonParser().parse(string).asJsonObject
-
                     val code = jsonObject.get("code").asInt
                     val msg = jsonObject.get("msg").asString
 
+                    //保存匹配到的数据
                     if (code == 0) {
-                        FileUtils.putJsonValue("json", jsonObject.get("data").toString())
+                        AppSaveInfoUtils.setJson(jsonObject.get("data").toString())
                         setSuccessText(msg)
-
                     } else {
-                        FileUtils.putJsonValue("json", "")
+                        AppSaveInfoUtils.setJson("")
                         setFailText(msg)
                     }
 
-                    FileUtils.putJsonValue("helper_versionCode", getHelperVersionCode(thisActivity).toString())
+                    //保存主程序版本号
+                    AppSaveInfoUtils.setHelpVersionCodeInfo(MyApplication.get().getHelperVersionCode().toString())
+
                 } catch (e: Exception) {
                     e.printStackTrace()
                     setFailText("从服务器获取数据失败，请联系检查网络链接")
                 }
-
             }
         })
     }
@@ -188,8 +204,8 @@ class MainActivity : AppCompatActivity() {
             detail.text = msg
             detail.setTextColor(0xFFFF0000.toInt())
 
-            FileUtils.putJsonValue("has_suit_wechat_data", false)
-            FileUtils.putJsonValue("show_info", msg)
+            AppSaveInfoUtils.setHasSuitWechatDataInfo(false)
+            AppSaveInfoUtils.setShowInfo(msg)
         }
     }
 
@@ -198,42 +214,20 @@ class MainActivity : AppCompatActivity() {
             detail.setTextColor(0xFF888888.toInt())
             detail.text = msg
 
-            FileUtils.putJsonValue("has_suit_wechat_data", true)
-            FileUtils.putJsonValue("wechat_version", getWechatVersionCode().toString())
-            FileUtils.putJsonValue("show_info", msg)
+            AppSaveInfoUtils.setWechatVersionInfo(MyApplication.get().getWechatVersionCode().toString())
+            AppSaveInfoUtils.setHasSuitWechatDataInfo(true)
+            AppSaveInfoUtils.setShowInfo(msg)
         }
     }
 
-    private fun getWechatVersionCode(): Int {
-        val list = packageManager.getInstalledPackages(0) as List<PackageInfo>
-
-        var wechatVersionCode = -1
-
-        try {
-            for (packageInfo in list) {
-                if (packageInfo.packageName == Constants.WECHAT_PACKAGE_NAME) {
-                    wechatVersionCode = if (packageInfo.versionName == "6.5.14") 1101
-                    else packageInfo.versionCode
-                    break
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-        return wechatVersionCode
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        permissionHelper?.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    private fun getHelperVersionCode(context: Context): Int {
-        val packageManager = context.packageManager as PackageManager
-        var versionCode = 0
-
-        try {
-            versionCode = packageManager.getPackageInfo(context.packageName, 0).versionCode
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return versionCode
+    override fun onRestart() {
+        super.onRestart()
+        permissionHelper = PermissionHelper.check(thisActivity)
     }
 
     class SettingFragment : PreferenceFragment() {
@@ -254,7 +248,7 @@ class MainActivity : AppCompatActivity() {
 
             play_version.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
                 val activity = activity as MainActivity
-                activity.sendRequest(activity.getWechatVersionCode(), newValue as Boolean)
+                activity.sendRequest(MyApplication.get().getWechatVersionCode().toString(), newValue as Boolean)
                 true
             }
         }

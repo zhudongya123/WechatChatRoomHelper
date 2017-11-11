@@ -1,10 +1,11 @@
-package com.zdy.project.wechat_chatroom_helper.ui
+package com.zdy.project.wechat_chatroom_helper.ui.wechat
 
 import android.app.Dialog
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -50,12 +51,15 @@ class WhiteListDialog(private var mContext: Context) : Dialog(mContext) {
 
         val title = TextView(mContext)
         title.setTextColor(0xff000000.toInt())
-        title.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ScreenUtils.dip2px(mContext, 48f))
+        title.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, ScreenUtils.dip2px(mContext, 48f))
         title.gravity = Gravity.CENTER_VERTICAL
         title.text = "请选择不需要显示在助手中的条目"
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+
+
         val button = TextView(mContext)
-        val layoutParams = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ScreenUtils.dip2px(mContext, 32f))
-        layoutParams.setMargins(0, padding / 2, 0, 0)
+        val layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ScreenUtils.dip2px(mContext, 32f))
+        layoutParams.setMargins(0, padding / 2, padding / 2, 0)
         button.layoutParams = layoutParams
         button.gravity = Gravity.CENTER_VERTICAL
         button.setPadding(padding / 2, 0, padding / 2, 0)
@@ -71,8 +75,6 @@ class WhiteListDialog(private var mContext: Context) : Dialog(mContext) {
             val switch = Switch(mContext)
 
             switch.text = s
-//            switch.maxEms = 12
-//            switch.ellipsize = TextUtils.TruncateAt.END
 
             switch.buttonTintList = ColorStateList.valueOf(Color.rgb(26, 173, 25))
 
@@ -96,7 +98,7 @@ class WhiteListDialog(private var mContext: Context) : Dialog(mContext) {
 
         if (list.size > 6) {
             scrollView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                    ScreenUtils.dip2px(mContext, 180f))
+                    ScreenUtils.dip2px(mContext, 210f))
         }
         scrollView.addView(listView)
 

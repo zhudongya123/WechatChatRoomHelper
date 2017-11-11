@@ -5,6 +5,7 @@ import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
 
 import com.zdy.project.wechat_chatroom_helper.manager.Type;
+import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 import java.util.ArrayList;
@@ -47,8 +48,8 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
     }
 
 
-    public void setMuteListInAdapterPositions(ArrayList<Integer> muteListInAdapterPositions) {
-        mView.showMessageRefresh(muteListInAdapterPositions);
+    public void setListInAdapterPositions(ArrayList<Integer> listInAdapterPositions) {
+        mView.showMessageRefresh(listInAdapterPositions);
     }
 
     @Override

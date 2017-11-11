@@ -639,7 +639,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
 
         // ======================== 新加的 START ========================
         if (!mIsNavigationBarOverlap && UIUtil.isPortrait(mActivity)) {
-            maxLayoutHeight -= UIUtil.getNavigationBarHeight(mActivity);
+            maxLayoutHeight -= (UIUtil.getNavigationBarHeight(mActivity)+UIUtil.dip2px(mActivity,25));
         }
 
         if (mIsNavigationBarOverlap && !UIUtil.isPortrait(mActivity)) {

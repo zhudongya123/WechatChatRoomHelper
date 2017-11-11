@@ -11,7 +11,7 @@ import android.widget.Button;
 
 import com.zdy.project.wechat_chatroom_helper.R;
 import com.zdy.project.wechat_chatroom_helper.manager.Type;
-import com.zdy.project.wechat_chatroom_helper.ui.WhiteListDialog;
+import com.zdy.project.wechat_chatroom_helper.ui.wechat.WhiteListDialog;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 import java.util.ArrayList;
