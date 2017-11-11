@@ -13,7 +13,6 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.Shape;
 import android.os.Bundle;
 import android.text.SpannableString;
-import android.text.SpannedString;
 import android.util.AttributeSet;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
@@ -267,15 +266,29 @@ public class HookLogic implements IXposedHookLoadPackage {
         fitSystemWindowLayoutView.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
             @Override
             public void onChildViewAdded(View parent, View child) {
-                if (fitSystemWindowLayoutView.getChildCount() != 2) return;
 
-                if (!fitSystemWindowLayoutView.getChildAt(0).getClass().getSimpleName().equals("LinearLayout"))
-                    return;
-                if (!fitSystemWindowLayoutView.getChildAt(1).getClass().getSimpleName().equals("TestTimeForChatting"))
-                    return;
+                if (AppSaveInfoUtils.Companion.wechatVersionInfo().equals("1140")) {
+                    if (fitSystemWindowLayoutView.getChildCount() != 3) return;
 
-                fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter.getPresenterView(), 1);
-                fitSystemWindowLayoutView.addView(officialChatRoomViewPresenter.getPresenterView(), 2);
+                    if (!fitSystemWindowLayoutView.getChildAt(0).getClass().getSimpleName().equals("LinearLayout"))
+                        return;
+                    if (!fitSystemWindowLayoutView.getChildAt(2).getClass().getSimpleName().equals
+                            ("TestTimeForChatting"))
+                        return;
+
+                    fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter.getPresenterView(), 2);
+                    fitSystemWindowLayoutView.addView(officialChatRoomViewPresenter.getPresenterView(), 3);
+                } else {
+                    if (fitSystemWindowLayoutView.getChildCount() != 2) return;
+
+                    if (!fitSystemWindowLayoutView.getChildAt(0).getClass().getSimpleName().equals("LinearLayout"))
+                        return;
+                    if (!fitSystemWindowLayoutView.getChildAt(1).getClass().getSimpleName().equals ("TestTimeForChatting"))
+                        return;
+
+                    fitSystemWindowLayoutView.addView(muteChatRoomViewPresenter.getPresenterView(), 1);
+                    fitSystemWindowLayoutView.addView(officialChatRoomViewPresenter.getPresenterView(), 2);
+                }
 
             }
 
