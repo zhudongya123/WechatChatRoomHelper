@@ -24,6 +24,7 @@ import com.google.gson.JsonParser
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.ui.helper.InfoDialogBuilder
+import com.zdy.project.wechat_chatroom_helper.ui.helper.ToolBarColorDialog
 import manager.PermissionHelper
 import network.ApiManager
 import okhttp3.*
@@ -39,8 +40,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var listContent: LinearLayout
 
     private lateinit var receiver: PermissionBroadCastReceiver
-
-    private lateinit var infoDialog: AlertDialog
 
     private var permissionHelper: PermissionHelper? = null
 
@@ -92,10 +91,32 @@ class MainActivity : AppCompatActivity() {
 
             when (i) {
                 0 -> switch.isChecked = AppSaveInfoUtils.openInfo()
+                1 -> switch.isChecked = AppSaveInfoUtils.isChatRoomOpen()
+                2 -> switch.isChecked = AppSaveInfoUtils.isOfficialOpen()
                 3 -> switch.isChecked = AppSaveInfoUtils.isCircleAvatarInfo()
                 4 -> switch.isChecked = AppSaveInfoUtils.autoCloseInfo()
                 5 -> {
                     switch.visibility = View.INVISIBLE
+                }
+            }
+
+            switch.setOnCheckedChangeListener(object : CompoundButton.OnCheckedChangeListener {
+                override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
+                    when (i) {
+                        0 -> AppSaveInfoUtils.setOpen(isChecked)
+                        1 -> AppSaveInfoUtils.setChatRoom(isChecked)
+                        2 -> AppSaveInfoUtils.setOfficial(isChecked)
+                        3 -> AppSaveInfoUtils.setCircleAvatarInfo(isChecked)
+                        4 -> AppSaveInfoUtils.setAutoCloseInfo(isChecked)
+                    }
+                }
+
+            })
+
+            switch.setOnClickListener {
+
+                if (i == 5) {
+                    ToolBarColorDialog.getDialog(thisActivity).show()
                 }
 
             }
@@ -114,7 +135,7 @@ class MainActivity : AppCompatActivity() {
         //获取公告及其Dialog
         InfoDialogBuilder.buildInfoDialog(thisActivity, object : InfoDialogBuilder.CallBack {
             override fun receive(dialog: AlertDialog) {
-                clickMe.setOnClickListener { infoDialog.show() }
+                clickMe.setOnClickListener { dialog.show() }
             }
         })
 
@@ -204,7 +225,7 @@ class MainActivity : AppCompatActivity() {
             detail.text = msg
             detail.setTextColor(0xFFFF0000.toInt())
 
-            AppSaveInfoUtils.setHasSuitWechatDataInfo(false)
+            AppSaveInfoUtils.setSuitWechatDataInfo(false)
             AppSaveInfoUtils.setShowInfo(msg)
         }
     }
@@ -215,7 +236,7 @@ class MainActivity : AppCompatActivity() {
             detail.text = msg
 
             AppSaveInfoUtils.setWechatVersionInfo(MyApplication.get().getWechatVersionCode().toString())
-            AppSaveInfoUtils.setHasSuitWechatDataInfo(true)
+            AppSaveInfoUtils.setSuitWechatDataInfo(true)
             AppSaveInfoUtils.setShowInfo(msg)
         }
     }

@@ -27,20 +27,48 @@ import com.zdy.project.wechat_chatroom_helper.Constants
         var WHITE_LIST_CHAT_ROOM = "white_list_chat_room"
         var WHITE_LIST_OFFICIAL = "white_list_official"
 
+        var CHAT_ROOM_FLAG = "chat_room_flag"
+        var OFFICIAL_FLAG = "official_flag"
+
+
+        fun isChatRoomOpen(): Boolean {
+            return FileUtils.getJsonValue(CHAT_ROOM_FLAG, true)
+        }
+
+        fun setChatRoom(value: Boolean) {
+            return FileUtils.putJsonValue(CHAT_ROOM_FLAG, value)
+        }
+
+        fun isOfficialOpen(): Boolean {
+            return FileUtils.getJsonValue(OFFICIAL_FLAG, true)
+        }
+
+        fun setOfficial(value: Boolean) {
+            return FileUtils.putJsonValue(OFFICIAL_FLAG, value)
+        }
+
         fun openInfo(): Boolean {
             return FileUtils.getJsonValue(OPEN, true)
         }
 
-        fun setJson(value: String) {
-            return FileUtils.putJsonValue(JSON, value)
+        fun setOpen(value: Boolean) {
+            FileUtils.putJsonValue(OPEN, value)
         }
 
         fun getJson(): String {
             return FileUtils.getJsonValue(JSON, "")
         }
 
+        fun setJson(value: String) {
+            FileUtils.putJsonValue(JSON, value)
+        }
+
         fun isCircleAvatarInfo(): Boolean {
             return FileUtils.getJsonValue(IS_CIRCLE_AVATAR, false)
+        }
+
+        fun setCircleAvatarInfo(value: Boolean) {
+            FileUtils.putJsonValue(IS_CIRCLE_AVATAR, value)
         }
 
         fun showInfo(): String {
@@ -55,20 +83,32 @@ import com.zdy.project.wechat_chatroom_helper.Constants
             return FileUtils.getJsonValue(AUTO_CLOSE, false)
         }
 
+        fun setAutoCloseInfo(value: Boolean) {
+            FileUtils.putJsonValue(AUTO_CLOSE, value)
+        }
+
         fun toolbarColorInfo(): String {
             return FileUtils.getJsonValue(TOOLBAR_COLOR, Constants.DEFAULT_TOOLBAR_COLOR)
+        }
+
+        fun setToolbarColorInfo(value: String) {
+            FileUtils.putJsonValue(TOOLBAR_COLOR, value)
         }
 
         fun hasSuitWechatDataInfo(): Boolean {
             return FileUtils.getJsonValue(HAS_SUIT_WECHAT_DATA, false)
         }
 
-        fun setHasSuitWechatDataInfo(value: Boolean) {
+        fun setSuitWechatDataInfo(value: Boolean) {
             FileUtils.putJsonValue(HAS_SUIT_WECHAT_DATA, value)
         }
 
         fun isplayVersionInfo(): Boolean {
             return FileUtils.getJsonValue(IS_PLAY_VERSION, false)
+        }
+
+        fun setPlayVersionInfo(value: Boolean) {
+            FileUtils.putJsonValue(IS_PLAY_VERSION, value)
         }
 
         fun helpVersionCodeInfo(): String {
