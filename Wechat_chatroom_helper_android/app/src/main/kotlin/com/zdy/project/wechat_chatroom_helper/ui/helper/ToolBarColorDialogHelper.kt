@@ -18,7 +18,7 @@ import utils.AppSaveInfoUtils
 /**
  * Created by zhudo on 2017/11/14.
  */
-class ToolBarColorDialog {
+class ToolBarColorDialogHelper {
 
 
     companion object {
@@ -75,12 +75,12 @@ class ToolBarColorDialog {
             return linearLayout
         }
 
-        private fun getColorInt(colorString: CharSequence?): Int {
-            return Color.parseColor("#" + colorString!!)
+        private fun getColorInt(colorString: CharSequence): Int {
+            return Color.parseColor("#" + colorString)
         }
 
 
-        class ToolBarColorTextWatcher internal constructor(var editText: EditText, var button: View) : TextWatcher {
+        class ToolBarColorTextWatcher  constructor(private var editText: EditText, private var button: View) : TextWatcher {
 
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
 

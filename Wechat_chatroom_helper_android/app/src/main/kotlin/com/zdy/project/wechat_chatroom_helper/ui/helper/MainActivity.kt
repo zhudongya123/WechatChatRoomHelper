@@ -24,7 +24,7 @@ import com.google.gson.JsonParser
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.ui.helper.InfoDialogBuilder
-import com.zdy.project.wechat_chatroom_helper.ui.helper.ToolBarColorDialog
+import com.zdy.project.wechat_chatroom_helper.ui.helper.ToolBarColorDialogHelper
 import manager.PermissionHelper
 import network.ApiManager
 import okhttp3.*
@@ -40,7 +40,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var listContent: LinearLayout
 
     private lateinit var receiver: PermissionBroadCastReceiver
-
     private var permissionHelper: PermissionHelper? = null
 
 
@@ -69,21 +68,19 @@ class MainActivity : AppCompatActivity() {
         listContent = findViewById(R.id.list_content) as LinearLayout
 
 
+        //加載可配置項的佈局
         initSetting()
     }
 
     private fun initSetting() {
         val titles = arrayOf("功能开关", "群消息助手开关", "公众号助手开关", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手Toolbar颜色")
 
-
-
         for (i in 0 until titles.size) {
             title = titles[i]
 
             val itemView = LayoutInflater.from(thisActivity).inflate(R.layout.layout_setting_item, listContent, false)
-
             val text = itemView.findViewById(android.R.id.text1) as TextView
-            var switch = itemView.findViewById(android.R.id.button1) as SwitchCompat
+            val switch = itemView.findViewById(android.R.id.button1) as SwitchCompat
 
             text.text = title
 
@@ -116,7 +113,7 @@ class MainActivity : AppCompatActivity() {
             switch.setOnClickListener {
 
                 if (i == 5) {
-                    ToolBarColorDialog.getDialog(thisActivity).show()
+                    ToolBarColorDialogHelper.getDialog(thisActivity).show()
                 }
 
             }
@@ -251,104 +248,4 @@ class MainActivity : AppCompatActivity() {
         permissionHelper = PermissionHelper.check(thisActivity)
     }
 
-    class SettingFragment : PreferenceFragment() {
-
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            preferenceManager.sharedPreferencesMode = Context.MODE_PRIVATE
-            addPreferencesFromResource(R.xml.pref_setting)
-
-            val toolbarColor = findPreference("toolbar_color") as EditTextPreference
-            val playVersion = findPreference("play_version") as SwitchPreference
-
-            setToolbarColor(toolbarColor)
-            setCheckPlayVersion(playVersion)
-        }
-
-        private fun setCheckPlayVersion(play_version: SwitchPreference) {
-
-            play_version.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-                val activity = activity as MainActivity
-                activity.sendRequest(MyApplication.get().getWechatVersionCode().toString(), newValue as Boolean)
-                true
-            }
-        }
-
-
-        private fun setToolbarColor(preference: EditTextPreference) {
-
-            val watcher = PreferenceTextWatcher(preference)
-            preference.onPreferenceClickListener = Preference.OnPreferenceClickListener { _ ->
-
-                val toolbarColor = preference.sharedPreferences.getString("toolbar_color", Constants.DEFAULT_TOOLBAR_COLOR)
-                val toolbarColorInt = getColorInt(toolbarColor)
-
-                val editText = preference.editText as EditText
-
-                editText.backgroundTintList = ColorStateList.valueOf(toolbarColorInt)
-                editText.backgroundTintMode = PorterDuff.Mode.SRC_IN
-                editText.setTextColor(toolbarColorInt)
-                editText.hint = "当前值" + toolbarColor
-                editText.setSingleLine()
-                editText.setSelection(editText.text.length)
-                editText.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
-                    override fun onViewAttachedToWindow(v: View?) {
-                        editText.addTextChangedListener(watcher)
-                    }
-
-                    override fun onViewDetachedFromWindow(v: View?) {
-                        editText.removeTextChangedListener(watcher)
-                    }
-                })
-
-                false
-            }
-
-            preference.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-                try {
-                    getColorInt(newValue.toString())
-                    Toast.makeText(activity, "颜色已更新", Toast.LENGTH_SHORT).show()
-                    true
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    false
-                }
-            }
-        }
-
-
-        private fun getColorInt(colorString: CharSequence?): Int {
-            return Color.parseColor("#" + colorString!!)
-        }
-
-        private inner class PreferenceTextWatcher internal
-        constructor(internal var preference: EditTextPreference) : TextWatcher {
-
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-
-            }
-
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                val button = preference.dialog.findViewById(android.R.id.button1)
-                if (s.length == 6)
-                    try {
-                        val color = getColorInt(s)
-                        val editText = preference.editText
-                        editText.setTextColor(color)
-                        editText.backgroundTintList = ColorStateList.valueOf(color)
-                        editText.backgroundTintMode = PorterDuff.Mode.SRC_IN
-                        button.isEnabled = true
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        button.isEnabled = false
-                    }
-                else {
-                    button.isEnabled = false
-                }
-            }
-
-            override fun afterTextChanged(s: Editable) {
-            }
-        }
-    }
 }
