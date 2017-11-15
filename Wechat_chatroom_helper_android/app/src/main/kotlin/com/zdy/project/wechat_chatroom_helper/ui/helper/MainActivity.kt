@@ -5,21 +5,15 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.res.ColorStateList
-import android.graphics.Color
-import android.graphics.PorterDuff
 import android.os.Bundle
-import android.preference.EditTextPreference
-import android.preference.Preference
-import android.preference.PreferenceFragment
-import android.preference.SwitchPreference
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.SwitchCompat
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.CompoundButton
+import android.widget.LinearLayout
+import android.widget.TextView
 import com.google.gson.JsonParser
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
@@ -73,7 +67,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initSetting() {
-        val titles = arrayOf("功能开关", "群消息助手开关", "公众号助手开关", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手Toolbar颜色")
+        val titles = arrayOf("功能开关", "我使用的是play版本", "群消息助手开关", "公众号助手开关", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手Toolbar颜色")
 
         for (i in 0 until titles.size) {
             title = titles[i]
@@ -88,11 +82,12 @@ class MainActivity : AppCompatActivity() {
 
             when (i) {
                 0 -> switch.isChecked = AppSaveInfoUtils.openInfo()
-                1 -> switch.isChecked = AppSaveInfoUtils.isChatRoomOpen()
-                2 -> switch.isChecked = AppSaveInfoUtils.isOfficialOpen()
-                3 -> switch.isChecked = AppSaveInfoUtils.isCircleAvatarInfo()
-                4 -> switch.isChecked = AppSaveInfoUtils.autoCloseInfo()
-                5 -> {
+                1 -> switch.isChecked = AppSaveInfoUtils.isPlayVersionInfo()
+                2 -> switch.isChecked = AppSaveInfoUtils.isChatRoomOpen()
+                3 -> switch.isChecked = AppSaveInfoUtils.isOfficialOpen()
+                4 -> switch.isChecked = AppSaveInfoUtils.isCircleAvatarInfo()
+                5 -> switch.isChecked = AppSaveInfoUtils.autoCloseInfo()
+                6 -> {
                     switch.visibility = View.INVISIBLE
                 }
             }
@@ -101,10 +96,14 @@ class MainActivity : AppCompatActivity() {
                 override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
                     when (i) {
                         0 -> AppSaveInfoUtils.setOpen(isChecked)
-                        1 -> AppSaveInfoUtils.setChatRoom(isChecked)
-                        2 -> AppSaveInfoUtils.setOfficial(isChecked)
-                        3 -> AppSaveInfoUtils.setCircleAvatarInfo(isChecked)
-                        4 -> AppSaveInfoUtils.setAutoCloseInfo(isChecked)
+                        1 -> {
+                            AppSaveInfoUtils.setPlayVersionInfo(isChecked)
+                            sendRequest(MyApplication.get().getWechatVersionCode().toString(), AppSaveInfoUtils.isPlayVersionInfo())
+                        }
+                        2 -> AppSaveInfoUtils.setChatRoom(isChecked)
+                        3 -> AppSaveInfoUtils.setOfficial(isChecked)
+                        4 -> AppSaveInfoUtils.setCircleAvatarInfo(isChecked)
+                        5 -> AppSaveInfoUtils.setAutoCloseInfo(isChecked)
                     }
                 }
 
@@ -112,7 +111,7 @@ class MainActivity : AppCompatActivity() {
 
             switch.setOnClickListener {
 
-                if (i == 5) {
+                if (i == 6) {
                     ToolBarColorDialogHelper.getDialog(thisActivity).show()
                 }
 
@@ -145,7 +144,7 @@ class MainActivity : AppCompatActivity() {
         val hasSuitWechatData = AppSaveInfoUtils.hasSuitWechatDataInfo()
 
         //play开关是否打开的标记
-        val playVersion = AppSaveInfoUtils.isplayVersionInfo()
+        val playVersion = AppSaveInfoUtils.isPlayVersionInfo()
 
         //当前保存的微信版本号
         val saveWechatVersionCode = AppSaveInfoUtils.wechatVersionInfo()

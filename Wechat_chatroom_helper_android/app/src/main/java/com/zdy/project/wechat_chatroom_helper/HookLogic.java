@@ -23,8 +23,8 @@ import android.widget.ImageView;
 
 import com.zdy.project.wechat_chatroom_helper.manager.Type;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
-import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter;
+import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
 
 import java.util.ArrayList;
 
@@ -118,9 +118,9 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         mClassLoader = loadPackageParam.classLoader;
 
-        if (!AppSaveInfoUtils.Companion.initVariableName()) return;//判断是否获取了配置
+        if (!AppSaveInfoUtils.INSTANCE.initVariableName()) return;//判断是否获取了配置
 
-        if (!AppSaveInfoUtils.Companion.openInfo()) return;
+        if (!AppSaveInfoUtils.INSTANCE.openInfo()) return;
 
 
         XposedHelpers.findAndHookConstructor("com.tencent.mm.ui.HomeUI.FitSystemWindowLayoutView",
@@ -249,7 +249,7 @@ public class HookLogic implements IXposedHookLoadPackage {
             @Override
             public void onChildViewAdded(View parent, View child) {
 
-                if (AppSaveInfoUtils.Companion.wechatVersionInfo().equals("1140")) {
+                if (AppSaveInfoUtils.INSTANCE.wechatVersionInfo().equals("1140")) {
                     if (fitSystemWindowLayoutView.getChildCount() != 3) return;
 
                     if (!fitSystemWindowLayoutView.getChildAt(0).getClass().getSimpleName().equals("LinearLayout"))
@@ -317,7 +317,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     XposedHelpers.callMethod(param.thisObject, "onItemClick"
                             , param.args[0], view, relativePosition + headerViewsCount, id);
 
-                    if (AppSaveInfoUtils.Companion.autoCloseInfo()) chatRoomViewPresenter.dismiss();
+                    if (AppSaveInfoUtils.INSTANCE.autoCloseInfo()) chatRoomViewPresenter.dismiss();
                 }
             });
             chatRoomViewPresenter.show();
@@ -334,7 +334,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     XposedHelpers.callMethod(param.thisObject, "onItemClick"
                             , param.args[0], view, relativePosition + headerViewsCount, id);
 
-                    if (AppSaveInfoUtils.Companion.autoCloseInfo()) officialViewPresenter.dismiss();
+                    if (AppSaveInfoUtils.INSTANCE.autoCloseInfo()) officialViewPresenter.dismiss();
                 }
             });
             officialViewPresenter.show();
@@ -594,13 +594,26 @@ public class HookLogic implements IXposedHookLoadPackage {
     }
 
     private boolean isOfficialConversation(Object value, Object messageStatus) {
-        Object username = XposedHelpers.getObjectField(messageStatus, Constants.Value_Message_Bean_NickName);
+        String username = XposedHelpers.getObjectField(messageStatus, Constants.Value_Message_Bean_NickName).toString();
+
+
+        ArrayList<String> list = AppSaveInfoUtils.INSTANCE.getWhiteList("white_list_official");
 
         boolean wcY = XposedHelpers.getBooleanField(messageStatus, Value_Message_Status_Is_OFFICIAL_1);
         int wcU = XposedHelpers.getIntField(messageStatus, Value_Message_Status_Is_OFFICIAL_2);
         String field_username = ((String) XposedHelpers.getObjectField(value, Value_Message_Status_Is_OFFICIAL_3));
 
-        return !"gh_43f2581f6fd6".equals(field_username) && wcY && (wcU == 1 || wcU == 2 || wcU == 3);
+        boolean isOfficial = !"gh_43f2581f6fd6".equals(field_username) && wcY && (wcU == 1 || wcU == 2 || wcU == 3);
+
+        if (isOfficial) {
+            officialNickNameEntries.add(username);
+
+            for (String s : list) {
+                if (s.trim().equals(username)) return false;
+            }
+        }
+
+        return isOfficial;
     }
 
     private boolean isChatRoomConversation(Object messageStatus) {
@@ -608,16 +621,15 @@ public class HookLogic implements IXposedHookLoadPackage {
         boolean uyI = XposedHelpers.getBooleanField(messageStatus, Value_Message_Status_Is_Mute_1);
         boolean uXX = XposedHelpers.getBooleanField(messageStatus, Value_Message_Status_Is_Mute_2);
 
-        ArrayList<String> list = AppSaveInfoUtils.Companion.getWhiteList("white_list_chat_room");
-        String username = XposedHelpers.getObjectField(messageStatus, Constants
-                .Value_Message_Bean_NickName).toString();
+        ArrayList<String> list = AppSaveInfoUtils.INSTANCE.getWhiteList("white_list_chat_room");
 
+        String username = XposedHelpers.getObjectField(messageStatus, Constants.Value_Message_Bean_NickName).toString();
 
 
         //这是个群聊
         if (uXX) {
             //搜集所有群聊的标记
-            if (AppSaveInfoUtils.Companion.chatRoomTypeInfo().equals("1")) {
+            if (AppSaveInfoUtils.INSTANCE.chatRoomTypeInfo().equals("1")) {
                 allChatRoomNickNameEntries.add(username);
                 for (String s : list) {
                     if (s.trim().equals(username)) return false;
@@ -638,7 +650,7 @@ public class HookLogic implements IXposedHookLoadPackage {
     }
 
     //自造群消息助手头像
-    public static void handlerChatRoomBitmap(Canvas canvas, Paint paint, int size, Bitmap drawable) {
+    private static void handlerChatRoomBitmap(Canvas canvas, Paint paint, int size, Bitmap drawable) {
         Bitmap whiteMask = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
 
         whiteMask.eraseColor(Color.WHITE);
@@ -661,7 +673,7 @@ public class HookLogic implements IXposedHookLoadPackage {
         paint.setXfermode(null);
 
 
-        if (AppSaveInfoUtils.Companion.isCircleAvatarInfo()) {
+        if (AppSaveInfoUtils.INSTANCE.isCircleAvatarInfo()) {
             paint.setColor(0xFF12B7F6);
             canvas.drawCircle(size / 2, size / 2, size / 2, paint);
         } else {
@@ -706,7 +718,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         paint.setXfermode(null);
 
-        if (AppSaveInfoUtils.Companion.isCircleAvatarInfo()) {
+        if (AppSaveInfoUtils.INSTANCE.isCircleAvatarInfo()) {
             paint.setColor(0xFFF5CB00);
             paint.setStrokeWidth(0);
             paint.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -747,7 +759,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                 String.class, String.class, Object[].class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (!AppSaveInfoUtils.Companion.openInfo()) return;
+                        if (!AppSaveInfoUtils.INSTANCE.openInfo()) return;
 
                         //无奈之举，只能使用拦截日志的做法来实现部分功能
                         Object arg = param.args[1];

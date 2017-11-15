@@ -87,8 +87,8 @@ class WhiteListDialog(private var mContext: Context) : Dialog(mContext) {
                     .forEach { switch.isChecked = true }
 
             switch.setOnCheckedChangeListener { buttonView, isChecked ->
-                if (isChecked) AppSaveInfoUtils.setWhiteList(AppSaveInfoUtils.WHITE_LIST_CHAT_ROOM, buttonView.text.toString())
-                else AppSaveInfoUtils.removeWhitList(AppSaveInfoUtils.WHITE_LIST_CHAT_ROOM, buttonView.text.toString())
+                if (isChecked) AppSaveInfoUtils.setWhiteList(keyName, buttonView.text.toString())
+                else AppSaveInfoUtils.removeWhitList(keyName, buttonView.text.toString())
             }
 
             listView.addView(switch, params)

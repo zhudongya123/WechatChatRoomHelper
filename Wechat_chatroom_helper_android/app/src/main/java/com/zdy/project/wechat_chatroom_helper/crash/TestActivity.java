@@ -73,7 +73,7 @@ public class TestActivity extends Activity {
         });
         swipeBackLayout.openPane();
 
-        ArrayList<String> list = AppSaveInfoUtils.Companion.getWhiteList("white_list_chat_room");
+        ArrayList<String> list = AppSaveInfoUtils.INSTANCE.getWhiteList("white_list_chat_room");
         WhiteListDialog dialog = new WhiteListDialog(this);
         dialog.setType(Type.OFFICIAL);
 

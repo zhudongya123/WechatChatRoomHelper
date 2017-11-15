@@ -8,9 +8,7 @@ import com.zdy.project.wechat_chatroom_helper.Constants
 /**
  * Created by zhudo on 2017/11/4.
  */
- class AppSaveInfoUtils {
-
-    companion object {
+ object  AppSaveInfoUtils {
 
         var OPEN = "open"
         var IS_CIRCLE_AVATAR = "is_circle_avatar"
@@ -23,6 +21,7 @@ import com.zdy.project.wechat_chatroom_helper.Constants
         var WECHAT_VERSION = "wechat_version"
         var JSON = "json"
         var CHAT_ROOM_TYPE = "chatRoom_type"
+
 
         var WHITE_LIST_CHAT_ROOM = "white_list_chat_room"
         var WHITE_LIST_OFFICIAL = "white_list_official"
@@ -103,7 +102,7 @@ import com.zdy.project.wechat_chatroom_helper.Constants
             FileUtils.putJsonValue(HAS_SUIT_WECHAT_DATA, value)
         }
 
-        fun isplayVersionInfo(): Boolean {
+    fun isPlayVersionInfo(): Boolean {
             return FileUtils.getJsonValue(IS_PLAY_VERSION, false)
         }
 
@@ -136,7 +135,7 @@ import com.zdy.project.wechat_chatroom_helper.Constants
         }
 
 
-        fun getWhiteList(key: String): ArrayList<String> {
+    fun getWhiteList(key: String): ArrayList<String> {
             val value = FileUtils.getJsonValue(key, "[]")
             val jsonArray = JsonParser().parse(value).asJsonArray
             val arrayList = ArrayList<String>()
@@ -234,6 +233,5 @@ import com.zdy.project.wechat_chatroom_helper.Constants
                 return false
             }
 
-        }
     }
 }

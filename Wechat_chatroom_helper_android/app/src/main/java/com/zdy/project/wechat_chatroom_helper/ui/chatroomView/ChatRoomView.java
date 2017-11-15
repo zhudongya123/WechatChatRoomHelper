@@ -225,7 +225,7 @@ public class ChatRoomView implements ChatRoomContract.View {
                 dismiss();
             }
         });
-        mToolbar.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.Companion.toolbarColorInfo()));
+        mToolbar.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.INSTANCE.toolbarColorInfo()));
 
 
         switch (type) {
@@ -272,6 +272,16 @@ public class ChatRoomView implements ChatRoomContract.View {
             public void onClick(View v) {
                 switch (type) {
                     case OFFICIAL:
+                        WhiteListDialog dialog = new WhiteListDialog(mContext);
+                        dialog.setList(HookLogic.officialNickNameEntries);
+                        dialog.setType(Type.OFFICIAL);
+                        dialog.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                XposedHelpers.callMethod(mPresenter.getOriginAdapter(), "notifyDataSetChanged");
+                            }
+                        });
+                        dialog.show();
                         break;
                     case CHAT_ROOMS:
                         ConfigChatRoomDialog configChatRoomDialog = new ConfigChatRoomDialog(mContext);
@@ -295,7 +305,7 @@ public class ChatRoomView implements ChatRoomContract.View {
 
                                 WhiteListDialog dialog = new WhiteListDialog(mContext);
 
-                                if (AppSaveInfoUtils.Companion.chatRoomTypeInfo().equals("1"))
+                                if (AppSaveInfoUtils.INSTANCE.chatRoomTypeInfo().equals("1"))
                                     dialog.setList(HookLogic.allChatRoomNickNameEntries);
                                 else dialog.setList(HookLogic.muteChatRoomNickNameEntries);
 
