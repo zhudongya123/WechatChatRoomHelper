@@ -86,7 +86,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
 
     //映射出现在主界面的回话的数据位置和实际View位置
-    private SparseIntArray newViewPositionWithDataPositionListForOfficial = new SparseIntArray();
+    private SparseIntArray newViewPositionWithDataPositionList = new SparseIntArray();
 
     private ChatRoomViewPresenter chatRoomViewPresenter;
     private ChatRoomViewPresenter officialViewPresenter;
@@ -463,8 +463,8 @@ public class HookLogic implements IXposedHookLoadPackage {
         if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
             return;
 
-        if (newViewPositionWithDataPositionListForOfficial.size() != 0)
-            index = newViewPositionWithDataPositionListForOfficial.get(index, index);
+        if (newViewPositionWithDataPositionList.size() != 0)
+            index = newViewPositionWithDataPositionList.get(index, index);
 
         //如果刚刚点击了群消息助手中的item，则因为模拟分发点击事件会调用getObject方法，
         // 则这一次getObject方法，不再修改数据和View的位置
@@ -520,7 +520,7 @@ public class HookLogic implements IXposedHookLoadPackage {
             unReadCountListForOfficial.clear();
             firstOfficialPosition = -1;
 
-            newViewPositionWithDataPositionListForOfficial.clear();
+            newViewPositionWithDataPositionList.clear();
 
             officialNickNameEntries = new ArrayList<>();
             muteChatRoomNickNameEntries = new ArrayList<>();
@@ -576,7 +576,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                         (officialCount == 1 && isOfficialConversation && !isChatRoomConversation)) {
                     int key = i - (chatRoomCount >= 1 ? (chatRoomCount - 1) : chatRoomCount);
                     key = key - (officialCount >= 1 ? (officialCount - 1) : officialCount);
-                    newViewPositionWithDataPositionListForOfficial.put(key, i);
+                    newViewPositionWithDataPositionList.put(key, i);
                 }
 
 
@@ -595,7 +595,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     private boolean isOfficialConversation(Object value, Object messageStatus) {
         String username = XposedHelpers.getObjectField(messageStatus, Constants.Value_Message_Bean_NickName).toString();
-
 
         ArrayList<String> list = AppSaveInfoUtils.INSTANCE.getWhiteList("white_list_official");
 

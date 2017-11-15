@@ -5,14 +5,12 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.Switch
-import android.widget.TextView
+import android.widget.*
 import com.zdy.project.wechat_chatroom_helper.manager.Type
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import utils.AppSaveInfoUtils
@@ -67,7 +65,7 @@ class WhiteListDialog(private var mContext: Context) : Dialog(mContext) {
         button.background = mContext.obtainStyledAttributes(intArrayOf(android.R.attr.selectableItemBackground)).getDrawable(0)
 
 
-        var existList = AppSaveInfoUtils.getWhiteList(keyName)
+        val existList = AppSaveInfoUtils.getWhiteList(keyName)
         val listView = LinearLayout(mContext)
         listView.orientation = LinearLayout.VERTICAL
 
@@ -87,6 +85,7 @@ class WhiteListDialog(private var mContext: Context) : Dialog(mContext) {
                     .forEach { switch.isChecked = true }
 
             switch.setOnCheckedChangeListener { buttonView, isChecked ->
+
                 if (isChecked) AppSaveInfoUtils.setWhiteList(keyName, buttonView.text.toString())
                 else AppSaveInfoUtils.removeWhitList(keyName, buttonView.text.toString())
             }
@@ -107,6 +106,16 @@ class WhiteListDialog(private var mContext: Context) : Dialog(mContext) {
         rootView.addView(button)
 
         button.setOnClickListener {
+
+            val unSelectCount = (0 until listView.childCount).count { !(listView.getChildAt(it) as Switch).isChecked }
+
+            Log.v("unSelectCount = ", unSelectCount.toString())
+            if (unSelectCount == 0) {
+                Toast.makeText(mContext, "您不能移除助手里面的所有会话", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+
             dismiss()
             listener.onClick(button)
         }

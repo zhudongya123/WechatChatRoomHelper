@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initSetting() {
-        val titles = arrayOf("功能开关", "我使用的是play版本", "群消息助手开关", "公众号助手开关", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手Toolbar颜色")
+        val titles = arrayOf("功能开关", "我使用的是play版本",  "助手圆形头像", "进入聊天界面自动关闭助手", "群助手Toolbar颜色")
 
         for (i in 0 until titles.size) {
             title = titles[i]
@@ -83,11 +83,9 @@ class MainActivity : AppCompatActivity() {
             when (i) {
                 0 -> switch.isChecked = AppSaveInfoUtils.openInfo()
                 1 -> switch.isChecked = AppSaveInfoUtils.isPlayVersionInfo()
-                2 -> switch.isChecked = AppSaveInfoUtils.isChatRoomOpen()
-                3 -> switch.isChecked = AppSaveInfoUtils.isOfficialOpen()
-                4 -> switch.isChecked = AppSaveInfoUtils.isCircleAvatarInfo()
-                5 -> switch.isChecked = AppSaveInfoUtils.autoCloseInfo()
-                6 -> {
+                2 -> switch.isChecked = AppSaveInfoUtils.isCircleAvatarInfo()
+                3 -> switch.isChecked = AppSaveInfoUtils.autoCloseInfo()
+                4 -> {
                     switch.visibility = View.INVISIBLE
                 }
             }
@@ -100,10 +98,8 @@ class MainActivity : AppCompatActivity() {
                             AppSaveInfoUtils.setPlayVersionInfo(isChecked)
                             sendRequest(MyApplication.get().getWechatVersionCode().toString(), AppSaveInfoUtils.isPlayVersionInfo())
                         }
-                        2 -> AppSaveInfoUtils.setChatRoom(isChecked)
-                        3 -> AppSaveInfoUtils.setOfficial(isChecked)
-                        4 -> AppSaveInfoUtils.setCircleAvatarInfo(isChecked)
-                        5 -> AppSaveInfoUtils.setAutoCloseInfo(isChecked)
+                        2 -> AppSaveInfoUtils.setCircleAvatarInfo(isChecked)
+                        3 -> AppSaveInfoUtils.setAutoCloseInfo(isChecked)
                     }
                 }
 
@@ -111,7 +107,7 @@ class MainActivity : AppCompatActivity() {
 
             switch.setOnClickListener {
 
-                if (i == 6) {
+                if (i == 4) {
                     ToolBarColorDialogHelper.getDialog(thisActivity).show()
                 }
 
