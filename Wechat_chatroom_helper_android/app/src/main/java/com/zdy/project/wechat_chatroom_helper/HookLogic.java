@@ -15,11 +15,13 @@ import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.zdy.project.wechat_chatroom_helper.manager.Type;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
@@ -209,6 +211,14 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
                 });
 
+        XposedHelpers.findAndHookMethod("com.tencent.mm.ui.tools.TestTimeForChatting", loadPackageParam.classLoader,
+                "dispatchKeyEvent", KeyEvent.class, new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                        super.afterHookedMethod(param);
+                    }
+                });
+
 
         hookLog(loadPackageParam);
     }
@@ -265,8 +275,9 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                     if (!fitSystemWindowLayoutView.getChildAt(0).getClass().getSimpleName().equals("LinearLayout"))
                         return;
-                    if (!fitSystemWindowLayoutView.getChildAt(1).getClass().getSimpleName().equals ("TestTimeForChatting"))
+                    if (!fitSystemWindowLayoutView.getChildAt(1).getClass().getSimpleName().equals("TestTimeForChatting"))
                         return;
+
 
                     fitSystemWindowLayoutView.addView(chatRoomViewPresenter.getPresenterView(), 1);
                     fitSystemWindowLayoutView.addView(officialViewPresenter.getPresenterView(), 2);
