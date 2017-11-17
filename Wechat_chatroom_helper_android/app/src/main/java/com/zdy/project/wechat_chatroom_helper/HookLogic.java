@@ -21,7 +21,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.zdy.project.wechat_chatroom_helper.manager.Type;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
@@ -212,10 +211,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                 });
 
         XposedHelpers.findAndHookMethod("com.tencent.mm.ui.tools.TestTimeForChatting", loadPackageParam.classLoader,
-                "dispatchKeyEvent", KeyEvent.class, new XC_MethodHook() {
+                "dispatchTouchEvent", MotionEvent.class, new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         super.afterHookedMethod(param);
+                        XposedBridge.log("TestTimeForChatting, dispatchKeyEvent, MotionEvent = " + param.args[0]
+                                .toString());
                     }
                 });
 
@@ -501,6 +502,10 @@ public class HookLogic implements IXposedHookLoadPackage {
         if (result == 0) return;
 
         if (notifyList) {
+
+            XposedBridge.log("originSize = " + result + ", currentChatRoomSize = "
+                    + chatRoomListInAdapterPositions.size() + ", currentOfficialSize = " + officialListInAdapterPositions.size());
+
             int count = result - chatRoomListInAdapterPositions.size();//减去免打扰消息的數量
             count++;//增加入口位置
 
