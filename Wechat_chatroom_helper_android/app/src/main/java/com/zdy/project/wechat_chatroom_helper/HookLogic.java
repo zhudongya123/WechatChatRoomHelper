@@ -210,13 +210,15 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
                 });
 
-        XposedHelpers.findAndHookMethod("com.tencent.mm.ui.tools.TestTimeForChatting", loadPackageParam.classLoader,
+        XposedHelpers.findAndHookMethod("android.view.ViewGroup", loadPackageParam.classLoader,
                 "dispatchTouchEvent", MotionEvent.class, new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-                        super.afterHookedMethod(param);
-                        XposedBridge.log("TestTimeForChatting, dispatchKeyEvent, MotionEvent = " + param.args[0]
-                                .toString());
+
+                        if (param.thisObject.getClass().getSimpleName().equals("TestTimeForChatting")) {
+                            XposedBridge.log("TestTimeForChatting, dispatchKeyEvent, MotionEvent = " + param.args[0]
+                                    .toString());
+                        }
                     }
                 });
 
