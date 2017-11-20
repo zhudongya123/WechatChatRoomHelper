@@ -215,8 +215,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         super.afterHookedMethod(param);
-                        XposedBridge.log("TestTimeForChatting, dispatchKeyEvent, MotionEvent = " + param.args[0]
-                                .toString());
+                        XposedBridge.log("TestTimeForChatting, dispatchKeyEvent, MotionEvent = " + param.args[0].toString());
                     }
                 });
 
@@ -503,14 +502,13 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         if (notifyList) {
 
-            XposedBridge.log("originSize = " + result + ", currentChatRoomSize = "
-                    + chatRoomListInAdapterPositions.size() + ", currentOfficialSize = " + officialListInAdapterPositions.size());
+            int chatRoomSize = chatRoomListInAdapterPositions.size();
+            int officialSize = officialListInAdapterPositions.size();
+            XposedBridge.log("originSize = " + result + ", currentChatRoomSize = " + chatRoomSize + ", " +
+                    "currentOfficialSize = " + officialSize);
 
-            int count = result - chatRoomListInAdapterPositions.size();//减去免打扰消息的數量
-            count++;//增加入口位置
-
-            count = count - officialListInAdapterPositions.size();//减去公众号的数量
-            count++;
+            int count = result - chatRoomSize + (chatRoomSize > 0 ? 1 : 0);//减去群的數量
+            count = count - officialSize + (officialSize > 0 ? 1 : 0);//减去公众号的数量
 
             param.setResult(count);
         }
