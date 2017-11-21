@@ -1,12 +1,5 @@
 <%@ page import="com.zdy.project.wechat_chatroom_helper.db.DataBaseManager" %>
 <%@ page import="java.util.Calendar" %>
-<%@ page import="java.util.Date" %><%--
-  Created by IntelliJ IDEA.
-  User: zhudo
-  Date: 2017/7/24
-  Time: 17:09
-  To change this template use File | Settings | File Templates.
---%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -72,7 +65,9 @@
 <br>
 
 
-<p>微信6.5.19正在支持，请耐心等候~</p>
+<p>微信6.5.19与6.5.22已经支持</p>
+
+<a href="wechat_download.jsp">点我下载支持的微信版本~</a>
 
 <p>欢迎加入反馈群，测试版本在此提供，同时可以更好的反馈BUG及建议~</p>
 
