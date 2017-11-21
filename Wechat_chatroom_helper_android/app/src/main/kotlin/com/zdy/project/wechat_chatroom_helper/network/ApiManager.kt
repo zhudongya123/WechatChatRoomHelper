@@ -30,6 +30,7 @@ object ApiManager {
                 .add("uuidCode", uuid)
                 .add("model", model)
                 .add("version", AppSaveInfoUtils.helpVersionCodeInfo())
+                .add("wechat_version", AppSaveInfoUtils.wechatVersionInfo())
                 .build()
 
         val request = Request.Builder()

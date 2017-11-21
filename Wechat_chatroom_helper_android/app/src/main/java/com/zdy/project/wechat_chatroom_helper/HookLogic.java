@@ -1,5 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -26,6 +27,7 @@ import com.zdy.project.wechat_chatroom_helper.manager.Type;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter;
 import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
+import com.zdy.project.wechat_chatroom_helper.utils.SoftKeyboardUtil;
 
 import java.util.ArrayList;
 
@@ -106,6 +108,8 @@ public class HookLogic implements IXposedHookLoadPackage {
     private Context context;
 
 
+    private View maskView;
+
     public static ArrayList<String> allChatRoomNickNameEntries;
     public static ArrayList<String> muteChatRoomNickNameEntries;
     public static ArrayList<String> officialNickNameEntries;
@@ -149,13 +153,27 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
                 });
 
-        XposedHelpers.findAndHookMethod("android.app.Activity", loadPackageParam.classLoader,
+        XposedHelpers.findAndHookMethod("com.tencent.mm.ui.LauncherUI", loadPackageParam.classLoader,
                 "onCreate", Bundle.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (param.thisObject.getClass().getSimpleName().equals("LauncherUI")) {
-                            context = (Context) param.thisObject;
-                        }
+                        context = (Context) param.thisObject;
+
+                        SoftKeyboardUtil.observeSoftKeyboard((Activity) context, new SoftKeyboardUtil
+                                .OnSoftKeyboardChangeListener() {
+
+                            public void onSoftKeyBoardChange(int softKeyboardHeight, boolean visible) {
+                                XposedBridge.log("SoftKeyboardUtil, observeSoftKeyboard, softKeyboardHeight = " +
+                                        softKeyboardHeight + ", visible = " + visible);
+
+                                if (chatRoomViewPresenter == null) return;
+                                if (officialViewPresenter == null) return;
+                                if (chatRoomViewPresenter.isShowing() || officialViewPresenter.isShowing()) {
+                                    if (visible) maskView.setVisibility(View.VISIBLE);
+                                    else maskView.setVisibility(View.INVISIBLE);
+                                }
+                            }
+                        });
                     }
                 });
 
@@ -218,10 +236,14 @@ public class HookLogic implements IXposedHookLoadPackage {
                         if (param.thisObject.getClass().getSimpleName().equals("TestTimeForChatting")) {
                             XposedBridge.log("TestTimeForChatting, dispatchKeyEvent, MotionEvent = " + param.args[0]
                                     .toString());
+
+                            MotionEvent motionEvent = (MotionEvent) param.args[0];
+                            if (!isInChatting) return;
+
+
                         }
                     }
                 });
-
 
         hookLog(loadPackageParam);
     }
@@ -235,7 +257,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
             //不在聊天界面
             if (!isInChatting) {
-
                 //群消息助手在屏幕上显示
                 if (chatRoomViewPresenter.isShowing()) {
                     XposedBridge.log("dispatchKeyEvent, chatRoomViewPresenter.isShowing");
@@ -255,14 +276,17 @@ public class HookLogic implements IXposedHookLoadPackage {
         }
     }
 
+
+    private boolean isWechatHighVersion(String wechatVersion) {
+        return wechatVersion.equals("1140") || wechatVersion.equals("1160");
+    }
     private void hookFitSystemWindowLayoutViewConstructor(final XC_MethodHook.MethodHookParam param) {
         final ViewGroup fitSystemWindowLayoutView = (ViewGroup) param.thisObject;
 
         fitSystemWindowLayoutView.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
             @Override
             public void onChildViewAdded(View parent, View child) {
-
-                if (AppSaveInfoUtils.INSTANCE.wechatVersionInfo().equals("1140")) {
+                if (isWechatHighVersion(AppSaveInfoUtils.INSTANCE.wechatVersionInfo())) {
                     if (fitSystemWindowLayoutView.getChildCount() != 3) return;
 
                     if (!fitSystemWindowLayoutView.getChildAt(0).getClass().getSimpleName().equals("LinearLayout"))
@@ -273,6 +297,17 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                     fitSystemWindowLayoutView.addView(chatRoomViewPresenter.getPresenterView(), 2);
                     fitSystemWindowLayoutView.addView(officialViewPresenter.getPresenterView(), 3);
+
+
+                    maskView = new View(context);
+                    maskView.setBackgroundColor(0xff000000);
+                    maskView.setVisibility(View.INVISIBLE);
+                    ViewGroup.LayoutParams maskParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT);
+                    maskView.setLayoutParams(maskParams);
+
+                    fitSystemWindowLayoutView.addView(maskView, 4);
+
                 } else {
                     if (fitSystemWindowLayoutView.getChildCount() != 2) return;
 
@@ -281,9 +316,18 @@ public class HookLogic implements IXposedHookLoadPackage {
                     if (!fitSystemWindowLayoutView.getChildAt(1).getClass().getSimpleName().equals("TestTimeForChatting"))
                         return;
 
-
                     fitSystemWindowLayoutView.addView(chatRoomViewPresenter.getPresenterView(), 1);
                     fitSystemWindowLayoutView.addView(officialViewPresenter.getPresenterView(), 2);
+
+
+                    maskView = new View(context);
+                    maskView.setBackgroundColor(0xff000000);
+                    maskView.setVisibility(View.INVISIBLE);
+                    ViewGroup.LayoutParams maskParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT);
+                    maskView.setLayoutParams(maskParams);
+
+                    fitSystemWindowLayoutView.addView(maskView, 3);
                 }
 
             }
@@ -507,8 +551,8 @@ public class HookLogic implements IXposedHookLoadPackage {
 
             int chatRoomSize = chatRoomListInAdapterPositions.size();
             int officialSize = officialListInAdapterPositions.size();
-            XposedBridge.log("originSize = " + result + ", currentChatRoomSize = " + chatRoomSize + ", " +
-                    "currentOfficialSize = " + officialSize);
+//            XposedBridge.log("originSize = " + result + ", currentChatRoomSize = " + chatRoomSize + ", " +
+//                    "currentOfficialSize = " + officialSize);
 
             int count = result - chatRoomSize + (chatRoomSize > 0 ? 1 : 0);//减去群的數量
             count = count - officialSize + (officialSize > 0 ? 1 : 0);//减去公众号的数量

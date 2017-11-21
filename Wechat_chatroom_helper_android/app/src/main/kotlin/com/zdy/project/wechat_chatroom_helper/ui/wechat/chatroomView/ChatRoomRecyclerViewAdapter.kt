@@ -62,7 +62,7 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
         else
             holder.unread.background = BitmapDrawable(mContext.resources)
 
-        holder.itemView.background = ChatRoomViewHelper.getItemViewBackground()
+        holder.itemView.background = ChatRoomViewHelper.getItemViewBackground(mContext)
 
         holder.itemView.setOnClickListener { onDialogItemClickListener!!.onItemClick(muteListInAdapterPositions[position]) }
     }
