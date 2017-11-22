@@ -21,12 +21,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.zdy.project.wechat_chatroom_helper.manager.Type;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter;
 import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
+import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.SoftKeyboardUtil;
 
 import java.util.ArrayList;
@@ -104,6 +106,9 @@ public class HookLogic implements IXposedHookLoadPackage {
     //是否在聊天界面
     private boolean isInChatting = false;
 
+    //软键盘是否打开
+    private boolean isSoftKeyBoardOpen = false;
+
     private static ClassLoader mClassLoader;
     private Context context;
 
@@ -166,10 +171,11 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 XposedBridge.log("SoftKeyboardUtil, observeSoftKeyboard, softKeyboardHeight = " +
                                         softKeyboardHeight + ", visible = " + visible);
 
+                                isSoftKeyBoardOpen = visible;
                                 if (chatRoomViewPresenter == null) return;
                                 if (officialViewPresenter == null) return;
                                 if (chatRoomViewPresenter.isShowing() || officialViewPresenter.isShowing()) {
-                                    if (visible) maskView.setVisibility(View.VISIBLE);
+                                    if (isSoftKeyBoardOpen) maskView.setVisibility(View.VISIBLE);
                                     else maskView.setVisibility(View.INVISIBLE);
                                 }
                             }
@@ -238,7 +244,21 @@ public class HookLogic implements IXposedHookLoadPackage {
                                     .toString());
 
                             MotionEvent motionEvent = (MotionEvent) param.args[0];
-                            if (!isInChatting) return;
+                            if (!isInChatting) {
+                                maskView.setVisibility(View.INVISIBLE);
+                                return;
+                            }
+
+                            switch (motionEvent.getAction()) {
+                                case MotionEvent.ACTION_DOWN:
+                                    break;
+                                case MotionEvent.ACTION_MOVE:
+                                    if (isSoftKeyBoardOpen)
+                                        maskView.setVisibility(View.INVISIBLE);
+                                    break;
+                                case MotionEvent.ACTION_UP:
+                                    break;
+                            }
 
 
                         }
@@ -280,6 +300,7 @@ public class HookLogic implements IXposedHookLoadPackage {
     private boolean isWechatHighVersion(String wechatVersion) {
         return wechatVersion.equals("1140") || wechatVersion.equals("1160");
     }
+
     private void hookFitSystemWindowLayoutViewConstructor(final XC_MethodHook.MethodHookParam param) {
         final ViewGroup fitSystemWindowLayoutView = (ViewGroup) param.thisObject;
 
@@ -302,8 +323,9 @@ public class HookLogic implements IXposedHookLoadPackage {
                     maskView = new View(context);
                     maskView.setBackgroundColor(0xff000000);
                     maskView.setVisibility(View.INVISIBLE);
-                    ViewGroup.LayoutParams maskParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT);
+                    FrameLayout.LayoutParams maskParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                            FrameLayout.LayoutParams.MATCH_PARENT);
+                    maskParams.setMargins(0, ScreenUtils.dip2px(context, 30), 0, 0);
                     maskView.setLayoutParams(maskParams);
 
                     fitSystemWindowLayoutView.addView(maskView, 4);
