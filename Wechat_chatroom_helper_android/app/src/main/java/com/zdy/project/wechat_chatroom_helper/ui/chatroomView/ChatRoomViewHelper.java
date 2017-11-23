@@ -1,9 +1,8 @@
 package com.zdy.project.wechat_chatroom_helper.ui.chatroomView;
 
 import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
+import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.StateListDrawable;
 import android.support.annotation.IdRes;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -146,11 +145,17 @@ public class ChatRoomViewHelper {
     }
 
 
-    public static Drawable getItemViewBackground() {
-        StateListDrawable stateListDrawable = new StateListDrawable();
-        stateListDrawable.addState(new int[]{android.R.attr.state_pressed}, new ColorDrawable(0xFFCBCBCB));
-        stateListDrawable.addState(new int[]{}, new ColorDrawable(0xFFFFFFFF));
-        return stateListDrawable;
+    public static Drawable getItemViewBackground(Context context) {
+//        StateListDrawable stateListDrawable = new StateListDrawable();
+//        stateListDrawable.addState(new int[]{android.R.attr.state_pressed}, new ColorDrawable(0xFFCBCBCB));
+//        stateListDrawable.addState(new int[]{}, new ColorDrawable(0xFFFFFFFF));
+//        return stateListDrawable;
+        int[] attr = new int[]{android.R.attr.selectableItemBackground};
+        TypedArray typedArray = context.obtainStyledAttributes(attr);
+        Drawable drawable = typedArray.getDrawable(0);
+        typedArray.recycle();
+        return drawable;
+
     }
 
 }

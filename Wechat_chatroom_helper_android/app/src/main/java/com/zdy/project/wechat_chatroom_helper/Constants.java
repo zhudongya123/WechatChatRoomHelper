@@ -10,7 +10,12 @@ public class Constants {
     public static final String WECHAT_PACKAGE_NAME = "com.tencent.mm";
 
     public static final String DEFAULT_TOOLBAR_COLOR = "303135";
+    public static final String DEFAULT_HELPER_COLOR = "FFFFFF";
 
+    public static final String Prefer_File_String = "com.zdy.project.wechat_chatroom_helper_preferences";
+
+    public static final int WRITE_EXTERNAL_STORAGE_RESULT_CODE = 124;
+    public static final String FILE_INIT_SUCCESS = "file_init_success";
 
     public static String Class_Conversation_List_View_Adapter_Name;
     public static String Class_Conversation_List_View_Adapter_Parent_Name;
@@ -50,15 +55,15 @@ public class Constants {
     public static String Method_Message_True_Time;
 
     public static String Class_Set_Avatar;
-    public static String Method_Conversation_List_Get_Avatar ;
+    public static String Method_Conversation_List_Get_Avatar;
 
     public static String Value_Message_Status_Is_OFFICIAL_1;
     public static String Value_Message_Status_Is_OFFICIAL_2;
     public static String Value_Message_Status_Is_OFFICIAL_3;
 
-    public static String Method_Conversation_List_View_Adapter_Param ;
+    public static String Method_Conversation_List_View_Adapter_Param;
 
     public static String Class_Tencent_Home_UI;
     public static String Method_Home_UI_Inflater_View;
-    public static String Value_Home_UI_Activity ;
+    public static String Value_Home_UI_Activity;
 }

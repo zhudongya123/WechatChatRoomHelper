@@ -30,13 +30,13 @@ public class DataBaseManager {
         return INSTANCE;
     }
 
-    public void insertUserStatisticsData(String uuid, String model, String action, String version) {
+    public void insertUserStatisticsData(String uuid, String model, String action, String version, String wechat_version) {
         String sql;
         try {
             Statement stmt = c.createStatement();
 
-            sql = "INSERT INTO user_statistics " + "( uuid, model, action, time, version ) " + "VALUES (" + uuid +
-                    ", '" + model + "', '" + action + "', " + System.currentTimeMillis() + ", '" + version + "' );";
+            sql = "INSERT INTO user_statistics " + "( uuid, model, action, time, version ,wechat_version) " + "VALUES (" + uuid +
+                    ", '" + model + "', '" + action + "', " + System.currentTimeMillis() + ", '" + version + "', '" + wechat_version + "' );";
             stmt.executeUpdate(sql);
 
             stmt.close();

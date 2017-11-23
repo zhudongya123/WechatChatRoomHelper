@@ -1,30 +1,23 @@
 package com.zdy.project.wechat_chatroom_helper.crash;
 
-import android.animation.Animator;
-import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
 import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import com.zdy.project.wechat_chatroom_helper.R;
-import com.zdy.project.wechat_chatroom_helper.ui.MySwipeBackLayout;
+import com.zdy.project.wechat_chatroom_helper.manager.Type;
+import com.zdy.project.wechat_chatroom_helper.ui.wechat.WhiteListDialog;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
-import java.util.IllegalFormatCodePointException;
+import java.util.ArrayList;
 
-import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2;
+import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout;
+import utils.AppSaveInfoUtils;
 
 /**
  * Created by Zdy on 2016/12/16.
@@ -51,16 +44,18 @@ public class TestActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Log.v("TestActivity", "button onClick");
-                swipeBackLayout.closePane();
+             swipeBackLayout.closePane();
+//
+//                ConfigChatRoomDialog configChatRoomDialog = new ConfigChatRoomDialog(TestActivity.this);
+//                configChatRoomDialog.show();
+
             }
         });
         View mainView = new View(this);
 
         mainView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        mainView.setBackground(new GradientDrawable(GradientDrawable.Orientation.RIGHT_LEFT,
-                new int[]{0xFF000000, 0x2A000000, 0xFF000000}));
-
+        mainView.setBackground(new GradientDrawable(GradientDrawable.Orientation.RIGHT_LEFT, new int[]{0xAA888888, 0x00888888}));
 
         AbsoluteLayout.LayoutParams params = new AbsoluteLayout.LayoutParams(
                 ScreenUtils.getScreenWidth(this), ViewGroup.LayoutParams.MATCH_PARENT, 0, 0);
@@ -69,32 +64,26 @@ public class TestActivity extends Activity {
         swipeBackLayout.attachToView(mainView, this);
         content.addView(swipeBackLayout, params);
 
-//        swipeBackLayout.setPanelSlideListener(new BGASwipeBackLayout2.PanelSlideListener() {
-//            @Override
-//            public void onPanelSlide(View panel, float slideOffset) {
-//
-//            }
-//
-//            @Override
-//            public void onPanelOpened(View panel) {
-//                content.setClickable(false);
-//            }
-//
-//            @Override
-//            public void onPanelClosed(View panel) {
-//                content.setClickable(true);
-//            }
-//        });
 
-
+        swipeBackLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeBackLayout.mSlideOffset = 1;
+            }
+        });
         swipeBackLayout.openPane();
 
+        ArrayList<String> list = AppSaveInfoUtils.INSTANCE.getWhiteList("white_list_chat_room");
+        WhiteListDialog dialog = new WhiteListDialog(this);
+        dialog.setType(Type.OFFICIAL);
+
+        dialog.setList(list);
+        dialog.show();
     }
 
     @Override
     public void onBackPressed() {
         if (!swipeBackLayout.isOpen()) {
-
             swipeBackLayout.openPane();
             return;
         }

@@ -3,13 +3,13 @@ apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.3"
+    buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "com.zdy.project.wechat_chatroom_helper"
         minSdkVersion 21
-        targetSdkVersion 23
-        versionCode 25
-        versionName "1.3.10beta-branch2"
+        targetSdkVersion 25
+        versionCode 24
+        versionName "1.3.11beta"
     }
     buildTypes {
         release {
@@ -17,20 +17,18 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    sourceSets.main.java.srcDirs += 'src/main/kotlin'
 }
 
 dependencies {
     provided files('libs/XposedBridgeApi-82.jar')
     compile files('libs/gson-2.7.jar')
-
     compile 'com.android.support:recyclerview-v7:25.3.0'
     compile 'com.android.support:appcompat-v7:25.3.0'
-
     compile 'com.tencent.bugly:crashreport_upgrade:1.3.1'
     compile 'com.squareup.okhttp3:okhttp:3.8.1'
-
-    compile project(':swipeBackLibrary')
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation project(':swipebackLibrary')
 }
 repositories {
     mavenCentral()

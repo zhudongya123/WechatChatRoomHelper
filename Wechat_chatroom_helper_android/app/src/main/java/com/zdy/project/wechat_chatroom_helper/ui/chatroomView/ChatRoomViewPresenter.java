@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
 
+import com.zdy.project.wechat_chatroom_helper.manager.Type;
+import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 import java.util.ArrayList;
@@ -22,7 +24,7 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
 
     private ViewGroup chatRoomView;
 
-    public ChatRoomViewPresenter(Context context, String title) {
+    public ChatRoomViewPresenter(Context context, Type type) {
         mContext = context;
 
         chatRoomView = new AbsoluteLayout(context);
@@ -31,7 +33,7 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
         chatRoomView.setPadding(0, ScreenUtils.getStatusHeight(context),
                 0, ScreenUtils.getNavigationBarHeight(context));
 
-        mView = new ChatRoomView2(context, chatRoomView, title);
+        mView = new ChatRoomView(context, chatRoomView, type);
 
         mView.setPresenter(this);
     }
@@ -46,8 +48,8 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
     }
 
 
-    public void setMuteListInAdapterPositions(ArrayList<Integer> muteListInAdapterPositions) {
-        mView.showMessageRefresh(muteListInAdapterPositions);
+    public void setListInAdapterPositions(ArrayList<Integer> listInAdapterPositions) {
+        mView.showMessageRefresh(listInAdapterPositions);
     }
 
     @Override
@@ -81,5 +83,7 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
     public Object getOriginAdapter() {
         return mAdapter;
     }
+
+
 
 }

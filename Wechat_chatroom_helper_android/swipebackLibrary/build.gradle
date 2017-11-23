@@ -1,0 +1,18 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion '26.0.2'
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 25
+    }
+}
+
+dependencies {
+    provided 'com.android.support:support-v4:25.3.1'
+}
+
+// gradle clean build bintrayUpload
+//apply from: 'https://raw.githubusercontent.com/bingoogolapple/PublishAar/master/jcenter-release.gradle'

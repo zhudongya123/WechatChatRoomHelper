@@ -1,20 +1,15 @@
 package com.zdy.project.wechat_chatroom_helper.ui.chatroomView;
 
-import android.animation.Animator;
-import android.animation.ValueAnimator;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Handler;
-import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.TypedValue;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
@@ -26,22 +21,25 @@ import android.widget.TextView;
 import android.widget.Toolbar;
 
 import com.zdy.project.wechat_chatroom_helper.HookLogic;
-import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
-import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
+import com.zdy.project.wechat_chatroom_helper.manager.Type;
+import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel;
+import com.zdy.project.wechat_chatroom_helper.ui.wechat.ConfigChatRoomDialog;
+import com.zdy.project.wechat_chatroom_helper.ui.wechat.WhiteListDialog;
+import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
+import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 
-import de.robv.android.xposed.XposedBridge;
+import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout;
 import de.robv.android.xposed.XposedHelpers;
+import network.ApiManager;
+import utils.AppSaveInfoUtils;
 
 import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Arrow;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Setting;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_Status_Bean;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_True_Content;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_True_Content_Params;
 
 /**
  * Created by Mr.Zdy on 2017/8/27.
@@ -55,8 +53,8 @@ public class ChatRoomView implements ChatRoomContract.View {
     private Context mContext;
     private AbsoluteLayout mContainer;
 
-    private LinearLayout contentView;
-    private View maskView;
+
+    private MySwipeBackLayout swipeBackLayout;
 
     private LinearLayout mainView;
     private RecyclerView mRecyclerView;
@@ -69,21 +67,19 @@ public class ChatRoomView implements ChatRoomContract.View {
     private boolean isInAnim = false;
     private boolean isDragging = false;
 
+    private String uuid = "0";
+    private Type type;
 
-    ChatRoomView(Context context, final ViewGroup container) {
+    ChatRoomView(Context context, final ViewGroup container, Type type) {
+
         this.mContainer = (AbsoluteLayout) container;
         this.mContext = context;
+        this.type = type;
 
-        initSwipeBack();
-        int width = ScreenUtils.dip2px(mContext, 16) + ScreenUtils.getScreenWidth(mContext);
+        int width = ScreenUtils.getScreenWidth(mContext);
         AbsoluteLayout.LayoutParams params = new AbsoluteLayout.LayoutParams(width, ViewGroup.LayoutParams
                 .MATCH_PARENT, 0, 0);
 
-        maskView = new View(mContext);
-        maskView.setLayoutParams(new ViewGroup.LayoutParams(ScreenUtils.dip2px(mContext, 16),
-                ViewGroup.LayoutParams.MATCH_PARENT));
-        maskView.setBackground(new GradientDrawable(
-                GradientDrawable.Orientation.RIGHT_LEFT, new int[]{0x55000000, 0x2A000000, 0x00000000}));
 
         mainView = new LinearLayout(mContext);
         mainView.setLayoutParams(new ViewGroup.LayoutParams(ScreenUtils.getScreenWidth(mContext),
@@ -101,104 +97,49 @@ public class ChatRoomView implements ChatRoomContract.View {
 
         mainView.addView(initToolbar());
         mainView.addView(mRecyclerView);
+        mainView.setClickable(true);
 
         mainView.setBackground(new ColorDrawable(0xFFFFFFFF));
 
-        contentView.addView(maskView);
-        contentView.addView(mainView);
-        contentView.setClickable(true);
-        mContainer.addView(contentView, params);
+        initSwipeBack();
 
-        dismiss();
+        mContainer.addView(swipeBackLayout, params);
+
+        swipeBackLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeBackLayout.mSlideOffset = 1;
+                Log.v("dispatchKeyEvent", " isShowing, mSlideOffset = " + swipeBackLayout.mSlideOffset);
+            }
+        });
+        swipeBackLayout.mSlideOffset = 1;
+
+        uuid = DeviceUtils.getIMELCode(context);
+
+        ApiManager.INSTANCE.sendRequestForUserStatistics("init", uuid, Build.MODEL);
     }
+
 
     private void initSwipeBack() {
-        final int screenWidth = ScreenUtils.getScreenWidth(mContext);
-        contentView = new LinearLayout(mContext) {
-            @Override
-            public boolean dispatchTouchEvent(MotionEvent event) {
-                float x = event.getX();
-
-                float translationX = contentView.getTranslationX();
-
-                //屏幕左侧识别滑动返回
-                if (translationX == -ScreenUtils.dip2px
-                        (mContext, 16) && x > screenWidth / 10 || isInAnim)
-                    return super.dispatchTouchEvent(event);
-
-                switch (event.getAction()) {
-
-                    case MotionEvent.ACTION_DOWN:
-                        moveX = x;
-                        break;
-
-                    case MotionEvent.ACTION_MOVE:
-
-                        //v1为本次滑动的偏移量
-                        float v1 = x - moveX;
-
-                        //忽略小范围滑动事件
-                        if (Math.abs(v1) < screenWidth / 150)
-                            return super.dispatchTouchEvent(event);
-
-                        float value = translationX + v1;
-
-                        //判断是否在滑动范围之内
-                        if (value >= -ScreenUtils.dip2px(mContext, 16) && value <= screenWidth) {
-                            contentView.setTranslationX(value);
-
-                            if (v1 > screenWidth / 15) {
-                                dismiss((int) v1);
-                                return super.dispatchTouchEvent(event);
-                            }
-                            isDragging = true;
-                        }
-                        break;
-
-                    case MotionEvent.ACTION_UP:
-                        if (isDragging) {
-                            setResetAnim(translationX);
-                            isDragging = false;
-                            return false;
-                        } else return super.dispatchTouchEvent(event);
-                }
-
-                return super.dispatchTouchEvent(event);
-            }
-        };
+        swipeBackLayout = new MySwipeBackLayout(mContext);
+        swipeBackLayout.attachToView(mainView, mContext);
     }
 
-    private void setResetAnim(float translationX) {
-        int screenWidth = ScreenUtils.getScreenWidth(mContext);
-        if (translationX >= screenWidth / 2) {
-            dismiss(((int) translationX));
-        } else {
-            show(((int) translationX));
-        }
-    }
-
-    private float moveX;
-
-    @Override
-    public void setTitle(String title) {
-
-    }
 
     @Override
     public void setOnDialogItemClickListener(ChatRoomRecyclerViewAdapter.OnDialogItemClickListener listener) {
-        if (contentView.getTranslationX() == -ScreenUtils.dip2px(mContext, 16))
-            mAdapter.setOnDialogItemClickListener(listener);
+        mAdapter.setOnDialogItemClickListener(listener);
     }
 
     @Override
     public boolean isShowing() {
-        return contentView.getTranslationX() != ScreenUtils.getScreenWidth(mContext) + ScreenUtils.dip2px(mContext, 16);
+        return !swipeBackLayout.isOpen();
     }
 
 
     @Override
     public void show() {
-        show(ScreenUtils.getScreenWidth(mContext) + ScreenUtils.dip2px(mContext, 16));
+        show(ScreenUtils.getScreenWidth(mContext));
     }
 
     @Override
@@ -208,82 +149,14 @@ public class ChatRoomView implements ChatRoomContract.View {
 
     @Override
     public void show(int offest) {
-        if (isInAnim) return;
-
-        isInAnim = true;
-        contentView.setVisibility(View.VISIBLE);
-        ValueAnimator animator = ValueAnimator.ofInt(offest, -ScreenUtils.dip2px
-                (mContext, 16));
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                contentView.setTranslationX((int) animation.getAnimatedValue());
-            }
-        });
-        animator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                isInAnim = false;
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-        animator.setDuration(200);
-        animator.setRepeatMode(ValueAnimator.REVERSE);
-        animator.setTarget(contentView);
-        animator.start();
+        swipeBackLayout.closePane();
+      //  ApiManager.INSTANCE.sendRequestForUserStatistics("open", uuid, Build.MODEL);
     }
 
     @Override
     public void dismiss(int offest) {
-        if (isInAnim) return;
-
-        isInAnim = true;
-        ValueAnimator animator = ValueAnimator.ofInt(offest, ScreenUtils.getScreenWidth(mContext) + ScreenUtils.dip2px(mContext, 16));
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                contentView.setTranslationX((int) animation.getAnimatedValue());
-            }
-        });
-        animator.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                isInAnim = false;
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-        animator.setRepeatMode(ValueAnimator.REVERSE);
-        animator.setTarget(contentView);
-        animator.setDuration(200);
-        animator.start();
+        swipeBackLayout.openPane();
+//        ApiManager.INSTANCE.sendRequestForUserStatistics("close", uuid, Build.MODEL);
     }
 
 
@@ -302,16 +175,14 @@ public class ChatRoomView implements ChatRoomContract.View {
         new Handler(mContext.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                ArrayList data = mAdapter.getData();
+                ArrayList<ChatInfoModel> data = mAdapter.getData();
                 for (int i = 0; i < data.size(); i++) {
-                    Object item = data.get(i);
-                    MessageEntity entity = new MessageEntity(item);
-                    if (entity.field_username.equals(targetUserName)) {
-
+                    ChatInfoModel item = data.get(i);
+                    if (Objects.equals(item.getAvatarString(), targetUserName)) {
                         Object object = HookLogic.getMessageBeanForOriginIndex(mPresenter.getOriginAdapter(),
                                 mAdapter.getMuteListInAdapterPositions().get(i));
 
-                        data.set(i, object);
+                        data.set(i, ChatInfoModel.Companion.convertFromObject(object, mPresenter.getOriginAdapter(), mContext));
                         mAdapter.setData(data);
                         mAdapter.notifyItemChanged(i);
                     }
@@ -323,15 +194,17 @@ public class ChatRoomView implements ChatRoomContract.View {
 
     @Override
     public void showMessageRefresh(ArrayList<Integer> muteListInAdapterPositions) {
-        ArrayList<Object> data = new ArrayList<Object>();
+        ArrayList<ChatInfoModel> data = new ArrayList<>();
         for (Integer muteListInAdapterPosition : muteListInAdapterPositions) {
             Object object = HookLogic.getMessageBeanForOriginIndex(mPresenter.getOriginAdapter(),
                     muteListInAdapterPosition);
-            data.add(object);
+
+            data.add(ChatInfoModel.Companion.convertFromObject(object, mPresenter.getOriginAdapter(), mContext));
         }
 
         mAdapter.setMuteListInAdapterPositions(muteListInAdapterPositions);
         mAdapter.setData(data);
+
         mAdapter.notifyDataSetChanged();
     }
 
@@ -354,8 +227,18 @@ public class ChatRoomView implements ChatRoomContract.View {
                 dismiss();
             }
         });
-        mToolbar.setBackgroundColor(Color.parseColor("#" + PreferencesUtils.getToolBarColor()));
-        mToolbar.setTitle("群消息助手");
+        mToolbar.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.INSTANCE.toolbarColorInfo()));
+        mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.INSTANCE.helperColorInfo()));
+
+
+        switch (type) {
+            case CHAT_ROOMS:
+                mToolbar.setTitle("群消息助手");
+                break;
+            case OFFICIAL:
+                mToolbar.setTitle("公众号助手");
+                break;
+        }
         mToolbar.setTitleTextColor(0xFFFAFAFA);
 
         Class<?> clazz;
@@ -390,12 +273,62 @@ public class ChatRoomView implements ChatRoomContract.View {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_MAIN);
-                intent.addCategory(Intent.CATEGORY_LAUNCHER);
-                ComponentName cn = new ComponentName("com.zdy.project.wechat_chatroom_helper",
-                        "kt.MainActivity");
-                intent.setComponent(cn);
-                mContext.startActivity(intent);
+                switch (type) {
+                    case OFFICIAL:
+                        WhiteListDialog dialog = new WhiteListDialog(mContext);
+                        dialog.setList(HookLogic.officialNickNameEntries);
+                        dialog.setType(Type.OFFICIAL);
+                        dialog.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                XposedHelpers.callMethod(mPresenter.getOriginAdapter(), "notifyDataSetChanged");
+                            }
+                        });
+                        dialog.show();
+                        break;
+                    case CHAT_ROOMS:
+                        ConfigChatRoomDialog configChatRoomDialog = new ConfigChatRoomDialog(mContext);
+                        configChatRoomDialog.setOnModeChangedListener(new ConfigChatRoomDialog.OnModeChangedListener() {
+                            @Override
+                            public void onChanged() {
+                                XposedHelpers.callMethod(mPresenter.getOriginAdapter(), "notifyDataSetChanged");
+                            }
+                        });
+                        configChatRoomDialog.setOnWhiteListClickListener(new ConfigChatRoomDialog.OnWhiteListClickListener() {
+                            @Override
+                            public void onClick() {
+                                ChatRoomRecyclerViewAdapter adapter = (ChatRoomRecyclerViewAdapter) mRecyclerView.getAdapter();
+
+                                ArrayList<ChatInfoModel> data = adapter.getData();
+
+                                ArrayList<String> list = new ArrayList<>();
+                                for (int i = 0; i < data.size(); i++) {
+                                    list.add(String.valueOf(data.get(i).getNickname()));
+                                }
+
+                                WhiteListDialog dialog = new WhiteListDialog(mContext);
+
+                                if (AppSaveInfoUtils.INSTANCE.chatRoomTypeInfo().equals("1"))
+                                    dialog.setList(HookLogic.allChatRoomNickNameEntries);
+                                else dialog.setList(HookLogic.muteChatRoomNickNameEntries);
+
+                                dialog.setType(Type.CHAT_ROOMS);
+                                dialog.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        XposedHelpers.callMethod(mPresenter.getOriginAdapter(), "notifyDataSetChanged");
+                                    }
+                                });
+                                dialog.show();
+
+                            }
+                        });
+                        configChatRoomDialog.show();
+
+                        break;
+
+
+                }
             }
         });
 

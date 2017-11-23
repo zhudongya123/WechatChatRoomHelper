@@ -25,13 +25,16 @@ public class UserStatisticsServlet extends HttpServlet {
         String uuidCode = req.getParameter("uuidCode");
         String model = req.getParameter("model");
         String version = req.getParameter("version");
+        String wechat_version = req.getParameter("wechat_version");
 
         if (version == null)
             version = "< 16";
+        if (wechat_version == null)
+            wechat_version = "-1";
 
 
-        if (action.equals("open") || action.equals("close"))
-            DataBaseManager.getInstance().insertUserStatisticsData(uuidCode, model, action, version);
+       // if (action.equals("open") || action.equals("close"))
+            DataBaseManager.getInstance().insertUserStatisticsData(uuidCode, model, action, version, wechat_version);
 
         writer.write("感谢每个用户，给了我很多自信以至于我不觉得自己是一个废柴。。");
     }
