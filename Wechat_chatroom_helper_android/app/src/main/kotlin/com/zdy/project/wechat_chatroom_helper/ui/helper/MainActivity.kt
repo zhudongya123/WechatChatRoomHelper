@@ -1,10 +1,10 @@
 package ui
 
-import android.app.AlertDialog
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.SwitchCompat
@@ -17,8 +17,7 @@ import android.widget.TextView
 import com.google.gson.JsonParser
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
-import com.zdy.project.wechat_chatroom_helper.ui.helper.InfoDialogBuilder
-import com.zdy.project.wechat_chatroom_helper.ui.helper.ToolBarColorDialogHelper
+import com.zdy.project.wechat_chatroom_helper.ui.helper.ChooseColorDialogHelper
 import manager.PermissionHelper
 import network.ApiManager
 import okhttp3.*
@@ -67,7 +66,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initSetting() {
-        val titles = arrayOf("功能开关", "我使用的是play版本",  "助手圆形头像", "进入聊天界面自动关闭助手", "群助手Toolbar颜色")
+        val titles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "助手Toolbar颜色"/*, "助手背景色"*/)
 
         for (i in 0 until titles.size) {
             title = titles[i]
@@ -85,9 +84,9 @@ class MainActivity : AppCompatActivity() {
                 1 -> switch.isChecked = AppSaveInfoUtils.isPlayVersionInfo()
                 2 -> switch.isChecked = AppSaveInfoUtils.isCircleAvatarInfo()
                 3 -> switch.isChecked = AppSaveInfoUtils.autoCloseInfo()
-                4 -> {
-                    switch.visibility = View.INVISIBLE
-                }
+                4 -> switch.visibility = View.INVISIBLE
+              //  5 -> switch.visibility = View.INVISIBLE
+
             }
 
             switch.setOnCheckedChangeListener(object : CompoundButton.OnCheckedChangeListener {
@@ -107,14 +106,16 @@ class MainActivity : AppCompatActivity() {
 
             switch.setOnClickListener {
 
-                if (i == 4) {
-                    ToolBarColorDialogHelper.getDialog(thisActivity).show()
-                }
+                if (i == 4) ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Toolbar).show()
+             //   if (i == 5) ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Helper).show()
+
 
             }
 
             listContent.addView(itemView)
         }
+
+        title = "微信群消息助手"
     }
 
     override fun onDestroy() {
@@ -125,11 +126,11 @@ class MainActivity : AppCompatActivity() {
     private fun bindView() {
 
         //获取公告及其Dialog
-        InfoDialogBuilder.buildInfoDialog(thisActivity, object : InfoDialogBuilder.CallBack {
-            override fun receive(dialog: AlertDialog) {
-                clickMe.setOnClickListener { dialog.show() }
-            }
-        })
+        clickMe.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse("http://116.62.247.71:8080/wechat/")
+            startActivity(intent)
+        }
 
         //檢查配置
         loadConfig()

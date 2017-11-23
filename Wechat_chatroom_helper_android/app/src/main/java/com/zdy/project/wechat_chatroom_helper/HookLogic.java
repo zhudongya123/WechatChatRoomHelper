@@ -112,7 +112,6 @@ public class HookLogic implements IXposedHookLoadPackage {
     private static ClassLoader mClassLoader;
     private Context context;
 
-
     private View maskView;
 
     public static ArrayList<String> allChatRoomNickNameEntries;
@@ -298,7 +297,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
 
     private boolean isWechatHighVersion(String wechatVersion) {
-        return wechatVersion.equals("1140") || wechatVersion.equals("1160");
+        return wechatVersion.equals("1140") || wechatVersion.equals("1160") || Integer.valueOf(wechatVersion) > 1160;
     }
 
     private void hookFitSystemWindowLayoutViewConstructor(final XC_MethodHook.MethodHookParam param) {

@@ -15,6 +15,7 @@ import com.zdy.project.wechat_chatroom_helper.Constants
         var SHOW_INFO = "show_info"
         var AUTO_CLOSE = "auto_close"
         var TOOLBAR_COLOR = "toolbar_color"
+    var HELPER_COLOR = "helper_color"
         var HAS_SUIT_WECHAT_DATA = "has_suit_wechat_data"
         var IS_PLAY_VERSION = "is_play_version"
         var HELPER_VERSIONCODE = "helper_versionCode"
@@ -26,25 +27,25 @@ import com.zdy.project.wechat_chatroom_helper.Constants
         var WHITE_LIST_CHAT_ROOM = "white_list_chat_room"
         var WHITE_LIST_OFFICIAL = "white_list_official"
 
-        var CHAT_ROOM_FLAG = "chat_room_flag"
-        var OFFICIAL_FLAG = "official_flag"
+    //    var CHAT_ROOM_FLAG = "chat_room_flag"
+    //    var OFFICIAL_FLAG = "official_flag"
 
 
-        fun isChatRoomOpen(): Boolean {
-            return FileUtils.getJsonValue(CHAT_ROOM_FLAG, true)
-        }
-
-        fun setChatRoom(value: Boolean) {
-            return FileUtils.putJsonValue(CHAT_ROOM_FLAG, value)
-        }
-
-        fun isOfficialOpen(): Boolean {
-            return FileUtils.getJsonValue(OFFICIAL_FLAG, true)
-        }
-
-        fun setOfficial(value: Boolean) {
-            return FileUtils.putJsonValue(OFFICIAL_FLAG, value)
-        }
+//        fun isChatRoomOpen(): Boolean {
+//            return FileUtils.getJsonValue(CHAT_ROOM_FLAG, true)
+//        }
+//
+//        fun setChatRoom(value: Boolean) {
+//            return FileUtils.putJsonValue(CHAT_ROOM_FLAG, value)
+//        }
+//
+//        fun isOfficialOpen(): Boolean {
+//            return FileUtils.getJsonValue(OFFICIAL_FLAG, true)
+//        }
+//
+//        fun setOfficial(value: Boolean) {
+//            return FileUtils.putJsonValue(OFFICIAL_FLAG, value)
+//        }
 
         fun openInfo(): Boolean {
             return FileUtils.getJsonValue(OPEN, true)
@@ -92,6 +93,14 @@ import com.zdy.project.wechat_chatroom_helper.Constants
 
         fun setToolbarColorInfo(value: String) {
             FileUtils.putJsonValue(TOOLBAR_COLOR, value)
+        }
+
+        fun helperColorInfo(): String {
+            return FileUtils.getJsonValue(HELPER_COLOR, Constants.DEFAULT_HELPER_COLOR)
+        }
+
+        fun setHelperColorInfo(value: String) {
+            FileUtils.putJsonValue(HELPER_COLOR, value)
         }
 
         fun hasSuitWechatDataInfo(): Boolean {

@@ -10,6 +10,7 @@ public class Constants {
     public static final String WECHAT_PACKAGE_NAME = "com.tencent.mm";
 
     public static final String DEFAULT_TOOLBAR_COLOR = "303135";
+    public static final String DEFAULT_HELPER_COLOR = "FFFFFF";
 
     public static final String Prefer_File_String = "com.zdy.project.wechat_chatroom_helper_preferences";
 

@@ -1,7 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.ui.helper
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.PorterDuff
@@ -18,40 +17,38 @@ import utils.AppSaveInfoUtils
 /**
  * Created by zhudo on 2017/11/14.
  */
-class ToolBarColorDialogHelper {
+class ChooseColorDialogHelper {
 
+    enum class TYPE {
+        Toolbar, Helper
+    }
 
     companion object {
 
-        fun getDialog(mContext: Context): AlertDialog {
+        fun getDialog(mContext: Context, type: TYPE): AlertDialog {
 
             val subView = getDialogEditText(mContext)
             val editText = subView.findViewById(android.R.id.edit) as EditText
+            val color = if (type == TYPE.Toolbar) AppSaveInfoUtils.toolbarColorInfo() else AppSaveInfoUtils.helperColorInfo()
 
-            val toolbarColorInt = getColorInt(AppSaveInfoUtils.toolbarColorInfo())
-
-            editText.backgroundTintList = ColorStateList.valueOf(toolbarColorInt)
+            editText.backgroundTintList = ColorStateList.valueOf(getColorInt(color))
             editText.backgroundTintMode = PorterDuff.Mode.SRC_IN
-            editText.setTextColor(toolbarColorInt)
-            editText.hint = "当前值" + AppSaveInfoUtils.toolbarColorInfo()
+            editText.setTextColor(getColorInt(color))
+            editText.hint = "当前值" + color
             editText.setSingleLine()
             editText.setSelection(editText.text.length)
 
             val alertDialog = AlertDialog.Builder(mContext)
                     .setTitle("群消息助手Toolbar颜色")
-                    .setMessage("请输入6位颜色值代码，示例：FF0000（红色）")
+                    .setMessage("请输入6位颜色值代码，示例：FF0000（红色），不支持alpha通道（透明度）")
                     .setView(subView)
-                    .setPositiveButton("确认", object : DialogInterface.OnClickListener {
-                        override fun onClick(dialog: DialogInterface, which: Int) {
-                            dialog.dismiss()
-                            AppSaveInfoUtils.setToolbarColorInfo(editText.text.toString())
-                        }
-                    })
-                    .setNegativeButton("取消", object : DialogInterface.OnClickListener {
-                        override fun onClick(dialog: DialogInterface, which: Int) {
-                            dialog.dismiss()
-                        }
-                    }).create()
+                    .setPositiveButton("确认") { dialog, which ->
+                        dialog.dismiss()
+                        if (type == TYPE.Toolbar) AppSaveInfoUtils.setToolbarColorInfo(editText.text.toString())
+                        else AppSaveInfoUtils.setHelperColorInfo(editText.text.toString())
+
+                    }
+                    .setNegativeButton("取消") { dialog, which -> dialog.dismiss() }.create()
 
             alertDialog.setOnShowListener {
                 editText.addTextChangedListener(ToolBarColorTextWatcher(editText, alertDialog.findViewById(android.R.id.button1)!!))
