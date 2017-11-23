@@ -29,10 +29,13 @@ import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.PreferencesUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import de.robv.android.xposed.XposedBridge;
+import de.robv.android.xposed.XposedHelpers;
 
 import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Arrow;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Setting;
@@ -50,7 +53,7 @@ public class ChatRoomView2 implements ChatRoomContract.View {
     private AbsoluteLayout mContainer;
 
 
-    private MySwipeBackLayout swipeBackLayout;
+    //   private MySwipeBackLayout swipeBackLayout;
 
     private LinearLayout mainView;
     private RecyclerView mRecyclerView;
@@ -99,15 +102,16 @@ public class ChatRoomView2 implements ChatRoomContract.View {
 
         initSwipeBack();
 
-        mContainer.addView(swipeBackLayout, params);
+        //  mContainer.addView(swipeBackLayout, params);
+        mContainer.addView(((View) o), params);
 
-        swipeBackLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                dismiss();
-                swipeBackLayout.mSlideOffset = 1;
-            }
-        });
+//        swipeBackLayout.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                dismiss();
+//                swipeBackLayout.mSlideOffset = 1;
+//            }
+//        });
 
         uuid = DeviceUtils.getIMELCode(context);
     }
@@ -117,9 +121,28 @@ public class ChatRoomView2 implements ChatRoomContract.View {
         this.title = title;
     }
 
+
+    Object o;
+
     private void initSwipeBack() {
-        swipeBackLayout = new MySwipeBackLayout(mContext);
-        swipeBackLayout.attachToView(mainView, mContext);
+        //    swipeBackLayout = new MySwipeBackLayout(mContext);
+        //   swipeBackLayout.attachToView(mainView, mContext);
+
+
+        Class<?> aClass = XposedHelpers.findClass("com.tencent.mm.ui.widget.SwipeBackLayout", HookLogic.mClassLoader);
+
+        Constructor c1 = null;
+        try {
+            c1 = aClass.getDeclaredConstructor(Context.class);
+            o = c1.newInstance(mContext);
+
+            ((ViewGroup) o).addView(mainView);
+            XposedHelpers.callMethod(o, "init");
+        } catch (NoSuchMethodException | IllegalAccessException |
+                InstantiationException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -131,9 +154,11 @@ public class ChatRoomView2 implements ChatRoomContract.View {
     @Override
     public boolean isShowing() {
 
-        XposedBridge.log("dispatchKeyEvent, ChatRoomView2.isShowing = " + !swipeBackLayout.isOpen());
+        //   XposedBridge.log("dispatchKeyEvent, ChatRoomView2.isShowing = " + !swipeBackLayout.isOpen());
 
-        return !swipeBackLayout.isOpen();
+        //   return !swipeBackLayout.isOpen();
+
+        return true;
     }
 
 
@@ -149,16 +174,16 @@ public class ChatRoomView2 implements ChatRoomContract.View {
 
     @Override
     public void show(int offest) {
-     //   XposedBridge.log("ChatRoomView2, show");
-        swipeBackLayout.closePane();
+        //   XposedBridge.log("ChatRoomView2, show");
+        // swipeBackLayout.closePane();
         ApiManager.getINSTANCE().sendRequestForUserStatistics("open", uuid, Build.MODEL);
     }
 
     @Override
     public void dismiss(int offest) {
 
-    //    XposedBridge.log("ChatRoomView2, dismiss");
-        swipeBackLayout.openPane();
+        //    XposedBridge.log("ChatRoomView2, dismiss");
+        //   swipeBackLayout.openPane();
         ApiManager.getINSTANCE().sendRequestForUserStatistics("close", uuid, Build.MODEL);
     }
 
@@ -272,7 +297,7 @@ public class ChatRoomView2 implements ChatRoomContract.View {
                 Intent intent = new Intent(Intent.ACTION_MAIN);
                 intent.addCategory(Intent.CATEGORY_LAUNCHER);
                 ComponentName cn = new ComponentName("com.zdy.project.wechat_chatroom_helper",
-                        "com.zdy.project.wechat_chatroom_helper.ui.MainActivity");
+                        "kt.MainActivity");
                 intent.setComponent(cn);
                 mContext.startActivity(intent);
             }

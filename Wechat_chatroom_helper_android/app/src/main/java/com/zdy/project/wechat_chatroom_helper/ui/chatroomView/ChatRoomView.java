@@ -393,7 +393,7 @@ public class ChatRoomView implements ChatRoomContract.View {
                 Intent intent = new Intent(Intent.ACTION_MAIN);
                 intent.addCategory(Intent.CATEGORY_LAUNCHER);
                 ComponentName cn = new ComponentName("com.zdy.project.wechat_chatroom_helper",
-                        "com.zdy.project.wechat_chatroom_helper.ui.MainActivity");
+                        "kt.MainActivity");
                 intent.setComponent(cn);
                 mContext.startActivity(intent);
             }

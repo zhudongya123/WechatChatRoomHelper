@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:context="com.zdy.project.wechat_chatroom_helper.ui.MainActivity">
+    tools:context="com.zdy.project.wechat_chatroom_helper.kt.MainActivity">
 
 
     <TextView

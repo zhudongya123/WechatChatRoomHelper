@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    tools:context="com.zdy.project.wechat_chatroom_helper.ui.MainActivity">
+    tools:context="com.zdy.project.wechat_chatroom_helper.kt.MainActivity">
 
 
     <Button
