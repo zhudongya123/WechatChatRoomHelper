@@ -33,7 +33,7 @@ public class UserStatisticsServlet extends HttpServlet {
             wechat_version = "-1";
 
 
-        if (action.equals("open") || action.equals("close"))
+       // if (action.equals("open") || action.equals("close"))
             DataBaseManager.getInstance().insertUserStatisticsData(uuidCode, model, action, version, wechat_version);
 
         writer.write("感谢每个用户，给了我很多自信以至于我不觉得自己是一个废柴。。");
