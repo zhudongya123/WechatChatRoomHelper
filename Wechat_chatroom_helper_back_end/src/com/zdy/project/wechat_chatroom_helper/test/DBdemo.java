@@ -11,7 +11,6 @@ import java.util.HashMap;
 public class DBdemo {
     private static Connection c = null;
 
-
     public static final String url = "jdbc:mysql://116.62.247.71:3306/wechat_chatroom_helper";
     public static final String name = "com.mysql.jdbc.Driver";
     public static final String user = "root";
@@ -25,7 +24,6 @@ public class DBdemo {
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
-
 
         long currentTime = System.currentTimeMillis();
 
@@ -49,17 +47,31 @@ public class DBdemo {
             sql = "SELECT DISTINCT wechat_version FROM user_statistics where time BETWEEN " + start + " AND " + end;
             ResultSet resultSet = stmt.executeQuery(sql);
 
-            ArrayList<Integer> wechatVersion = new ArrayList<>();
+
+            ArrayList<Integer> versionData = new ArrayList();
 
             while (resultSet.next()) {
-                String version = resultSet.getString(1);
-                wechatVersion.add(Integer.valueOf(version));
-
-                int versionCount = getUserCount(start, end, "wechat_version", version);
+                int version = Integer.valueOf(resultSet.getString(1));
+                int versionCount = getUserCount(start, end, "wechat_version", String.valueOf(version));
 
                 System.out.println("versionCount = " + versionCount + ", version = " + version);
 
-                data.put(version, versionCount);
+                data.put(String.valueOf(version), versionCount);
+
+
+                if (versionData.size() == 0) {
+                    versionData.add(version);
+                    continue;
+                }
+                for (int i = 0; i < versionData.size(); i++) {
+                    if (versionData.get(i) > version) {
+                        versionData.add(i, version);
+                        break;
+                    }
+                    if (i == versionData.size() - 1)
+                        versionData.add(version);
+                }
+
             }
 
         } catch (SQLException e) {
@@ -80,7 +92,7 @@ public class DBdemo {
 
 
             while (resultSet.next()) {
-              //  return resultSet.getInt(1);
+                return resultSet.getInt(1);
             }
 
         } catch (SQLException e) {

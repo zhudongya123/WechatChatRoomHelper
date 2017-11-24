@@ -1,8 +1,5 @@
 <%@ page import="com.zdy.project.wechat_chatroom_helper.db.DataBaseManager" %>
-<%@ page import="java.util.Calendar" %>
-<%@ page import="java.util.HashMap" %>
-<%@ page import="java.util.Map" %>
-<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.*" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -110,6 +107,129 @@
 
     </tr>
 
+
+    <tr>
+        <th>用户数量</th>
+
+        <%
+            for (Integer item : wechatCountArray) {
+        %>
+        <td><% out.print(item);%></td>
+
+        <% } %>
+
+    </tr>
+
+    <tr>
+        <th>百分比</th>
+
+        <%
+            for (Float item : wechatFloatArray) {
+        %>
+        <td><% out.print(String.format(Locale.CHINESE, "%.2f", item * 100));%>%</td>
+
+        <% } %>
+
+    </tr>
+
+</table>
+
+
+<p>今日群助手版本统计</p>
+
+<%
+    HashMap<Integer, Integer> helperMap = DataBaseManager.getInstance().queryHelperVersionPercent(time, currentTime);
+
+%>
+
+<table>
+    <%
+        ArrayList<String> helperNameArray = new ArrayList<>();
+        ArrayList<Integer> helperCountArray = new ArrayList<>();
+        ArrayList<Float> helperFloatArray = new ArrayList<>();
+        for (Map.Entry<Integer, Integer> entry : helperMap.entrySet()) {
+            Integer key = entry.getKey();
+            Integer value = entry.getValue();
+
+            switch (key) {
+                case 26:
+                    helperNameArray.add("1.3.11beta(26)");
+                    break;
+                case 25:
+                    helperNameArray.add("1.3.10beta-branch2(25)");
+                    break;
+                case 24:
+                    helperNameArray.add("1.3.11beta(26)");
+                    break;
+                case 23:
+                    helperNameArray.add("1.3.10beta(23)");
+                    break;
+                case 22:
+                    helperNameArray.add("1.3.9(22)");
+                    break;
+                case 21:
+                    helperNameArray.add("1.3.8beta(21)");
+                    break;
+                case 20:
+                    helperNameArray.add("1.3.7(20)");
+                    break;
+                case 19:
+                    helperNameArray.add("1.3.6(19)");
+                    break;
+                case 18:
+                    helperNameArray.add("1.3.5beta(18)");
+                    break;
+                case 17:
+                    helperNameArray.add("1.3.4(17)");
+                    break;
+                case 16:
+                    helperNameArray.add("1.3.3beta(16)");
+                    break;
+                default:
+                    helperNameArray.add("其他版本");
+                    break;
+            }
+            helperCountArray.add(value);
+            helperFloatArray.add(Float.valueOf(value) / todayCount);
+        }
+    %>
+
+    <tr>
+        <th>版本号</th>
+
+        <%
+            for (String item : helperNameArray) {
+        %>
+        <td><% out.print(item);%></td>
+
+        <% } %>
+
+    </tr>
+
+
+    <tr>
+        <th>用户数量</th>
+
+        <%
+            for (Integer item : helperCountArray) {
+        %>
+        <td><% out.print(item);%></td>
+
+        <% } %>
+
+    </tr>
+
+    <tr>
+        <th>百分比</th>
+
+        <%
+            for (Float item : helperFloatArray) {
+        %>
+        <td><% out.print(String.format(Locale.CHINESE, "%.2f", item * 100));%>%</td>
+
+        <% } %>
+
+    </tr>
 
 </table>
 

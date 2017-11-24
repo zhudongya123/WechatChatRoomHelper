@@ -92,24 +92,22 @@ public class DataBaseManager {
 
                 int versionCount = getUserCount(start, end, "wechat_version", String.valueOf(version));
 
-                System.out.println("versionCount = " + versionCount + ", version = " + version);
-
                 data.put(version, versionCount);
 
-
-                if (versionData.size() == 0)
-                    versionData.add(version);
-                for (int i = 0; i < versionData.size(); i++) {
-                    if (versionData.get(i) > version) {
-                        versionData.add(i, version);
-                        break;
-                    }
-                    if (i == versionData.size())
-                        versionData.add(version);
-                }
+//                if (versionData.size() == 0) {
+//                    versionData.add(version);
+//                    continue;
+//                }
+//                for (int i = 0; i < versionData.size(); i++) {
+//                    if (versionData.get(i) > version) {
+//                        versionData.add(i, version);
+//                        break;
+//                    }
+//                    if (i == versionData.size() - 1)
+//                        versionData.add(version);
+//                }
 
             }
-            System.out.println();
 
         } catch (SQLException e) {
             // TODO Auto-generated catch block
@@ -119,9 +117,9 @@ public class DataBaseManager {
         return data;
     }
 
-    public HashMap<String, Integer> queryHelperVersionPercent(long start, long end) {
+    public HashMap<Integer, Integer> queryHelperVersionPercent(long start, long end) {
 
-        HashMap<String, Integer> data = new HashMap<>();
+        HashMap<Integer, Integer> data = new HashMap<>();
 
         String sql;
         try {
@@ -130,9 +128,12 @@ public class DataBaseManager {
             ResultSet resultSet = stmt.executeQuery(sql);
 
             while (resultSet.next()) {
-                String version = resultSet.getString(1);
+                int version;
+                String resultSetString = resultSet.getString(1);
+                if (resultSetString.equals("< 16")) version = -1;
+                else version = Integer.valueOf(resultSetString);
 
-                int versionCount = getUserCount(start, end, "version", version);
+                int versionCount = getUserCount(start, end, "version", String.valueOf(version));
 
                 System.out.println("versionCount = " + versionCount + ", version = " + version);
 
