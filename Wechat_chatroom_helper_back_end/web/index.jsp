@@ -1,5 +1,8 @@
 <%@ page import="com.zdy.project.wechat_chatroom_helper.db.DataBaseManager" %>
 <%@ page import="java.util.Calendar" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="java.util.Map" %>
+<%@ page import="java.util.ArrayList" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
@@ -17,46 +20,99 @@
 
 <p>用户数量统计</p>
 <table>
+    <%
+        Calendar instance = Calendar.getInstance();
+        instance.set(Calendar.HOUR_OF_DAY, 0);
+        instance.set(Calendar.MINUTE, 0);
+        instance.set(Calendar.SECOND, 0);
+
+        long currentTime = System.currentTimeMillis();
+        long time = instance.getTimeInMillis();
+    %>
     <tr>
         <th>日期</th>
-        <th>用户数量</th>
-    </tr>
-    <tr>
         <td>今天</td>
-        <td><%
-            long currentTime = System.currentTimeMillis();
-
-            Calendar instance = Calendar.getInstance();
-            instance.set(Calendar.HOUR_OF_DAY, 0);
-            instance.set(Calendar.MINUTE, 0);
-            instance.set(Calendar.SECOND, 0);
-
-            long time = instance.getTimeInMillis();
-
-            int todayCount = DataBaseManager.getInstance().queryDataByTime(time, currentTime);
-
-            out.println(todayCount);
-        %></td>
-    </tr>
-    <tr>
         <td>昨天</td>
-        <td><%out.println(DataBaseManager.getInstance().queryDataByTime(time - 86400000, time)); %></td>
-    </tr>
-
-    <tr>
         <td>过去七天</td>
+    </tr>
+    <tr>
+        <th>用户数量</th>
         <td><%
-            instance = Calendar.getInstance();
-            instance.set(Calendar.HOUR_OF_DAY, 0);
-            instance.set(Calendar.MINUTE, 0);
-            instance.set(Calendar.SECOND, 0);
-
-            time = instance.getTimeInMillis();
-
-            out.println(DataBaseManager.getInstance().queryDataByTime(time - 86400000 * 7, time));
-        %></td>
+            int todayCount = DataBaseManager.getInstance().queryUserCountByTime(time, currentTime);
+            out.println(DataBaseManager.getInstance().queryUserCountByTime(time, currentTime)); %></td>
+        <td><%out.println(DataBaseManager.getInstance().queryUserCountByTime(time - 86400000, time)); %></td>
+        <td><%out.println(DataBaseManager.getInstance().queryUserCountByTime(time - 86400000 * 7, time));%></td>
     </tr>
 </table>
+
+
+<p>今日微信版本统计</p>
+
+<%
+    HashMap<Integer, Integer> wechatMap = DataBaseManager.getInstance().queryWechatVersionPercent(time, currentTime);
+
+%>
+<table>
+    <%
+        ArrayList<String> wechatNameArray = new ArrayList<>();
+        ArrayList<Integer> wechatCountArray = new ArrayList<>();
+        ArrayList<Float> wechatFloatArray = new ArrayList<>();
+        for (Map.Entry<Integer, Integer> entry : wechatMap.entrySet()) {
+            Integer key = entry.getKey();
+            Integer value = entry.getValue();
+
+            switch (key) {
+                case -1:
+                    wechatNameArray.add("未知版本");
+                    break;
+                case 0:
+                    wechatNameArray.add("异常版本");
+                    break;
+                case 1060:
+                    wechatNameArray.add("6.5.8（1060）及其play版本");
+                    break;
+                case 1080:
+                    wechatNameArray.add("6.5.10（1080）及其play版本");
+                    break;
+                case 1081:
+                    wechatNameArray.add("6.5.13（1081）play版本");
+                    break;
+                case 1100:
+                    wechatNameArray.add("6.5.13（1100）或6.5.14（1100）");
+                    break;
+                case 1101:
+                    wechatNameArray.add("6.5.16（1101）play版本");
+                    break;
+                case 1120:
+                    wechatNameArray.add("6.5.16（1120）");
+                    break;
+                case 1140:
+                    wechatNameArray.add("6.5.16（1140）");
+                    break;
+                case 1160:
+                    wechatNameArray.add("6.5.16（1160）");
+                    break;
+            }
+            wechatCountArray.add(value);
+            wechatFloatArray.add(Float.valueOf(value) / todayCount);
+        }
+    %>
+
+    <tr>
+        <th>版本号</th>
+
+        <%
+            for (String item : wechatNameArray) {
+        %>
+        <td><% out.print(item);%></td>
+
+        <% } %>
+
+    </tr>
+
+
+</table>
+
 
 <p><a href="https://github.com/zhudongya123/WechatChatroomHelper/issues">反馈地址</a></p>
 鸣谢:<br>
