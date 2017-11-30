@@ -60,10 +60,10 @@
 
             switch (key) {
                 case -1:
-                    wechatNameArray.add("未知版本");
+                    wechatNameArray.add("未记录版本");
                     break;
                 case 0:
-                    wechatNameArray.add("异常版本");
+                    wechatNameArray.add("未适配版本");
                     break;
                 case 1060:
                     wechatNameArray.add("6.5.8（1060）及其play版本");
@@ -84,10 +84,10 @@
                     wechatNameArray.add("6.5.16（1120）");
                     break;
                 case 1140:
-                    wechatNameArray.add("6.5.16（1140）");
+                    wechatNameArray.add("6.5.19（1140）");
                     break;
                 case 1160:
-                    wechatNameArray.add("6.5.16（1160）");
+                    wechatNameArray.add("6.5.22（1160）");
                     break;
             }
             wechatCountArray.add(value);
@@ -140,6 +140,9 @@
 <%
     HashMap<Integer, Integer> helperMap = DataBaseManager.getInstance().queryHelperVersionPercent(time, currentTime);
 
+    Integer temp = helperMap.get(24);
+    helperMap.remove(24);
+    helperMap.put(26, helperMap.get(26) + temp);
 %>
 
 <table>
@@ -159,7 +162,7 @@
                     helperNameArray.add("1.3.10beta-branch2(25)");
                     break;
                 case 24:
-                    helperNameArray.add("1.3.11beta(26)");
+                  //  helperNameArray.add("1.3.11beta(26)");
                     break;
                 case 23:
                     helperNameArray.add("1.3.10beta(23)");
