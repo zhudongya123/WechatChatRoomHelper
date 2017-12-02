@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
+import com.zdy.project.wechat_chatroom_helper.utils.ColorUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import utils.AppSaveInfoUtils
 
@@ -37,9 +38,9 @@ class ChooseColorDialogHelper {
                 TYPE.Time -> AppSaveInfoUtils.timeColorInfo()
             }
 
-            editText.backgroundTintList = ColorStateList.valueOf(getColorInt(color))
+            editText.backgroundTintList = ColorStateList.valueOf(ColorUtils.getColorInt(color))
             editText.backgroundTintMode = PorterDuff.Mode.SRC_IN
-            editText.setTextColor(getColorInt(color))
+            editText.setTextColor(ColorUtils.getColorInt(color))
             editText.hint = "当前值" + color
             editText.setSingleLine()
             editText.setSelection(editText.text.length)
@@ -91,9 +92,7 @@ class ChooseColorDialogHelper {
             return linearLayout
         }
 
-        private fun getColorInt(colorString: CharSequence): Int {
-            return Color.parseColor("#" + colorString)
-        }
+
 
 
         class ToolBarColorTextWatcher  constructor(private var editText: EditText, private var button: View) : TextWatcher {
@@ -105,7 +104,7 @@ class ChooseColorDialogHelper {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 if (s.length == 6)
                     try {
-                        val color = getColorInt(s)
+                        val color = ColorUtils.getColorInt(s)
                         val editText = editText
                         editText.setTextColor(color)
                         editText.backgroundTintList = ColorStateList.valueOf(color)
