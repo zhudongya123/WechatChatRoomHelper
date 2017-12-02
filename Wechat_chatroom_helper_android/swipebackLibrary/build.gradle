@@ -1,17 +1,17 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '26.0.2'
+    compileSdkVersion rootProject.ext.sdkVersion
+    buildToolsVersion rootProject.ext.buildToolVersion
 
     defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 25
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.sdkVersion
     }
 }
 
 dependencies {
-    provided 'com.android.support:support-v4:25.3.1'
+    provided "com.android.support:support-v4:$rootProject.ext.supportLibVersion"
 }
 
 // gradle clean build bintrayUpload

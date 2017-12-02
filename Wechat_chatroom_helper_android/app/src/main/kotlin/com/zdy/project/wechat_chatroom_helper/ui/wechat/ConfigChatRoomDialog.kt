@@ -30,8 +30,8 @@ class ConfigChatRoomDialog(private var mContext: Context) : Dialog(mContext) {
 
 
         if (AppSaveInfoUtils.chatRoomTypeInfo().toInt() == 2) {
-            (radioGroup.findViewById(MUTE_CHAT_ROOM_ID) as RadioButton).isChecked = true
-        } else (radioGroup.findViewById(ALL_CHAT_ROOM_ID) as RadioButton).isChecked = true
+            (radioGroup.findViewById<RadioButton>(MUTE_CHAT_ROOM_ID)).isChecked = true
+        } else (radioGroup.findViewById<RadioButton>(ALL_CHAT_ROOM_ID)).isChecked = true
 
         radioGroup.setOnCheckedChangeListener { _, checkedId ->
             if (AppSaveInfoUtils.chatRoomTypeInfo().toInt() != checkedId) {

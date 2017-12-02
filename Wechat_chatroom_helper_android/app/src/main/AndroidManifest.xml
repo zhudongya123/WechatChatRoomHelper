@@ -30,6 +30,9 @@
         </activity>
 
 
+
+        <activity android:name=".ui.helper.uisetting.UISettingActivity"/>
+
         <meta-data
             android:name="xposedmodule"
             android:value="true" />

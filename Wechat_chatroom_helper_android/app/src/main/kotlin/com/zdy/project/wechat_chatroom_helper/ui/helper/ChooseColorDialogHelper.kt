@@ -20,7 +20,7 @@ import utils.AppSaveInfoUtils
 class ChooseColorDialogHelper {
 
     enum class TYPE {
-        Toolbar, Helper
+        Toolbar, Helper, Nickname, Content, Time
     }
 
     companion object {
@@ -28,8 +28,14 @@ class ChooseColorDialogHelper {
         fun getDialog(mContext: Context, type: TYPE): AlertDialog {
 
             val subView = getDialogEditText(mContext)
-            val editText = subView.findViewById(android.R.id.edit) as EditText
-            val color = if (type == TYPE.Toolbar) AppSaveInfoUtils.toolbarColorInfo() else AppSaveInfoUtils.helperColorInfo()
+            val editText = subView.findViewById<EditText>(android.R.id.edit)
+            val color = when (type) {
+                TYPE.Toolbar -> AppSaveInfoUtils.toolbarColorInfo()
+                TYPE.Helper -> AppSaveInfoUtils.helperColorInfo()
+                TYPE.Nickname -> AppSaveInfoUtils.nicknameColorInfo()
+                TYPE.Content -> AppSaveInfoUtils.contentColorInfo()
+                TYPE.Time -> AppSaveInfoUtils.timeColorInfo()
+            }
 
             editText.backgroundTintList = ColorStateList.valueOf(getColorInt(color))
             editText.backgroundTintMode = PorterDuff.Mode.SRC_IN
@@ -39,13 +45,26 @@ class ChooseColorDialogHelper {
             editText.setSelection(editText.text.length)
 
             val alertDialog = AlertDialog.Builder(mContext)
-                    .setTitle("群消息助手Toolbar颜色")
+                    .setTitle(when (type) {
+                        TYPE.Toolbar -> "助手ToolBar颜色"
+                        TYPE.Helper -> "助手背景颜色"
+                        TYPE.Nickname -> "会话列表标题颜色"
+                        TYPE.Content -> "会话列表内容颜色"
+                        TYPE.Time -> "会话列表时间颜色"
+                    })
                     .setMessage("请输入6位颜色值代码，示例：FF0000（红色），不支持alpha通道（透明度）")
                     .setView(subView)
                     .setPositiveButton("确认") { dialog, which ->
                         dialog.dismiss()
-                        if (type == TYPE.Toolbar) AppSaveInfoUtils.setToolbarColorInfo(editText.text.toString())
-                        else AppSaveInfoUtils.setHelperColorInfo(editText.text.toString())
+
+                        val value = editText.text.toString()
+                        when (type) {
+                            TYPE.Toolbar -> AppSaveInfoUtils.setToolbarColorInfo(value)
+                            TYPE.Helper -> AppSaveInfoUtils.setHelperColorInfo(value)
+                            TYPE.Nickname -> AppSaveInfoUtils.setNicknameColorInfo(value)
+                            TYPE.Content -> AppSaveInfoUtils.setContentColorInfo(value)
+                            TYPE.Time -> AppSaveInfoUtils.setTimeColorInfo(value)
+                        }
 
                     }
                     .setNegativeButton("取消") { dialog, which -> dialog.dismiss() }.create()

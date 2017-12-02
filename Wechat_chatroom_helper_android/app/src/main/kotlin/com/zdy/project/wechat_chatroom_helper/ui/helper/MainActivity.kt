@@ -17,7 +17,7 @@ import android.widget.TextView
 import com.google.gson.JsonParser
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
-import com.zdy.project.wechat_chatroom_helper.ui.helper.ChooseColorDialogHelper
+import com.zdy.project.wechat_chatroom_helper.ui.helper.uisetting.UISettingActivity
 import manager.PermissionHelper
 import network.ApiManager
 import okhttp3.*
@@ -56,9 +56,9 @@ class MainActivity : AppCompatActivity() {
 
         //加載佈局
         setContentView(R.layout.activity_main)
-        clickMe = findViewById(R.id.button) as Button
-        detail = findViewById(R.id.detail) as TextView
-        listContent = findViewById(R.id.list_content) as LinearLayout
+        clickMe = findViewById<Button>(R.id.button)
+        detail = findViewById<TextView>(R.id.detail)
+        listContent = findViewById<LinearLayout>(R.id.list_content)
 
 
         //加載可配置項的佈局
@@ -72,8 +72,8 @@ class MainActivity : AppCompatActivity() {
             title = titles[i]
 
             val itemView = LayoutInflater.from(thisActivity).inflate(R.layout.layout_setting_item, listContent, false)
-            val text = itemView.findViewById(android.R.id.text1) as TextView
-            val switch = itemView.findViewById(android.R.id.button1) as SwitchCompat
+            val text = itemView.findViewById<TextView>(android.R.id.text1)
+            val switch = itemView.findViewById<SwitchCompat>(android.R.id.button1)
 
             text.text = title
 
@@ -106,7 +106,10 @@ class MainActivity : AppCompatActivity() {
 
             switch.setOnClickListener {
 
-                if (i == 4) ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Toolbar).show()
+                if (i == 4) startActivity(Intent(thisActivity, UISettingActivity::class.java))
+
+
+                //ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Toolbar).show()
              //   if (i == 5) ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Helper).show()
 
 

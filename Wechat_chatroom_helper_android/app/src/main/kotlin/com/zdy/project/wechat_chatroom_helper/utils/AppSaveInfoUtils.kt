@@ -8,44 +8,30 @@ import com.zdy.project.wechat_chatroom_helper.Constants
 /**
  * Created by zhudo on 2017/11/4.
  */
- object  AppSaveInfoUtils {
+object AppSaveInfoUtils {
 
-        var OPEN = "open"
-        var IS_CIRCLE_AVATAR = "is_circle_avatar"
-        var SHOW_INFO = "show_info"
-        var AUTO_CLOSE = "auto_close"
-        var TOOLBAR_COLOR = "toolbar_color"
+    var OPEN = "open"
+    var IS_CIRCLE_AVATAR = "is_circle_avatar"
+    var SHOW_INFO = "show_info"
+    var AUTO_CLOSE = "auto_close"
+
+    var TOOLBAR_COLOR = "toolbar_color"
     var HELPER_COLOR = "helper_color"
-        var HAS_SUIT_WECHAT_DATA = "has_suit_wechat_data"
-        var IS_PLAY_VERSION = "is_play_version"
-        var HELPER_VERSIONCODE = "helper_versionCode"
-        var WECHAT_VERSION = "wechat_version"
-        var JSON = "json"
-        var CHAT_ROOM_TYPE = "chatRoom_type"
+    var NICKNAME_COLOR = "nickname_color"
+    var CONTENT_COLOR = "content_color"
+    var TIME_COLOR = "time_color"
+
+    var HAS_SUIT_WECHAT_DATA = "has_suit_wechat_data"
+    var IS_PLAY_VERSION = "is_play_version"
+    var HELPER_VERSIONCODE = "helper_versionCode"
+    var WECHAT_VERSION = "wechat_version"
+    var JSON = "json"
+    var CHAT_ROOM_TYPE = "chatRoom_type"
 
 
-        var WHITE_LIST_CHAT_ROOM = "white_list_chat_room"
-        var WHITE_LIST_OFFICIAL = "white_list_official"
+    var WHITE_LIST_CHAT_ROOM = "white_list_chat_room"
+    var WHITE_LIST_OFFICIAL = "white_list_official"
 
-    //    var CHAT_ROOM_FLAG = "chat_room_flag"
-    //    var OFFICIAL_FLAG = "official_flag"
-
-
-//        fun isChatRoomOpen(): Boolean {
-//            return FileUtils.getJsonValue(CHAT_ROOM_FLAG, true)
-//        }
-//
-//        fun setChatRoom(value: Boolean) {
-//            return FileUtils.putJsonValue(CHAT_ROOM_FLAG, value)
-//        }
-//
-//        fun isOfficialOpen(): Boolean {
-//            return FileUtils.getJsonValue(OFFICIAL_FLAG, true)
-//        }
-//
-//        fun setOfficial(value: Boolean) {
-//            return FileUtils.putJsonValue(OFFICIAL_FLAG, value)
-//        }
 
         fun openInfo(): Boolean {
             return FileUtils.getJsonValue(OPEN, true)
@@ -87,7 +73,8 @@ import com.zdy.project.wechat_chatroom_helper.Constants
             FileUtils.putJsonValue(AUTO_CLOSE, value)
         }
 
-        fun toolbarColorInfo(): String {
+
+    fun toolbarColorInfo(): String {
             return FileUtils.getJsonValue(TOOLBAR_COLOR, Constants.DEFAULT_TOOLBAR_COLOR)
         }
 
@@ -102,6 +89,31 @@ import com.zdy.project.wechat_chatroom_helper.Constants
         fun setHelperColorInfo(value: String) {
             FileUtils.putJsonValue(HELPER_COLOR, value)
         }
+
+        fun nicknameColorInfo(): String {
+            return FileUtils.getJsonValue(NICKNAME_COLOR, Constants.DEFAULT_NICKNAME_COLOR)
+        }
+
+        fun setNicknameColorInfo(value: String) {
+            FileUtils.putJsonValue(NICKNAME_COLOR, value)
+        }
+
+        fun contentColorInfo(): String {
+            return FileUtils.getJsonValue(CONTENT_COLOR, Constants.DEFAULT_CONTENT_COLOR)
+        }
+
+        fun setContentColorInfo(value: String) {
+            FileUtils.putJsonValue(CONTENT_COLOR, value)
+        }
+
+        fun timeColorInfo(): String {
+            return FileUtils.getJsonValue(TIME_COLOR, Constants.DEFAULT_TIME_COLOR)
+        }
+
+        fun setTimeColorInfo(value: String) {
+            FileUtils.putJsonValue(TIME_COLOR, value)
+        }
+
 
         fun hasSuitWechatDataInfo(): Boolean {
             return FileUtils.getJsonValue(HAS_SUIT_WECHAT_DATA, false)
