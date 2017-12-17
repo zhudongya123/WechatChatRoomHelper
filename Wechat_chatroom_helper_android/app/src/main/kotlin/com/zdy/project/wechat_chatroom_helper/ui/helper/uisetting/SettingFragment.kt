@@ -41,9 +41,9 @@ class SettingFragment : Fragment() {
             contentLayout.addView(itemView)
         }
 
-        val scrollView = ScrollView(thisActivity)
-        scrollView.addView(contentLayout)
-        return scrollView
+      //  val scrollView = ScrollView(thisActivity)
+      //  scrollView.addView(contentLayout)
+        return contentLayout
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
