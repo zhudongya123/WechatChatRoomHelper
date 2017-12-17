@@ -18,11 +18,11 @@ import com.zdy.project.wechat_chatroom_helper.utils.ColorUtils
  */
 class SettingFragment : Fragment() {
 
-
     private lateinit var settingViewHolder: SettingViewModel
 
     private lateinit var thisActivity: UISettingActivity
     private lateinit var contentLayout: LinearLayout
+
     private var titles = arrayOf("助手ToolBar颜色", "助手背景颜色", "会话列表标题颜色", "会话列表内容颜色", "会话列表时间颜色")
 
     override fun onAttach(context: Context?) {

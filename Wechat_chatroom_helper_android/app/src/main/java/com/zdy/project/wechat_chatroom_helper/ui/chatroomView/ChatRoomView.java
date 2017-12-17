@@ -70,7 +70,7 @@ public class ChatRoomView implements ChatRoomContract.View {
     private String uuid = "0";
     private Type type;
 
-    ChatRoomView(Context context, final ViewGroup container, Type type) {
+    public ChatRoomView(Context context, final ViewGroup container, Type type) {
 
         this.mContainer = (AbsoluteLayout) container;
         this.mContext = context;
@@ -150,7 +150,7 @@ public class ChatRoomView implements ChatRoomContract.View {
     @Override
     public void show(int offest) {
         swipeBackLayout.closePane();
-      //  ApiManager.INSTANCE.sendRequestForUserStatistics("open", uuid, Build.MODEL);
+        //  ApiManager.INSTANCE.sendRequestForUserStatistics("open", uuid, Build.MODEL);
     }
 
     @Override
