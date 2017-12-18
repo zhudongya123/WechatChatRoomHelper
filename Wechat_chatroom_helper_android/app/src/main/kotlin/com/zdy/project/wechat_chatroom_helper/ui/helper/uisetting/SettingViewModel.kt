@@ -22,7 +22,7 @@ class SettingViewModel(context: Application) : AndroidViewModel(context) {
         refreshColorInfo()
     }
 
-    private fun refreshColorInfo() {
+     fun refreshColorInfo() {
         toolbarColor.value = AppSaveInfoUtils.toolbarColorInfo()
         helperColor.value = AppSaveInfoUtils.helperColorInfo()
         nicknameColor.value = AppSaveInfoUtils.nicknameColorInfo()

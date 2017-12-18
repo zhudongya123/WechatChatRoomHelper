@@ -2,13 +2,13 @@ package com.zdy.project.wechat_chatroom_helper.ui.helper
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.Color
 import android.graphics.PorterDuff
 import android.support.v7.app.AlertDialog
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import com.zdy.project.wechat_chatroom_helper.utils.ColorUtils
@@ -59,6 +59,7 @@ class ChooseColorDialogHelper {
                         dialog.dismiss()
 
                         val value = editText.text.toString()
+
                         when (type) {
                             TYPE.Toolbar -> AppSaveInfoUtils.setToolbarColorInfo(value)
                             TYPE.Helper -> AppSaveInfoUtils.setHelperColorInfo(value)
@@ -72,6 +73,7 @@ class ChooseColorDialogHelper {
 
             alertDialog.setOnShowListener {
                 editText.addTextChangedListener(ToolBarColorTextWatcher(editText, alertDialog.findViewById(android.R.id.button1)!!))
+                alertDialog.findViewById<Button>(android.R.id.button1)!!.isEnabled = false
             }
             return alertDialog
         }

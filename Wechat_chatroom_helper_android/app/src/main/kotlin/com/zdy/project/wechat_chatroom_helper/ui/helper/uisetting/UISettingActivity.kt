@@ -64,6 +64,13 @@ class UISettingActivity : AppCompatActivity() {
         }
     }
 
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        settingViewModel!!.refreshColorInfo()
+        (supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()
+
+    }
+
 
     private fun setupToolbar() {
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)

@@ -1,6 +1,8 @@
 package com.zdy.project.wechat_chatroom_helper.ui.helper.uisetting
 
+import android.arch.lifecycle.Observer
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
@@ -23,8 +25,6 @@ import utils.AppSaveInfoUtils
  */
 class PreviewFragment : Fragment() {
 
-    private lateinit var settingViewHolder: SettingViewModel
-
     private lateinit var thisActivity: UISettingActivity
 
     private lateinit var mRootView: ViewGroup
@@ -35,6 +35,8 @@ class PreviewFragment : Fragment() {
 
     private lateinit var mRecyclerView: RecyclerView
 
+    private lateinit var chatRoomRecyclerViewAdapter: ChatRoomRecyclerViewAdapter
+
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         thisActivity = context as UISettingActivity
@@ -44,8 +46,12 @@ class PreviewFragment : Fragment() {
         mRootView = LayoutInflater.from(thisActivity).inflate(R.layout.fragment_preview, container, false) as ViewGroup
         mRootView.findViewById<LinearLayout>(R.id.fragment_preview_content).addView(initToolbar())
         mRootView.findViewById<LinearLayout>(R.id.fragment_preview_content).addView(initRecycler())
+
+        notifyUIToChangeColor()
+
         return mRootView
     }
+
 
     private fun initToolbar(): View {
         mToolbarContainer = RelativeLayout(thisActivity)
@@ -55,7 +61,6 @@ class PreviewFragment : Fragment() {
         mToolbar.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
         mToolbar.setNavigationIcon(R.drawable.arrow_icon)
 
-        mToolbar.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.toolbarColorInfo()))
 
         mToolbar.title = "群消息助手"
         mToolbar.setTitleTextColor(-0x50506)
@@ -103,9 +108,7 @@ class PreviewFragment : Fragment() {
     private fun initRecycler(): RecyclerView {
         mRecyclerView = RecyclerView(thisActivity)
 
-        mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.helperColorInfo()))
-
-        val chatRoomRecyclerViewAdapter = ChatRoomRecyclerViewAdapter(thisActivity, Any())
+        chatRoomRecyclerViewAdapter = ChatRoomRecyclerViewAdapter(thisActivity)
 
         chatRoomRecyclerViewAdapter.data = arrayList()
         chatRoomRecyclerViewAdapter.notifyDataSetChanged()
@@ -113,6 +116,14 @@ class PreviewFragment : Fragment() {
         mRecyclerView.layoutManager = LinearLayoutManager(thisActivity)
         mRecyclerView.adapter = chatRoomRecyclerViewAdapter
         return mRecyclerView
+    }
+
+
+     fun notifyUIToChangeColor() {
+        mToolbarContainer.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.toolbarColorInfo()))
+        mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.helperColorInfo()))
+
+        chatRoomRecyclerViewAdapter.notifyDataSetChanged()
     }
 
     private fun arrayList(): ArrayList<ChatInfoModel> {

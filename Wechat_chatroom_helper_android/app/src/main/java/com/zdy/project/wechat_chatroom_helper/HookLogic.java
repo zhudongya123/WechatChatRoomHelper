@@ -816,7 +816,7 @@ public class HookLogic implements IXposedHookLoadPackage {
         try {
             XposedHelpers.callStaticMethod(Class.forName(Class_Set_Avatar, false, mClassLoader),
                     Constants.Method_Conversation_List_Get_Avatar, avatar, field_username);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
         }
     }

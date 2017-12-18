@@ -2,6 +2,7 @@ package com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ShapeDrawable
@@ -13,13 +14,14 @@ import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewHelper
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewHolder
+import utils.AppSaveInfoUtils
 import java.util.*
 
 /**
  * Created by Mr.Zdy on 2017/8/27.
  */
 
-class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Context, private val originAdapter: Any) : RecyclerView.Adapter<ChatRoomViewHolder>() {
+class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Context) : RecyclerView.Adapter<ChatRoomViewHolder>() {
 
     var muteListInAdapterPositions = ArrayList<Int>()
 
@@ -70,7 +72,17 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
 
         holder.itemView.background = ChatRoomViewHelper.getItemViewBackground(mContext)
 
-        holder.itemView.setOnClickListener { onDialogItemClickListener!!.onItemClick(muteListInAdapterPositions[position]) }
+        holder.itemView.setOnClickListener {
+            try {
+                onDialogItemClickListener!!.onItemClick(muteListInAdapterPositions[position])
+            } catch (t: Throwable) {
+                t.printStackTrace()
+            }
+        }
+
+        holder.nickname.setTextColor(Color.parseColor("#" + AppSaveInfoUtils.nicknameColorInfo()))
+        holder.content.setTextColor(Color.parseColor("#" + AppSaveInfoUtils.contentColorInfo()))
+        holder.time.setTextColor(Color.parseColor("#" + AppSaveInfoUtils.timeColorInfo()))
     }
 
     override fun getItemCount(): Int {

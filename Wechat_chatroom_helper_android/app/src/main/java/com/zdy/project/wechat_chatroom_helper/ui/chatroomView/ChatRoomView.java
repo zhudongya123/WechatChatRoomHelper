@@ -3,7 +3,6 @@ package com.zdy.project.wechat_chatroom_helper.ui.chatroomView;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
@@ -99,7 +98,7 @@ public class ChatRoomView implements ChatRoomContract.View {
         mainView.addView(mRecyclerView);
         mainView.setClickable(true);
 
-        mainView.setBackground(new ColorDrawable(0xFFFFFFFF));
+        mainView.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.INSTANCE.helperColorInfo()));
 
         initSwipeBack();
 
@@ -166,7 +165,7 @@ public class ChatRoomView implements ChatRoomContract.View {
 
     @Override
     public void init() {
-        mAdapter = new ChatRoomRecyclerViewAdapter(mContext, mPresenter.getOriginAdapter());
+        mAdapter = new ChatRoomRecyclerViewAdapter(mContext);
         mRecyclerView.setAdapter(mAdapter);
     }
 

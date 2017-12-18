@@ -50,7 +50,11 @@ class FileUtils {
                 return defaultValue
             }
             return if (jsonObject.has(key)) {
-                jsonObject.get(key).asString
+                if (jsonObject.get(key).asString === "") {
+                    jsonObject.addProperty(key, defaultValue)
+                    putFileString(jsonObject.toString())
+                    defaultValue
+                } else jsonObject.get(key).asString
             } else {
                 jsonObject.addProperty(key, defaultValue)
                 putFileString(jsonObject.toString())

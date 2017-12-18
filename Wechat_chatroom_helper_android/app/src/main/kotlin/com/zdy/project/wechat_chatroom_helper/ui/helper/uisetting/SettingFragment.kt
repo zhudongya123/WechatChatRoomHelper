@@ -8,9 +8,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.ScrollView
 import android.widget.TextView
 import com.zdy.project.wechat_chatroom_helper.R
+import com.zdy.project.wechat_chatroom_helper.ui.helper.ChooseColorDialogHelper
 import com.zdy.project.wechat_chatroom_helper.utils.ColorUtils
 
 /**
@@ -19,7 +19,6 @@ import com.zdy.project.wechat_chatroom_helper.utils.ColorUtils
 class SettingFragment : Fragment() {
 
     private lateinit var settingViewHolder: SettingViewModel
-
     private lateinit var thisActivity: UISettingActivity
     private lateinit var contentLayout: LinearLayout
 
@@ -39,8 +38,19 @@ class SettingFragment : Fragment() {
             val itemView = LayoutInflater.from(thisActivity).inflate(R.layout.layout_color_setting_item, contentLayout, false)
             itemView.findViewById<TextView>(android.R.id.text1).text = titles[i]
             contentLayout.addView(itemView)
+
+            itemView.setOnClickListener {
+                when (i) {
+                    0 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Toolbar).show()
+                    1 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Helper).show()
+                    2 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Nickname).show()
+                    3 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Content).show()
+                    4 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Time).show()
+                }
+            }
         }
         return contentLayout
+
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -51,17 +61,28 @@ class SettingFragment : Fragment() {
         setupSettingColor()
     }
 
+
     override fun onResume() {
         super.onResume()
         settingViewHolder.start()
     }
 
     private fun setupSettingColor() {
-        settingViewHolder.helperColor.observe(thisActivity, Observer<String> { setItemColor(0, it) })
-        settingViewHolder.toolbarColor.observe(thisActivity, Observer<String> { setItemColor(1, it) })
-        settingViewHolder.nicknameColor.observe(thisActivity, Observer<String> { setItemColor(2, it) })
-        settingViewHolder.contentColor.observe(thisActivity, Observer<String> { setItemColor(3, it) })
-        settingViewHolder.timeColor.observe(thisActivity, Observer<String> { setItemColor(4, it) })
+        settingViewHolder.toolbarColor.observe(thisActivity, Observer<String> {
+            setItemColor(0, it)
+        })
+        settingViewHolder.helperColor.observe(thisActivity, Observer<String> {
+            setItemColor(1, it)
+        })
+        settingViewHolder.nicknameColor.observe(thisActivity, Observer<String> {
+            setItemColor(2, it)
+        })
+        settingViewHolder.contentColor.observe(thisActivity, Observer<String> {
+            setItemColor(3, it)
+        })
+        settingViewHolder.timeColor.observe(thisActivity, Observer<String> {
+            setItemColor(4, it)
+        })
     }
 
     private fun setItemColor(index: Int, value: String?) {

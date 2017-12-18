@@ -18,7 +18,6 @@ package com.zdy.project.wechat_chatroom_helper.utils
 
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentTransaction
 
 
 /**
@@ -34,7 +33,7 @@ object ActivityUtils {
     fun replaceFragmentInActivity(fragmentManager: FragmentManager,
                                   fragment: Fragment, frameId: Int) {
         val transaction = fragmentManager.beginTransaction()
-        transaction.replace(frameId, fragment)
+        transaction.replace(frameId, fragment, fragment.javaClass.simpleName)
         transaction.commit()
     }
 
