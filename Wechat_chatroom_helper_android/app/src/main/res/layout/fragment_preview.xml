@@ -5,18 +5,17 @@
     android:orientation="vertical">
 
 
-    <RelativeLayout
+    <LinearLayout
+        android:orientation="vertical"
         android:id="@+id/fragment_preview_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:scaleX="0.8"
         android:scaleY="0.8">
 
-    </RelativeLayout>
+    </LinearLayout>
 
 
 </LinearLayout>

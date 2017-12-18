@@ -9,6 +9,7 @@ import android.graphics.drawable.shapes.Shape
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.zdy.project.wechat_chatroom_helper.HookLogic
+import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewHelper
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewHolder
@@ -46,7 +47,12 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
         holder.content.text = item.content
         holder.time.text = item.time
 
-        HookLogic.setAvatar(holder.avatar, item.avatarString)
+        try {
+            HookLogic.setAvatar(holder.avatar, item.avatarString)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+            holder.avatar.setImageResource(R.mipmap.ic_launcher)
+        }
 
         if (item.unReadCount!! > 0)
             holder.unread.background = ShapeDrawable(object : Shape() {

@@ -40,9 +40,6 @@ class SettingFragment : Fragment() {
             itemView.findViewById<TextView>(android.R.id.text1).text = titles[i]
             contentLayout.addView(itemView)
         }
-
-      //  val scrollView = ScrollView(thisActivity)
-      //  scrollView.addView(contentLayout)
         return contentLayout
     }
 

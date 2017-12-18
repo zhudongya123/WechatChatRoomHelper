@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -12,6 +13,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.zdy.project.wechat_chatroom_helper.R
+import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import utils.AppSaveInfoUtils
 
@@ -39,10 +42,10 @@ class PreviewFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mRootView = LayoutInflater.from(thisActivity).inflate(R.layout.fragment_preview, container, false) as ViewGroup
-        mRootView.findViewById<RelativeLayout>(R.id.fragment_preview_content).addView(initToolbar())
+        mRootView.findViewById<LinearLayout>(R.id.fragment_preview_content).addView(initToolbar())
+        mRootView.findViewById<LinearLayout>(R.id.fragment_preview_content).addView(initRecycler())
         return mRootView
     }
-
 
     private fun initToolbar(): View {
         mToolbarContainer = RelativeLayout(thisActivity)
@@ -53,7 +56,6 @@ class PreviewFragment : Fragment() {
         mToolbar.setNavigationIcon(R.drawable.arrow_icon)
 
         mToolbar.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.toolbarColorInfo()))
-//        mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.helperColorInfo()))
 
         mToolbar.title = "群消息助手"
         mToolbar.setTitleTextColor(-0x50506)
@@ -96,6 +98,40 @@ class PreviewFragment : Fragment() {
         mToolbarContainer.addView(imageView)
 
         return mToolbarContainer
+    }
+
+    private fun initRecycler(): RecyclerView {
+        mRecyclerView = RecyclerView(thisActivity)
+
+        mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.helperColorInfo()))
+
+        val chatRoomRecyclerViewAdapter = ChatRoomRecyclerViewAdapter(thisActivity, Any())
+
+        chatRoomRecyclerViewAdapter.data = arrayList()
+        chatRoomRecyclerViewAdapter.notifyDataSetChanged()
+
+        mRecyclerView.layoutManager = LinearLayoutManager(thisActivity)
+        mRecyclerView.adapter = chatRoomRecyclerViewAdapter
+        return mRecyclerView
+    }
+
+    private fun arrayList(): ArrayList<ChatInfoModel> {
+        val data = ArrayList<ChatInfoModel>()
+
+        val element1 = ChatInfoModel()
+        element1.nickname = "示例消息"
+        element1.content = "这是一条消息内容"
+        element1.time = "18:19"
+        element1.unReadCount = 1
+        data.add(element1)
+
+        val element2 = ChatInfoModel()
+        element2.nickname = "标题"
+        element2.content = "这又是一条消息内容"
+        element2.time = "18:20"
+        element2.unReadCount = 0
+        data.add(element2)
+        return data
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
