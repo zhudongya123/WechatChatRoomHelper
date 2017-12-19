@@ -83,6 +83,7 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
         holder.nickname.setTextColor(Color.parseColor("#" + AppSaveInfoUtils.nicknameColorInfo()))
         holder.content.setTextColor(Color.parseColor("#" + AppSaveInfoUtils.contentColorInfo()))
         holder.time.setTextColor(Color.parseColor("#" + AppSaveInfoUtils.timeColorInfo()))
+        holder.divider.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.dividerColorInfo()))
     }
 
     override fun getItemCount(): Int {

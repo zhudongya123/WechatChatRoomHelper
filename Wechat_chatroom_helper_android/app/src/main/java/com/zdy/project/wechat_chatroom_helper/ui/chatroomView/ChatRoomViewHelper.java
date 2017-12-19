@@ -35,6 +35,8 @@ public class ChatRoomViewHelper {
     public static int id_content = 5;
     @IdRes
     public static int id_unread = 6;
+    @IdRes
+    public static int id_divider = 8;
 
 
     public static View getItemView(Context mContext) {
@@ -60,12 +62,13 @@ public class ChatRoomViewHelper {
         msgState.setId(id_msg_state);
         content.setId(id_content);
         unread.setId(id_unread);
+        divider.setId(id_divider);
 
         nickName.setTextColor(0xFF353535);
         content.setTextColor(0xFFAAAAAA);
         time.setTextColor(0xFFAAAAAA);
         unread.setTextColor(0xFFFFFFFF);
-        divider.setBackgroundColor(0xFFDADADA);
+        //divider.setBackgroundColor(0xFFDADADA);
 
         nickName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
         content.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);

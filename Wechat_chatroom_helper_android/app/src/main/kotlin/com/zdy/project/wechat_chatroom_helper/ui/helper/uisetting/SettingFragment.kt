@@ -22,7 +22,7 @@ class SettingFragment : Fragment() {
     private lateinit var thisActivity: UISettingActivity
     private lateinit var contentLayout: LinearLayout
 
-    private var titles = arrayOf("助手ToolBar颜色", "助手背景颜色", "会话列表标题颜色", "会话列表内容颜色", "会话列表时间颜色")
+    private var titles = arrayOf("助手ToolBar颜色", "助手背景颜色", "会话列表标题颜色", "会话列表内容颜色", "会话列表时间颜色", "会话列表分割线颜色")
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
@@ -34,7 +34,7 @@ class SettingFragment : Fragment() {
         contentLayout = LinearLayout(thisActivity)
         contentLayout.orientation = LinearLayout.VERTICAL
 
-        for (i in 0 until 5) {
+        for (i in 0 until titles.size) {
             val itemView = LayoutInflater.from(thisActivity).inflate(R.layout.layout_color_setting_item, contentLayout, false)
             itemView.findViewById<TextView>(android.R.id.text1).text = titles[i]
             contentLayout.addView(itemView)
@@ -46,6 +46,7 @@ class SettingFragment : Fragment() {
                     2 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Nickname).show()
                     3 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Content).show()
                     4 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Time).show()
+                    5 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Divider).show()
                 }
             }
         }
@@ -82,6 +83,9 @@ class SettingFragment : Fragment() {
         })
         settingViewHolder.timeColor.observe(thisActivity, Observer<String> {
             setItemColor(4, it)
+        })
+        settingViewHolder.dividerColor.observe(thisActivity, Observer<String> {
+            setItemColor(5, it)
         })
     }
 

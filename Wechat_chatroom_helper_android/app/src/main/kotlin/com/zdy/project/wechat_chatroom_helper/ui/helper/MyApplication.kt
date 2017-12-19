@@ -19,8 +19,6 @@ class MyApplication : Application() {
 
         instance = this
 
-//        AppSaveInfoUtils.setWechatVersionInfo(getWechatVersionCode().toString())
-//        AppSaveInfoUtils.setHelpVersionCodeInfo(getHelperVersionCode().toString())
     }
 
      fun getWechatVersionCode(): Int {

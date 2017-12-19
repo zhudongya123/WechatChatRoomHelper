@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initSetting() {
-        val titles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "助手Toolbar颜色"/*, "助手背景色"*/)
+        val titles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手UI设置"/*, "助手背景色"*/)
 
         for (i in 0 until titles.size) {
             title = titles[i]
@@ -107,12 +107,6 @@ class MainActivity : AppCompatActivity() {
             switch.setOnClickListener {
 
                 if (i == 4) startActivity(Intent(thisActivity, UISettingActivity::class.java))
-
-
-                //ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Toolbar).show()
-             //   if (i == 5) ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Helper).show()
-
-
             }
 
             listContent.addView(itemView)

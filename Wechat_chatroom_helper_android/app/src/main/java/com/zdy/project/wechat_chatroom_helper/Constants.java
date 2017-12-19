@@ -14,6 +14,7 @@ public class Constants {
     public static final String DEFAULT_NICKNAME_COLOR = "353535";
     public static final String DEFAULT_CONTENT_COLOR = "999999";
     public static final String DEFAULT_TIME_COLOR = "BBBBBB";
+    public static final String DEFAULT_DIVIDER_COLOR = "DADADA";
 
     public static final String Prefer_File_String = "com.zdy.project.wechat_chatroom_helper_preferences";
 

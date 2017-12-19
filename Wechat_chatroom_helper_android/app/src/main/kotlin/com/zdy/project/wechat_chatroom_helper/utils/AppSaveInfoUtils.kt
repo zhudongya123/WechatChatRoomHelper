@@ -20,6 +20,7 @@ object AppSaveInfoUtils {
     var NICKNAME_COLOR = "nickname_color"
     var CONTENT_COLOR = "content_color"
     var TIME_COLOR = "time_color"
+    var DIVIDER_COLOR = "divider_color"
 
     var HAS_SUIT_WECHAT_DATA = "has_suit_wechat_data"
     var IS_PLAY_VERSION = "is_play_version"
@@ -114,6 +115,13 @@ object AppSaveInfoUtils {
             FileUtils.putJsonValue(TIME_COLOR, value)
         }
 
+    fun dividerColorInfo(): String {
+        return FileUtils.getJsonValue(DIVIDER_COLOR, Constants.DEFAULT_DIVIDER_COLOR)
+    }
+
+    fun setDividerColorInfo(value: String) {
+        FileUtils.putJsonValue(DIVIDER_COLOR, value)
+    }
 
         fun hasSuitWechatDataInfo(): Boolean {
             return FileUtils.getJsonValue(HAS_SUIT_WECHAT_DATA, false)
@@ -255,4 +263,5 @@ object AppSaveInfoUtils {
             }
 
     }
+
 }

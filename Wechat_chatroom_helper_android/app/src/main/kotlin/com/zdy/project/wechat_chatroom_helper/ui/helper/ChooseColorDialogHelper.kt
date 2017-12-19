@@ -21,7 +21,7 @@ import utils.AppSaveInfoUtils
 class ChooseColorDialogHelper {
 
     enum class TYPE {
-        Toolbar, Helper, Nickname, Content, Time
+        Toolbar, Helper, Nickname, Content, Time, Divider
     }
 
     companion object {
@@ -36,6 +36,7 @@ class ChooseColorDialogHelper {
                 TYPE.Nickname -> AppSaveInfoUtils.nicknameColorInfo()
                 TYPE.Content -> AppSaveInfoUtils.contentColorInfo()
                 TYPE.Time -> AppSaveInfoUtils.timeColorInfo()
+                TYPE.Divider -> AppSaveInfoUtils.dividerColorInfo()
             }
 
             editText.backgroundTintList = ColorStateList.valueOf(ColorUtils.getColorInt(color))
@@ -52,6 +53,7 @@ class ChooseColorDialogHelper {
                         TYPE.Nickname -> "会话列表标题颜色"
                         TYPE.Content -> "会话列表内容颜色"
                         TYPE.Time -> "会话列表时间颜色"
+                        TYPE.Divider -> "会话列表分割线颜色"
                     })
                     .setMessage("请输入6位颜色值代码，示例：FF0000（红色），不支持alpha通道（透明度）")
                     .setView(subView)
@@ -66,6 +68,7 @@ class ChooseColorDialogHelper {
                             TYPE.Nickname -> AppSaveInfoUtils.setNicknameColorInfo(value)
                             TYPE.Content -> AppSaveInfoUtils.setContentColorInfo(value)
                             TYPE.Time -> AppSaveInfoUtils.setTimeColorInfo(value)
+                            TYPE.Divider -> AppSaveInfoUtils.setDividerColorInfo(value)
                         }
 
                     }

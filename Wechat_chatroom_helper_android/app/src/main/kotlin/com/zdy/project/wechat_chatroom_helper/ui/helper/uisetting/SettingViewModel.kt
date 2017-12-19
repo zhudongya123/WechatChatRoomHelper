@@ -16,17 +16,18 @@ class SettingViewModel(context: Application) : AndroidViewModel(context) {
     var nicknameColor = MutableLiveData<String>()
     var contentColor = MutableLiveData<String>()
     var timeColor = MutableLiveData<String>()
-
+    var dividerColor = MutableLiveData<String>()
 
     fun start() {
         refreshColorInfo()
     }
 
-     fun refreshColorInfo() {
+    fun refreshColorInfo() {
         toolbarColor.value = AppSaveInfoUtils.toolbarColorInfo()
         helperColor.value = AppSaveInfoUtils.helperColorInfo()
         nicknameColor.value = AppSaveInfoUtils.nicknameColorInfo()
         contentColor.value = AppSaveInfoUtils.contentColorInfo()
         timeColor.value = AppSaveInfoUtils.timeColorInfo()
+        dividerColor.value = AppSaveInfoUtils.dividerColorInfo()
     }
 }
