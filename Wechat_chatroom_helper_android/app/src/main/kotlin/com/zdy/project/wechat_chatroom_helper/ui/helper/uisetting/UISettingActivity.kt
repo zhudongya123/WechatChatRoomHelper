@@ -2,10 +2,13 @@ package com.zdy.project.wechat_chatroom_helper.ui.helper.uisetting
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.Menu
 import android.view.MenuItem
+import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.utils.ActivityUtils
 import ui.MyApplication
+import utils.AppSaveInfoUtils
 
 /**
  * Created by zhudo on 2017/12/2.
@@ -71,6 +74,10 @@ class UISettingActivity : AppCompatActivity() {
 
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.ui_setting_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
 
     private fun setupToolbar() {
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
@@ -79,12 +86,24 @@ class UISettingActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+        return when (item.itemId) {
             android.R.id.home -> {
                 finish()
-                return true
+                 true
             }
+            R.id.ui_setting_reset -> {
+                AppSaveInfoUtils.setToolbarColorInfo(Constants.DEFAULT_TOOLBAR_COLOR)
+                AppSaveInfoUtils.setHelperColorInfo(Constants.DEFAULT_HELPER_COLOR)
+                AppSaveInfoUtils.setNicknameColorInfo(Constants.DEFAULT_NICKNAME_COLOR)
+                AppSaveInfoUtils.setContentColorInfo(Constants.DEFAULT_CONTENT_COLOR)
+                AppSaveInfoUtils.setDividerColorInfo(Constants.DEFAULT_DIVIDER_COLOR)
+
+                settingViewModel!!.refreshColorInfo()
+                (supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()
+
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 }

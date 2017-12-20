@@ -71,21 +71,27 @@ class SettingFragment : Fragment() {
     private fun setupSettingColor() {
         settingViewHolder.toolbarColor.observe(thisActivity, Observer<String> {
             setItemColor(0, it)
+       //     (thisActivity.supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()
         })
         settingViewHolder.helperColor.observe(thisActivity, Observer<String> {
             setItemColor(1, it)
+       //     (thisActivity.supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()
         })
         settingViewHolder.nicknameColor.observe(thisActivity, Observer<String> {
             setItemColor(2, it)
+      //      (thisActivity.supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()
         })
         settingViewHolder.contentColor.observe(thisActivity, Observer<String> {
             setItemColor(3, it)
+       //     (thisActivity.supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()
         })
         settingViewHolder.timeColor.observe(thisActivity, Observer<String> {
             setItemColor(4, it)
+      //      (thisActivity.supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()
         })
         settingViewHolder.dividerColor.observe(thisActivity, Observer<String> {
             setItemColor(5, it)
+      //      (thisActivity.supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()
         })
     }
 

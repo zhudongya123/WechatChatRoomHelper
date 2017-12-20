@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initSetting() {
-        val titles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手UI设置"/*, "助手背景色"*/)
+        val titles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手UI设置")
 
         for (i in 0 until titles.size) {
             title = titles[i]
@@ -89,20 +89,17 @@ class MainActivity : AppCompatActivity() {
 
             }
 
-            switch.setOnCheckedChangeListener(object : CompoundButton.OnCheckedChangeListener {
-                override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
-                    when (i) {
-                        0 -> AppSaveInfoUtils.setOpen(isChecked)
-                        1 -> {
-                            AppSaveInfoUtils.setPlayVersionInfo(isChecked)
-                            sendRequest(MyApplication.get().getWechatVersionCode().toString(), AppSaveInfoUtils.isPlayVersionInfo())
-                        }
-                        2 -> AppSaveInfoUtils.setCircleAvatarInfo(isChecked)
-                        3 -> AppSaveInfoUtils.setAutoCloseInfo(isChecked)
+            switch.setOnCheckedChangeListener { _, isChecked ->
+                when (i) {
+                    0 -> AppSaveInfoUtils.setOpen(isChecked)
+                    1 -> {
+                        AppSaveInfoUtils.setPlayVersionInfo(isChecked)
+                        sendRequest(MyApplication.get().getWechatVersionCode().toString(), AppSaveInfoUtils.isPlayVersionInfo())
                     }
+                    2 -> AppSaveInfoUtils.setCircleAvatarInfo(isChecked)
+                    3 -> AppSaveInfoUtils.setAutoCloseInfo(isChecked)
                 }
-
-            })
+            }
 
             switch.setOnClickListener {
 
