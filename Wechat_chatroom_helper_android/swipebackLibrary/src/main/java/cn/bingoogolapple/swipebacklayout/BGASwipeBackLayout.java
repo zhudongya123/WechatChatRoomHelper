@@ -35,6 +35,7 @@ import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.FloatRange;
+import android.support.annotation.StyleRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
@@ -640,12 +641,10 @@ public class BGASwipeBackLayout extends ViewGroup {
         // ======================== 新加的 START ========================
         if (!mIsNavigationBarOverlap && UIUtil.isPortrait(mActivity)) {
             maxLayoutHeight -= UIUtil.getNavigationBarHeight(mActivity);
-            maxLayoutHeight -=UIUtil.dip2px(mActivity,25);
         }
 
         if (mIsNavigationBarOverlap && !UIUtil.isPortrait(mActivity)) {
             widthSize += UIUtil.getNavigationBarHeight(mActivity);
-            maxLayoutHeight -=UIUtil.dip2px(mActivity,25);
         }
         // ======================== 新加的 END ========================
 
@@ -1603,7 +1602,7 @@ public class BGASwipeBackLayout extends ViewGroup {
         }
     }
 
-    public static class LayoutParams extends ViewGroup.MarginLayoutParams {
+    public static class LayoutParams extends MarginLayoutParams {
         private static final int[] ATTRS = new int[]{
                 android.R.attr.layout_weight
         };
@@ -1635,7 +1634,7 @@ public class BGASwipeBackLayout extends ViewGroup {
             super(width, height);
         }
 
-        public LayoutParams(android.view.ViewGroup.LayoutParams source) {
+        public LayoutParams(ViewGroup.LayoutParams source) {
             super(source);
         }
 

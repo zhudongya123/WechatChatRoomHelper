@@ -35,6 +35,7 @@ import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.FloatRange;
+import android.support.annotation.StyleRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
@@ -193,15 +194,15 @@ public class BGASwipeBackLayout2 extends ViewGroup {
     /**
      * 滑动返回时的阴影视图
      */
-    protected BGASwipeBackShadowView mShadowView;
+    public BGASwipeBackShadowView mShadowView;
     /**
      * 内容视图
      */
-    protected View mContentView;
+    public View mContentView;
     /**
      * 当前 Activity
      */
-    protected Activity mActivity;
+    public Activity mActivity;
     /**
      * 触发滑动返回的滑动范围
      */
@@ -294,7 +295,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      *
      * @return
      */
-    public  boolean isSwipeBackEnable() {
+    private boolean isSwipeBackEnable() {
         return mSwipeBackEnable && BGASwipeBackManager.getInstance().isSwipeBackEnable();
     }
 
@@ -639,7 +640,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
 
         // ======================== 新加的 START ========================
         if (!mIsNavigationBarOverlap && UIUtil.isPortrait(mActivity)) {
-            maxLayoutHeight -= (UIUtil.getNavigationBarHeight(mActivity)+UIUtil.dip2px(mActivity,25));
+            maxLayoutHeight -= UIUtil.getNavigationBarHeight(mActivity);
         }
 
         if (mIsNavigationBarOverlap && !UIUtil.isPortrait(mActivity)) {
@@ -830,8 +831,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         int nextXStart = xStart;
 
         if (mFirstLayout) {
-         //   mSlideOffset = mCanSlide && mPreservedOpenState ? 1.f : 0.f;
-         //   Log.v("dispatchKeyEvent", " 834, mSlideOffset = " + mSlideOffset);
+            mSlideOffset = mCanSlide && mPreservedOpenState ? 1.f : 0.f;
         }
 
         for (int i = 0; i < childCount; i++) {
@@ -856,7 +856,6 @@ public class BGASwipeBackLayout2 extends ViewGroup {
                 final int pos = (int) (range * mSlideOffset);
                 xStart += pos + lpMargin;
                 mSlideOffset = (float) pos / mSlideRange;
-         //       Log.v("dispatchKeyEvent", " 859, mSlideOffset = " + mSlideOffset);
             } else if (mCanSlide && mParallaxBy != 0) {
                 offset = (int) ((1 - mSlideOffset) * mParallaxBy);
                 xStart = nextXStart;
@@ -1091,7 +1090,6 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      * @return true if sliding panels are completely open
      */
     public boolean isOpen() {
-   //     Log.v("dispatchKeyEvent"," 1094, mSlideOffset = " + mSlideOffset+",  mCanSlide = "+ mCanSlide);
         return !mCanSlide || mSlideOffset == 1;
     }
 
@@ -1118,7 +1116,6 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         if (mSlideableView == null) {
             // This can happen if we're aborting motion during layout because everything now fits.
             mSlideOffset = 0;
-      //      Log.v("dispatchKeyEvent", " 1121, mSlideOffset = " + mSlideOffset);
             return;
         }
         final boolean isLayoutRtl = isLayoutRtlSupport();
@@ -1132,7 +1129,6 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         final int startBound = paddingStart + lpMargin;
 
         mSlideOffset = (float) (newStart - startBound) / mSlideRange;
-   //    Log.v("dispatchKeyEvent", " 1135, mSlideOffset = " + mSlideOffset);
 
         if (mParallaxBy != 0) {
             parallaxOtherViews(mSlideOffset);
@@ -1766,7 +1762,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
             copyNodeInfoNoChildren(info, superNode);
             superNode.recycle();
 
-            info.setClassName(BGASwipeBackLayout2.class.getName());
+            info.setClassName(BGASwipeBackLayout.class.getName());
             info.setSource(host);
 
             final ViewParent parent = ViewCompat.getParentForAccessibility(host);
@@ -1792,7 +1788,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
             super.onInitializeAccessibilityEvent(host, event);
 
-            event.setClassName(BGASwipeBackLayout2.class.getName());
+            event.setClassName(BGASwipeBackLayout.class.getName());
         }
 
         @Override

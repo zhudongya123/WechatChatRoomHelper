@@ -61,11 +61,11 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
 //        closePane();
     }
 
-
-    @Override
-    public boolean isSwipeBackEnable() {
-        return !isOpen();
-    }
+//
+//    @Override
+//    public boolean isSwipeBackEnable() {
+//        return !isOpen();
+//    }
 
     @Override
     public boolean closePane() {

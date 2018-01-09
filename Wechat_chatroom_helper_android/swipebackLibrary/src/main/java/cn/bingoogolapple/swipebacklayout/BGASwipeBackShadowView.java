@@ -4,12 +4,13 @@ import android.app.Activity;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.DrawableRes;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import java.lang.ref.WeakReference;
@@ -19,8 +20,9 @@ import java.lang.ref.WeakReference;
  * 创建时间:2017/10/13
  * 描述:左侧阴影控件
  */
-class BGASwipeBackShadowView extends RelativeLayout {
+class BGASwipeBackShadowView extends FrameLayout {
     private static final String TAG = BGASwipeBackShadowView.class.getSimpleName();
+    private static final float WE_CHAT_STYLE_MAX_OFFSET = 0.75f;
     private Activity mActivity;
     private WeakReference<Activity> mPreActivity;
     private ViewGroup mPreDecorView;
@@ -56,13 +58,10 @@ class BGASwipeBackShadowView extends RelativeLayout {
         });
         mIsCurrentActivityTranslucent = typedArray.getBoolean(0, false);
         typedArray.recycle();
-
     }
 
     /**
      * 设置是否显示滑动返回的阴影效果。默认值为 true
-     *
-     * @param isNeedShowShadow
      */
     void setIsNeedShowShadow(boolean isNeedShowShadow) {
         mIsNeedShowShadow = isNeedShowShadow;
@@ -71,8 +70,6 @@ class BGASwipeBackShadowView extends RelativeLayout {
 
     /**
      * 设置阴影资源 id。默认值为 R.drawable.bga_sbl_shadow
-     *
-     * @param shadowResId
      */
     void setShadowResId(@DrawableRes int shadowResId) {
         mShadowResId = shadowResId;
@@ -81,8 +78,6 @@ class BGASwipeBackShadowView extends RelativeLayout {
 
     /**
      * 设置阴影区域的透明度是否根据滑动的距离渐变。默认值为 true
-     *
-     * @param isShadowAlphaGradient
      */
     void setIsShadowAlphaGradient(boolean isShadowAlphaGradient) {
         mIsShadowAlphaGradient = isShadowAlphaGradient;
@@ -106,15 +101,9 @@ class BGASwipeBackShadowView extends RelativeLayout {
             if (mIsNeedShowShadow) {
                 if (mShadowView == null) {
                     mShadowView = new View(getContext());
-                    LayoutParams params =
-                            new LayoutParams(UIUtil.getRealScreenWidth(mActivity) / 20, LayoutParams.MATCH_PARENT);
-                    params.addRule(RelativeLayout.ALIGN_PARENT_END);
-                    addView(mShadowView, getChildCount(), params);
+                    addView(mShadowView, getChildCount(), new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
                 }
-//                mShadowView.setBackgroundResource(mShadowResId);
-
-                mShadowView.setBackground(new GradientDrawable(
-                        GradientDrawable.Orientation.RIGHT_LEFT, new int[]{0x88000000, 0x00000000}));
+                mShadowView.setBackgroundResource(mShadowResId);
             } else {
                 if (mShadowView != null) {
                     removeView(mShadowView);
@@ -163,7 +152,28 @@ class BGASwipeBackShadowView extends RelativeLayout {
             }
 
             removeView(mPreContentView);
-            mPreDecorView.addView(mPreContentView, 0);
+
+            ViewGroup.LayoutParams lp = null;
+            if (!(mPreContentView instanceof BGASwipeBackLayout)) {
+                int width = mPreDecorView.getWidth();
+                int height = mPreDecorView.getHeight() - UIUtil.getNavigationBarHeight(activity);
+                if (!UIUtil.isPortrait(activity)) {
+                    width = mPreDecorView.getWidth() - UIUtil.getNavigationBarHeight(activity);
+                    height = mPreDecorView.getHeight();
+                }
+                if (mPreDecorView instanceof FrameLayout) {
+                    lp = new LayoutParams(width, height);
+                } else if (mPreDecorView instanceof LinearLayout) {
+                    lp = new LinearLayout.LayoutParams(width, height);
+                } else if (mPreDecorView instanceof RelativeLayout) {
+                    lp = new RelativeLayout.LayoutParams(width, height);
+                }
+            }
+            if (lp == null) {
+                mPreDecorView.addView(mPreContentView, 0);
+            } else {
+                mPreDecorView.addView(mPreContentView, 0, lp);
+            }
 
             mPreContentView = null;
             mPreActivity.clear();
@@ -200,9 +210,6 @@ class BGASwipeBackShadowView extends RelativeLayout {
 
     /**
      * 该 ViewGroup 中是否包含导致多次 draw 后应用崩溃的 View
-     *
-     * @param viewGroup
-     * @return
      */
     private boolean containsProblemView(ViewGroup viewGroup) {
         int childCount = viewGroup.getChildCount();
@@ -231,17 +238,16 @@ class BGASwipeBackShadowView extends RelativeLayout {
     }
 
     void onPanelSlide(float slideOffset) {
-        if (!mIsWeChatStyle) {
-            if (!mIsCurrentActivityTranslucent && mPreContentView != null) {
+        if (mIsWeChatStyle) { // 微信滑动返回样式的情况
+            if (mIsCurrentActivityTranslucent) { // 透明主题
+                onPanelSlide(mActivity, slideOffset);
+            } else if (mPreContentView != null) { // 非透明主题
+                ViewCompat.setTranslationX(mPreContentView, (mPreContentView.getMeasuredWidth() * WE_CHAT_STYLE_MAX_OFFSET) * (1 - slideOffset));
+            }
+        } else { // 非微信滑动返回样式的情况
+            if (!mIsCurrentActivityTranslucent && mPreContentView != null) { // 只有非透明主题时才移动
                 ViewCompat.setTranslationX(mPreContentView, mPreContentView.getMeasuredWidth() * (1 - slideOffset));
             }
-            return;
-        }
-
-        if (mIsCurrentActivityTranslucent) {
-            onPanelSlide(mActivity, slideOffset);
-        } else if (mPreContentView != null) {
-            ViewCompat.setTranslationX(mPreContentView, (mPreContentView.getMeasuredWidth() / 3.0f) * (1 - slideOffset));
         }
     }
 
@@ -250,21 +256,23 @@ class BGASwipeBackShadowView extends RelativeLayout {
             Activity preActivity = BGASwipeBackManager.getInstance().getPenultimateActivity(currentActivity);
             if (preActivity != null) {
                 View decorView = preActivity.getWindow().getDecorView();
-                ViewCompat.setTranslationX(decorView, -(decorView.getMeasuredWidth() / 3.0f) * (1 - slideOffset));
+                ViewCompat.setTranslationX(decorView, -decorView.getMeasuredWidth() * (1 - WE_CHAT_STYLE_MAX_OFFSET) * (1 - slideOffset));
             }
         } catch (Exception e) {
         }
     }
 
     void onPanelClosed() {
-        if (!mIsWeChatStyle) {
-            return;
-        }
-
-        if (mIsCurrentActivityTranslucent) {
-            onPanelClosed(mActivity);
-        } else if (mPreContentView != null) {
-            ViewCompat.setTranslationX(mPreContentView, 0);
+        if (mIsWeChatStyle) { // 微信滑动返回样式的情况
+            if (mIsCurrentActivityTranslucent) { // 透明主题
+                onPanelClosed(mActivity);
+            } else if (mPreContentView != null) { // 非透明主题
+                ViewCompat.setTranslationX(mPreContentView, 0);
+            }
+        } else { // 非微信滑动返回样式的情况
+            if (!mIsCurrentActivityTranslucent && mPreContentView != null) { // 只有非透明主题时才移动
+                ViewCompat.setTranslationX(mPreContentView, 0);
+            }
         }
         unBindPreActivity(false);
     }
