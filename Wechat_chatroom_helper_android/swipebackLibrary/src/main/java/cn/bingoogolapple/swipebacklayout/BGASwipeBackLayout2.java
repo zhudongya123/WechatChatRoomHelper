@@ -295,7 +295,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      *
      * @return
      */
-    private boolean isSwipeBackEnable() {
+    public boolean isSwipeBackEnable() {
         return mSwipeBackEnable && BGASwipeBackManager.getInstance().isSwipeBackEnable();
     }
 
@@ -1129,6 +1129,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         final int startBound = paddingStart + lpMargin;
 
         mSlideOffset = (float) (newStart - startBound) / mSlideRange;
+        Log.v("mSlideOffset", mSlideOffset + "");
 
         if (mParallaxBy != 0) {
             parallaxOtherViews(mSlideOffset);

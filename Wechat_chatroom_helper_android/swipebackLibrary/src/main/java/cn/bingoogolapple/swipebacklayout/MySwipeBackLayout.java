@@ -41,31 +41,15 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
 
         mActivity = ((Activity) context);
 
-//
-//        setPanelSlideListener(new PanelSlideListener() {
-//            @Override
-//            public void onPanelSlide(View panel, float slideOffset) {
-//
-//            }
-//
-//            @Override
-//            public void onPanelOpened(View panel) {
-//
-//            }
-//
-//            @Override
-//            public void onPanelClosed(View panel) {
-//                if (getVisibility() == INVISIBLE) setVisibility(VISIBLE);
-//            }
-//        });
-//        closePane();
+
+        // closePane();
     }
 
-//
-//    @Override
-//    public boolean isSwipeBackEnable() {
-//        return !isOpen();
-//    }
+
+    @Override
+    public boolean isSwipeBackEnable() {
+        return !isOpen() || mSlideOffset != 1f;
+    }
 
     @Override
     public boolean closePane() {

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.DrawableRes;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
@@ -20,7 +21,7 @@ import java.lang.ref.WeakReference;
  * 创建时间:2017/10/13
  * 描述:左侧阴影控件
  */
-class BGASwipeBackShadowView extends FrameLayout {
+class BGASwipeBackShadowView extends RelativeLayout {
     private static final String TAG = BGASwipeBackShadowView.class.getSimpleName();
     private static final float WE_CHAT_STYLE_MAX_OFFSET = 0.75f;
     private Activity mActivity;
@@ -101,9 +102,15 @@ class BGASwipeBackShadowView extends FrameLayout {
             if (mIsNeedShowShadow) {
                 if (mShadowView == null) {
                     mShadowView = new View(getContext());
-                    addView(mShadowView, getChildCount(), new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+                    RelativeLayout.LayoutParams params =
+                            new RelativeLayout.LayoutParams(UIUtil.getRealScreenWidth(mActivity) / 20, RelativeLayout.LayoutParams.MATCH_PARENT);
+                    params.addRule(RelativeLayout.ALIGN_PARENT_END);
+                    addView(mShadowView, getChildCount(), params);
                 }
-                mShadowView.setBackgroundResource(mShadowResId);
+//                mShadowView.setBackgroundResource(mShadowResId);
+
+                mShadowView.setBackground(new GradientDrawable(
+                        GradientDrawable.Orientation.RIGHT_LEFT, new int[]{0x88000000, 0x00000000}));
             } else {
                 if (mShadowView != null) {
                     removeView(mShadowView);

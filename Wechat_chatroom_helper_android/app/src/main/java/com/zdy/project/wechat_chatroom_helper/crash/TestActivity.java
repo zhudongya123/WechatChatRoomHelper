@@ -45,9 +45,6 @@ public class TestActivity extends Activity {
             public void onClick(View v) {
                 Log.v("TestActivity", "button onClick");
              swipeBackLayout.closePane();
-//
-//                ConfigChatRoomDialog configChatRoomDialog = new ConfigChatRoomDialog(TestActivity.this);
-//                configChatRoomDialog.show();
 
             }
         });
@@ -65,20 +62,16 @@ public class TestActivity extends Activity {
         content.addView(swipeBackLayout, params);
 
 
-        swipeBackLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                swipeBackLayout.mSlideOffset = 1;
-            }
-        });
-        swipeBackLayout.openPane();
+//        swipeBackLayout.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                swipeBackLayout.mSlideOffset = 1;
+//            }
+//        });
 
-        ArrayList<String> list = AppSaveInfoUtils.INSTANCE.getWhiteList("white_list_chat_room");
-        WhiteListDialog dialog = new WhiteListDialog(this);
-        dialog.setType(Type.OFFICIAL);
+       // swipeBackLayout.mSlideOffset = 1;
 
-        dialog.setList(list);
-        dialog.show();
+//        swipeBackLayout.openPane();
     }
 
     @Override

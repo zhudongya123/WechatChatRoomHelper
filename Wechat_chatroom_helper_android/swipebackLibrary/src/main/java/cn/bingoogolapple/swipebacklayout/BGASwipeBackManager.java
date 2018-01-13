@@ -120,7 +120,8 @@ class BGASwipeBackManager implements Application.ActivityLifecycleCallbacks {
      * @return
      */
     public boolean isSwipeBackEnable() {
-        return mActivityStack.size() > 1;
+        return true;
+        //   return mActivityStack.size() > 1;
     }
 
     /**

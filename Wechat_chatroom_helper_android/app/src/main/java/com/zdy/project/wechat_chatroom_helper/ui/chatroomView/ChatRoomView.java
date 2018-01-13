@@ -104,14 +104,14 @@ public class ChatRoomView implements ChatRoomContract.View {
 
         mContainer.addView(swipeBackLayout, params);
 
-        swipeBackLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                swipeBackLayout.mSlideOffset = 1;
-                Log.v("dispatchKeyEvent", " isShowing, mSlideOffset = " + swipeBackLayout.mSlideOffset);
-            }
-        });
-        swipeBackLayout.mSlideOffset = 1;
+//        swipeBackLayout.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                swipeBackLayout.mSlideOffset = 1;
+//                Log.v("dispatchKeyEvent", " isShowing, mSlideOffset = " + swipeBackLayout.mSlideOffset);
+//            }
+//        });
+//        swipeBackLayout.mSlideOffset = 1;
 
         uuid = DeviceUtils.getIMELCode(context);
 

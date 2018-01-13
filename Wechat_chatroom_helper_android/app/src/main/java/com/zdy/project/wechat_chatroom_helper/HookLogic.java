@@ -572,8 +572,8 @@ public class HookLogic implements IXposedHookLoadPackage {
 
             int chatRoomSize = chatRoomListInAdapterPositions.size();
             int officialSize = officialListInAdapterPositions.size();
-//            XposedBridge.log("originSize = " + result + ", currentChatRoomSize = " + chatRoomSize + ", " +
-//                    "currentOfficialSize = " + officialSize);
+            XposedBridge.log("originSize = " + result + ", currentChatRoomSize = " + chatRoomSize + ", " +
+                    "currentOfficialSize = " + officialSize);
 
             int count = result - chatRoomSize + (chatRoomSize > 0 ? 1 : 0);//减去群的數量
             count = count - officialSize + (officialSize > 0 ? 1 : 0);//减去公众号的数量
