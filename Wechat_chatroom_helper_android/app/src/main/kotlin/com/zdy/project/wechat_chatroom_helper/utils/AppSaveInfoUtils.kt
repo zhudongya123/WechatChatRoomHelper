@@ -246,8 +246,8 @@ object AppSaveInfoUtils {
 
                 Constants.Method_Message_True_Time = jsonObject.get("mmtt").asString
 
-                Constants.Class_Tencent_Home_UI = jsonObject.get("cthu").asString
-                Constants.Method_Home_UI_Inflater_View = jsonObject.get("mhuiv").asString
+             //   Constants.Class_Tencent_Home_UI = jsonObject.get("cthu").asString
+             //   Constants.Method_Home_UI_Inflater_View = jsonObject.get("mhuiv").asString
                 Constants.Value_Home_UI_Activity = jsonObject.get("vhua").asString
                 Constants.Method_Conversation_List_View_Adapter_Param = jsonObject.get("mclvap").asString
 
@@ -259,6 +259,7 @@ object AppSaveInfoUtils {
 
                 return true
             } catch (e: Exception) {
+                e.printStackTrace()
                 return false
             }
 
