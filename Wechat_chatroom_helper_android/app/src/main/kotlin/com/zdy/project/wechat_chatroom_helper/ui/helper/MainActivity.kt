@@ -11,7 +11,6 @@ import android.support.v7.widget.SwitchCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
-import android.widget.CompoundButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.google.gson.JsonParser
@@ -82,30 +81,30 @@ class MainActivity : AppCompatActivity() {
             itemView.setOnClickListener { switch.performClick() }
 
             when (i) {
-                0 -> switch.isChecked = AppSaveInfoUtils.openInfo()
-                1 -> switch.isChecked = AppSaveInfoUtils.isPlayVersionInfo()
-                2 -> switch.isChecked = AppSaveInfoUtils.isCircleAvatarInfo()
-                3 -> switch.isChecked = AppSaveInfoUtils.autoCloseInfo()
-                4 -> switch.visibility = View.INVISIBLE
-            //  5 -> switch.visibility = View.INVISIBLE
-
-            }
-
-            switch.setOnCheckedChangeListener { _, isChecked ->
-                when (i) {
-                    0 -> AppSaveInfoUtils.setOpen(isChecked)
-                    1 -> {
+                0 -> {
+                    switch.isChecked = AppSaveInfoUtils.openInfo()
+                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfoUtils.setOpen(isChecked) }
+                }
+                1 -> {
+                    switch.isChecked = AppSaveInfoUtils.isPlayVersionInfo()
+                    switch.setOnCheckedChangeListener { _, isChecked ->
                         AppSaveInfoUtils.setPlayVersionInfo(isChecked)
                         sendRequest(MyApplication.get().getWechatVersionCode().toString(), AppSaveInfoUtils.isPlayVersionInfo())
                     }
-                    2 -> AppSaveInfoUtils.setCircleAvatarInfo(isChecked)
-                    3 -> AppSaveInfoUtils.setAutoCloseInfo(isChecked)
                 }
-            }
+                2 -> {
+                    switch.isChecked = AppSaveInfoUtils.isCircleAvatarInfo()
+                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfoUtils.setCircleAvatarInfo(isChecked) }
+                }
+                3 -> {
+                    switch.isChecked = AppSaveInfoUtils.autoCloseInfo()
+                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfoUtils.setAutoCloseInfo(isChecked) }
+                }
+                4 -> {
+                    switch.visibility = View.INVISIBLE
+                    switch.setOnClickListener { if (i == 4) startActivity(Intent(thisActivity, UISettingActivity::class.java)) }
+                }
 
-            switch.setOnClickListener {
-
-                if (i == 4) startActivity(Intent(thisActivity, UISettingActivity::class.java))
             }
 
             listContent.addView(itemView)
@@ -160,7 +159,8 @@ class MainActivity : AppCompatActivity() {
         //  如果微信版本号发生了变化且保存过版本号（上次使用别的版本加载过）
         //  或者保存的数据中是 没有适合的数据的标记
         //  或者主程序版本号发生了改变
-        if (wechatVersionCode != saveWechatVersionCode && saveWechatVersionCode != "0"
+        if (wechatVersionCode != saveWechatVersionCode
+                && saveWechatVersionCode != "0"
                 || !hasSuitWechatData
                 || saveHelperVersionCode != helperVersionCode) {
 
