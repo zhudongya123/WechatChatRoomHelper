@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var thisActivity: MainActivity
 
     private lateinit var clickMe: Button
+    private lateinit var qian: Button
     private lateinit var detail: TextView
     private lateinit var listContent: LinearLayout
 
@@ -57,6 +58,7 @@ class MainActivity : AppCompatActivity() {
         //加載佈局
         setContentView(R.layout.activity_main)
         clickMe = findViewById<Button>(R.id.button)
+        qian=findViewById<Button>(R.id.button2)
         detail = findViewById<TextView>(R.id.detail)
         listContent = findViewById<LinearLayout>(R.id.list_content)
 
@@ -85,7 +87,7 @@ class MainActivity : AppCompatActivity() {
                 2 -> switch.isChecked = AppSaveInfoUtils.isCircleAvatarInfo()
                 3 -> switch.isChecked = AppSaveInfoUtils.autoCloseInfo()
                 4 -> switch.visibility = View.INVISIBLE
-              //  5 -> switch.visibility = View.INVISIBLE
+            //  5 -> switch.visibility = View.INVISIBLE
 
             }
 
@@ -123,6 +125,12 @@ class MainActivity : AppCompatActivity() {
         clickMe.setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse("http://116.62.247.71:8080/wechat/")
+            startActivity(intent)
+        }
+
+        qian.setOnClickListener{
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse("http://mr-zdy-shanghai.oss-cn-shanghai.aliyuncs.com/wechat_chatroom_helper/qian.jpg")
             startActivity(intent)
         }
 
