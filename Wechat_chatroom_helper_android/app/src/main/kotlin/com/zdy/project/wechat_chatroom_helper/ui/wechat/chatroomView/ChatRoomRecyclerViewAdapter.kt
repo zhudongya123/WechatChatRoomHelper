@@ -12,8 +12,6 @@ import android.view.ViewGroup
 import com.zdy.project.wechat_chatroom_helper.HookLogic
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel
-import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewHelper
-import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewHolder
 import utils.AppSaveInfoUtils
 import java.util.*
 

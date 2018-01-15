@@ -827,7 +827,7 @@ public class HookLogic implements IXposedHookLoadPackage {
      */
     public static Object getMessageBeanForOriginIndex(Object adapter, int index) {
         Object bean;
-        try {
+    //    try {
             Object tMb = XposedHelpers.getObjectField(adapter, Method_Adapter_Get_Object_Step_1);
 
             Object hdB = XposedHelpers.getObjectField(tMb, Method_Adapter_Get_Object_Step_2);
@@ -835,10 +835,10 @@ public class HookLogic implements IXposedHookLoadPackage {
             bean = XposedHelpers.callMethod(hdB, Method_Adapter_Get_Object_Step_3, index);
 
             return bean;
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-        return null;
+//        } catch (Throwable e) {
+//            e.printStackTrace();
+//        }
+       // return null;
     }
 
     private void hookLog(XC_LoadPackage.LoadPackageParam loadPackageParam) {
