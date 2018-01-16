@@ -47,7 +47,7 @@
             android:name="BUGLY_APP_CHANNEL"
             android:value="dev" />
 
-        <activity android:name=".crash.TestActivity">
+        <activity android:name=".test.TestActivity">
 
         </activity>
 

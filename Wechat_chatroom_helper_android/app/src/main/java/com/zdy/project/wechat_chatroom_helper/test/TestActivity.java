@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.crash;
+package com.zdy.project.wechat_chatroom_helper.test;
 
 import android.app.Activity;
 import android.graphics.drawable.GradientDrawable;
