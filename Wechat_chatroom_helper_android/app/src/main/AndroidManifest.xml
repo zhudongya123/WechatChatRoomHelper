@@ -45,18 +45,17 @@
             android:name="BUGLY_APP_CHANNEL"
             android:value="dev" />
 
-        <activity android:name=".crash.TestActivity">
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
+        <activity android:name=".test.TestActivity">
 
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
         </activity>
 
         <activity
             android:name="com.tencent.bugly.beta.ui.BetaActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:theme="@android:style/Theme.Translucent" />
+
+
+
     </application>
 
 </manifest>
