@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 
@@ -41,14 +42,36 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
 
         mActivity = ((Activity) context);
 
+        openPane();
 
-        // closePane();
+        setPanelSlideListener(new PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
+
+                Log.v("MySwipeBackLayout", "slideOffset = " + slideOffset);
+            }
+
+            @Override
+            public void onPanelOpened(View panel) {
+                Log.v("MySwipeBackLayout", "onPanelOpened");
+            }
+
+            @Override
+            public void onPanelClosed(View panel) {
+                Log.v("MySwipeBackLayout", "onPanelClosed");
+            }
+        });
     }
 
-
+    /**
+     * 由于滑动返回一直都在主界面上覆盖，所以必须声明什么时候可以滑动和什么时候不能滑动。
+     *
+     * @return 是否可以滑动
+     * @link mSlideOffset 在助手打开是为0，不打开时为1
+     */
     @Override
     public boolean isSwipeBackEnable() {
-        return !isOpen() || mSlideOffset != 1f;
+        return !isOpen();
     }
 
     @Override

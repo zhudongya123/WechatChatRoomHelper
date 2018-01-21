@@ -109,7 +109,6 @@ class WhiteListDialog(private var mContext: Context) : Dialog(mContext) {
 
             val unSelectCount = (0 until listView.childCount).count { !(listView.getChildAt(it) as Switch).isChecked }
 
-            Log.v("unSelectCount = ", unSelectCount.toString())
             if (unSelectCount == 0) {
                 Toast.makeText(mContext, "您不能移除助手里面的所有会话", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener

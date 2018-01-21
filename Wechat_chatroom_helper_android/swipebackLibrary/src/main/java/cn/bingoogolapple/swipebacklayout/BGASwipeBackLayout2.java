@@ -35,7 +35,6 @@ import android.os.Parcelable;
 import android.support.annotation.ColorInt;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.FloatRange;
-import android.support.annotation.StyleRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.os.ParcelableCompatCreatorCallbacks;
@@ -1129,7 +1128,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         final int startBound = paddingStart + lpMargin;
 
         mSlideOffset = (float) (newStart - startBound) / mSlideRange;
-        Log.v("mSlideOffset", mSlideOffset + "");
+     //   Log.v("mSlideOffset", mSlideOffset + "");
 
         if (mParallaxBy != 0) {
             parallaxOtherViews(mSlideOffset);

@@ -61,17 +61,6 @@ public class TestActivity extends Activity {
         swipeBackLayout.attachToView(mainView, this);
         content.addView(swipeBackLayout, params);
 
-
-//        swipeBackLayout.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                swipeBackLayout.mSlideOffset = 1;
-//            }
-//        });
-
-       // swipeBackLayout.mSlideOffset = 1;
-
-//        swipeBackLayout.openPane();
     }
 
     @Override
