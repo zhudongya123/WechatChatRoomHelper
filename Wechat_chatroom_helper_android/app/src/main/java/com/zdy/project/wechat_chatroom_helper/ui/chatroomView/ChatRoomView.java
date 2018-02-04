@@ -104,15 +104,6 @@ public class ChatRoomView implements ChatRoomContract.View {
 
         mContainer.addView(swipeBackLayout, params);
 
-//        swipeBackLayout.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                swipeBackLayout.mSlideOffset = 1;
-//                Log.v("dispatchKeyEvent", " isShowing, mSlideOffset = " + swipeBackLayout.mSlideOffset);
-//            }
-//        });
-//        swipeBackLayout.mSlideOffset = 1;
-
         uuid = DeviceUtils.getIMELCode(context);
 
         ApiManager.INSTANCE.sendRequestForUserStatistics("init", uuid, Build.MODEL);
@@ -149,13 +140,11 @@ public class ChatRoomView implements ChatRoomContract.View {
     @Override
     public void show(int offest) {
         swipeBackLayout.closePane();
-        //  ApiManager.INSTANCE.sendRequestForUserStatistics("open", uuid, Build.MODEL);
     }
 
     @Override
     public void dismiss(int offest) {
         swipeBackLayout.openPane();
-//        ApiManager.INSTANCE.sendRequestForUserStatistics("close", uuid, Build.MODEL);
     }
 
 
