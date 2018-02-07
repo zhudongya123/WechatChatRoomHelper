@@ -109,7 +109,7 @@ public class HookLogic implements IXposedHookLoadPackage {
     //软键盘是否打开
     private boolean isSoftKeyBoardOpen = false;
 
-    private static ClassLoader mClassLoader;
+    public static ClassLoader mClassLoader;
     private Context context;
 
     private View maskView;
@@ -827,18 +827,18 @@ public class HookLogic implements IXposedHookLoadPackage {
      */
     public static Object getMessageBeanForOriginIndex(Object adapter, int index) {
         Object bean;
-    //    try {
-            Object tMb = XposedHelpers.getObjectField(adapter, Method_Adapter_Get_Object_Step_1);
+        //    try {
+        Object tMb = XposedHelpers.getObjectField(adapter, Method_Adapter_Get_Object_Step_1);
 
-            Object hdB = XposedHelpers.getObjectField(tMb, Method_Adapter_Get_Object_Step_2);
+        Object hdB = XposedHelpers.getObjectField(tMb, Method_Adapter_Get_Object_Step_2);
 
-            bean = XposedHelpers.callMethod(hdB, Method_Adapter_Get_Object_Step_3, index);
+        bean = XposedHelpers.callMethod(hdB, Method_Adapter_Get_Object_Step_3, index);
 
-            return bean;
+        return bean;
 //        } catch (Throwable e) {
 //            e.printStackTrace();
 //        }
-       // return null;
+        // return null;
     }
 
     private void hookLog(XC_LoadPackage.LoadPackageParam loadPackageParam) {
@@ -847,6 +847,9 @@ public class HookLogic implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         if (!AppSaveInfoUtils.INSTANCE.openInfo()) return;
+
+                       // XposedBridge.log("XposedLog, params0 = " + param.args[0] + " params1 = " + String.format(String.valueOf(param.args[1]), ((Object[]) param.args[2])));
+
 
                         //无奈之举，只能使用拦截日志的做法来实现部分功能
                         Object arg = param.args[1];

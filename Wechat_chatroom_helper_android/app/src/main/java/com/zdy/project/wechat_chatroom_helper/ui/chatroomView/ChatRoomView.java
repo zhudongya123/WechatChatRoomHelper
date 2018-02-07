@@ -50,7 +50,7 @@ public class ChatRoomView implements ChatRoomContract.View {
     private ChatRoomContract.Presenter mPresenter;
 
     private Context mContext;
-    private AbsoluteLayout mContainer;
+    private ViewGroup mContainer;
 
 
     private MySwipeBackLayout swipeBackLayout;
@@ -71,13 +71,13 @@ public class ChatRoomView implements ChatRoomContract.View {
 
     public ChatRoomView(Context context, final ViewGroup container, Type type) {
 
-        this.mContainer = (AbsoluteLayout) container;
+        this.mContainer = container;
         this.mContext = context;
         this.type = type;
 
-        int width = ScreenUtils.getScreenWidth(mContext);
-        AbsoluteLayout.LayoutParams params = new AbsoluteLayout.LayoutParams(width, ViewGroup.LayoutParams
-                .MATCH_PARENT, 0, 0);
+     //   int width = ScreenUtils.getScreenWidth(mContext);
+        ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(
+                ViewGroup.MarginLayoutParams.MATCH_PARENT, ViewGroup.MarginLayoutParams.MATCH_PARENT);
 
 
         mainView = new LinearLayout(mContext);

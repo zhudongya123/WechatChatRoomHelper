@@ -591,10 +591,10 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         // ======================== 新加的 START ========================
-//        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-        int widthSize = UIUtil.getRealScreenWidth(mActivity);
-//        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-        int heightSize = UIUtil.getRealScreenHeight(mActivity);
+        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+        //       int widthSize = UIUtil.getRealScreenWidth(mActivity);
+       int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+        //        int heightSize = UIUtil.getRealScreenHeight(mActivity);
         // ======================== 新加的 END ========================
 
         if (widthMode != MeasureSpec.EXACTLY) {
@@ -627,7 +627,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         }
 
         int layoutHeight = 0;
-        int maxLayoutHeight = -1;
+        int maxLayoutHeight = 0;
         switch (heightMode) {
             case MeasureSpec.EXACTLY:
                 layoutHeight = maxLayoutHeight = heightSize - getPaddingTop() - getPaddingBottom();
@@ -638,13 +638,13 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         }
 
         // ======================== 新加的 START ========================
-        if (!mIsNavigationBarOverlap && UIUtil.isPortrait(mActivity)) {
-            maxLayoutHeight -= UIUtil.getNavigationBarHeight(mActivity);
-        }
+    //    if (!mIsNavigationBarOverlap && UIUtil.isPortrait(mActivity)) {
+     //       maxLayoutHeight -= UIUtil.getNavigationBarHeight(mActivity);
+    //    }
 
-        if (mIsNavigationBarOverlap && !UIUtil.isPortrait(mActivity)) {
-            widthSize += UIUtil.getNavigationBarHeight(mActivity);
-        }
+    //    if (mIsNavigationBarOverlap && !UIUtil.isPortrait(mActivity)) {
+    //        widthSize += UIUtil.getNavigationBarHeight(mActivity);
+     //   }
         // ======================== 新加的 END ========================
 
         float weightSum = 0;
