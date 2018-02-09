@@ -19,6 +19,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
@@ -239,8 +240,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
 
                         if (param.thisObject.getClass().getSimpleName().equals("TestTimeForChatting")) {
-                            XposedBridge.log("TestTimeForChatting, dispatchKeyEvent, MotionEvent = " + param.args[0]
-                                    .toString());
 
                             MotionEvent motionEvent = (MotionEvent) param.args[0];
                             if (!isInChatting) {
@@ -306,13 +305,17 @@ public class HookLogic implements IXposedHookLoadPackage {
         fitSystemWindowLayoutView.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
             @Override
             public void onChildViewAdded(View parent, View child) {
+
+                View testTimeForChatting;
+
                 if (isWechatHighVersion(AppSaveInfoUtils.INSTANCE.wechatVersionInfo())) {
                     if (fitSystemWindowLayoutView.getChildCount() != 3) return;
 
-                    if (!fitSystemWindowLayoutView.getChildAt(0).getClass().getSimpleName().equals("LinearLayout"))
+                    if (!fitSystemWindowLayoutView.getChildAt(0)
+                            .getClass().getSimpleName().equals("LinearLayout"))
                         return;
-                    if (!fitSystemWindowLayoutView.getChildAt(2).getClass().getSimpleName().equals
-                            ("TestTimeForChatting"))
+                    testTimeForChatting = fitSystemWindowLayoutView.getChildAt(2);
+                    if (!testTimeForChatting.getClass().getSimpleName().equals("TestTimeForChatting"))
                         return;
 
                     fitSystemWindowLayoutView.addView(chatRoomViewPresenter.getPresenterView(), 2);
@@ -328,13 +331,18 @@ public class HookLogic implements IXposedHookLoadPackage {
                     maskView.setLayoutParams(maskParams);
 
                     fitSystemWindowLayoutView.addView(maskView, 4);
+                    fixHelperSize(testTimeForChatting);
 
                 } else {
                     if (fitSystemWindowLayoutView.getChildCount() != 2) return;
 
-                    if (!fitSystemWindowLayoutView.getChildAt(0).getClass().getSimpleName().equals("LinearLayout"))
+                    if (!fitSystemWindowLayoutView.getChildAt(0)
+                            .getClass().getSimpleName().equals("LinearLayout"))
                         return;
-                    if (!fitSystemWindowLayoutView.getChildAt(1).getClass().getSimpleName().equals("TestTimeForChatting"))
+
+                    testTimeForChatting = fitSystemWindowLayoutView.getChildAt(1);
+
+                    if (!testTimeForChatting.getClass().getSimpleName().equals("TestTimeForChatting"))
                         return;
 
                     fitSystemWindowLayoutView.addView(chatRoomViewPresenter.getPresenterView(), 1);
@@ -349,6 +357,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     maskView.setLayoutParams(maskParams);
 
                     fitSystemWindowLayoutView.addView(maskView, 3);
+                    fixHelperSize(testTimeForChatting);
                 }
 
             }
@@ -358,6 +367,50 @@ public class HookLogic implements IXposedHookLoadPackage {
             }
         });
 
+    }
+
+    private void fixHelperSize(View testTimeForChatting) {
+        if (!testTimeForChatting.getClass().getSimpleName().equals("TestTimeForChatting"))
+            return;
+
+        final ViewGroup parent = (ViewGroup) testTimeForChatting;
+
+        parent.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
+            @Override
+            public void onChildViewAdded(View a, View child) {
+                int childCount = parent.getChildCount();
+                if (childCount == 1) {
+                    final View wechatSwipeBackView = parent.getChildAt(0);
+                    wechatSwipeBackView
+                            .getViewTreeObserver()
+                            .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                                @Override
+                                public void onGlobalLayout() {
+                                    int left = wechatSwipeBackView.getLeft();
+                                    int right = wechatSwipeBackView.getRight();
+                                    int top = wechatSwipeBackView.getTop();
+                                    int bottom = wechatSwipeBackView.getBottom();
+
+                                    chatRoomViewPresenter.getPresenterView().setLeft(left);
+                                    chatRoomViewPresenter.getPresenterView().setTop(top);
+                                    chatRoomViewPresenter.getPresenterView().setRight(right);
+                                    chatRoomViewPresenter.getPresenterView().setBottom(bottom);
+
+
+                                    officialViewPresenter.getPresenterView().setLeft(left);
+                                    officialViewPresenter.getPresenterView().setTop(top);
+                                    officialViewPresenter.getPresenterView().setRight(right);
+                                    officialViewPresenter.getPresenterView().setBottom(bottom);
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onChildViewRemoved(View a, View child) {
+
+            }
+        });
     }
 
     private void hookAdapterInit(XC_MethodHook.MethodHookParam param) {
@@ -848,36 +901,38 @@ public class HookLogic implements IXposedHookLoadPackage {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         if (!AppSaveInfoUtils.INSTANCE.openInfo()) return;
 
-                       // XposedBridge.log("XposedLog, params0 = " + param.args[0] + " params1 = " + String.format(String.valueOf(param.args[1]), ((Object[]) param.args[2])));
-
+                        String desc = String.valueOf(param.args[1]);
+                        Object[] objArr = (Object[]) param.args[2];
+                        try {
+                            XposedBridge.log("Xposed_Log, key = " + param.args[0] +
+                                    " value = " + String.format(desc, objArr));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 
                         //无奈之举，只能使用拦截日志的做法来实现部分功能
-                        Object arg = param.args[1];
-                        if (arg != null) {
-                            //关闭聊天窗口
-                            if (((String) arg).contains("closeChatting")) {
-                                isInChatting = false;
-                            }
-                            if (((String) arg).contains("startChatting")) {
-                                isInChatting = true;
-                            }
-
-                            //收到新消息
-                            if (((String) arg).contains("summerbadcr updateConversation talker")) {
-                                Object[] objects = (Object[]) param.args[2];
-
-                                String sendUsername = (String) objects[0];
-                                if (sendUsername.contains("chatroom")) {
-                                    if (chatRoomViewPresenter != null) {
-                                        chatRoomViewPresenter.setMessageRefresh(sendUsername);
-                                    }
-                                }
-                                if (officialViewPresenter != null) {
-                                    officialViewPresenter.setMessageRefresh(sendUsername);
-                                }
-                            }
-
+                        //关闭聊天窗口
+                        if (desc.contains("closeChatting")) {
+                            isInChatting = false;
                         }
+                        if (desc.contains("startChatting")) {
+                            isInChatting = true;
+                        }
+
+                        //收到新消息
+                        if (desc.contains("summerbadcr updateConversation talker")) {
+
+                            String sendUsername = (String) objArr[0];
+                            if (sendUsername.contains("chatroom")) {
+                                if (chatRoomViewPresenter != null) {
+                                    chatRoomViewPresenter.setMessageRefresh(sendUsername);
+                                }
+                            }
+                            if (officialViewPresenter != null) {
+                                officialViewPresenter.setMessageRefresh(sendUsername);
+                            }
+                        }
+
                     }
                 });
     }

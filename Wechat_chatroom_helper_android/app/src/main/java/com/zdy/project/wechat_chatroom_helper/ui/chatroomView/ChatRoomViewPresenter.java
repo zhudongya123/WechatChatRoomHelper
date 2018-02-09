@@ -4,18 +4,10 @@ import android.content.Context;
 import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
 
-import com.zdy.project.wechat_chatroom_helper.HookLogic;
 import com.zdy.project.wechat_chatroom_helper.manager.Type;
 import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
-import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-
-import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 
 /**
  * Created by Mr.Zdy on 2017/8/25.
@@ -35,19 +27,20 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
         mContext = context;
 
 
-        try {
-            Class<?> aClass = XposedHelpers.findClass("com.tencent.mm.ui.tools.TestTimeForChatting", HookLogic.mClassLoader);
+//        try {
+//            Class<?> aClass = XposedHelpers.findClass("com.tencent.mm.ui.tools.TestTimeForChatting", HookLogic
+// .mClassLoader);
+//
+//            Constructor<?> constructor = aClass.getConstructor(Context.class);
+//
+//            chatRoomView = (ViewGroup) constructor.newInstance(context);
+//
+//        } catch (NoSuchMethodException | InstantiationException |
+//                IllegalAccessException | InvocationTargetException e) {
+//            e.printStackTrace();
+//        }
 
-            Constructor<?> constructor = aClass.getConstructor(Context.class);
-
-            chatRoomView = (ViewGroup) constructor.newInstance(context);
-
-        } catch (NoSuchMethodException | InstantiationException |
-                IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-        }
-
-        //     chatRoomView = new AbsoluteLayout(context);
+        chatRoomView = new AbsoluteLayout(context);
         chatRoomView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup
                 .LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         chatRoomView.setPadding(0, 0, 0, 0);

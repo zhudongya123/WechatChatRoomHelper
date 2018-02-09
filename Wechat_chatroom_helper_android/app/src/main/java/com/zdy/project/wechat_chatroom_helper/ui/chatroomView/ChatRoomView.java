@@ -7,11 +7,10 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsoluteLayout;
+import android.view.ViewTreeObserver;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -33,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout;
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import network.ApiManager;
 import utils.AppSaveInfoUtils;
@@ -113,6 +113,12 @@ public class ChatRoomView implements ChatRoomContract.View {
     private void initSwipeBack() {
         swipeBackLayout = new MySwipeBackLayout(mContext);
         swipeBackLayout.attachToView(mainView, mContext);
+        swipeBackLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                XposedBridge.log("swipeBackLayout = " + swipeBackLayout.toString());
+            }
+        });
     }
 
 
