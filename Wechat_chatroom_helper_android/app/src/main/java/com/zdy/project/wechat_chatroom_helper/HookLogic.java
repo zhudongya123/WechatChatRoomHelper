@@ -169,9 +169,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 .OnSoftKeyboardChangeListener() {
 
                             public void onSoftKeyBoardChange(int softKeyboardHeight, boolean visible) {
-                                XposedBridge.log("SoftKeyboardUtil, observeSoftKeyboard, softKeyboardHeight = " +
-                                        softKeyboardHeight + ", visible = " + visible);
-
                                 isSoftKeyBoardOpen = visible;
                                 if (chatRoomViewPresenter == null) return;
                                 if (officialViewPresenter == null) return;
@@ -321,7 +318,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                 View chattingView;//聊天View
                 int chattingViewPosition;//聊天View的下標
                 int fitWindowChildCount = 0;//fitSystemWindowLayoutView的 child 数量
-
                 int chatRoomViewPosition = 0;
                 int officialViewPosition = 0;
                 int maskViewPosition = 0;
@@ -341,18 +337,17 @@ public class HookLogic implements IXposedHookLoadPackage {
                     chatRoomViewPosition = 1;
                     officialViewPosition = 2;
                     maskViewPosition = 3;
-
                 }
 
-
                 chattingView = fitSystemWindowLayoutView.getChildAt(chattingViewPosition);
-
                 if (fitSystemWindowLayoutView.getChildCount() != fitWindowChildCount) return;
                 if (!(fitSystemWindowLayoutView.getChildAt(0) instanceof LinearLayout)) return;
                 if (!chattingView.getClass().getSimpleName().equals("TestTimeForChatting")) return;
 
                 fitSystemWindowLayoutView.addView(chatRoomViewPresenter.getPresenterView(), chatRoomViewPosition);
                 fitSystemWindowLayoutView.addView(officialViewPresenter.getPresenterView(), officialViewPosition);
+
+
 
 
                 //黑色遮罩，逻辑可忽略
@@ -362,13 +357,15 @@ public class HookLogic implements IXposedHookLoadPackage {
                 FrameLayout.LayoutParams maskParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         FrameLayout.LayoutParams.MATCH_PARENT);
                 maskView.setLayoutParams(maskParams);
-
                 fitSystemWindowLayoutView.addView(maskView, maskViewPosition);
+
+
+
 
                 //複製佈局參數邏輯
                 //此逻辑并不完美，属于拆东墙补西墙
 
-                if (fitSystemWindowLayoutView.getChildCount() != 1) return;
+                if (((ViewGroup) fitSystemWindowLayoutView.getChildAt(0)).getChildCount() != 2) return;
                 final View mainView = ((ViewGroup) fitSystemWindowLayoutView.getChildAt(0)).getChildAt(1);
                 mainView.getViewTreeObserver()
                         .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -429,7 +426,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         //如果点击的是免打扰消息的入口，且不是在群消息助手里面所做的模拟点击（注意！此方法本身就为点击后的处理方法）
         if (position == firstChatRoomPosition && !clickChatRoomFlag) {
-
             chatRoomViewPresenter.setListInAdapterPositions(chatRoomListInAdapterPositions);
             chatRoomViewPresenter.setOnDialogItemClickListener(new ChatRoomRecyclerViewAdapter
                     .OnDialogItemClickListener() {
@@ -893,12 +889,12 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                         String desc = String.valueOf(param.args[1]);
                         Object[] objArr = (Object[]) param.args[2];
-                        try {
-                            XposedBridge.log("Xposed_Log, key = " + param.args[0] +
-                                    " value = " + String.format(desc, objArr));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+//                        try {
+//                            XposedBridge.log("Xposed_Log, key = " + param.args[0] +
+//                                    " value = " + String.format(desc, objArr));
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
 
                         //无奈之举，只能使用拦截日志的做法来实现部分功能
                         //关闭聊天窗口
