@@ -24,6 +24,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.zdy.project.wechat_chatroom_helper.manager.Type;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
@@ -299,6 +300,17 @@ public class HookLogic implements IXposedHookLoadPackage {
         return wechatVersion.equals("1140") || wechatVersion.equals("1160") || Integer.valueOf(wechatVersion) > 1160;
     }
 
+    /**
+     * 此方法完成的逻辑：
+     * fitSystemWindowLayoutView 为微信主界面的 rootView 往此 View 中添加子 View 来实现助手界面
+     * 注意添加下标一定要小于聊天View -> TestTimeChatting 的下标
+     * <p>
+     * 此部分同时包含一个黑色遮罩的逻辑，用来防止在助手界面软键盘弹出瞬间的View穿透问题，此逻辑一般不会触发，可以省略。
+     * <p>
+     * 同时为了确保助手View 尺寸正确，将会获取主界面聊天列表的布局参数，复制到助手的布局参数中，添加此逻辑主要来规避某些手机上虚拟按键和状态栏不准确的问题。
+     *
+     * @param param
+     */
     private void hookFitSystemWindowLayoutViewConstructor(final XC_MethodHook.MethodHookParam param) {
         final ViewGroup fitSystemWindowLayoutView = (ViewGroup) param.thisObject;
 
@@ -306,60 +318,81 @@ public class HookLogic implements IXposedHookLoadPackage {
             @Override
             public void onChildViewAdded(View parent, View child) {
 
-                View testTimeForChatting;
+                View chattingView;//聊天View
+                int chattingViewPosition;//聊天View的下標
+                int fitWindowChildCount = 0;//fitSystemWindowLayoutView的 child 数量
 
+                int chatRoomViewPosition = 0;
+                int officialViewPosition = 0;
+                int maskViewPosition = 0;
+
+                /*
+                 * 微信在某个版本之后 View 数量发生变化，下标也要相应刷新
+                 **/
                 if (isWechatHighVersion(AppSaveInfoUtils.INSTANCE.wechatVersionInfo())) {
-                    if (fitSystemWindowLayoutView.getChildCount() != 3) return;
-
-                    if (!fitSystemWindowLayoutView.getChildAt(0)
-                            .getClass().getSimpleName().equals("LinearLayout"))
-                        return;
-                    testTimeForChatting = fitSystemWindowLayoutView.getChildAt(2);
-                    if (!testTimeForChatting.getClass().getSimpleName().equals("TestTimeForChatting"))
-                        return;
-
-                    fitSystemWindowLayoutView.addView(chatRoomViewPresenter.getPresenterView(), 2);
-                    fitSystemWindowLayoutView.addView(officialViewPresenter.getPresenterView(), 3);
-
-
-                    maskView = new View(context);
-                    maskView.setBackgroundColor(0xff000000);
-                    maskView.setVisibility(View.INVISIBLE);
-                    FrameLayout.LayoutParams maskParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                            FrameLayout.LayoutParams.MATCH_PARENT);
-                    maskParams.setMargins(0, ScreenUtils.dip2px(context, 30), 0, 0);
-                    maskView.setLayoutParams(maskParams);
-
-                    fitSystemWindowLayoutView.addView(maskView, 4);
-                    fixHelperSize(testTimeForChatting);
-
+                    fitWindowChildCount = 3;
+                    chattingViewPosition = 2;
+                    chatRoomViewPosition = 2;
+                    officialViewPosition = 3;
+                    maskViewPosition = 4;
                 } else {
-                    if (fitSystemWindowLayoutView.getChildCount() != 2) return;
+                    fitWindowChildCount = 2;
+                    chattingViewPosition = 1;
+                    chatRoomViewPosition = 1;
+                    officialViewPosition = 2;
+                    maskViewPosition = 3;
 
-                    if (!fitSystemWindowLayoutView.getChildAt(0)
-                            .getClass().getSimpleName().equals("LinearLayout"))
-                        return;
-
-                    testTimeForChatting = fitSystemWindowLayoutView.getChildAt(1);
-
-                    if (!testTimeForChatting.getClass().getSimpleName().equals("TestTimeForChatting"))
-                        return;
-
-                    fitSystemWindowLayoutView.addView(chatRoomViewPresenter.getPresenterView(), 1);
-                    fitSystemWindowLayoutView.addView(officialViewPresenter.getPresenterView(), 2);
-
-
-                    maskView = new View(context);
-                    maskView.setBackgroundColor(0xff000000);
-                    maskView.setVisibility(View.INVISIBLE);
-                    ViewGroup.LayoutParams maskParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.MATCH_PARENT);
-                    maskView.setLayoutParams(maskParams);
-
-                    fitSystemWindowLayoutView.addView(maskView, 3);
-                    fixHelperSize(testTimeForChatting);
                 }
 
+
+                chattingView = fitSystemWindowLayoutView.getChildAt(chattingViewPosition);
+
+                if (fitSystemWindowLayoutView.getChildCount() != fitWindowChildCount) return;
+                if (!(fitSystemWindowLayoutView.getChildAt(0) instanceof LinearLayout)) return;
+                if (!chattingView.getClass().getSimpleName().equals("TestTimeForChatting")) return;
+
+                fitSystemWindowLayoutView.addView(chatRoomViewPresenter.getPresenterView(), chatRoomViewPosition);
+                fitSystemWindowLayoutView.addView(officialViewPresenter.getPresenterView(), officialViewPosition);
+
+
+                //黑色遮罩，逻辑可忽略
+                maskView = new View(context);
+                maskView.setBackgroundColor(0xff000000);
+                maskView.setVisibility(View.INVISIBLE);
+                FrameLayout.LayoutParams maskParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.MATCH_PARENT);
+                maskView.setLayoutParams(maskParams);
+
+                fitSystemWindowLayoutView.addView(maskView, maskViewPosition);
+
+                //複製佈局參數邏輯
+                //此逻辑并不完美，属于拆东墙补西墙
+
+                if (fitSystemWindowLayoutView.getChildCount() != 1) return;
+                final View mainView = ((ViewGroup) fitSystemWindowLayoutView.getChildAt(0)).getChildAt(1);
+                mainView.getViewTreeObserver()
+                        .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                            @Override
+                            public void onGlobalLayout() {
+                                int left = mainView.getLeft();
+                                int right = mainView.getRight();
+                                int top = mainView.getTop();
+                                int bottom = mainView.getBottom();
+
+                                if (left == right || top == bottom) return;
+
+                                ViewGroup chatRoomViewPresenterPresenterView = chatRoomViewPresenter.getPresenterView();
+                                chatRoomViewPresenterPresenterView.setTop(top);
+                                chatRoomViewPresenterPresenterView.setBottom(bottom);
+                                chatRoomViewPresenterPresenterView.setLayoutParams(new FrameLayout.LayoutParams(right - left, bottom - top));
+
+                                ViewGroup officialViewPresenterPresenterView = officialViewPresenter.getPresenterView();
+                                officialViewPresenterPresenterView.setTop(top);
+                                officialViewPresenterPresenterView.setBottom(bottom);
+                                officialViewPresenterPresenterView.setLayoutParams(new FrameLayout.LayoutParams(right - left, bottom - top));
+
+                            }
+                        });
             }
 
             @Override
@@ -369,49 +402,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     }
 
-    private void fixHelperSize(View testTimeForChatting) {
-        if (!testTimeForChatting.getClass().getSimpleName().equals("TestTimeForChatting"))
-            return;
-
-        final ViewGroup parent = (ViewGroup) testTimeForChatting;
-
-        parent.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
-            @Override
-            public void onChildViewAdded(View a, View child) {
-                int childCount = parent.getChildCount();
-                if (childCount == 1) {
-                    final View wechatSwipeBackView = parent.getChildAt(0);
-                    wechatSwipeBackView
-                            .getViewTreeObserver()
-                            .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                                @Override
-                                public void onGlobalLayout() {
-                                    int left = wechatSwipeBackView.getLeft();
-                                    int right = wechatSwipeBackView.getRight();
-                                    int top = wechatSwipeBackView.getTop();
-                                    int bottom = wechatSwipeBackView.getBottom();
-
-                                    chatRoomViewPresenter.getPresenterView().setLeft(left);
-                                    chatRoomViewPresenter.getPresenterView().setTop(top);
-                                    chatRoomViewPresenter.getPresenterView().setRight(right);
-                                    chatRoomViewPresenter.getPresenterView().setBottom(bottom);
-
-
-                                    officialViewPresenter.getPresenterView().setLeft(left);
-                                    officialViewPresenter.getPresenterView().setTop(top);
-                                    officialViewPresenter.getPresenterView().setRight(right);
-                                    officialViewPresenter.getPresenterView().setBottom(bottom);
-                                }
-                            });
-                }
-            }
-
-            @Override
-            public void onChildViewRemoved(View a, View child) {
-
-            }
-        });
-    }
 
     private void hookAdapterInit(XC_MethodHook.MethodHookParam param) {
         chatRoomViewPresenter = new ChatRoomViewPresenter(context, Type.CHAT_ROOMS);

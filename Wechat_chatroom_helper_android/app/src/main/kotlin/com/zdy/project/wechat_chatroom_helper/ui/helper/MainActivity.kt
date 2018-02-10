@@ -129,7 +129,7 @@ class MainActivity : AppCompatActivity() {
 
         qian.setOnClickListener{
             val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse("http://mr-zdy-shanghai.oss-cn-shanghai.aliyuncs.com/wechat_chatroom_helper/qian.jpg")
+            intent.data = Uri.parse("https://QR.ALIPAY.COM/FKX09384NJXB5JXT9MLD11")
             startActivity(intent)
         }
 
