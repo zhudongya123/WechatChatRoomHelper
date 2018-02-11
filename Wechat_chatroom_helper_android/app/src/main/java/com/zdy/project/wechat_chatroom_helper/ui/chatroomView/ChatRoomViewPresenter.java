@@ -28,24 +28,9 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
         mContext = context;
 
 
-//        try {
-//            Class<?> aClass = XposedHelpers.findClass("com.tencent.mm.ui.tools.TestTimeForChatting", HookLogic
-// .mClassLoader);
-//
-//            Constructor<?> constructor = aClass.getConstructor(Context.class);
-//
-//            chatRoomView = (ViewGroup) constructor.newInstance(context);
-//
-//        } catch (NoSuchMethodException | InstantiationException |
-//                IllegalAccessException | InvocationTargetException e) {
-//            e.printStackTrace();
-//        }
-
         chatRoomView = new FrameLayout(context);
         chatRoomView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup
                 .LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-      //  chatRoomView.setPadding(0, 0, 0, 0);
-
 
         mView = new ChatRoomView(context, chatRoomView, type);
 

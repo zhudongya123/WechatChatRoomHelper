@@ -113,12 +113,7 @@ public class ChatRoomView implements ChatRoomContract.View {
     private void initSwipeBack() {
         swipeBackLayout = new MySwipeBackLayout(mContext);
         swipeBackLayout.attachToView(mainView, mContext);
-        swipeBackLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                XposedBridge.log("swipeBackLayout = " + swipeBackLayout.toString());
-            }
-        });
+
     }
 
 

@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.Shape;
@@ -30,7 +31,6 @@ import com.zdy.project.wechat_chatroom_helper.manager.Type;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter;
 import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
-import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.SoftKeyboardUtil;
 
 import java.util.ArrayList;
@@ -255,8 +255,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 case MotionEvent.ACTION_UP:
                                     break;
                             }
-
-
                         }
                     }
                 });
@@ -348,8 +346,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                 fitSystemWindowLayoutView.addView(officialViewPresenter.getPresenterView(), officialViewPosition);
 
 
-
-
                 //黑色遮罩，逻辑可忽略
                 maskView = new View(context);
                 maskView.setBackgroundColor(0xff000000);
@@ -358,8 +354,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                         FrameLayout.LayoutParams.MATCH_PARENT);
                 maskView.setLayoutParams(maskParams);
                 fitSystemWindowLayoutView.addView(maskView, maskViewPosition);
-
-
 
 
                 //複製佈局參數邏輯
@@ -376,18 +370,30 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 int top = mainView.getTop();
                                 int bottom = mainView.getBottom();
 
-                                if (left == right || top == bottom) return;
+                                int width = right - left;
+                                int height = bottom - top;
+
+                                XposedBridge.log("mainView = " + "left = " + left + ", " +
+                                        "top = " + top + ", right = " + right + ", bottom = " + bottom);
+
+                                if (currentRect.equals(new Rect(left, top, right, bottom))) return;
+                                if (width == 0 || height == 0) return;
+
+                                currentRect = new Rect(left, top, right, bottom);
 
                                 ViewGroup chatRoomViewPresenterPresenterView = chatRoomViewPresenter.getPresenterView();
-                                chatRoomViewPresenterPresenterView.setTop(top);
-                                chatRoomViewPresenterPresenterView.setBottom(bottom);
-                                chatRoomViewPresenterPresenterView.setLayoutParams(new FrameLayout.LayoutParams(right - left, bottom - top));
-
                                 ViewGroup officialViewPresenterPresenterView = officialViewPresenter.getPresenterView();
-                                officialViewPresenterPresenterView.setTop(top);
-                                officialViewPresenterPresenterView.setBottom(bottom);
-                                officialViewPresenterPresenterView.setLayoutParams(new FrameLayout.LayoutParams(right - left, bottom - top));
 
+                                FrameLayout.LayoutParams params
+                                        = new FrameLayout.LayoutParams(width, height);
+                                params.setMargins(0, top, 0, 0);
+
+                                chatRoomViewPresenterPresenterView.setLayoutParams(params);
+                                officialViewPresenterPresenterView.setLayoutParams(params);
+                                maskView.setLayoutParams(params);
+
+                                XposedBridge.log("mainView2 = " + "left = " + left + ", " +
+                                        "top = " + top + ", right = " + right + ", bottom = " + bottom);
                             }
                         });
             }
@@ -398,6 +404,8 @@ public class HookLogic implements IXposedHookLoadPackage {
         });
 
     }
+
+    private Rect currentRect = new Rect(0, 0, 0, 0);
 
 
     private void hookAdapterInit(XC_MethodHook.MethodHookParam param) {
