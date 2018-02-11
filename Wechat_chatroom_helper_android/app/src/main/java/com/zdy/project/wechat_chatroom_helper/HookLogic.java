@@ -31,6 +31,7 @@ import com.zdy.project.wechat_chatroom_helper.manager.Type;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter;
 import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
+import com.zdy.project.wechat_chatroom_helper.utils.LogUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.SoftKeyboardUtil;
 
 import java.util.ArrayList;
@@ -120,6 +121,7 @@ public class HookLogic implements IXposedHookLoadPackage {
     public static ArrayList<String> muteChatRoomNickNameEntries;
     public static ArrayList<String> officialNickNameEntries;
 
+    private Rect currentRect = new Rect(0, 0, 0, 0);
 
     @Override
 
@@ -373,9 +375,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 int width = right - left;
                                 int height = bottom - top;
 
-                                XposedBridge.log("mainView = " + "left = " + left + ", " +
-                                        "top = " + top + ", right = " + right + ", bottom = " + bottom);
-
                                 if (currentRect.equals(new Rect(left, top, right, bottom))) return;
                                 if (width == 0 || height == 0) return;
 
@@ -392,8 +391,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 officialViewPresenterPresenterView.setLayoutParams(params);
                                 maskView.setLayoutParams(params);
 
-                                XposedBridge.log("mainView2 = " + "left = " + left + ", " +
-                                        "top = " + top + ", right = " + right + ", bottom = " + bottom);
                             }
                         });
             }
@@ -404,8 +401,6 @@ public class HookLogic implements IXposedHookLoadPackage {
         });
 
     }
-
-    private Rect currentRect = new Rect(0, 0, 0, 0);
 
 
     private void hookAdapterInit(XC_MethodHook.MethodHookParam param) {
@@ -619,7 +614,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
             int chatRoomSize = chatRoomListInAdapterPositions.size();
             int officialSize = officialListInAdapterPositions.size();
-            XposedBridge.log("originSize = " + result + ", currentChatRoomSize = " + chatRoomSize + ", " +
+            LogUtils.INSTANCE.log("originSize = " + result + ", currentChatRoomSize = " + chatRoomSize + ", " +
                     "currentOfficialSize = " + officialSize);
 
             int count = result - chatRoomSize + (chatRoomSize > 0 ? 1 : 0);//减去群的數量
@@ -634,7 +629,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
             return;//是否为正确的Adapter
-
 
         notifyList = false;
 
@@ -707,8 +701,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                     key = key - (officialCount >= 1 ? (officialCount - 1) : officialCount);
                     newViewPositionWithDataPositionList.put(key, i);
                 }
-
-
             }
         }
         notifyList = true;
@@ -897,12 +889,12 @@ public class HookLogic implements IXposedHookLoadPackage {
 
                         String desc = String.valueOf(param.args[1]);
                         Object[] objArr = (Object[]) param.args[2];
-//                        try {
-//                            XposedBridge.log("Xposed_Log, key = " + param.args[0] +
-//                                    " value = " + String.format(desc, objArr));
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                        }
+                        try {
+                            LogUtils.INSTANCE.log("Xposed_Log, key = " + param.args[0] + " value = " + String.format
+                                    (desc, objArr));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
 
                         //无奈之举，只能使用拦截日志的做法来实现部分功能
                         //关闭聊天窗口

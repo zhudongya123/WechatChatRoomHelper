@@ -33,6 +33,16 @@ object AppSaveInfoUtils {
     var WHITE_LIST_CHAT_ROOM = "white_list_chat_room"
     var WHITE_LIST_OFFICIAL = "white_list_official"
 
+    var OPEN_LOG = "open_log"
+
+
+        fun openlog(): Boolean {
+            return FileUtils.getJsonValue(OPEN, true)
+        }
+
+        fun setOpenLog(value: Boolean) {
+            FileUtils.putJsonValue(OPEN, value)
+        }
 
         fun openInfo(): Boolean {
             return FileUtils.getJsonValue(OPEN, true)
