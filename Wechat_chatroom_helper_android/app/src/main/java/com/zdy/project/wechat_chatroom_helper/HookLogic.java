@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.zdy.project.wechat_chatroom_helper.manager.Type;
+import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel;
 import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter;
 import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
@@ -275,19 +276,19 @@ public class HookLogic implements IXposedHookLoadPackage {
             if (!isInChatting) {
                 //群消息助手在屏幕上显示
                 if (chatRoomViewPresenter.isShowing()) {
-                    XposedBridge.log("dispatchKeyEvent, chatRoomViewPresenter.isShowing");
+                    LogUtils.INSTANCE.log("dispatchKeyEvent, chatRoomViewPresenter.isShowing");
                     chatRoomViewPresenter.dismiss();
                     param.setResult(true);
                 }
 
                 //公众号助手在屏幕上显示
                 if (officialViewPresenter.isShowing()) {
-                    XposedBridge.log("dispatchKeyEvent, officialViewPresenter.isShowing");
+                    LogUtils.INSTANCE.log("dispatchKeyEvent, officialViewPresenter.isShowing");
                     officialViewPresenter.dismiss();
                     param.setResult(true);
                 }
             } else {
-                XposedBridge.log("dispatchKeyEvent, isInChatting");
+                LogUtils.INSTANCE.log("dispatchKeyEvent, isInChatting");
             }
         }
     }
@@ -361,7 +362,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                 //複製佈局參數邏輯
                 //此逻辑并不完美，属于拆东墙补西墙
 
-                if (((ViewGroup) fitSystemWindowLayoutView.getChildAt(0)).getChildCount() != 2) return;
+                if (((ViewGroup) fitSystemWindowLayoutView.getChildAt(0)).getChildCount() != 2)
+                    return;
                 final View mainView = ((ViewGroup) fitSystemWindowLayoutView.getChildAt(0)).getChildAt(1);
                 mainView.getViewTreeObserver()
                         .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -375,13 +377,22 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 int width = right - left;
                                 int height = bottom - top;
 
-                                if (currentRect.equals(new Rect(left, top, right, bottom))) return;
+//                                if (currentRect.equals(new Rect(left, top, right, bottom))) return;
                                 if (width == 0 || height == 0) return;
 
                                 currentRect = new Rect(left, top, right, bottom);
 
                                 ViewGroup chatRoomViewPresenterPresenterView = chatRoomViewPresenter.getPresenterView();
                                 ViewGroup officialViewPresenterPresenterView = officialViewPresenter.getPresenterView();
+
+
+                                int left1 = chatRoomViewPresenterPresenterView.getLeft();
+                                int top1 = chatRoomViewPresenterPresenterView.getTop();
+                                int right1 = chatRoomViewPresenterPresenterView.getRight();
+                                int bottom1 = chatRoomViewPresenterPresenterView.getBottom();
+
+                                if (new Rect(left1, top1, right1, bottom1).equals(new Rect(left, top, right, bottom)))
+                                    return;
 
                                 FrameLayout.LayoutParams params
                                         = new FrameLayout.LayoutParams(width, height);
@@ -599,9 +610,34 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     }
 
+
+    /**
+     * 根据下标返回消息列表里的消息条目，不受免打扰影响
+     * 即为原数据
+     */
+    public static Object getMessageBeanForOriginIndex(Object adapter, int index) {
+        Object bean;
+        //    try {
+        Object tMb = XposedHelpers.getObjectField(adapter, Method_Adapter_Get_Object_Step_1);
+
+        Object hdB = XposedHelpers.getObjectField(tMb, Method_Adapter_Get_Object_Step_2);
+
+        bean = XposedHelpers.callMethod(hdB, Method_Adapter_Get_Object_Step_3, index);
+
+        return bean;
+//        } catch (Throwable e) {
+//            e.printStackTrace();
+//        }
+        // return null;
+    }
+
+
     private void hookGetCount(XC_MethodHook.MethodHookParam param) {
 
         int result = (int) param.getResult();//原有会话数量
+
+
+        LogUtils.INSTANCE.log("hookGetCount, getCount = " + result);
 
         String clazzName = param.thisObject.getClass().getSimpleName();
 
@@ -614,8 +650,8 @@ public class HookLogic implements IXposedHookLoadPackage {
 
             int chatRoomSize = chatRoomListInAdapterPositions.size();
             int officialSize = officialListInAdapterPositions.size();
-            LogUtils.INSTANCE.log("originSize = " + result + ", currentChatRoomSize = " + chatRoomSize + ", " +
-                    "currentOfficialSize = " + officialSize);
+            LogUtils.INSTANCE.log("originSize = " + result + ", currentChatRoomSize = "
+                    + chatRoomSize + ", currentOfficialSize = " + officialSize);
 
             int count = result - chatRoomSize + (chatRoomSize > 0 ? 1 : 0);//减去群的數量
             count = count - officialSize + (officialSize > 0 ? 1 : 0);//减去公众号的数量
@@ -625,6 +661,8 @@ public class HookLogic implements IXposedHookLoadPackage {
     }
 
     private void hookNotifyDataSetChanged(XC_MethodHook.MethodHookParam param) {
+
+        LogUtils.INSTANCE.log("hookNotifyDataSetChanged");
         String clazzName = param.thisObject.getClass().getSimpleName();
 
         if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
@@ -688,6 +726,17 @@ public class HookLogic implements IXposedHookLoadPackage {
                     officialListInAdapterPositions.add(i);
                     unReadCountListForOfficial.put(i, entity.field_unReadCount);
                 }
+
+                {
+
+
+                    ChatInfoModel chatInfoModel = ChatInfoModel.Companion.convertFromObject(value, param.thisObject, context);
+                    LogUtils.INSTANCE.log("i = " + i + ", nickname = " + chatInfoModel.getNickname()
+                            + ", isChatRoomConversation = " + isChatRoomConversation + " , isOfficialConversation = " + isOfficialConversation);
+
+
+                }
+
 
                 int chatRoomCount = chatRoomListInAdapterPositions.size();
                 int officialCount = officialListInAdapterPositions.size();
@@ -860,25 +909,6 @@ public class HookLogic implements IXposedHookLoadPackage {
         }
     }
 
-    /**
-     * 根据下标返回消息列表里的消息条目，不受免打扰影响
-     * 即为原数据
-     */
-    public static Object getMessageBeanForOriginIndex(Object adapter, int index) {
-        Object bean;
-        //    try {
-        Object tMb = XposedHelpers.getObjectField(adapter, Method_Adapter_Get_Object_Step_1);
-
-        Object hdB = XposedHelpers.getObjectField(tMb, Method_Adapter_Get_Object_Step_2);
-
-        bean = XposedHelpers.callMethod(hdB, Method_Adapter_Get_Object_Step_3, index);
-
-        return bean;
-//        } catch (Throwable e) {
-//            e.printStackTrace();
-//        }
-        // return null;
-    }
 
     private void hookLog(XC_LoadPackage.LoadPackageParam loadPackageParam) {
         XposedHelpers.findAndHookMethod(Class_Tencent_Log, loadPackageParam.classLoader, "i",
@@ -890,8 +920,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                         String desc = String.valueOf(param.args[1]);
                         Object[] objArr = (Object[]) param.args[2];
                         try {
-                            LogUtils.INSTANCE.log("Xposed_Log, key = " + param.args[0] + " value = " + String.format
-                                    (desc, objArr));
+                            //       LogUtils.INSTANCE.log("Xposed_Log, key = " + param.args[0] + " value = " + String.format
+                            //             (desc, objArr));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
