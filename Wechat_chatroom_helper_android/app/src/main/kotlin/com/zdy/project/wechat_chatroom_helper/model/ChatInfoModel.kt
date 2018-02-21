@@ -3,6 +3,7 @@ package com.zdy.project.wechat_chatroom_helper.model
 import android.content.Context
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 
 /**
@@ -10,17 +11,15 @@ import de.robv.android.xposed.XposedHelpers
  */
 class ChatInfoModel {
 
-    var nickname: CharSequence? = null
-    var content: CharSequence? = null
-    var time: CharSequence? = null
-    var avatarString: String? = null
-    var unReadCount: Int? = null
+    lateinit var nickname: CharSequence
+    lateinit var content: CharSequence
+    lateinit var time: CharSequence
+    lateinit var avatarString: String
+    var unReadCount = 0
 
     companion object {
 
         fun convertFromObject(obj: Any, originAdapter: Any, context: Context): ChatInfoModel {
-            val entity = MessageEntity(obj)
-
 
             val model = ChatInfoModel()
             try {
@@ -34,8 +33,8 @@ class ChatInfoModel {
                 model.nickname = XposedHelpers.getObjectField(j, Constants.Value_Message_Bean_NickName) as CharSequence
                 model.content = content
                 model.time = time
-                model.avatarString = entity.field_username
-                model.unReadCount = entity.field_unReadCount
+                model.avatarString = XposedHelpers.getObjectField(obj, "field_username") as String
+                model.unReadCount = XposedHelpers.getObjectField(obj, "field_unReadCount") as Int
 
 
             } catch (e: Exception) {

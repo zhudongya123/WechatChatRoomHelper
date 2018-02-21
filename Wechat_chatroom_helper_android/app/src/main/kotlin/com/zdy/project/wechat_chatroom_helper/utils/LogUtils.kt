@@ -1,6 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.utils
 
-import android.util.Log
+import de.robv.android.xposed.XposedBridge
 import utils.AppSaveInfoUtils
 
 /**
@@ -10,7 +10,12 @@ object LogUtils {
 
 
     fun log(s: String) {
-        if (!AppSaveInfoUtils.openlog()) return
-        Log.v("WechatChatRoomHelper", s)
+        if (!AppSaveInfoUtils.openLogInfo()) return
+        XposedBridge.log("WechatChatRoomHelper : "+s)
+    }
+
+
+    fun isOpen(): Boolean {
+        return AppSaveInfoUtils.openLogInfo()
     }
 }

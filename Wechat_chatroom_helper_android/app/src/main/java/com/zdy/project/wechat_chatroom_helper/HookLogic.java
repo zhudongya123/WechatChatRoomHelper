@@ -29,7 +29,6 @@ import android.widget.LinearLayout;
 
 import com.zdy.project.wechat_chatroom_helper.manager.Type;
 import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel;
-import com.zdy.project.wechat_chatroom_helper.model.MessageEntity;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter;
 import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
 import com.zdy.project.wechat_chatroom_helper.utils.LogUtils;
@@ -39,7 +38,6 @@ import java.util.ArrayList;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import utils.AppSaveInfoUtils;
@@ -83,7 +81,6 @@ public class HookLogic implements IXposedHookLoadPackage {
     //第一个免打扰群组的下标
     private int firstChatRoomPosition = -1;
 
-
     //免打扰公众号的数据位置
     private ArrayList<Integer> officialListInAdapterPositions = new ArrayList<>();
 
@@ -122,7 +119,6 @@ public class HookLogic implements IXposedHookLoadPackage {
     public static ArrayList<String> muteChatRoomNickNameEntries;
     public static ArrayList<String> officialNickNameEntries;
 
-    private Rect currentRect = new Rect(0, 0, 0, 0);
 
     @Override
 
@@ -377,10 +373,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                                 int width = right - left;
                                 int height = bottom - top;
 
-//                                if (currentRect.equals(new Rect(left, top, right, bottom))) return;
                                 if (width == 0 || height == 0) return;
-
-                                currentRect = new Rect(left, top, right, bottom);
 
                                 ViewGroup chatRoomViewPresenterPresenterView = chatRoomViewPresenter.getPresenterView();
                                 ViewGroup officialViewPresenterPresenterView = officialViewPresenter.getPresenterView();
@@ -601,7 +594,7 @@ public class HookLogic implements IXposedHookLoadPackage {
         //如果刚刚点击了群消息助手中的item，则因为模拟分发点击事件会调用getObject方法，
         // 则这一次getObject方法，不再修改数据和View的位置
         if (clickChatRoomFlag) {
-            index = (int) param.args[0];//重置数据位置
+            index = (int) param.args[0];//重置数据位置05445678
             clickChatRoomFlag = false;
         }
         Object bean = getMessageBeanForOriginIndex(param.thisObject, index);
@@ -617,7 +610,7 @@ public class HookLogic implements IXposedHookLoadPackage {
      */
     public static Object getMessageBeanForOriginIndex(Object adapter, int index) {
         Object bean;
-        //    try {
+
         Object tMb = XposedHelpers.getObjectField(adapter, Method_Adapter_Get_Object_Step_1);
 
         Object hdB = XposedHelpers.getObjectField(tMb, Method_Adapter_Get_Object_Step_2);
@@ -625,24 +618,20 @@ public class HookLogic implements IXposedHookLoadPackage {
         bean = XposedHelpers.callMethod(hdB, Method_Adapter_Get_Object_Step_3, index);
 
         return bean;
-//        } catch (Throwable e) {
-//            e.printStackTrace();
-//        }
-        // return null;
     }
 
 
     private void hookGetCount(XC_MethodHook.MethodHookParam param) {
 
-        int result = (int) param.getResult();//原有会话数量
-
-
-        LogUtils.INSTANCE.log("hookGetCount, getCount = " + result);
+      //  int result = (int) param.getResult();//原有会话数量
 
         String clazzName = param.thisObject.getClass().getSimpleName();
 
         if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
             return;//是否为正确的Adapter
+
+        Object tMb = XposedHelpers.getObjectField(param.thisObject, Method_Adapter_Get_Object_Step_1);
+        Integer result = (Integer) XposedHelpers.callMethod(tMb, "getCount");
 
         if (result == 0) return;
 
@@ -650,13 +639,17 @@ public class HookLogic implements IXposedHookLoadPackage {
 
             int chatRoomSize = chatRoomListInAdapterPositions.size();
             int officialSize = officialListInAdapterPositions.size();
-            LogUtils.INSTANCE.log("originSize = " + result + ", currentChatRoomSize = "
-                    + chatRoomSize + ", currentOfficialSize = " + officialSize);
 
             int count = result - chatRoomSize + (chatRoomSize > 0 ? 1 : 0);//减去群的數量
             count = count - officialSize + (officialSize > 0 ? 1 : 0);//减去公众号的数量
 
             param.setResult(count);
+
+            LogUtils.INSTANCE.log("hookGetCount, originSize = " + result + ", currentChatRoomSize = "
+                    + chatRoomSize + ", currentOfficialSize = " + officialSize + ", returnSize = " + count);
+        } else {
+            LogUtils.INSTANCE.log("hookGetCount, originSize = " + result);
+            param.setResult(result);
         }
     }
 
@@ -687,14 +680,19 @@ public class HookLogic implements IXposedHookLoadPackage {
             muteChatRoomNickNameEntries = new ArrayList<>();
             allChatRoomNickNameEntries = new ArrayList<>();
 
-            for (int i = 0; i < ((BaseAdapter) param.thisObject).getCount(); i++) {
+            Object tMb = XposedHelpers.getObjectField(param.thisObject, Method_Adapter_Get_Object_Step_1);
+            Integer originCount = (Integer) XposedHelpers.callMethod(tMb, "getCount");
+
+            LogUtils.INSTANCE.log("hookNotifyDataSetChanged, originCount = " + originCount);
+
+            for (int i = 0; i < originCount; i++) {
                 Object value = getMessageBeanForOriginIndex(param.thisObject, i);
 
                 Object messageStatus = XposedHelpers.callMethod(param.thisObject,
                         Method_Message_Status_Bean, value);
 
 
-                MessageEntity entity = new MessageEntity(value);
+                ChatInfoModel chatInfoModel = ChatInfoModel.Companion.convertFromObject(value, param.thisObject, context);
 
                 //是否为群组
                 boolean isChatRoomConversation = isChatRoomConversation(messageStatus);
@@ -711,7 +709,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
 
                     chatRoomListInAdapterPositions.add(i);
-                    unReadCountListForChatRoom.put(i, entity.field_unReadCount);
+                    unReadCountListForChatRoom.put(i, chatInfoModel.getUnReadCount());
                 }
 
                 if (isOfficialConversation) {
@@ -724,17 +722,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
 
                     officialListInAdapterPositions.add(i);
-                    unReadCountListForOfficial.put(i, entity.field_unReadCount);
+                    unReadCountListForOfficial.put(i, chatInfoModel.getUnReadCount());
                 }
 
-                {
-
-
-                    ChatInfoModel chatInfoModel = ChatInfoModel.Companion.convertFromObject(value, param.thisObject, context);
-                    LogUtils.INSTANCE.log("i = " + i + ", nickname = " + chatInfoModel.getNickname()
+                if (LogUtils.INSTANCE.isOpen()) {
+                    LogUtils.INSTANCE.log("i = " + i + "/" + originCount + ", nickname = " + chatInfoModel.getNickname()
                             + ", isChatRoomConversation = " + isChatRoomConversation + " , isOfficialConversation = " + isOfficialConversation);
-
-
                 }
 
 

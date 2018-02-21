@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
         //加載佈局
         setContentView(R.layout.activity_main)
         clickMe = findViewById<Button>(R.id.button)
-        qian=findViewById<Button>(R.id.button2)
+        qian = findViewById<Button>(R.id.button2)
         detail = findViewById<TextView>(R.id.detail)
         listContent = findViewById<LinearLayout>(R.id.list_content)
 
@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initSetting() {
-        val titles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手UI设置")
+        val titles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手UI设置", "Xposed日志开关")
 
         for (i in 0 until titles.size) {
             title = titles[i]
@@ -104,6 +104,10 @@ class MainActivity : AppCompatActivity() {
                     switch.visibility = View.INVISIBLE
                     switch.setOnClickListener { if (i == 4) startActivity(Intent(thisActivity, UISettingActivity::class.java)) }
                 }
+                5 -> {
+                    switch.isChecked = AppSaveInfoUtils.openLogInfo()
+                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfoUtils.setOpenLog(isChecked) }
+                }
 
             }
 
@@ -127,7 +131,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        qian.setOnClickListener{
+        qian.setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse("https://QR.ALIPAY.COM/FKX09384NJXB5JXT9MLD11")
             startActivity(intent)

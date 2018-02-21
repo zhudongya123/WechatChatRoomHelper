@@ -36,12 +36,12 @@ object AppSaveInfoUtils {
     var OPEN_LOG = "open_log"
 
 
-        fun openlog(): Boolean {
-            return FileUtils.getJsonValue(OPEN, true)
+        fun openLogInfo(): Boolean {
+            return FileUtils.getJsonValue(OPEN_LOG, false)
         }
 
         fun setOpenLog(value: Boolean) {
-            FileUtils.putJsonValue(OPEN, value)
+            FileUtils.putJsonValue(OPEN_LOG, value)
         }
 
         fun openInfo(): Boolean {
@@ -85,7 +85,7 @@ object AppSaveInfoUtils {
         }
 
 
-    fun toolbarColorInfo(): String {
+        fun toolbarColorInfo(): String {
             return FileUtils.getJsonValue(TOOLBAR_COLOR, Constants.DEFAULT_TOOLBAR_COLOR)
         }
 
