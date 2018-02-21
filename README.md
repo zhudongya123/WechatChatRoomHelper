@@ -28,7 +28,7 @@
 
 ## 效果演示
 
-![](resource/GIF1.gif)
+![](github_page_resource/GIF1.gif)
 
 ## 提示
 
