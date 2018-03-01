@@ -27,7 +27,6 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
     public ChatRoomViewPresenter(Context context, Type type) {
         mContext = context;
 
-
         chatRoomView = new FrameLayout(context);
         chatRoomView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup
                 .LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));

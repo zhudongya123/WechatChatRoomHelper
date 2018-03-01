@@ -23,7 +23,7 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
 
     var muteListInAdapterPositions = ArrayList<Int>()
 
-    private var onDialogItemClickListener: OnDialogItemClickListener? = null
+    private lateinit var onDialogItemClickListener: OnDialogItemClickListener
 
     var data = ArrayList<ChatInfoModel>()
 
@@ -54,25 +54,24 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
             holder.avatar.setImageResource(R.mipmap.ic_launcher)
         }
 
-        if (item.unReadCount!! > 0)
+        if (item.unReadCount > 0)
             holder.unread.background = ShapeDrawable(object : Shape() {
                 override fun draw(canvas: Canvas, paint: Paint) {
-                    val size = canvas.width
+                    val size = (canvas.width/2).toFloat()
 
                     paint.isAntiAlias = true
                     paint.color = -0x10000
                     paint.style = Paint.Style.FILL_AND_STROKE
-                    canvas.drawCircle((size / 2).toFloat(), (size / 2).toFloat(), (size / 2).toFloat(), paint)
+                    canvas.drawCircle(size, size, size, paint)
                 }
             })
         else
             holder.unread.background = BitmapDrawable(mContext.resources)
 
         holder.itemView.background = ChatRoomViewHelper.getItemViewBackground(mContext)
-
         holder.itemView.setOnClickListener {
             try {
-                onDialogItemClickListener!!.onItemClick(muteListInAdapterPositions[position])
+                onDialogItemClickListener.onItemClick(muteListInAdapterPositions[position])
             } catch (t: Throwable) {
                 t.printStackTrace()
             }

@@ -22,7 +22,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -138,6 +137,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         hookFitSystemWindowLayoutViewConstructor(param);
+
                     }
                 });
 
@@ -146,6 +146,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         hookFitSystemWindowLayoutViewConstructor(param);
+
                     }
                 });
 
@@ -154,6 +155,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                         loadPackageParam.classLoader), new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        LogUtils.INSTANCE.log("hookAdapterInit");
                         hookAdapterInit(param);
                     }
                 });
@@ -341,6 +343,14 @@ public class HookLogic implements IXposedHookLoadPackage {
                 if (!(fitSystemWindowLayoutView.getChildAt(0) instanceof LinearLayout)) return;
                 if (!chattingView.getClass().getSimpleName().equals("TestTimeForChatting")) return;
 
+                LogUtils.INSTANCE.log("FitSystemWindowLayoutView Constructor");
+
+                if (chatRoomViewPresenter == null)
+                    chatRoomViewPresenter = new ChatRoomViewPresenter(context, Type.CHAT_ROOMS);
+                if (officialViewPresenter == null)
+                    officialViewPresenter = new ChatRoomViewPresenter(context, Type.OFFICIAL);
+
+
                 fitSystemWindowLayoutView.addView(chatRoomViewPresenter.getPresenterView(), chatRoomViewPosition);
                 fitSystemWindowLayoutView.addView(officialViewPresenter.getPresenterView(), officialViewPosition);
 
@@ -408,15 +418,17 @@ public class HookLogic implements IXposedHookLoadPackage {
 
 
     private void hookAdapterInit(XC_MethodHook.MethodHookParam param) {
-        chatRoomViewPresenter = new ChatRoomViewPresenter(context, Type.CHAT_ROOMS);
+        if (chatRoomViewPresenter == null)
+            chatRoomViewPresenter = new ChatRoomViewPresenter(context, Type.CHAT_ROOMS);
+        if (officialViewPresenter == null)
+            officialViewPresenter = new ChatRoomViewPresenter(context, Type.OFFICIAL);
+
         chatRoomViewPresenter.setAdapter(param.thisObject);
         chatRoomViewPresenter.start();
 
-        officialViewPresenter = new ChatRoomViewPresenter(context, Type.OFFICIAL);
         officialViewPresenter.setAdapter(param.thisObject);
         officialViewPresenter.start();
     }
-
 
     private void hookOnItemClick(final XC_MethodHook.MethodHookParam param) {
 
@@ -620,10 +632,7 @@ public class HookLogic implements IXposedHookLoadPackage {
         return bean;
     }
 
-
     private void hookGetCount(XC_MethodHook.MethodHookParam param) {
-
-      //  int result = (int) param.getResult();//原有会话数量
 
         String clazzName = param.thisObject.getClass().getSimpleName();
 
@@ -645,21 +654,21 @@ public class HookLogic implements IXposedHookLoadPackage {
 
             param.setResult(count);
 
-            LogUtils.INSTANCE.log("hookGetCount, originSize = " + result + ", currentChatRoomSize = "
-                    + chatRoomSize + ", currentOfficialSize = " + officialSize + ", returnSize = " + count);
+            //       LogUtils.INSTANCE.log("hookGetCount, originSize = " + result + ", currentChatRoomSize = "
+            //               + chatRoomSize + ", currentOfficialSize = " + officialSize + ", returnSize = " + count);
         } else {
-            LogUtils.INSTANCE.log("hookGetCount, originSize = " + result);
+            //    LogUtils.INSTANCE.log("hookGetCount, originSize = " + result);
             param.setResult(result);
         }
     }
 
     private void hookNotifyDataSetChanged(XC_MethodHook.MethodHookParam param) {
 
-        LogUtils.INSTANCE.log("hookNotifyDataSetChanged");
         String clazzName = param.thisObject.getClass().getSimpleName();
 
         if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
             return;//是否为正确的Adapter
+
 
         notifyList = false;
 
@@ -683,7 +692,7 @@ public class HookLogic implements IXposedHookLoadPackage {
             Object tMb = XposedHelpers.getObjectField(param.thisObject, Method_Adapter_Get_Object_Step_1);
             Integer originCount = (Integer) XposedHelpers.callMethod(tMb, "getCount");
 
-            LogUtils.INSTANCE.log("hookNotifyDataSetChanged, originCount = " + originCount);
+            //  LogUtils.INSTANCE.log("hookNotifyDataSetChanged, originCount = " + originCount);
 
             for (int i = 0; i < originCount; i++) {
                 Object value = getMessageBeanForOriginIndex(param.thisObject, i);
@@ -725,10 +734,9 @@ public class HookLogic implements IXposedHookLoadPackage {
                     unReadCountListForOfficial.put(i, chatInfoModel.getUnReadCount());
                 }
 
-                if (LogUtils.INSTANCE.isOpen()) {
-                    LogUtils.INSTANCE.log("i = " + i + "/" + originCount + ", nickname = " + chatInfoModel.getNickname()
-                            + ", isChatRoomConversation = " + isChatRoomConversation + " , isOfficialConversation = " + isOfficialConversation);
-                }
+
+                //         LogUtils.INSTANCE.log("i = " + i + "/" + originCount + ", nickname = " + chatInfoModel.getNickname()
+                //                 + ", isChatRoomConversation = " + isChatRoomConversation + " , isOfficialConversation = " + isOfficialConversation);
 
 
                 int chatRoomCount = chatRoomListInAdapterPositions.size();
@@ -901,7 +909,6 @@ public class HookLogic implements IXposedHookLoadPackage {
             e.printStackTrace();
         }
     }
-
 
     private void hookLog(XC_LoadPackage.LoadPackageParam loadPackageParam) {
         XposedHelpers.findAndHookMethod(Class_Tencent_Log, loadPackageParam.classLoader, "i",
