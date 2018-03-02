@@ -29,6 +29,7 @@ import android.widget.LinearLayout;
 import com.zdy.project.wechat_chatroom_helper.manager.Type;
 import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter;
+import com.zdy.project.wechat_chatroom_helper.ui.helper.avatar.AvatarMaker;
 import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
 import com.zdy.project.wechat_chatroom_helper.utils.LogUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.SoftKeyboardUtil;
@@ -513,7 +514,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     int size = canvas.getWidth();
                     int drawableId = context.getResources().getIdentifier(Drawable_String_Chatroom_Avatar, "drawable", context.getPackageName());
                     Bitmap temp = BitmapFactory.decodeResource(context.getResources(), drawableId);
-                    handlerChatRoomBitmap(canvas, paint, size, temp);
+                    AvatarMaker.makeChatRoomBitmap(canvas, paint, size, temp);
                 }
             });
             XposedHelpers.callMethod(avatar, "setBackgroundDrawable", shapeDrawable);
@@ -542,12 +543,9 @@ public class HookLogic implements IXposedHookLoadPackage {
                 XposedHelpers.callMethod(content, "setTextColor", Color.rgb(242, 140, 72));
             }
         } else if (position == firstOfficialPosition) {
-
             //修改nickname
             XposedHelpers.callMethod(title, "setText", "公众号助手");
             XposedHelpers.callMethod(title, "setTextColor", Color.rgb(87, 107, 149));
-
-            final Context context = itemView.getContext();
 
             //修改头像
             ShapeDrawable shapeDrawable = new ShapeDrawable(new Shape() {
@@ -555,10 +553,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                 public void draw(Canvas canvas, Paint paint) {
                     paint.setColor(0xFF12B7F6);
                     int size = canvas.getWidth();
-                    int drawableId = context.getResources().getIdentifier(Drawable_String_Chatroom_Avatar,
-                            "drawable", context.getPackageName());
-                    Bitmap temp = BitmapFactory.decodeResource(context.getResources(), drawableId);
-                    handlerOfficialBitmap(canvas, paint, size, temp);
+                    AvatarMaker.makeOfficialBitmap(canvas, paint, size);
                 }
             });
             XposedHelpers.callMethod(avatar, "setBackgroundDrawable", shapeDrawable);
@@ -819,87 +814,6 @@ public class HookLogic implements IXposedHookLoadPackage {
         return false;
     }
 
-    //自造群消息助手头像
-    private static void handlerChatRoomBitmap(Canvas canvas, Paint paint, int size, Bitmap drawable) {
-        Bitmap whiteMask = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
-
-        whiteMask.eraseColor(Color.WHITE);
-
-        drawable = Bitmap.createScaledBitmap(drawable, size / 2, size / 2, false).copy(Bitmap.Config.ARGB_8888, false);
-
-        //生成图
-        Bitmap raw = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
-
-        Canvas bitmapCanvas = new Canvas(raw);
-
-        //绘制logo
-        bitmapCanvas.drawBitmap(drawable, size / 4, size / 4, paint);
-
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-
-        //给logo染色
-        bitmapCanvas.drawBitmap(whiteMask, 0, 0, paint);
-
-        paint.setXfermode(null);
-
-
-        if (AppSaveInfoUtils.INSTANCE.isCircleAvatarInfo()) {
-            paint.setColor(0xFF12B7F6);
-            canvas.drawCircle(size / 2, size / 2, size / 2, paint);
-        } else {
-            canvas.drawColor(0xFF12B7F6);
-        }
-
-        canvas.drawBitmap(raw, 0, 0, paint);
-
-    }
-
-    //自造公众号助手头像
-    public static void handlerOfficialBitmap(Canvas canvas, Paint paint, int size, Bitmap drawable) {
-        Bitmap whiteMask = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
-
-        whiteMask.eraseColor(Color.WHITE);
-
-        drawable = Bitmap.createBitmap(size / 2, size / 2, Bitmap.Config.ARGB_8888);
-
-        Canvas logoCanvas = new Canvas(drawable);
-
-        paint.setStrokeWidth(size / 20);
-
-        paint.setStyle(Paint.Style.STROKE);
-
-        paint.setColor(0xFF9F289F);
-
-        logoCanvas.drawCircle(size / 8 + size / 20, size / 4, size / 8, paint);
-        logoCanvas.drawCircle(size / 2 - size / 8 - size / 20, size / 4, size / 8, paint);
-
-        //生成图
-        Bitmap raw = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
-
-        Canvas bitmapCanvas = new Canvas(raw);
-
-        //绘制logo
-        bitmapCanvas.drawBitmap(drawable, size / 4, size / 4, paint);
-
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-
-        //给logo染色
-        bitmapCanvas.drawBitmap(whiteMask, 0, 0, paint);
-
-        paint.setXfermode(null);
-
-        if (AppSaveInfoUtils.INSTANCE.isCircleAvatarInfo()) {
-            paint.setColor(0xFFF5CB00);
-            paint.setStrokeWidth(0);
-            paint.setStyle(Paint.Style.FILL_AND_STROKE);
-            canvas.drawCircle(size / 2, size / 2, size / 2, paint);
-        } else {
-            canvas.drawColor(0xFFF5CB00);
-        }
-
-        canvas.drawBitmap(raw, 0, 0, paint);
-
-    }
 
     public static void setAvatar(ImageView avatar, String field_username) {
         try {
