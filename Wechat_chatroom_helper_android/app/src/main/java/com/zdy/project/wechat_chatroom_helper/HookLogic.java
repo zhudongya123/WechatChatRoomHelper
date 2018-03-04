@@ -7,8 +7,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -510,11 +508,11 @@ public class HookLogic implements IXposedHookLoadPackage {
             ShapeDrawable shapeDrawable = new ShapeDrawable(new Shape() {
                 @Override
                 public void draw(Canvas canvas, Paint paint) {
-                    paint.setColor(0xFF12B7F6);
+                    paint.setColor(AvatarMaker.INSTANCE.getAVATAR_BLUE());
                     int size = canvas.getWidth();
                     int drawableId = context.getResources().getIdentifier(Drawable_String_Chatroom_Avatar, "drawable", context.getPackageName());
                     Bitmap temp = BitmapFactory.decodeResource(context.getResources(), drawableId);
-                    AvatarMaker.makeChatRoomBitmap(canvas, paint, size, temp);
+                    AvatarMaker.INSTANCE.makeChatRoomBitmap(canvas, paint, size, temp);
                 }
             });
             XposedHelpers.callMethod(avatar, "setBackgroundDrawable", shapeDrawable);
@@ -551,9 +549,9 @@ public class HookLogic implements IXposedHookLoadPackage {
             ShapeDrawable shapeDrawable = new ShapeDrawable(new Shape() {
                 @Override
                 public void draw(Canvas canvas, Paint paint) {
-                    paint.setColor(0xFF12B7F6);
+                    paint.setColor(AvatarMaker.INSTANCE.getAVATAR_BLUE());
                     int size = canvas.getWidth();
-                    AvatarMaker.makeOfficialBitmap(canvas, paint, size);
+                    AvatarMaker.INSTANCE.makeOfficialBitmap(canvas, paint, size);
                 }
             });
             XposedHelpers.callMethod(avatar, "setBackgroundDrawable", shapeDrawable);
@@ -649,10 +647,10 @@ public class HookLogic implements IXposedHookLoadPackage {
 
             param.setResult(count);
 
-            //       LogUtils.INSTANCE.log("hookGetCount, originSize = " + result + ", currentChatRoomSize = "
-            //               + chatRoomSize + ", currentOfficialSize = " + officialSize + ", returnSize = " + count);
+                   LogUtils.INSTANCE.log("hookGetCount, originSize = " + result + ", currentChatRoomSize = "
+                           + chatRoomSize + ", currentOfficialSize = " + officialSize + ", returnSize = " + count);
         } else {
-            //    LogUtils.INSTANCE.log("hookGetCount, originSize = " + result);
+               LogUtils.INSTANCE.log("hookGetCount, originSize = " + result);
             param.setResult(result);
         }
     }
@@ -664,6 +662,8 @@ public class HookLogic implements IXposedHookLoadPackage {
         if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
             return;//是否为正确的Adapter
 
+
+        if (isInChatting)return;
 
         notifyList = false;
 
@@ -687,7 +687,7 @@ public class HookLogic implements IXposedHookLoadPackage {
             Object tMb = XposedHelpers.getObjectField(param.thisObject, Method_Adapter_Get_Object_Step_1);
             Integer originCount = (Integer) XposedHelpers.callMethod(tMb, "getCount");
 
-            //  LogUtils.INSTANCE.log("hookNotifyDataSetChanged, originCount = " + originCount);
+             LogUtils.INSTANCE.log("hookNotifyDataSetChanged, originCount = " + originCount);
 
             for (int i = 0; i < originCount; i++) {
                 Object value = getMessageBeanForOriginIndex(param.thisObject, i);
@@ -730,8 +730,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                 }
 
 
-                //         LogUtils.INSTANCE.log("i = " + i + "/" + originCount + ", nickname = " + chatInfoModel.getNickname()
-                //                 + ", isChatRoomConversation = " + isChatRoomConversation + " , isOfficialConversation = " + isOfficialConversation);
+                      LogUtils.INSTANCE.log("i = " + i + "/" + originCount + ", nickname = " + chatInfoModel.getNickname()
+                             + ", isChatRoomConversation = " + isChatRoomConversation + " , isOfficialConversation = " + isOfficialConversation);
 
 
                 int chatRoomCount = chatRoomListInAdapterPositions.size();
@@ -844,9 +844,12 @@ public class HookLogic implements IXposedHookLoadPackage {
                         //关闭聊天窗口
                         if (desc.contains("closeChatting")) {
                             isInChatting = false;
+                            LogUtils.INSTANCE.log("closeChatting");
                         }
                         if (desc.contains("startChatting")) {
                             isInChatting = true;
+                            LogUtils.INSTANCE.log("startChatting");
+
                         }
 
                         //收到新消息
