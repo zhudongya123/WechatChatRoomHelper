@@ -41,12 +41,12 @@ class SettingFragment : Fragment() {
 
             itemView.setOnClickListener {
                 when (i) {
-                    0 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Toolbar).show()
-                    1 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Helper).show()
-                    2 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Nickname).show()
-                    3 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Content).show()
-                    4 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Time).show()
-                    5 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.TYPE.Divider).show()
+                    0 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.ColorType.Toolbar).show()
+                    1 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.ColorType.Helper).show()
+                    2 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.ColorType.Nickname).show()
+                    3 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.ColorType.Content).show()
+                    4 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.ColorType.Time).show()
+                    5 -> ChooseColorDialogHelper.getDialog(thisActivity, ChooseColorDialogHelper.ColorType.Divider).show()
                 }
             }
         }

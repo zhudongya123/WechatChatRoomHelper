@@ -24,18 +24,21 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.zdy.project.wechat_chatroom_helper.manager.Type;
+import com.zdy.project.wechat_chatroom_helper.manager.PageType;
 import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel;
 import com.zdy.project.wechat_chatroom_helper.ui.chatroomView.ChatRoomViewPresenter;
+import com.zdy.project.wechat_chatroom_helper.ui.helper.RuntimeInfo;
 import com.zdy.project.wechat_chatroom_helper.ui.helper.avatar.AvatarMaker;
 import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
 import com.zdy.project.wechat_chatroom_helper.utils.LogUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.SoftKeyboardUtil;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import utils.AppSaveInfoUtils;
@@ -108,7 +111,6 @@ public class HookLogic implements IXposedHookLoadPackage {
     //软键盘是否打开
     private boolean isSoftKeyBoardOpen = false;
 
-    public static ClassLoader mClassLoader;
     private Context context;
 
     private View maskView;
@@ -124,7 +126,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         if (!loadPackageParam.packageName.equals(WECHAT_PACKAGE_NAME)) return;
 
-        mClassLoader = loadPackageParam.classLoader;
+        RuntimeInfo.mClassLoader = loadPackageParam.classLoader;
 
         if (!AppSaveInfoUtils.INSTANCE.initVariableName()) return;//判断是否获取了配置
 
@@ -345,9 +347,9 @@ public class HookLogic implements IXposedHookLoadPackage {
                 LogUtils.INSTANCE.log("FitSystemWindowLayoutView Constructor");
 
                 if (chatRoomViewPresenter == null)
-                    chatRoomViewPresenter = new ChatRoomViewPresenter(context, Type.CHAT_ROOMS);
+                    chatRoomViewPresenter = new ChatRoomViewPresenter(context, PageType.CHAT_ROOMS);
                 if (officialViewPresenter == null)
-                    officialViewPresenter = new ChatRoomViewPresenter(context, Type.OFFICIAL);
+                    officialViewPresenter = new ChatRoomViewPresenter(context, PageType.OFFICIAL);
 
 
                 fitSystemWindowLayoutView.addView(chatRoomViewPresenter.getPresenterView(), chatRoomViewPosition);
@@ -418,9 +420,9 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     private void hookAdapterInit(XC_MethodHook.MethodHookParam param) {
         if (chatRoomViewPresenter == null)
-            chatRoomViewPresenter = new ChatRoomViewPresenter(context, Type.CHAT_ROOMS);
+            chatRoomViewPresenter = new ChatRoomViewPresenter(context, PageType.CHAT_ROOMS);
         if (officialViewPresenter == null)
-            officialViewPresenter = new ChatRoomViewPresenter(context, Type.OFFICIAL);
+            officialViewPresenter = new ChatRoomViewPresenter(context, PageType.OFFICIAL);
 
         chatRoomViewPresenter.setAdapter(param.thisObject);
         chatRoomViewPresenter.start();
@@ -457,6 +459,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                 }
             });
             chatRoomViewPresenter.show();
+            RuntimeInfo.INSTANCE.changeCurrentPage(PageType.CHAT_ROOMS);
             param.setResult(null);
         }
 
@@ -474,6 +477,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                 }
             });
             officialViewPresenter.show();
+            RuntimeInfo.INSTANCE.changeCurrentPage(PageType.OFFICIAL);
             param.setResult(null);
         }
     }
@@ -497,10 +501,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         //將第一個免打擾的itemView更改為群消息助手入口，更新其UI
         if (position == firstChatRoomPosition) {
-
-            //修改nickname
-            XposedHelpers.callMethod(title, "setText", "群消息助手");
-            XposedHelpers.callMethod(title, "setTextColor", Color.rgb(87, 107, 149));
 
             final Context context = itemView.getContext();
 
@@ -539,11 +539,16 @@ public class HookLogic implements IXposedHookLoadPackage {
             if (newMessageCount > 0) {
                 XposedHelpers.callMethod(content, "setText", "[" + newMessageCount + "个群有新消息]");
                 XposedHelpers.callMethod(content, "setTextColor", Color.rgb(242, 140, 72));
+            } else {
+                XposedHelpers.callMethod(content, "setText", getNoMeasuredTextViewText(title)
+                        + " : " + getNoMeasuredTextViewText(content));
             }
-        } else if (position == firstOfficialPosition) {
+
             //修改nickname
-            XposedHelpers.callMethod(title, "setText", "公众号助手");
+            XposedHelpers.callMethod(title, "setText", "群消息助手");
             XposedHelpers.callMethod(title, "setTextColor", Color.rgb(87, 107, 149));
+
+        } else if (position == firstOfficialPosition) {
 
             //修改头像
             ShapeDrawable shapeDrawable = new ShapeDrawable(new Shape() {
@@ -576,12 +581,34 @@ public class HookLogic implements IXposedHookLoadPackage {
 
             //更新消息内容
             if (newMessageCount > 0) {
-                XposedHelpers.callMethod(content, "setText", "[" + newMessageCount + "个公众号有新消息]");
+                XposedHelpers.callMethod(content, "setText", "[" + newMessageCount + "个服务号有新消息]");
                 XposedHelpers.callMethod(content, "setTextColor", Color.rgb(242, 140, 72));
+            } else {
+                XposedHelpers.callMethod(content, "setText", getNoMeasuredTextViewText(title)
+                        + " : " + getNoMeasuredTextViewText(content));
             }
+
+            //修改nickname
+            XposedHelpers.callMethod(title, "setText", "服务号助手");
+            XposedHelpers.callMethod(title, "setTextColor", Color.rgb(87, 107, 149));
+
         } else
             XposedHelpers.callMethod(avatar, "setBackgroundDrawable", new BitmapDrawable());
 
+    }
+
+    private CharSequence getNoMeasuredTextViewText(Object textView) {
+        Class clazz = null;
+        try {
+            clazz = XposedHelpers.findClass("com.tencent.mm.ui.base.NoMeasuredTextView", RuntimeInfo.mClassLoader);
+
+            Field field = clazz.getDeclaredField("mText");
+            field.setAccessible(true);
+            return (CharSequence) field.get(textView);
+        } catch ( IllegalAccessException | NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
     private void hookGetObject(XC_MethodHook.MethodHookParam param) {
@@ -647,10 +674,10 @@ public class HookLogic implements IXposedHookLoadPackage {
 
             param.setResult(count);
 
-                   LogUtils.INSTANCE.log("hookGetCount, originSize = " + result + ", currentChatRoomSize = "
-                           + chatRoomSize + ", currentOfficialSize = " + officialSize + ", returnSize = " + count);
+            LogUtils.INSTANCE.log("hookGetCount, originSize = " + result + ", currentChatRoomSize = "
+                    + chatRoomSize + ", currentOfficialSize = " + officialSize + ", returnSize = " + count);
         } else {
-               LogUtils.INSTANCE.log("hookGetCount, originSize = " + result);
+            LogUtils.INSTANCE.log("hookGetCount, originSize = " + result);
             param.setResult(result);
         }
     }
@@ -659,11 +686,11 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         String clazzName = param.thisObject.getClass().getSimpleName();
 
-        if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName))
-            return;//是否为正确的Adapter
+        //  在聊天界面直接跳过
+        if (isInChatting) return;
 
-
-        if (isInChatting)return;
+        //是否为正确的Adapter
+        if (!clazzName.equals(Class_Conversation_List_View_Adapter_SimpleName)) return;
 
         notifyList = false;
 
@@ -687,7 +714,7 @@ public class HookLogic implements IXposedHookLoadPackage {
             Object tMb = XposedHelpers.getObjectField(param.thisObject, Method_Adapter_Get_Object_Step_1);
             Integer originCount = (Integer) XposedHelpers.callMethod(tMb, "getCount");
 
-             LogUtils.INSTANCE.log("hookNotifyDataSetChanged, originCount = " + originCount);
+            LogUtils.INSTANCE.log("hookNotifyDataSetChanged, originCount = " + originCount);
 
             for (int i = 0; i < originCount; i++) {
                 Object value = getMessageBeanForOriginIndex(param.thisObject, i);
@@ -730,8 +757,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                 }
 
 
-                      LogUtils.INSTANCE.log("i = " + i + "/" + originCount + ", nickname = " + chatInfoModel.getNickname()
-                             + ", isChatRoomConversation = " + isChatRoomConversation + " , isOfficialConversation = " + isOfficialConversation);
+                LogUtils.INSTANCE.log("i = " + i + "/" + originCount + ", nickname = " + chatInfoModel.getNickname()
+                        + ", isChatRoomConversation = " + isChatRoomConversation + " , isOfficialConversation = " + isOfficialConversation);
 
 
                 int chatRoomCount = chatRoomListInAdapterPositions.size();
@@ -817,7 +844,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     public static void setAvatar(ImageView avatar, String field_username) {
         try {
-            XposedHelpers.callStaticMethod(Class.forName(Class_Set_Avatar, false, mClassLoader),
+            XposedHelpers.callStaticMethod(Class.forName(Class_Set_Avatar, false, RuntimeInfo.mClassLoader),
                     Constants.Method_Conversation_List_Get_Avatar, avatar, field_username);
         } catch (Throwable e) {
             e.printStackTrace();
@@ -845,11 +872,33 @@ public class HookLogic implements IXposedHookLoadPackage {
                         if (desc.contains("closeChatting")) {
                             isInChatting = false;
                             LogUtils.INSTANCE.log("closeChatting");
+                            switch (RuntimeInfo.INSTANCE.getCurrentPage()) {
+                                case PageType.CHATTING_WITH_OFFICIAL:
+                                    RuntimeInfo.INSTANCE.changeCurrentPage(PageType.OFFICIAL);
+                                    break;
+                                case PageType.CHATTING_WITH_CHAT_ROOMS:
+                                    RuntimeInfo.INSTANCE.changeCurrentPage(PageType.CHAT_ROOMS);
+                                    break;
+                                case PageType.CHATTING:
+                                    RuntimeInfo.INSTANCE.changeCurrentPage(PageType.MAIN);
+                                    break;
+                            }
                         }
                         if (desc.contains("startChatting")) {
                             isInChatting = true;
                             LogUtils.INSTANCE.log("startChatting");
 
+                            switch (RuntimeInfo.INSTANCE.getCurrentPage()) {
+                                case PageType.OFFICIAL:
+                                    RuntimeInfo.INSTANCE.changeCurrentPage(PageType.CHATTING_WITH_OFFICIAL);
+                                    break;
+                                case PageType.CHAT_ROOMS:
+                                    RuntimeInfo.INSTANCE.changeCurrentPage(PageType.CHATTING_WITH_CHAT_ROOMS);
+                                    break;
+                                case PageType.MAIN:
+                                    RuntimeInfo.INSTANCE.changeCurrentPage(PageType.CHATTING);
+                                    break;
+                            }
                         }
 
                         //收到新消息

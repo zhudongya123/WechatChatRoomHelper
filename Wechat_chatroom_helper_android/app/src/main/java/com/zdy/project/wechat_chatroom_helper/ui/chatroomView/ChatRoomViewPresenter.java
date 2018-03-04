@@ -2,10 +2,9 @@ package com.zdy.project.wechat_chatroom_helper.ui.chatroomView;
 
 import android.content.Context;
 import android.view.ViewGroup;
-import android.widget.AbsoluteLayout;
 import android.widget.FrameLayout;
 
-import com.zdy.project.wechat_chatroom_helper.manager.Type;
+import com.zdy.project.wechat_chatroom_helper.manager.PageType;
 import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
 
 import java.util.ArrayList;
@@ -24,14 +23,14 @@ public class ChatRoomViewPresenter implements ChatRoomContract.Presenter {
 
     private ViewGroup chatRoomView;
 
-    public ChatRoomViewPresenter(Context context, Type type) {
+    public ChatRoomViewPresenter(Context context, int pageType) {
         mContext = context;
 
         chatRoomView = new FrameLayout(context);
         chatRoomView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup
                 .LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mView = new ChatRoomView(context, chatRoomView, type);
+        mView = new ChatRoomView(context, chatRoomView, pageType);
 
         mView.setPresenter(this);
     }

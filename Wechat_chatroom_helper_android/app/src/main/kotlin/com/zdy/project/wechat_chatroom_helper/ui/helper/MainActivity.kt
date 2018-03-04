@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var clickMe: Button
     private lateinit var qian: Button
+    private lateinit var multiWechat:Button
     private lateinit var detail: TextView
     private lateinit var listContent: LinearLayout
 
@@ -58,6 +59,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         clickMe = findViewById<Button>(R.id.button)
         qian = findViewById<Button>(R.id.button2)
+        multiWechat= findViewById<Button>(R.id.button3)
         detail = findViewById<TextView>(R.id.detail)
         listContent = findViewById<LinearLayout>(R.id.list_content)
 
@@ -134,6 +136,11 @@ class MainActivity : AppCompatActivity() {
         qian.setOnClickListener {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.data = Uri.parse("https://QR.ALIPAY.COM/FKX09384NJXB5JXT9MLD11")
+            startActivity(intent)
+        }
+        multiWechat.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse("https://github.com/zhudongya123/WechatChatroomHelper/wiki/在双开-分身-中使用群消息助手")
             startActivity(intent)
         }
 

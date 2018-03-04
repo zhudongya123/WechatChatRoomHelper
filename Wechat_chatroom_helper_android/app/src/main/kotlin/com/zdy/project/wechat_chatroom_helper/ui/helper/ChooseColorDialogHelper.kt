@@ -20,23 +20,23 @@ import utils.AppSaveInfoUtils
  */
 class ChooseColorDialogHelper {
 
-    enum class TYPE {
+    enum class ColorType {
         Toolbar, Helper, Nickname, Content, Time, Divider
     }
 
     companion object {
 
-        fun getDialog(mContext: Context, type: TYPE): AlertDialog {
+        fun getDialog(mContext: Context, colorType: ColorType): AlertDialog {
 
             val subView = getDialogEditText(mContext)
             val editText = subView.findViewById<EditText>(android.R.id.edit)
-            val color = when (type) {
-                TYPE.Toolbar -> AppSaveInfoUtils.toolbarColorInfo()
-                TYPE.Helper -> AppSaveInfoUtils.helperColorInfo()
-                TYPE.Nickname -> AppSaveInfoUtils.nicknameColorInfo()
-                TYPE.Content -> AppSaveInfoUtils.contentColorInfo()
-                TYPE.Time -> AppSaveInfoUtils.timeColorInfo()
-                TYPE.Divider -> AppSaveInfoUtils.dividerColorInfo()
+            val color = when (colorType) {
+                ColorType.Toolbar -> AppSaveInfoUtils.toolbarColorInfo()
+                ColorType.Helper -> AppSaveInfoUtils.helperColorInfo()
+                ColorType.Nickname -> AppSaveInfoUtils.nicknameColorInfo()
+                ColorType.Content -> AppSaveInfoUtils.contentColorInfo()
+                ColorType.Time -> AppSaveInfoUtils.timeColorInfo()
+                ColorType.Divider -> AppSaveInfoUtils.dividerColorInfo()
             }
 
             editText.backgroundTintList = ColorStateList.valueOf(ColorUtils.getColorInt(color))
@@ -47,13 +47,13 @@ class ChooseColorDialogHelper {
             editText.setSelection(editText.text.length)
 
             val alertDialog = AlertDialog.Builder(mContext)
-                    .setTitle(when (type) {
-                        TYPE.Toolbar -> "助手ToolBar颜色"
-                        TYPE.Helper -> "助手背景颜色"
-                        TYPE.Nickname -> "会话列表标题颜色"
-                        TYPE.Content -> "会话列表内容颜色"
-                        TYPE.Time -> "会话列表时间颜色"
-                        TYPE.Divider -> "会话列表分割线颜色"
+                    .setTitle(when (colorType) {
+                        ColorType.Toolbar -> "助手ToolBar颜色"
+                        ColorType.Helper -> "助手背景颜色"
+                        ColorType.Nickname -> "会话列表标题颜色"
+                        ColorType.Content -> "会话列表内容颜色"
+                        ColorType.Time -> "会话列表时间颜色"
+                        ColorType.Divider -> "会话列表分割线颜色"
                     })
                     .setMessage("请输入6位颜色值代码，示例：FF0000（红色），不支持alpha通道（透明度）")
                     .setView(subView)
@@ -62,13 +62,13 @@ class ChooseColorDialogHelper {
 
                         val value = editText.text.toString()
 
-                        when (type) {
-                            TYPE.Toolbar -> AppSaveInfoUtils.setToolbarColorInfo(value)
-                            TYPE.Helper -> AppSaveInfoUtils.setHelperColorInfo(value)
-                            TYPE.Nickname -> AppSaveInfoUtils.setNicknameColorInfo(value)
-                            TYPE.Content -> AppSaveInfoUtils.setContentColorInfo(value)
-                            TYPE.Time -> AppSaveInfoUtils.setTimeColorInfo(value)
-                            TYPE.Divider -> AppSaveInfoUtils.setDividerColorInfo(value)
+                        when (colorType) {
+                            ColorType.Toolbar -> AppSaveInfoUtils.setToolbarColorInfo(value)
+                            ColorType.Helper -> AppSaveInfoUtils.setHelperColorInfo(value)
+                            ColorType.Nickname -> AppSaveInfoUtils.setNicknameColorInfo(value)
+                            ColorType.Content -> AppSaveInfoUtils.setContentColorInfo(value)
+                            ColorType.Time -> AppSaveInfoUtils.setTimeColorInfo(value)
+                            ColorType.Divider -> AppSaveInfoUtils.setDividerColorInfo(value)
                         }
 
                     }

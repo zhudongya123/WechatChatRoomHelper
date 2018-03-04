@@ -90,4 +90,6 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
     interface OnDialogItemClickListener {
         fun onItemClick(relativePosition: Int)
     }
+
+
 }

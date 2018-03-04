@@ -10,7 +10,6 @@ import android.support.v7.widget.RecyclerView;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -19,20 +18,22 @@ import android.widget.TextView;
 import android.widget.Toolbar;
 
 import com.zdy.project.wechat_chatroom_helper.HookLogic;
-import com.zdy.project.wechat_chatroom_helper.manager.Type;
+import com.zdy.project.wechat_chatroom_helper.manager.PageType;
 import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel;
+import com.zdy.project.wechat_chatroom_helper.ui.helper.RuntimeInfo;
 import com.zdy.project.wechat_chatroom_helper.ui.wechat.ConfigChatRoomDialog;
 import com.zdy.project.wechat_chatroom_helper.ui.wechat.WhiteListDialog;
 import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils;
+import com.zdy.project.wechat_chatroom_helper.utils.LogUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2;
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout;
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import network.ApiManager;
 import utils.AppSaveInfoUtils;
@@ -63,19 +64,17 @@ public class ChatRoomView implements ChatRoomContract.View {
     private ChatRoomRecyclerViewAdapter mAdapter;
 
 
-    private boolean isInAnim = false;
     private boolean isDragging = false;
 
     private String uuid = "0";
-    private Type type;
+    private int pageType;
 
-    public ChatRoomView(Context context, final ViewGroup container, Type type) {
+    public ChatRoomView(Context context, final ViewGroup container, int pageType) {
 
         this.mContainer = container;
         this.mContext = context;
-        this.type = type;
+        this.pageType = pageType;
 
-     //   int width = ScreenUtils.getScreenWidth(mContext);
         ViewGroup.MarginLayoutParams params = new ViewGroup.MarginLayoutParams(
                 ViewGroup.MarginLayoutParams.MATCH_PARENT, ViewGroup.MarginLayoutParams.MATCH_PARENT);
 
@@ -113,7 +112,22 @@ public class ChatRoomView implements ChatRoomContract.View {
     private void initSwipeBack() {
         swipeBackLayout = new MySwipeBackLayout(mContext);
         swipeBackLayout.attachToView(mainView, mContext);
+        swipeBackLayout.setPanelSlideListener(new BGASwipeBackLayout2.PanelSlideListener() {
+            @Override
+            public void onPanelSlide(View panel, float slideOffset) {
 
+            }
+
+            @Override
+            public void onPanelOpened(View panel) {
+                RuntimeInfo.INSTANCE.changeCurrentPage(PageType.MAIN);
+            }
+
+            @Override
+            public void onPanelClosed(View panel) {
+
+            }
+        });
     }
 
 
@@ -149,10 +163,6 @@ public class ChatRoomView implements ChatRoomContract.View {
     }
 
 
-    public boolean isInAnim() {
-        return isInAnim;
-    }
-
     @Override
     public void init() {
         mAdapter = new ChatRoomRecyclerViewAdapter(mContext);
@@ -174,6 +184,9 @@ public class ChatRoomView implements ChatRoomContract.View {
                         data.set(i, ChatInfoModel.Companion.convertFromObject(object, mPresenter.getOriginAdapter(), mContext));
                         mAdapter.setData(data);
                         mAdapter.notifyItemChanged(i);
+
+                        LogUtils.INSTANCE.log("showMessageRefresh for one recycler view , pageType = " + PageType.printPageType(pageType));
+                        return;
                     }
                 }
             }
@@ -183,6 +196,18 @@ public class ChatRoomView implements ChatRoomContract.View {
 
     @Override
     public void showMessageRefresh(ArrayList<Integer> muteListInAdapterPositions) {
+        int currentPage = RuntimeInfo.INSTANCE.getCurrentPage();
+        switch (currentPage) {
+            case PageType.CHAT_ROOMS:
+            case PageType.CHATTING_WITH_CHAT_ROOMS:
+                if (pageType == PageType.OFFICIAL) return;
+                break;
+            case PageType.OFFICIAL:
+            case PageType.CHATTING_WITH_OFFICIAL:
+                if (pageType == PageType.CHAT_ROOMS) return;
+                break;
+        }
+
         ArrayList<ChatInfoModel> data = new ArrayList<>();
         for (Integer muteListInAdapterPosition : muteListInAdapterPositions) {
             Object object = HookLogic.getMessageBeanForOriginIndex(mPresenter.getOriginAdapter(),
@@ -195,6 +220,8 @@ public class ChatRoomView implements ChatRoomContract.View {
         mAdapter.setData(data);
 
         mAdapter.notifyDataSetChanged();
+
+        LogUtils.INSTANCE.log("showMessageRefresh for all recycler view , pageType = " + PageType.printPageType(pageType));
     }
 
 
@@ -220,12 +247,12 @@ public class ChatRoomView implements ChatRoomContract.View {
         mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.INSTANCE.helperColorInfo()));
 
 
-        switch (type) {
-            case CHAT_ROOMS:
+        switch (pageType) {
+            case PageType.CHAT_ROOMS:
                 mToolbar.setTitle("群消息助手");
                 break;
-            case OFFICIAL:
-                mToolbar.setTitle("公众号助手");
+            case PageType.OFFICIAL:
+                mToolbar.setTitle("服务号助手");
                 break;
         }
         mToolbar.setTitleTextColor(0xFFFAFAFA);
@@ -262,11 +289,11 @@ public class ChatRoomView implements ChatRoomContract.View {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch (type) {
-                    case OFFICIAL:
+                switch (pageType) {
+                    case PageType.OFFICIAL:
                         WhiteListDialog dialog = new WhiteListDialog(mContext);
                         dialog.setList(HookLogic.officialNickNameEntries);
-                        dialog.setType(Type.OFFICIAL);
+                        dialog.setPageType(PageType.OFFICIAL);
                         dialog.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -275,7 +302,7 @@ public class ChatRoomView implements ChatRoomContract.View {
                         });
                         dialog.show();
                         break;
-                    case CHAT_ROOMS:
+                    case PageType.CHAT_ROOMS:
                         ConfigChatRoomDialog configChatRoomDialog = new ConfigChatRoomDialog(mContext);
                         configChatRoomDialog.setOnModeChangedListener(new ConfigChatRoomDialog.OnModeChangedListener() {
                             @Override
@@ -301,7 +328,7 @@ public class ChatRoomView implements ChatRoomContract.View {
                                     dialog.setList(HookLogic.allChatRoomNickNameEntries);
                                 else dialog.setList(HookLogic.muteChatRoomNickNameEntries);
 
-                                dialog.setType(Type.CHAT_ROOMS);
+                                dialog.setPageType(PageType.CHAT_ROOMS);
                                 dialog.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {

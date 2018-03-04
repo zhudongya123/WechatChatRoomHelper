@@ -5,13 +5,12 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.zdy.project.wechat_chatroom_helper.manager.Type
+import com.zdy.project.wechat_chatroom_helper.manager.PageType
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import utils.AppSaveInfoUtils
 
@@ -20,13 +19,13 @@ class WhiteListDialog(private var mContext: Context) : Dialog(mContext) {
     private lateinit var listener: View.OnClickListener
 
     lateinit var list: ArrayList<String>
-    lateinit var type: Type
+    var pageType = 0
     lateinit var keyName: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        keyName = if (type == Type.OFFICIAL) AppSaveInfoUtils.WHITE_LIST_OFFICIAL else AppSaveInfoUtils.WHITE_LIST_CHAT_ROOM
+        keyName = if (pageType == PageType.OFFICIAL) AppSaveInfoUtils.WHITE_LIST_OFFICIAL else AppSaveInfoUtils.WHITE_LIST_CHAT_ROOM
         setContentView(getContentView())
 
         val attributes = window.attributes
