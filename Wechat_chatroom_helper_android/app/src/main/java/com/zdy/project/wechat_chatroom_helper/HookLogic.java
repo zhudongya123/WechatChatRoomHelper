@@ -18,6 +18,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
@@ -38,7 +39,6 @@ import java.util.ArrayList;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
 import utils.AppSaveInfoUtils;
@@ -310,7 +310,6 @@ public class HookLogic implements IXposedHookLoadPackage {
      */
     private void hookFitSystemWindowLayoutViewConstructor(final XC_MethodHook.MethodHookParam param) {
         final ViewGroup fitSystemWindowLayoutView = (ViewGroup) param.thisObject;
-
         fitSystemWindowLayoutView.setOnHierarchyChangeListener(new ViewGroup.OnHierarchyChangeListener() {
             @Override
             public void onChildViewAdded(View parent, View child) {
@@ -339,22 +338,32 @@ public class HookLogic implements IXposedHookLoadPackage {
                     maskViewPosition = 3;
                 }
 
+                LogUtils.INSTANCE.log("FitSystemWindowLayoutView Constructor");
+
                 chattingView = fitSystemWindowLayoutView.getChildAt(chattingViewPosition);
                 if (fitSystemWindowLayoutView.getChildCount() != fitWindowChildCount) return;
                 if (!(fitSystemWindowLayoutView.getChildAt(0) instanceof LinearLayout)) return;
                 if (!chattingView.getClass().getSimpleName().equals("TestTimeForChatting")) return;
 
-                LogUtils.INSTANCE.log("FitSystemWindowLayoutView Constructor");
+
 
                 if (chatRoomViewPresenter == null)
                     chatRoomViewPresenter = new ChatRoomViewPresenter(context, PageType.CHAT_ROOMS);
                 if (officialViewPresenter == null)
                     officialViewPresenter = new ChatRoomViewPresenter(context, PageType.OFFICIAL);
 
+                ViewParent chatRoomViewParent = chatRoomViewPresenter.getPresenterView().getParent();
+                if (chatRoomViewParent != null) {
+                    ((ViewGroup) chatRoomViewParent).removeView(chatRoomViewPresenter.getPresenterView());
+                }
+
+                ViewParent officialViewParent = officialViewPresenter.getPresenterView().getParent();
+                if (officialViewParent != null) {
+                    ((ViewGroup) chatRoomViewParent).removeView(officialViewPresenter.getPresenterView());
+                }
 
                 fitSystemWindowLayoutView.addView(chatRoomViewPresenter.getPresenterView(), chatRoomViewPosition);
                 fitSystemWindowLayoutView.addView(officialViewPresenter.getPresenterView(), officialViewPosition);
-
 
                 //黑色遮罩，逻辑可忽略
                 maskView = new View(context);
