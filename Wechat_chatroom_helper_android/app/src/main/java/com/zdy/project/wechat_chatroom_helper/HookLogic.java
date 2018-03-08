@@ -186,7 +186,7 @@ public class HookLogic implements IXposedHookLoadPackage {
         XposedHelpers.findAndHookMethod("android.widget.BaseAdapter", loadPackageParam.classLoader,
                 "notifyDataSetChanged", new XC_MethodHook() {
                     @Override
-                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
                         hookNotifyDataSetChanged(param);
                     }
                 });
@@ -683,10 +683,10 @@ public class HookLogic implements IXposedHookLoadPackage {
 
             param.setResult(count);
 
-            LogUtils.INSTANCE.log("hookGetCount, originSize = " + result + ", currentChatRoomSize = "
-                    + chatRoomSize + ", currentOfficialSize = " + officialSize + ", returnSize = " + count);
+       //     LogUtils.INSTANCE.log("hookGetCount, originSize = " + result + ", currentChatRoomSize = "
+      //              + chatRoomSize + ", currentOfficialSize = " + officialSize + ", returnSize = " + count);
         } else {
-            LogUtils.INSTANCE.log("hookGetCount, originSize = " + result);
+     //       LogUtils.INSTANCE.log("hookGetCount, originSize = " + result);
             param.setResult(result);
         }
     }
