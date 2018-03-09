@@ -606,6 +606,9 @@ public class HookLogic implements IXposedHookLoadPackage {
         } else
             XposedHelpers.callMethod(avatar, "setBackgroundDrawable", new BitmapDrawable());
 
+
+        LogUtils.INSTANCE.log("hookGetView , position = " + position +
+                ", nickname = " + getNoMeasuredTextViewText(title));
     }
 
     private CharSequence getNoMeasuredTextViewText(Object textView) {
@@ -645,7 +648,6 @@ public class HookLogic implements IXposedHookLoadPackage {
         param.setResult(bean);
 
     }
-
 
     /**
      * 根据下标返回消息列表里的消息条目，不受免打扰影响
