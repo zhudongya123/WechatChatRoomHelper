@@ -426,7 +426,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     }
 
-
     private void hookAdapterInit(XC_MethodHook.MethodHookParam param) {
         if (chatRoomViewPresenter == null)
             chatRoomViewPresenter = new ChatRoomViewPresenter(context, PageType.CHAT_ROOMS);
@@ -449,6 +448,9 @@ public class HookLogic implements IXposedHookLoadPackage {
         //移除頭部View的position
         Object listView = XposedHelpers.getObjectField(param.thisObject, Value_ListView);
         final int headerViewsCount = (int) XposedHelpers.callMethod(listView, "getHeaderViewsCount");
+
+
+        LogUtils.INSTANCE.log("hookOnItemClick, position = " + position + ", headerViewsCount =" + headerViewsCount);
 
         position = position - headerViewsCount;
 
@@ -683,10 +685,10 @@ public class HookLogic implements IXposedHookLoadPackage {
 
             param.setResult(count);
 
-       //     LogUtils.INSTANCE.log("hookGetCount, originSize = " + result + ", currentChatRoomSize = "
-      //              + chatRoomSize + ", currentOfficialSize = " + officialSize + ", returnSize = " + count);
+            LogUtils.INSTANCE.log("hookGetCount, originSize = " + result + ", currentChatRoomSize = "
+                    + chatRoomSize + ", currentOfficialSize = " + officialSize + ", returnSize = " + count);
         } else {
-     //       LogUtils.INSTANCE.log("hookGetCount, originSize = " + result);
+            LogUtils.INSTANCE.log("hookGetCount, originSize = " + result);
             param.setResult(result);
         }
     }
@@ -766,7 +768,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                 }
 
 
-                LogUtils.INSTANCE.log("i = " + i + "/" + originCount + ", nickname = " + chatInfoModel.getNickname()
+                LogUtils.INSTANCE.log("i = " + (i+1) + "/" + originCount + ", nickname = " + chatInfoModel.getNickname()
                         + ", isChatRoomConversation = " + isChatRoomConversation + " , isOfficialConversation = " + isOfficialConversation);
 
 
