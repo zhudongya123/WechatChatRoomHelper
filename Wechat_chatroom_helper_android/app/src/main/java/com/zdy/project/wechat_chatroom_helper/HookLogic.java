@@ -132,7 +132,6 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         if (!AppSaveInfoUtils.INSTANCE.openInfo()) return;
 
-
         XposedHelpers.findAndHookConstructor("com.tencent.mm.ui.HomeUI.FitSystemWindowLayoutView",
                 loadPackageParam.classLoader, Context.class, new XC_MethodHook() {
                     @Override
@@ -291,7 +290,6 @@ public class HookLogic implements IXposedHookLoadPackage {
             }
         }
     }
-
 
     private boolean isWechatHighVersion(String wechatVersion) {
         return wechatVersion.equals("1140") || wechatVersion.equals("1160") || Integer.valueOf(wechatVersion) > 1160;
@@ -640,9 +638,13 @@ public class HookLogic implements IXposedHookLoadPackage {
         //如果刚刚点击了群消息助手中的item，则因为模拟分发点击事件会调用getObject方法，
         // 则这一次getObject方法，不再修改数据和View的位置
         if (clickChatRoomFlag) {
-            index = (int) param.args[0];//重置数据位置05445678
+            index = (int) param.args[0];//重置数据位置
             clickChatRoomFlag = false;
         }
+
+
+        LogUtils.INSTANCE.log("hookGetObject, originIndex = " + param.args[0] + ", actuallyIndex = " + index);
+
         Object bean = getMessageBeanForOriginIndex(param.thisObject, index);
 
         param.setResult(bean);
@@ -687,8 +689,8 @@ public class HookLogic implements IXposedHookLoadPackage {
 
             param.setResult(count);
 
-            LogUtils.INSTANCE.log("hookGetCount, originSize = " + result + ", currentChatRoomSize = "
-                    + chatRoomSize + ", currentOfficialSize = " + officialSize + ", returnSize = " + count);
+            LogUtils.INSTANCE.log("hookGetCount, origin = " + result + ", chatRoom = "
+                    + chatRoomSize + ", official = " + officialSize + ", return = " + count);
         } else {
             LogUtils.INSTANCE.log("hookGetCount, originSize = " + result);
             param.setResult(result);
@@ -770,8 +772,8 @@ public class HookLogic implements IXposedHookLoadPackage {
                 }
 
 
-                LogUtils.INSTANCE.log("i = " + (i+1) + "/" + originCount + ", nickname = " + chatInfoModel.getNickname()
-                        + ", isChatRoomConversation = " + isChatRoomConversation + " , isOfficialConversation = " + isOfficialConversation);
+                LogUtils.INSTANCE.log("i = " + i + "/" + originCount + ", nickname = " + chatInfoModel.getNickname()
+                        + ", isChatRoom = " + isChatRoomConversation + " , isOfficial = " + isOfficialConversation);
 
 
                 int chatRoomCount = chatRoomListInAdapterPositions.size();
@@ -853,7 +855,6 @@ public class HookLogic implements IXposedHookLoadPackage {
         }
         return false;
     }
-
 
     public static void setAvatar(ImageView avatar, String field_username) {
         try {

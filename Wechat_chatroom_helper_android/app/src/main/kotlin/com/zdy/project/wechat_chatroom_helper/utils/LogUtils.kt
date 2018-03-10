@@ -11,7 +11,7 @@ object LogUtils {
 
     fun log(s: String) {
         if (!AppSaveInfoUtils.openLogInfo()) return
-        XposedBridge.log("WechatChatRoomHelper : "+s)
+        XposedBridge.log("WCRH:"+s)
     }
 
 
