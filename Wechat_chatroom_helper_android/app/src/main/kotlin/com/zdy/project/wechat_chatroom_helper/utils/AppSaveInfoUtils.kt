@@ -34,7 +34,17 @@ object AppSaveInfoUtils {
     var WHITE_LIST_OFFICIAL = "white_list_official"
 
     var OPEN_LOG = "open_log"
+    var LAUNCHER_ENTRY = "launcher_entry"
 
+
+        fun launcherEntryInfo(): Boolean {
+            return FileUtils.getJsonValue(LAUNCHER_ENTRY, false)
+        }
+
+        fun setLauncherEntry(checked: Boolean) {
+            FileUtils.putJsonValue(LAUNCHER_ENTRY, checked)
+
+        }
 
         fun openLogInfo(): Boolean {
             return FileUtils.getJsonValue(OPEN_LOG, false)

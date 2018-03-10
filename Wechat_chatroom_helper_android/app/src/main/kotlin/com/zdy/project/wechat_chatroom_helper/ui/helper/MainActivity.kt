@@ -1,9 +1,7 @@
 package ui
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -69,7 +67,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initSetting() {
-        val titles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手UI设置", "Xposed日志开关")
+        val titles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手UI设置", "Xposed日志开关","隐藏程序入口")
 
         for (i in 0 until titles.size) {
             title = titles[i]
@@ -109,6 +107,13 @@ class MainActivity : AppCompatActivity() {
                 5 -> {
                     switch.isChecked = AppSaveInfoUtils.openLogInfo()
                     switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfoUtils.setOpenLog(isChecked) }
+                }
+                6 -> {
+                    switch.isChecked = AppSaveInfoUtils.launcherEntryInfo()
+                    switch.setOnCheckedChangeListener { _, isChecked ->
+                        AppSaveInfoUtils.setLauncherEntry(isChecked)
+                        showHideLauncherIcon(!isChecked)
+                    }
                 }
 
             }
@@ -225,6 +230,13 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    private fun showHideLauncherIcon(show: Boolean) {
+        val p = packageManager
+        val componentName = ComponentName(this, packageName + ".LauncherDelegate")
+        p.setComponentEnabledSetting(componentName,
+                if (show) PackageManager.COMPONENT_ENABLED_STATE_ENABLED else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP)
+    }
 
     private fun setFailText(msg: String) {
         runOnUiThread {
