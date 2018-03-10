@@ -22,6 +22,9 @@ android {
 
 dependencies {
     provided files('libs/XposedBridgeApi-82.jar')
+    provided files('libs/XposedBridgeApi-82-sources.jar')
+
+
     compile files('libs/gson-2.7.jar')
     compile "com.android.support:recyclerview-v7:$rootProject.ext.supportLibVersion"
     compile "com.android.support:appcompat-v7:$rootProject.ext.supportLibVersion"
