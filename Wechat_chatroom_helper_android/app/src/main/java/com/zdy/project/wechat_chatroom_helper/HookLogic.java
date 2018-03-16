@@ -32,6 +32,7 @@ import com.zdy.project.wechat_chatroom_helper.ui.helper.RuntimeInfo;
 import com.zdy.project.wechat_chatroom_helper.ui.helper.avatar.AvatarMaker;
 import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
 import com.zdy.project.wechat_chatroom_helper.utils.LogUtils;
+import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.SoftKeyboardUtil;
 
 import java.lang.reflect.Field;
@@ -439,17 +440,24 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     private void hookOnItemClick(final XC_MethodHook.MethodHookParam param) {
 
-        final View view = (View) param.args[1];
+        final View itemView = (View) param.args[1];
         int position = (int) param.args[2];
         final long id = (long) param.args[3];
 
-        //移除頭部View的position
+
         Object listView = XposedHelpers.getObjectField(param.thisObject, Value_ListView);
         final int headerViewsCount = (int) XposedHelpers.callMethod(listView, "getHeaderViewsCount");
 
+        LogUtils.INSTANCE.log("hookOnItemClick, position = " + position + ", headerViewsCount =" +
+                headerViewsCount + ", view = " + itemView + " adapterView  = " + param.args[0]);
 
-        LogUtils.INSTANCE.log("hookOnItemClick, position = " + position + ", headerViewsCount =" + headerViewsCount);
+        if (itemView.getMeasuredHeight() != ScreenUtils.dip2px(context, 64f)) {
+            //修正点击空白区域的问题
+            param.setResult(null);
+            return;
+        }
 
+        //移除頭部View的position
         position = position - headerViewsCount;
 
 
@@ -462,7 +470,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                 public void onItemClick(int relativePosition) {
                     clickChatRoomFlag = true;
                     XposedHelpers.callMethod(param.thisObject, "onItemClick"
-                            , param.args[0], view, relativePosition + headerViewsCount, id);
+                            , param.args[0], itemView, relativePosition + headerViewsCount, id);
 
                     if (AppSaveInfoUtils.INSTANCE.autoCloseInfo()) chatRoomViewPresenter.dismiss();
                 }
@@ -480,7 +488,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                 public void onItemClick(int relativePosition) {
                     clickChatRoomFlag = true;
                     XposedHelpers.callMethod(param.thisObject, "onItemClick"
-                            , param.args[0], view, relativePosition + headerViewsCount, id);
+                            , param.args[0], itemView, relativePosition + headerViewsCount, id);
 
                     if (AppSaveInfoUtils.INSTANCE.autoCloseInfo()) officialViewPresenter.dismiss();
                 }
