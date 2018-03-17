@@ -1,8 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.ui.helper.uisetting
 
-import android.arch.lifecycle.Observer
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
@@ -55,15 +53,15 @@ class PreviewFragment : Fragment() {
 
     private fun initToolbar(): View {
         mToolbarContainer = RelativeLayout(thisActivity)
-        mToolbar = Toolbar(thisActivity)
+
         val height = ScreenUtils.dip2px(thisActivity, 48f)
 
-        mToolbar.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
-        mToolbar.setNavigationIcon(R.drawable.arrow_icon)
-
-
-        mToolbar.title = "群消息助手"
-        mToolbar.setTitleTextColor(-0x50506)
+        mToolbar = Toolbar(thisActivity).apply {
+            this.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
+            this.setNavigationIcon(R.drawable.arrow_icon)
+            this.title = "群消息助手"
+            this.setTitleTextColor(-0x50506)
+        }
 
         val clazz: Class<*>
         try {
@@ -88,16 +86,12 @@ class PreviewFragment : Fragment() {
             e.printStackTrace()
         }
 
-        val imageView = ImageView(thisActivity)
-
-        val params = RelativeLayout.LayoutParams(height, height)
-        params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
-
-        imageView.layoutParams = params
-        imageView.setPadding(height / 5, height / 5, height / 5, height / 5)
-        imageView.setImageResource(R.drawable.setting_icon)
-
-        imageView.drawable.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
+        val imageView = ImageView(thisActivity).apply {
+            this.layoutParams = RelativeLayout.LayoutParams(height, height).apply { this.addRule(RelativeLayout.ALIGN_PARENT_RIGHT) }
+            this.setPadding(height / 5, height / 5, height / 5, height / 5)
+            this.setImageResource(R.drawable.setting_icon)
+            this.drawable.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
+        }
 
         mToolbarContainer.addView(mToolbar)
         mToolbarContainer.addView(imageView)
