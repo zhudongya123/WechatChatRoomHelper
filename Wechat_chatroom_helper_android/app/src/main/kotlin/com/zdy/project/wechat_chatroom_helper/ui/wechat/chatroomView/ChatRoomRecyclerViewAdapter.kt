@@ -76,6 +76,14 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
                 t.printStackTrace()
             }
         }
+        holder.itemView.setOnLongClickListener {
+            try {
+                onDialogItemClickListener.onItemLongClick(muteListInAdapterPositions[position])
+            } catch (t: Throwable) {
+                t.printStackTrace()
+            }
+            return@setOnLongClickListener true
+        }
 
         holder.nickname.setTextColor(Color.parseColor("#" + AppSaveInfoUtils.nicknameColorInfo()))
         holder.content.setTextColor(Color.parseColor("#" + AppSaveInfoUtils.contentColorInfo()))
@@ -89,6 +97,8 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
 
     interface OnDialogItemClickListener {
         fun onItemClick(relativePosition: Int)
+
+        fun onItemLongClick(relativePosition: Int)
     }
 
 

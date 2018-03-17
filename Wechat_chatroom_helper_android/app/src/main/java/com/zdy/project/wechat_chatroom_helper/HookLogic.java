@@ -67,8 +67,13 @@ import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Sta
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_OFFICIAL_2;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_OFFICIAL_3;
 import static com.zdy.project.wechat_chatroom_helper.Constants.WECHAT_PACKAGE_NAME;
+import static de.robv.android.xposed.XposedHelpers.findAndHookConstructor;
+import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
+
+
 
 /**
+ *
  * Created by zhudo on 2017/7/2.
  */
 
@@ -133,7 +138,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         if (!AppSaveInfoUtils.INSTANCE.openInfo()) return;
 
-        XposedHelpers.findAndHookConstructor("com.tencent.mm.ui.HomeUI.FitSystemWindowLayoutView",
+        findAndHookConstructor("com.tencent.mm.ui.HomeUI.FitSystemWindowLayoutView",
                 loadPackageParam.classLoader, Context.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -142,7 +147,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
                 });
 
-        XposedHelpers.findAndHookConstructor("com.tencent.mm.ui.HomeUI.FitSystemWindowLayoutView",
+        findAndHookConstructor("com.tencent.mm.ui.HomeUI.FitSystemWindowLayoutView",
                 loadPackageParam.classLoader, Context.class, AttributeSet.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -151,7 +156,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
                 });
 
-        XposedHelpers.findAndHookConstructor(Class_Conversation_List_View_Adapter_Name, loadPackageParam.classLoader,
+        findAndHookConstructor(Class_Conversation_List_View_Adapter_Name, loadPackageParam.classLoader,
                 Context.class, XposedHelpers.findClass(Method_Conversation_List_View_Adapter_Param,
                         loadPackageParam.classLoader), new XC_MethodHook() {
                     @Override
@@ -183,7 +188,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
                 });
 
-        XposedHelpers.findAndHookMethod("android.widget.BaseAdapter", loadPackageParam.classLoader,
+        findAndHookMethod("android.widget.BaseAdapter", loadPackageParam.classLoader,
                 "notifyDataSetChanged", new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -191,7 +196,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
                 });
 
-        XposedHelpers.findAndHookMethod(Class_Conversation_List_View_Adapter_Parent_Name,
+        findAndHookMethod(Class_Conversation_List_View_Adapter_Parent_Name,
                 loadPackageParam.classLoader, "getCount", new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -199,7 +204,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
                 });
 
-        XposedHelpers.findAndHookMethod(Class_Conversation_List_View_Adapter_Parent_Name,
+        findAndHookMethod(Class_Conversation_List_View_Adapter_Parent_Name,
                 loadPackageParam.classLoader, Method_Adapter_Get_Object, int.class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -207,7 +212,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
                 });
 
-        XposedHelpers.findAndHookMethod(Class_Conversation_List_View_Adapter_Name,
+        findAndHookMethod(Class_Conversation_List_View_Adapter_Name,
                 loadPackageParam.classLoader, "getView", int.class, View.class,
                 ViewGroup.class, new XC_MethodHook() {
 
@@ -217,7 +222,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
                 });
 
-        XposedHelpers.findAndHookMethod(Class_Conversation_List_Adapter_OnItemClickListener_Name,
+        findAndHookMethod(Class_Conversation_List_Adapter_OnItemClickListener_Name,
                 loadPackageParam.classLoader, "onItemClick", AdapterView.class, View.class,
                 int.class, long.class, new XC_MethodHook() {
                     @Override
@@ -226,7 +231,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
                 });
 
-        XposedHelpers.findAndHookMethod("com.tencent.mm.ui.LauncherUI", loadPackageParam.classLoader,
+        findAndHookMethod("com.tencent.mm.ui.LauncherUI", loadPackageParam.classLoader,
                 "dispatchKeyEvent", KeyEvent.class, new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -234,7 +239,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     }
                 });
 
-        XposedHelpers.findAndHookMethod("android.view.ViewGroup", loadPackageParam.classLoader,
+        findAndHookMethod("android.view.ViewGroup", loadPackageParam.classLoader,
                 "dispatchTouchEvent", MotionEvent.class, new XC_MethodHook() {
                     @Override
                     protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
@@ -260,6 +265,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                         }
                     }
                 });
+
 
         hookLog(loadPackageParam);
     }
@@ -343,8 +349,6 @@ public class HookLogic implements IXposedHookLoadPackage {
                 if (fitSystemWindowLayoutView.getChildCount() != fitWindowChildCount) return;
                 if (!(fitSystemWindowLayoutView.getChildAt(0) instanceof LinearLayout)) return;
                 if (!chattingView.getClass().getSimpleName().equals("TestTimeForChatting")) return;
-
-
 
                 if (chatRoomViewPresenter == null)
                     chatRoomViewPresenter = new ChatRoomViewPresenter(context, PageType.CHAT_ROOMS);
@@ -445,7 +449,7 @@ public class HookLogic implements IXposedHookLoadPackage {
         final long id = (long) param.args[3];
 
 
-        Object listView = XposedHelpers.getObjectField(param.thisObject, Value_ListView);
+        final Object listView = XposedHelpers.getObjectField(param.thisObject, Value_ListView);
         final int headerViewsCount = (int) XposedHelpers.callMethod(listView, "getHeaderViewsCount");
 
         LogUtils.INSTANCE.log("hookOnItemClick, position = " + position + ", headerViewsCount =" +
@@ -467,10 +471,33 @@ public class HookLogic implements IXposedHookLoadPackage {
             chatRoomViewPresenter.setOnDialogItemClickListener(new ChatRoomRecyclerViewAdapter
                     .OnDialogItemClickListener() {
                 @Override
+                public void onItemLongClick(int relativePosition) {
+                    try {
+                        AdapterView.OnItemLongClickListener mOnItemLongClickListener =
+                                (AdapterView.OnItemLongClickListener) XposedHelpers.findField(listView.getClass(),
+                                        "mOnItemLongClickListener").get(listView);
+
+                        mOnItemLongClickListener.onItemLongClick((AdapterView<?>) listView, null,
+                                newViewPositionWithDataPositionList.get(relativePosition) + headerViewsCount, id);
+
+                        LogUtils.INSTANCE.log("hookOnItemClick, onItemLongClick, relativePosition = " +
+                                relativePosition + ", headerViewsCount =" +
+                                headerViewsCount + ", view = " + itemView + " adapterView  = " + param.args[0]);
+
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
                 public void onItemClick(int relativePosition) {
                     clickChatRoomFlag = true;
                     XposedHelpers.callMethod(param.thisObject, "onItemClick"
                             , param.args[0], itemView, relativePosition + headerViewsCount, id);
+
+                    LogUtils.INSTANCE.log("hookOnItemClick, onItemClick, relativePosition = " + relativePosition + "," +
+                            " headerViewsCount =" +
+                            headerViewsCount + ", view = " + itemView + " adapterView  = " + param.args[0]);
 
                     if (AppSaveInfoUtils.INSTANCE.autoCloseInfo()) chatRoomViewPresenter.dismiss();
                 }
@@ -484,6 +511,11 @@ public class HookLogic implements IXposedHookLoadPackage {
             officialViewPresenter.setListInAdapterPositions(officialListInAdapterPositions);
             officialViewPresenter.setOnDialogItemClickListener(new ChatRoomRecyclerViewAdapter
                     .OnDialogItemClickListener() {
+                @Override
+                public void onItemLongClick(int relativePosition) {
+
+                }
+
                 @Override
                 public void onItemClick(int relativePosition) {
                     clickChatRoomFlag = true;
