@@ -2,8 +2,6 @@ package com.zdy.project.wechat_chatroom_helper;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -50,7 +48,6 @@ import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversatio
 import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_SimpleName;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Set_Avatar;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Tencent_Log;
-import static com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Chatroom_Avatar;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_1;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_2;
@@ -557,7 +554,7 @@ public class HookLogic implements IXposedHookLoadPackage {
             ShapeDrawable shapeDrawable = new ShapeDrawable(new Shape() {
                 @Override
                 public void draw(Canvas canvas, Paint paint) {
-                    AvatarMaker.INSTANCE.makeChatRoomBitmap(context,canvas, paint);
+                    AvatarMaker.INSTANCE.handleAvatarDrawable(context, canvas, paint, PageType.CHAT_ROOMS);
                 }
             });
             XposedHelpers.callMethod(avatar, "setBackgroundDrawable", shapeDrawable);
@@ -600,7 +597,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                 @Override
                 public void draw(Canvas canvas, Paint paint) {
                     int size = canvas.getWidth();
-                    AvatarMaker.INSTANCE.makeOfficialBitmap(canvas, paint, size);
+                    AvatarMaker.INSTANCE.handleAvatarDrawable(context, canvas, paint, PageType.OFFICIAL);
                 }
             });
             XposedHelpers.callMethod(avatar, "setBackgroundDrawable", shapeDrawable);

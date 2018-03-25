@@ -3,7 +3,7 @@ package com.zdy.project.wechat_chatroom_helper.ui.helper.avatar
 import android.content.Context
 import android.graphics.*
 import com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Chatroom_Avatar
-
+import com.zdy.project.wechat_chatroom_helper.manager.PageType
 import utils.AppSaveInfoUtils
 
 /**
@@ -15,88 +15,84 @@ object AvatarMaker {
     private val AVATAR_BLUE = 0xFF12B7F6.toInt()
     private val AVATAR_AMBER = 0xFFF5CB00.toInt()
 
-    //自造群消息助手头像
-    fun makeChatRoomBitmap(context: Context, canvas: Canvas, paint: Paint) {
+
+    fun handleAvatarDrawable(context: Context, canvas: Canvas, paint: Paint, type: Int) {
+
+        val contentSize = canvas.width / 2
+
+        when (type) {
+            PageType.CHAT_ROOMS ->
+                makeAvatarBitmap(canvas, paint, AVATAR_BLUE,
+                        {
+                            val identifier = context.resources.getIdentifier(Drawable_String_Chatroom_Avatar, "drawable", context.packageName)
+                            val rawDrawable = BitmapFactory.decodeResource(context.resources, identifier)
+                            Bitmap.createScaledBitmap(rawDrawable, contentSize, contentSize, false)
+                                    .copy(Bitmap.Config.ARGB_8888, false)
+
+                        })
+
+
+            PageType.OFFICIAL ->
+                makeAvatarBitmap(canvas, paint, AVATAR_AMBER,
+                        {
+                            val rawDrawable = Bitmap.createBitmap(contentSize, contentSize, Bitmap.Config.ARGB_8888)
+                            val logoCanvas = Canvas(rawDrawable)
+                            paint.strokeWidth = contentSize.toFloat() / 10f
+                            paint.style = Paint.Style.STROKE
+                            paint.color = -0x60d761//随机颜色
+                            logoCanvas.drawCircle((contentSize / 4 + contentSize / 10).toFloat(), (contentSize / 2).toFloat(), (contentSize / 4).toFloat(), paint)
+                            logoCanvas.drawCircle((contentSize - contentSize / 4 - contentSize / 10).toFloat(), (contentSize / 2).toFloat(), (contentSize / 4).toFloat(), paint)
+                            rawDrawable
+                        })
+            else -> TODO("internal error")
+        }
+
+    }
+
+
+    /**
+     * 图片分为背景区域和内容区域
+     *
+     * 内容区域染成白色，背景區域為純色
+     */
+    private fun makeAvatarBitmap(canvas: Canvas, paint: Paint, backgroundColor: Int, block: () -> Bitmap) {
 
         val iconSize = canvas.width
         val contentSize = canvas.width / 2
 
         //創建内部内容區域，尺寸為icon尺寸的一半
-        val drawable = with(context) {
-            val identifier = context.resources.getIdentifier(Drawable_String_Chatroom_Avatar, "drawable", context.packageName)
-            val rawDrawable = BitmapFactory.decodeResource(context.resources, identifier)
-            return@with Bitmap.createScaledBitmap(rawDrawable, contentSize, contentSize, false)
-                    .copy(Bitmap.Config.ARGB_8888, false)
-        }
+        val contentDrawable = block()
 
+        //内容區域染色布
+        val whiteMask = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.WHITE) }
 
-        val whiteMask = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888)
-        whiteMask.eraseColor(Color.WHITE)
+        //生成最终图
+        val result = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888)
+        val drawResult = Canvas(result)
 
-        //生成图
-        val raw = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888)
-
-        val bitmapCanvas = Canvas(raw)
-
-        //绘制logo
-        bitmapCanvas.drawBitmap(drawable, (contentSize / 2).toFloat(), (contentSize / 2).toFloat(), paint)
-
-        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+        //绘制logo，区域是icon尺寸的一半
+        drawResult.drawBitmap(contentDrawable, (contentSize / 2).toFloat(), (contentSize / 2).toFloat(), paint)
 
         //给logo染色
-        bitmapCanvas.drawBitmap(whiteMask, 0f, 0f, paint)
-
+        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+        drawResult.drawBitmap(whiteMask, 0f, 0f, paint)
         paint.xfermode = null
 
-        if (AppSaveInfoUtils.isCircleAvatarInfo()) {
-            paint.color = AVATAR_BLUE
-            canvas.drawCircle(contentSize.toFloat(), contentSize.toFloat(), contentSize.toFloat(), paint)
-        } else {
-            canvas.drawColor(AVATAR_BLUE)
-        }
+        //填充背景
+        canvas.run {
+            if (AppSaveInfoUtils.isCircleAvatarInfo())
+                drawCircle(contentSize.toFloat(), contentSize.toFloat(), contentSize.toFloat(),
+                        paint.apply {
+                            color = backgroundColor
+                            strokeWidth = 0f
+                            style = Paint.Style.FILL_AND_STROKE
+                        })
+            else drawColor(backgroundColor)
 
-        canvas.drawBitmap(raw, 0f, 0f, paint)
+            drawBitmap(result, 0f, 0f, paint)
+        }
 
     }
 
-    //自造公众号助手头像
-    fun makeOfficialBitmap(canvas: Canvas, paint: Paint, size: Int) {
-        val whiteMask = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-        whiteMask.eraseColor(Color.WHITE)
-
-        val logoDrawable = Bitmap.createBitmap(size / 2, size / 2, Bitmap.Config.ARGB_8888)
-        val logoCanvas = Canvas(logoDrawable)
-        paint.strokeWidth = (size / 20).toFloat()
-        paint.style = Paint.Style.STROKE
-        paint.color = -0x60d761//随机颜色
-        logoCanvas.drawCircle((size / 8 + size / 20).toFloat(), (size / 4).toFloat(), (size / 8).toFloat(), paint)
-        logoCanvas.drawCircle((size / 2 - size / 8 - size / 20).toFloat(), (size / 4).toFloat(), (size / 8).toFloat(), paint)
-
-        //生成图
-        val raw = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-        val bitmapCanvas = Canvas(raw)
-
-        //绘制logo
-        bitmapCanvas.drawBitmap(logoDrawable, (size / 4).toFloat(), (size / 4).toFloat(), paint)
-
-        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-
-        //给logo染色
-        bitmapCanvas.drawBitmap(whiteMask, 0f, 0f, paint)
-
-        paint.xfermode = null
-
-        if (AppSaveInfoUtils.isCircleAvatarInfo()) {
-            paint.color = AVATAR_AMBER
-            paint.strokeWidth = 0f
-            paint.style = Paint.Style.FILL_AND_STROKE
-            canvas.drawCircle((size / 2).toFloat(), (size / 2).toFloat(), (size / 2).toFloat(), paint)
-        } else {
-            canvas.drawColor(AVATAR_AMBER)
-        }
-
-        canvas.drawBitmap(raw, 0f, 0f, paint)
-
-    }
 
 }
