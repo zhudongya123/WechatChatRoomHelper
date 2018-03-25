@@ -32,7 +32,7 @@ ext {
     minSdkVersion = 21
     supportLibVersion = '26.1.0'
 
-    archLifecycleVersion = '1.0.0'
+    archLifecycleVersion = '1.1.0'
 
 }
 repositories {

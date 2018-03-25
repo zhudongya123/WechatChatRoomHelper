@@ -66,7 +66,7 @@ class PermissionHelper(private var activity: Activity) {
             .create()
 
 
-    fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    fun onRequestPermissionsResult(requestCode: Int, grantResults: IntArray) {
         if (Constants.WRITE_EXTERNAL_STORAGE_RESULT_CODE == requestCode) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) FileUtils.init(activity)
             else settingDialog.show()

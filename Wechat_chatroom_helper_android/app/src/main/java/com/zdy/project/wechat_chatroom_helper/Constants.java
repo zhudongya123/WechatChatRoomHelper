@@ -67,7 +67,4 @@ public class Constants {
 
     public static String Method_Conversation_List_View_Adapter_Param;
 
-    public static String Class_Tencent_Home_UI;
-    public static String Method_Home_UI_Inflater_View;
-    public static String Value_Home_UI_Activity;
 }

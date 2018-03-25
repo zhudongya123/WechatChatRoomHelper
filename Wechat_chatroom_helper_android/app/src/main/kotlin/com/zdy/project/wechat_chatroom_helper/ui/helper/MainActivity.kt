@@ -69,8 +69,10 @@ class MainActivity : AppCompatActivity() {
     private fun initSetting() {
         val titles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手UI设置", "Xposed日志开关","隐藏程序入口")
 
-        for (i in 0 until titles.size) {
-            title = titles[i]
+
+        repeat(titles.size) {
+
+            title = titles[it]
 
             val itemView = LayoutInflater.from(thisActivity).inflate(R.layout.layout_setting_item, listContent, false)
             val text = itemView.findViewById<TextView>(android.R.id.text1)
@@ -80,7 +82,7 @@ class MainActivity : AppCompatActivity() {
 
             itemView.setOnClickListener { switch.performClick() }
 
-            when (i) {
+            when (it) {
                 0 -> {
                     switch.isChecked = AppSaveInfoUtils.openInfo()
                     switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfoUtils.setOpen(isChecked) }
@@ -102,7 +104,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 4 -> {
                     switch.visibility = View.INVISIBLE
-                    switch.setOnClickListener { if (i == 4) startActivity(Intent(thisActivity, UISettingActivity::class.java)) }
+                    switch.setOnClickListener { startActivity(Intent(thisActivity, UISettingActivity::class.java)) }
                 }
                 5 -> {
                     switch.isChecked = AppSaveInfoUtils.openLogInfo()
@@ -133,19 +135,15 @@ class MainActivity : AppCompatActivity() {
 
         //获取公告及其Dialog
         clickMe.setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse("http://116.62.247.71:8080/wechat/")
+            val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse("http://116.62.247.71:8080/wechat/") }
             startActivity(intent)
         }
-
         qian.setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse("https://QR.ALIPAY.COM/FKX09384NJXB5JXT9MLD11")
+            val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse("https://QR.ALIPAY.COM/FKX09384NJXB5JXT9MLD11") }
             startActivity(intent)
         }
         multiWechat.setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse("https://github.com/zhudongya123/WechatChatroomHelper/wiki/在双开-分身-中使用群消息助手")
+            val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse("https://github.com/zhudongya123/WechatChatroomHelper/wiki/在双开-分身-中使用群消息助手") }
             startActivity(intent)
         }
 
@@ -232,9 +230,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun showHideLauncherIcon(show: Boolean) {
         val p = packageManager
-        val componentName = ComponentName(this, packageName + ".LauncherDelegate")
+        val componentName = ComponentName(this, "$packageName.LauncherDelegate")
         p.setComponentEnabledSetting(componentName,
-                if (show) PackageManager.COMPONENT_ENABLED_STATE_ENABLED else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                if (show) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                 PackageManager.DONT_KILL_APP)
     }
 
@@ -261,7 +260,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        permissionHelper?.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        permissionHelper?.onRequestPermissionsResult(requestCode, grantResults)
     }
 
     override fun onRestart() {

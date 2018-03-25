@@ -19,10 +19,9 @@ class FileUtils {
 
     companion object {
 
-        val folderPath = Environment.getExternalStorageDirectory().absolutePath + "/WechatChatroomHelper"
-        val configPath = Environment.getExternalStorageDirectory().absolutePath + "/WechatChatroomHelper/config.xml"
-
-        val parser = JsonParser()
+        private val folderPath = Environment.getExternalStorageDirectory().absolutePath + "/WechatChatroomHelper"
+        private val configPath = Environment.getExternalStorageDirectory().absolutePath + "/WechatChatroomHelper/config.xml"
+        private val parser = JsonParser()
 
         fun init(activity: Activity) {
 
@@ -41,7 +40,7 @@ class FileUtils {
         }
 
 
-         fun getJsonValue(key: String, defaultValue: String): String {
+        fun getJsonValue(key: String, defaultValue: String): String {
             val jsonObject: JsonObject
             try {
                 jsonObject = parser.parse(getFileString()).asJsonObject
@@ -62,7 +61,7 @@ class FileUtils {
             }
         }
 
-         fun getJsonValue(key: String, defaultValue: Boolean): Boolean {
+        fun getJsonValue(key: String, defaultValue: Boolean): Boolean {
             val jsonObject: JsonObject
             try {
                 jsonObject = parser.parse(getFileString()).asJsonObject
@@ -79,6 +78,24 @@ class FileUtils {
             }
         }
 
+        fun getJsonValue(key: String, defaultValue: Int): Int {
+            val jsonObject: JsonObject
+            try {
+                jsonObject = parser.parse(getFileString()).asJsonObject
+            } catch (e: Exception) {
+                putFileString(JsonObject().toString())
+                return defaultValue
+            }
+            return if (jsonObject.has(key)) {
+                jsonObject.get(key).asInt
+            } else {
+                jsonObject.addProperty(key, defaultValue)
+                putFileString(jsonObject.toString())
+                defaultValue
+            }
+        }
+
+
         fun putJsonValue(key: String, value: Boolean) {
             val jsonObject: JsonObject? = try {
                 parser.parse(getFileString()).asJsonObject
@@ -89,6 +106,15 @@ class FileUtils {
             putFileString(jsonObject.toString())
         }
 
+        fun putJsonValue(key: String, value: Int) {
+            val jsonObject: JsonObject? = try {
+                parser.parse(getFileString()).asJsonObject
+            } catch (e: Exception) {
+                JsonObject()
+            }
+            jsonObject!!.addProperty(key, value)
+            putFileString(jsonObject.toString())
+        }
 
         fun putJsonValue(key: String, value: String) {
             val jsonObject: JsonObject? = try {
