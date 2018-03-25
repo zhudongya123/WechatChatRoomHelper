@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.ui.chatroomView
+package com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView
 
 import android.content.Context
 import android.graphics.Color
@@ -21,7 +21,6 @@ import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.ui.helper.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.ui.wechat.ConfigChatRoomDialog
 import com.zdy.project.wechat_chatroom_helper.ui.wechat.WhiteListDialog
-import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.LogUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
@@ -78,7 +77,6 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
         mContainer.addView(swipeBackLayout, params)
 
         uuid = DeviceUtils.getIMELCode(mContext)
-
         ApiManager.sendRequestForUserStatistics("init", uuid, Build.MODEL)
     }
 

@@ -1,10 +1,7 @@
-package com.zdy.project.wechat_chatroom_helper.ui.chatroomView
+package com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView
 
 import android.view.ViewGroup
-
-import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter
-
-import java.util.ArrayList
+import java.util.*
 
 /**
  * Created by Mr.Zdy on 2017/8/27.
@@ -21,9 +18,15 @@ interface ChatRoomContract {
         fun start()
 
         fun setMessageRefresh(targetUserName: String)
+
+        fun show()
+
+        fun dismiss()
     }
 
     interface View {
+
+        fun init()
 
         val isShowing: Boolean
 
@@ -40,8 +43,6 @@ interface ChatRoomContract {
         fun showMessageRefresh(targetUserName: String)
 
         fun showMessageRefresh(muteListInAdapterPositions: ArrayList<Int>)
-
-        fun init()
 
         fun setPresenter(presenter: Presenter)
     }
