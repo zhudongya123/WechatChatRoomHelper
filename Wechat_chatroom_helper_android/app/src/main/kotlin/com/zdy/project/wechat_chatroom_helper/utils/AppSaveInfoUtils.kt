@@ -29,8 +29,8 @@ object AppSaveInfoUtils {
     private const val JSON = "json"
     private const val CHAT_ROOM_TYPE = "chatRoom_type"
 
-    private const val WHITE_LIST_CHAT_ROOM = "white_list_chat_room"
-    private const val WHITE_LIST_OFFICIAL = "white_list_official"
+    const val WHITE_LIST_CHAT_ROOM = "white_list_chat_room"
+    const val WHITE_LIST_OFFICIAL = "white_list_official"
 
     private const val OPEN_LOG = "open_log"
     private const val LAUNCHER_ENTRY = "launcher_entry"
