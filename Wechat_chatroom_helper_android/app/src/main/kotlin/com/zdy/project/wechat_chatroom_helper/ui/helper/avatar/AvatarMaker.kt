@@ -1,11 +1,8 @@
 package com.zdy.project.wechat_chatroom_helper.ui.helper.avatar
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffXfermode
+import android.content.Context
+import android.graphics.*
+import com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Chatroom_Avatar
 
 import utils.AppSaveInfoUtils
 
@@ -15,24 +12,34 @@ import utils.AppSaveInfoUtils
 
 object AvatarMaker {
 
-    val AVATAR_BLUE = 0xFF12B7F6.toInt()
+    private val AVATAR_BLUE = 0xFF12B7F6.toInt()
     private val AVATAR_AMBER = 0xFFF5CB00.toInt()
 
     //自造群消息助手头像
-    fun makeChatRoomBitmap(canvas: Canvas, paint: Paint, size: Int, originDrawable: Bitmap) {
-        val drawable = Bitmap.createScaledBitmap(originDrawable, size / 2, size / 2, false)
-                .copy(Bitmap.Config.ARGB_8888, false)
+    fun makeChatRoomBitmap(context: Context, canvas: Canvas, paint: Paint) {
 
-        val whiteMask = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val iconSize = canvas.width
+        val contentSize = canvas.width / 2
+
+        //創建内部内容區域，尺寸為icon尺寸的一半
+        val drawable = with(context) {
+            val identifier = context.resources.getIdentifier(Drawable_String_Chatroom_Avatar, "drawable", context.packageName)
+            val rawDrawable = BitmapFactory.decodeResource(context.resources, identifier)
+            return@with Bitmap.createScaledBitmap(rawDrawable, contentSize, contentSize, false)
+                    .copy(Bitmap.Config.ARGB_8888, false)
+        }
+
+
+        val whiteMask = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888)
         whiteMask.eraseColor(Color.WHITE)
 
         //生成图
-        val raw = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val raw = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888)
 
         val bitmapCanvas = Canvas(raw)
 
         //绘制logo
-        bitmapCanvas.drawBitmap(drawable, (size / 4).toFloat(), (size / 4).toFloat(), paint)
+        bitmapCanvas.drawBitmap(drawable, (contentSize / 2).toFloat(), (contentSize / 2).toFloat(), paint)
 
         paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
 
@@ -43,7 +50,7 @@ object AvatarMaker {
 
         if (AppSaveInfoUtils.isCircleAvatarInfo()) {
             paint.color = AVATAR_BLUE
-            canvas.drawCircle((size / 2).toFloat(), (size / 2).toFloat(), (size / 2).toFloat(), paint)
+            canvas.drawCircle(contentSize.toFloat(), contentSize.toFloat(), contentSize.toFloat(), paint)
         } else {
             canvas.drawColor(AVATAR_BLUE)
         }

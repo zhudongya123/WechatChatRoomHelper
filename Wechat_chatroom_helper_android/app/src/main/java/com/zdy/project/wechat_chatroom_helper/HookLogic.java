@@ -557,11 +557,7 @@ public class HookLogic implements IXposedHookLoadPackage {
             ShapeDrawable shapeDrawable = new ShapeDrawable(new Shape() {
                 @Override
                 public void draw(Canvas canvas, Paint paint) {
-                    paint.setColor(AvatarMaker.INSTANCE.getAVATAR_BLUE());
-                    int size = canvas.getWidth();
-                    int drawableId = context.getResources().getIdentifier(Drawable_String_Chatroom_Avatar, "drawable", context.getPackageName());
-                    Bitmap temp = BitmapFactory.decodeResource(context.getResources(), drawableId);
-                    AvatarMaker.INSTANCE.makeChatRoomBitmap(canvas, paint, size, temp);
+                    AvatarMaker.INSTANCE.makeChatRoomBitmap(context,canvas, paint);
                 }
             });
             XposedHelpers.callMethod(avatar, "setBackgroundDrawable", shapeDrawable);
@@ -603,7 +599,6 @@ public class HookLogic implements IXposedHookLoadPackage {
             ShapeDrawable shapeDrawable = new ShapeDrawable(new Shape() {
                 @Override
                 public void draw(Canvas canvas, Paint paint) {
-                    paint.setColor(AvatarMaker.INSTANCE.getAVATAR_BLUE());
                     int size = canvas.getWidth();
                     AvatarMaker.INSTANCE.makeOfficialBitmap(canvas, paint, size);
                 }
