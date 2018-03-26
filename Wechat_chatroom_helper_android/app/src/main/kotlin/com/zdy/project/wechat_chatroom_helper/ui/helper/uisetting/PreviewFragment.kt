@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.TypedValue
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -41,9 +42,14 @@ class PreviewFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mRootView = LayoutInflater.from(thisActivity).inflate(R.layout.fragment_preview, container, false) as ViewGroup
-        mRootView.findViewById<LinearLayout>(R.id.fragment_preview_content).addView(initToolbar())
-        mRootView.findViewById<LinearLayout>(R.id.fragment_preview_content).addView(initRecycler())
+        mRootView = (LayoutInflater.from(thisActivity).inflate(R.layout.fragment_preview, container, false) as ViewGroup)
+                .apply {
+                    findViewById<LinearLayout>(R.id.fragment_preview_content)
+                            .also {
+                                it.addView(initToolbar())
+                                it.addView(initRecycler())
+                            }
+                }
 
         notifyUIToChangeColor()
 
@@ -57,41 +63,37 @@ class PreviewFragment : Fragment() {
         val height = ScreenUtils.dip2px(thisActivity, 48f)
 
         mToolbar = Toolbar(thisActivity).apply {
-            this.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
-            this.setNavigationIcon(R.drawable.arrow_icon)
-            this.title = "群消息助手"
-            this.setTitleTextColor(-0x50506)
+            layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
+            title = "群消息助手"
+        }.also {
+            it.setNavigationIcon(R.drawable.arrow_icon)
+            it.setTitleTextColor(0xFFFFFFFF.toInt())
         }
 
-        val clazz: Class<*>
-        try {
-            clazz = Class.forName("android.widget.Toolbar")
-            val mTitleTextView = clazz.getDeclaredField("mTitleTextView")
-            mTitleTextView.isAccessible = true
-            val textView = mTitleTextView.get(mToolbar) as TextView
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+        val clazz: Class<*> = Class.forName("android.widget.Toolbar")
+        val mTitleTextView = clazz.getDeclaredField("mTitleTextView").apply { isAccessible = true }
+        (mTitleTextView.get(mToolbar) as TextView).setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
 
-            val mNavButtonView = clazz.getDeclaredField("mNavButtonView")
-            mNavButtonView.isAccessible = true
-            val imageButton = mNavButtonView.get(mToolbar) as ImageButton
-            val layoutParams = imageButton.layoutParams
-            layoutParams.height = height
-            imageButton.layoutParams = layoutParams
-
-        } catch (e: ClassNotFoundException) {
-            e.printStackTrace()
-        } catch (e: IllegalAccessException) {
-            e.printStackTrace()
-        } catch (e: NoSuchFieldException) {
-            e.printStackTrace()
+        (clazz.getDeclaredField("mNavButtonView").apply { isAccessible = true }
+                .get(mToolbar) as ImageButton)
+                .also {
+                    (it.layoutParams as Toolbar.LayoutParams)
+                            .also {
+                                it.height = height
+                                it.gravity = Gravity.CENTER
+                            }
+                    it.requestLayout()
         }
 
-        val imageView = ImageView(thisActivity).apply {
-            this.layoutParams = RelativeLayout.LayoutParams(height, height).apply { this.addRule(RelativeLayout.ALIGN_PARENT_RIGHT) }
-            this.setPadding(height / 5, height / 5, height / 5, height / 5)
-            this.setImageResource(R.drawable.setting_icon)
-            this.drawable.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
-        }
+        val imageView = ImageView(thisActivity)
+                .also {
+                    it.setPadding(height / 5, height / 5, height / 5, height / 5)
+                    it.setImageResource(R.drawable.setting_icon)
+                }
+                .apply {
+                    layoutParams = RelativeLayout.LayoutParams(height, height).apply { addRule(RelativeLayout.ALIGN_PARENT_RIGHT) }
+                    drawable.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
+                }
 
         mToolbarContainer.addView(mToolbar)
         mToolbarContainer.addView(imageView)
@@ -101,14 +103,15 @@ class PreviewFragment : Fragment() {
 
     private fun initRecycler(): RecyclerView {
         mRecyclerView = RecyclerView(thisActivity)
-
-        chatRoomRecyclerViewAdapter = ChatRoomRecyclerViewAdapter(thisActivity)
-
-        chatRoomRecyclerViewAdapter.data = arrayList()
-        chatRoomRecyclerViewAdapter.notifyDataSetChanged()
-
-        mRecyclerView.layoutManager = LinearLayoutManager(thisActivity)
-        mRecyclerView.adapter = chatRoomRecyclerViewAdapter
+                .apply {
+                    layoutManager = LinearLayoutManager(thisActivity)
+                    chatRoomRecyclerViewAdapter = ChatRoomRecyclerViewAdapter(thisActivity)
+                            .also {
+                                it.data = arrayList()
+                                it.notifyDataSetChanged()
+                            }
+                    adapter = chatRoomRecyclerViewAdapter
+                }
         return mRecyclerView
     }
 
@@ -116,31 +119,26 @@ class PreviewFragment : Fragment() {
      fun notifyUIToChangeColor() {
         mToolbarContainer.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.toolbarColorInfo()))
         mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.helperColorInfo()))
-
         chatRoomRecyclerViewAdapter.notifyDataSetChanged()
     }
 
-    private fun arrayList(): ArrayList<ChatInfoModel> {
-        val data = ArrayList<ChatInfoModel>()
+    private fun arrayList() = ArrayList<ChatInfoModel>()
+            .also {
+                it.add(ChatInfoModel()
+                        .apply {
+                            nickname = "欢迎使用微信群消息助手"
+                            content = "这是回话的消息内容"
+                            time = "07:30"
+                            unReadCount = 1
+                        })
+                it.add(ChatInfoModel()
+                        .apply {
+                            nickname = "Welcome to WechatChatRoomHelper"
+                            content = "this is the content of the conversation"
+                            time = "07:30"
+                            unReadCount = 0
+                        })
+            }
 
-        val element1 = ChatInfoModel()
-        element1.nickname = "示例消息"
-        element1.content = "这是一条消息内容"
-        element1.time = "18:19"
-        element1.unReadCount = 1
-        data.add(element1)
-
-        val element2 = ChatInfoModel()
-        element2.nickname = "标题"
-        element2.content = "这又是一条消息内容"
-        element2.time = "18:20"
-        element2.unReadCount = 0
-        data.add(element2)
-        return data
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-    }
 
 }

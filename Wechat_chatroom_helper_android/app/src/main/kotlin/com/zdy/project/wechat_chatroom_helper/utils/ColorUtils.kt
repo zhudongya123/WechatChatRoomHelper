@@ -8,6 +8,6 @@ import android.graphics.Color
 object ColorUtils {
 
     fun getColorInt(colorString: CharSequence): Int {
-        return Color.parseColor("#" + colorString)
+        return Color.parseColor("#$colorString")
     }
 }
