@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.ui.wechat
+package com.zdy.project.wechat_chatroom_helper.ui.wechat.dialog
 
 import android.app.Dialog
 import android.content.Context
@@ -10,7 +10,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.zdy.project.wechat_chatroom_helper.manager.PageType
+import com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import utils.AppSaveInfoUtils
 
@@ -25,7 +25,7 @@ class WhiteListDialog(private var mContext: Context) : Dialog(mContext) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        keyName = if (pageType == PageType.OFFICIAL) AppSaveInfoUtils.WHITE_LIST_OFFICIAL else AppSaveInfoUtils.WHITE_LIST_CHAT_ROOM
+        keyName = if (pageType == com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType.OFFICIAL) AppSaveInfoUtils.WHITE_LIST_OFFICIAL else AppSaveInfoUtils.WHITE_LIST_CHAT_ROOM
         setContentView(getContentView())
 
         val attributes = window.attributes

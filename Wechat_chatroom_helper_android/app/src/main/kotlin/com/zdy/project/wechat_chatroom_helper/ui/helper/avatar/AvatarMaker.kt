@@ -3,7 +3,7 @@ package com.zdy.project.wechat_chatroom_helper.ui.helper.avatar
 import android.content.Context
 import android.graphics.*
 import com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Chatroom_Avatar
-import com.zdy.project.wechat_chatroom_helper.manager.PageType
+import com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType
 import utils.AppSaveInfoUtils
 
 /**
@@ -21,7 +21,7 @@ object AvatarMaker {
         val contentSize = canvas.width / 2
 
         when (type) {
-            PageType.CHAT_ROOMS ->
+            com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType.CHAT_ROOMS ->
                 makeAvatarBitmap(canvas, paint, AVATAR_BLUE,
                         {
                             val identifier = context.resources.getIdentifier(Drawable_String_Chatroom_Avatar, "drawable", context.packageName)
@@ -32,14 +32,18 @@ object AvatarMaker {
                         })
 
 
-            PageType.OFFICIAL ->
+            com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType.OFFICIAL ->
                 makeAvatarBitmap(canvas, paint, AVATAR_AMBER,
                         {
                             val rawDrawable = Bitmap.createBitmap(contentSize, contentSize, Bitmap.Config.ARGB_8888)
                             val logoCanvas = Canvas(rawDrawable)
-                            paint.strokeWidth = contentSize.toFloat() / 10f
-                            paint.style = Paint.Style.STROKE
-                            paint.color = -0x60d761//随机颜色
+
+                            with(paint) {
+                                strokeWidth = contentSize.toFloat() / 10f
+                                style = Paint.Style.STROKE
+                                color = -0x60d761//随机颜色
+                            }
+
                             logoCanvas.drawCircle((contentSize / 4 + contentSize / 10).toFloat(), (contentSize / 2).toFloat(), (contentSize / 4).toFloat(), paint)
                             logoCanvas.drawCircle((contentSize - contentSize / 4 - contentSize / 10).toFloat(), (contentSize / 2).toFloat(), (contentSize / 4).toFloat(), paint)
                             rawDrawable

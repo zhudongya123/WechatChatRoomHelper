@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.manager;
+package com.zdy.project.wechat_chatroom_helper.ui.wechat.manager;
 
 /**
  * Created by zhudo on 2017/11/8.

@@ -9,13 +9,12 @@ object ApiManager {
 
     var okHttpClient = OkHttpClient()
 
-    private var HOST = "http://116.62.247.71:8080/"
+    private const val CLASS_MAPPING = "http://116.62.247.71:8080/wechat/class/mapping"
+    private const val USER_STATISTICS = "http://116.62.247.71:8080/wechat/user/statistics"
 
-    object UrlPath {
-        var CLASS_MAPPING = HOST + "wechat/class/mapping"
-        var USER_STATISTICS = HOST + "wechat/user/statistics"
-    }
-
+    /**
+     * 发送用户统计请求，自带一天只发送一次的逻辑~
+     */
     fun sendRequestForUserStatistics(action: String, uuid: String, model: String) {
 
         val sendTime = AppSaveInfoUtils.apiRecordTimeInfo()
@@ -31,7 +30,7 @@ object ApiManager {
                 .build()
 
         val request = Request.Builder()
-                .url(UrlPath.USER_STATISTICS)
+                .url(USER_STATISTICS)
                 .post(requestBody)
                 .build()
 
@@ -45,4 +44,25 @@ object ApiManager {
         })
     }
 
+    fun getClassMappingRequest(versionCode: String, play_version: Boolean): Request {
+
+        val requestBody = FormBody.Builder()
+                .add("versionCode", versionCode)
+                .add("isPlayVersion", if (play_version) "1" else "0").build()
+
+        return Request.Builder().url(CLASS_MAPPING).post(requestBody).build()
+    }
+
+
+    fun sendRequestForClassMapping(request: Request, onResponse: (response: Response) -> Unit) {
+        ApiManager.okHttpClient.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException?) {
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                onResponse(response)
+            }
+        })
+
+    }
 }

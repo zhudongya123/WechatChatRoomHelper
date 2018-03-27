@@ -11,6 +11,8 @@ import ui.MyApplication
 import utils.AppSaveInfoUtils
 
 /**
+ * UiSetting Activity
+ *
  * Created by zhudo on 2017/12/2.
  */
 class UISettingActivity : AppCompatActivity() {

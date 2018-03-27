@@ -17,9 +17,7 @@ import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.ui.helper.uisetting.UISettingActivity
 import manager.PermissionHelper
 import network.ApiManager
-import okhttp3.*
 import utils.AppSaveInfoUtils
-import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
@@ -190,42 +188,33 @@ class MainActivity : AppCompatActivity() {
 
     private fun sendRequest(versionCode: String, play_version: Boolean) {
 
-        val requestBody = FormBody.Builder()
-                .add("versionCode", versionCode)
-                .add("isPlayVersion", if (play_version) "1" else "0").build()
+        val request = ApiManager.getClassMappingRequest(versionCode, play_version)
 
-        val request = Request.Builder().url(ApiManager.UrlPath.CLASS_MAPPING).post(requestBody).build()
+        ApiManager.sendRequestForClassMapping(request) {
+            try {
+                val string = it.body()!!.string()
+                val jsonObject = JsonParser().parse(string).asJsonObject
+                val code = jsonObject.get("code").asInt
+                val msg = jsonObject.get("msg").asString
 
-        ApiManager.okHttpClient.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call?, e: IOException?) {
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-
-                try {
-                    val string = response.body()!!.string()
-                    val jsonObject = JsonParser().parse(string).asJsonObject
-                    val code = jsonObject.get("code").asInt
-                    val msg = jsonObject.get("msg").asString
-
-                    //保存匹配到的数据
-                    if (code == 0) {
-                        AppSaveInfoUtils.setJson(jsonObject.get("data").toString())
-                        setSuccessText(msg)
-                    } else {
-                        AppSaveInfoUtils.setJson("")
-                        setFailText(msg)
-                    }
-
-                    //保存主程序版本号
-                    AppSaveInfoUtils.setHelpVersionCodeInfo(MyApplication.get().getHelperVersionCode().toString())
-
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    setFailText("从服务器获取数据失败，请联系检查网络链接")
+                //保存匹配到的数据
+                if (code == 0) {
+                    AppSaveInfoUtils.setJson(jsonObject.get("data").toString())
+                    setSuccessText(msg)
+                } else {
+                    AppSaveInfoUtils.setJson("")
+                    setFailText(msg)
                 }
+
+                //保存主程序版本号
+                AppSaveInfoUtils.setHelpVersionCodeInfo(MyApplication.get().getHelperVersionCode().toString())
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+                setFailText("从服务器获取数据失败，请联系检查网络链接")
             }
-        })
+        }
+
     }
 
     private fun showHideLauncherIcon(show: Boolean) {

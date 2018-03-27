@@ -10,10 +10,12 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.zdy.project.wechat_chatroom_helper.R
-import com.zdy.project.wechat_chatroom_helper.ui.helper.ChooseColorDialogHelper
+import com.zdy.project.wechat_chatroom_helper.ui.helper.dialog.ChooseColorDialogHelper
 import com.zdy.project.wechat_chatroom_helper.utils.ColorUtils
 
 /**
+ * 此类为 UiSetting 中的设置 Fragment
+ *
  * Created by zhudo on 2017/12/2.
  */
 class SettingFragment : Fragment() {

@@ -23,10 +23,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.zdy.project.wechat_chatroom_helper.manager.PageType;
+import com.zdy.project.wechat_chatroom_helper.ui.helper.manager.PageType;
 import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel;
 import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomViewPresenter;
-import com.zdy.project.wechat_chatroom_helper.ui.helper.RuntimeInfo;
+import com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.RuntimeInfo;
 import com.zdy.project.wechat_chatroom_helper.ui.helper.avatar.AvatarMaker;
 import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
 import com.zdy.project.wechat_chatroom_helper.utils.LogUtils;

@@ -20,6 +20,8 @@ import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import utils.AppSaveInfoUtils
 
 /**
+ * 此类为 UiSetting 中的预览 Fragment
+ *
  * Created by zhudo on 2017/12/2.
  */
 class PreviewFragment : Fragment() {
