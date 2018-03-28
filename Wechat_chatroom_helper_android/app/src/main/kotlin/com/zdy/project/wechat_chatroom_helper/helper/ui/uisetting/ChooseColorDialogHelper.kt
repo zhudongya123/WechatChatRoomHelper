@@ -12,9 +12,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
-import com.zdy.project.wechat_chatroom_helper.utils.ColorUtils
+import com.zdy.project.wechat_chatroom_helper.helper.utils.ColorUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
-import utils.AppSaveInfoUtils
+import utils.AppSaveInfo
 
 /**
  * Created by zhudo on 2017/11/14.
@@ -34,12 +34,12 @@ object ChooseColorDialogHelper {
         val editText = subView.findViewById<EditText>(android.R.id.edit)
                 .apply {
                     val color = when (colorType) {
-                        ColorType.Toolbar -> AppSaveInfoUtils.toolbarColorInfo()
-                        ColorType.Helper -> AppSaveInfoUtils.helperColorInfo()
-                        ColorType.Nickname -> AppSaveInfoUtils.nicknameColorInfo()
-                        ColorType.Content -> AppSaveInfoUtils.contentColorInfo()
-                        ColorType.Time -> AppSaveInfoUtils.timeColorInfo()
-                        ColorType.Divider -> AppSaveInfoUtils.dividerColorInfo()
+                        ColorType.Toolbar -> AppSaveInfo.toolbarColorInfo()
+                        ColorType.Helper -> AppSaveInfo.helperColorInfo()
+                        ColorType.Nickname -> AppSaveInfo.nicknameColorInfo()
+                        ColorType.Content -> AppSaveInfo.contentColorInfo()
+                        ColorType.Time -> AppSaveInfo.timeColorInfo()
+                        ColorType.Divider -> AppSaveInfo.dividerColorInfo()
                     }
 
                     backgroundTintList = ColorStateList.valueOf(ColorUtils.getColorInt(color))
@@ -68,12 +68,12 @@ object ChooseColorDialogHelper {
                     val value = editText.text.toString()
 
                     when (colorType) {
-                        ColorType.Toolbar -> AppSaveInfoUtils.setToolbarColorInfo(value)
-                        ColorType.Helper -> AppSaveInfoUtils.setHelperColorInfo(value)
-                        ColorType.Nickname -> AppSaveInfoUtils.setNicknameColorInfo(value)
-                        ColorType.Content -> AppSaveInfoUtils.setContentColorInfo(value)
-                        ColorType.Time -> AppSaveInfoUtils.setTimeColorInfo(value)
-                        ColorType.Divider -> AppSaveInfoUtils.setDividerColorInfo(value)
+                        ColorType.Toolbar -> AppSaveInfo.setToolbarColorInfo(value)
+                        ColorType.Helper -> AppSaveInfo.setHelperColorInfo(value)
+                        ColorType.Nickname -> AppSaveInfo.setNicknameColorInfo(value)
+                        ColorType.Content -> AppSaveInfo.setContentColorInfo(value)
+                        ColorType.Time -> AppSaveInfo.setTimeColorInfo(value)
+                        ColorType.Divider -> AppSaveInfo.setDividerColorInfo(value)
                     }
 
                 }

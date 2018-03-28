@@ -3,7 +3,7 @@ package com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
-import utils.AppSaveInfoUtils
+import utils.AppSaveInfo
 
 /**
  * Created by zhudo on 2017/12/2.
@@ -23,11 +23,11 @@ class SettingViewModel(context: Application) : AndroidViewModel(context) {
     }
 
     fun refreshColorInfo() {
-        toolbarColor.value = AppSaveInfoUtils.toolbarColorInfo()
-        helperColor.value = AppSaveInfoUtils.helperColorInfo()
-        nicknameColor.value = AppSaveInfoUtils.nicknameColorInfo()
-        contentColor.value = AppSaveInfoUtils.contentColorInfo()
-        timeColor.value = AppSaveInfoUtils.timeColorInfo()
-        dividerColor.value = AppSaveInfoUtils.dividerColorInfo()
+        toolbarColor.value = AppSaveInfo.toolbarColorInfo()
+        helperColor.value = AppSaveInfo.helperColorInfo()
+        nicknameColor.value = AppSaveInfo.nicknameColorInfo()
+        contentColor.value = AppSaveInfo.contentColorInfo()
+        timeColor.value = AppSaveInfo.timeColorInfo()
+        dividerColor.value = AppSaveInfo.dividerColorInfo()
     }
 }

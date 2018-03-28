@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
-import utils.AppSaveInfoUtils
+import utils.AppSaveInfo
 
 
 /**
@@ -29,14 +29,14 @@ class ConfigChatRoomDialog(private var mContext: Context) : Dialog(mContext) {
         setContentView(getContentView(mContext))
 
 
-        if (AppSaveInfoUtils.chatRoomTypeInfo().toInt() == 2) {
+        if (AppSaveInfo.chatRoomTypeInfo().toInt() == 2) {
             (radioGroup.findViewById<RadioButton>(MUTE_CHAT_ROOM_ID)).isChecked = true
         } else (radioGroup.findViewById<RadioButton>(ALL_CHAT_ROOM_ID)).isChecked = true
 
         radioGroup.setOnCheckedChangeListener { _, checkedId ->
-            if (AppSaveInfoUtils.chatRoomTypeInfo().toInt() != checkedId) {
-                AppSaveInfoUtils.clearWhiteList(AppSaveInfoUtils.WHITE_LIST_CHAT_ROOM)
-                AppSaveInfoUtils.setChatRoomType(checkedId.toString())
+            if (AppSaveInfo.chatRoomTypeInfo().toInt() != checkedId) {
+                AppSaveInfo.clearWhiteList(AppSaveInfo.WHITE_LIST_CHAT_ROOM)
+                AppSaveInfo.setChatRoomType(checkedId.toString())
                 if (onModeChangedListener != null)
                     onModeChangedListener!!.onChanged()
                 dismiss()

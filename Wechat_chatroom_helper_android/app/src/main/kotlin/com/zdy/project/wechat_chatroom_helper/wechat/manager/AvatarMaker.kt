@@ -3,7 +3,8 @@ package com.zdy.project.wechat_chatroom_helper.wechat.manager
 import android.content.Context
 import android.graphics.*
 import com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Chatroom_Avatar
-import utils.AppSaveInfoUtils
+import com.zdy.project.wechat_chatroom_helper.PageType
+import utils.AppSaveInfo
 
 /**
  * Created by Mr.Zdy on 2018/3/2.
@@ -83,7 +84,7 @@ object AvatarMaker {
 
         //填充背景
         canvas.run {
-            if (AppSaveInfoUtils.isCircleAvatarInfo())
+            if (AppSaveInfo.isCircleAvatarInfo())
                 drawCircle(contentSize.toFloat(), contentSize.toFloat(), contentSize.toFloat(),
                         paint.apply {
                             color = backgroundColor

@@ -6,9 +6,9 @@ import android.view.Menu
 import android.view.MenuItem
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
-import com.zdy.project.wechat_chatroom_helper.utils.ActivityUtils
+import com.zdy.project.wechat_chatroom_helper.helper.utils.ActivityUtils
 import ui.MyApplication
-import utils.AppSaveInfoUtils
+import utils.AppSaveInfo
 
 /**
  * UiSetting Activity
@@ -94,11 +94,11 @@ class UISettingActivity : AppCompatActivity() {
                  true
             }
             R.id.ui_setting_reset -> {
-                AppSaveInfoUtils.setToolbarColorInfo(Constants.DEFAULT_TOOLBAR_COLOR)
-                AppSaveInfoUtils.setHelperColorInfo(Constants.DEFAULT_HELPER_COLOR)
-                AppSaveInfoUtils.setNicknameColorInfo(Constants.DEFAULT_NICKNAME_COLOR)
-                AppSaveInfoUtils.setContentColorInfo(Constants.DEFAULT_CONTENT_COLOR)
-                AppSaveInfoUtils.setDividerColorInfo(Constants.DEFAULT_DIVIDER_COLOR)
+                AppSaveInfo.setToolbarColorInfo(Constants.DEFAULT_TOOLBAR_COLOR)
+                AppSaveInfo.setHelperColorInfo(Constants.DEFAULT_HELPER_COLOR)
+                AppSaveInfo.setNicknameColorInfo(Constants.DEFAULT_NICKNAME_COLOR)
+                AppSaveInfo.setContentColorInfo(Constants.DEFAULT_CONTENT_COLOR)
+                AppSaveInfo.setDividerColorInfo(Constants.DEFAULT_DIVIDER_COLOR)
 
                 settingViewModel!!.refreshColorInfo()
                 (supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()

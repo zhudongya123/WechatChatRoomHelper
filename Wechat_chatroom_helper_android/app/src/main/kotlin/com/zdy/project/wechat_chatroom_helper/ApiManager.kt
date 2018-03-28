@@ -2,7 +2,7 @@ package network
 
 import android.os.Build
 import okhttp3.*
-import utils.AppSaveInfoUtils
+import utils.AppSaveInfo
 import java.io.IOException
 
 object ApiManager {
@@ -17,15 +17,15 @@ object ApiManager {
      */
     fun sendRequestForUserStatistics(action: String, uuid: String, model: String) {
 
-        val sendTime = AppSaveInfoUtils.apiRecordTimeInfo()
+        val sendTime = AppSaveInfo.apiRecordTimeInfo()
         if (System.currentTimeMillis() - sendTime < 60 * 60 * 22) return
 
         val requestBody: RequestBody = FormBody.Builder()
                 .add("action", action)
                 .add("uuidCode", uuid)
                 .add("model", model)
-                .add("version", AppSaveInfoUtils.helpVersionCodeInfo())
-                .add("wechat_version", AppSaveInfoUtils.wechatVersionInfo())
+                .add("version", AppSaveInfo.helpVersionCodeInfo())
+                .add("wechat_version", AppSaveInfo.wechatVersionInfo())
                 .add("android_version", Build.VERSION.SDK)
                 .build()
 
@@ -39,7 +39,7 @@ object ApiManager {
             }
 
             override fun onResponse(call: Call?, response: Response?) {
-                AppSaveInfoUtils.setApiRecordTime((System.currentTimeMillis() / 1000).toInt())
+                AppSaveInfo.setApiRecordTime((System.currentTimeMillis() / 1000).toInt())
             }
         })
     }

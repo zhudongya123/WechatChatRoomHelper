@@ -1,9 +1,7 @@
-package com.zdy.project.wechat_chatroom_helper.model
+package com.zdy.project.wechat_chatroom_helper
 
 import android.content.Context
-import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 
 /**

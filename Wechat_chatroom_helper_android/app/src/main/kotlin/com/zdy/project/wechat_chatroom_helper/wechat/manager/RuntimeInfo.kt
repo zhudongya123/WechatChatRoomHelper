@@ -1,6 +1,7 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.manager
 
-import com.zdy.project.wechat_chatroom_helper.utils.LogUtils
+import com.zdy.project.wechat_chatroom_helper.LogUtils
+import com.zdy.project.wechat_chatroom_helper.PageType
 
 /**
  *  存储一些运行时的状态和消息
@@ -8,6 +9,8 @@ import com.zdy.project.wechat_chatroom_helper.utils.LogUtils
  * Created by Mr.Zdy on 2018/3/4.
  */
 object RuntimeInfo {
+
+    var mClassLoader: ClassLoader? = null
 
     var currentPage = 0
 

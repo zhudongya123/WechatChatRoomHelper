@@ -17,7 +17,7 @@ import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActivity
 import manager.PermissionHelper
 import network.ApiManager
-import utils.AppSaveInfoUtils
+import utils.AppSaveInfo
 
 class MainActivity : AppCompatActivity() {
 
@@ -82,36 +82,36 @@ class MainActivity : AppCompatActivity() {
 
             when (it) {
                 0 -> {
-                    switch.isChecked = AppSaveInfoUtils.openInfo()
-                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfoUtils.setOpen(isChecked) }
+                    switch.isChecked = AppSaveInfo.openInfo()
+                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfo.setOpen(isChecked) }
                 }
                 1 -> {
-                    switch.isChecked = AppSaveInfoUtils.isPlayVersionInfo()
+                    switch.isChecked = AppSaveInfo.isPlayVersionInfo()
                     switch.setOnCheckedChangeListener { _, isChecked ->
-                        AppSaveInfoUtils.setPlayVersionInfo(isChecked)
-                        sendRequest(MyApplication.get().getWechatVersionCode().toString(), AppSaveInfoUtils.isPlayVersionInfo())
+                        AppSaveInfo.setPlayVersionInfo(isChecked)
+                        sendRequest(MyApplication.get().getWechatVersionCode().toString(), AppSaveInfo.isPlayVersionInfo())
                     }
                 }
                 2 -> {
-                    switch.isChecked = AppSaveInfoUtils.isCircleAvatarInfo()
-                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfoUtils.setCircleAvatarInfo(isChecked) }
+                    switch.isChecked = AppSaveInfo.isCircleAvatarInfo()
+                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfo.setCircleAvatarInfo(isChecked) }
                 }
                 3 -> {
-                    switch.isChecked = AppSaveInfoUtils.autoCloseInfo()
-                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfoUtils.setAutoCloseInfo(isChecked) }
+                    switch.isChecked = AppSaveInfo.autoCloseInfo()
+                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfo.setAutoCloseInfo(isChecked) }
                 }
                 4 -> {
                     switch.visibility = View.INVISIBLE
                     switch.setOnClickListener { startActivity(Intent(thisActivity, UISettingActivity::class.java)) }
                 }
                 5 -> {
-                    switch.isChecked = AppSaveInfoUtils.openLogInfo()
-                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfoUtils.setOpenLog(isChecked) }
+                    switch.isChecked = AppSaveInfo.openLogInfo()
+                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfo.setOpenLog(isChecked) }
                 }
                 6 -> {
-                    switch.isChecked = AppSaveInfoUtils.launcherEntryInfo()
+                    switch.isChecked = AppSaveInfo.launcherEntryInfo()
                     switch.setOnCheckedChangeListener { _, isChecked ->
-                        AppSaveInfoUtils.setLauncherEntry(isChecked)
+                        AppSaveInfo.setLauncherEntry(isChecked)
                         showHideLauncherIcon(!isChecked)
                     }
                 }
@@ -151,16 +151,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadConfig() {
         //是否已经适配了合适的数据的标记(已经成功匹配过)
-        val hasSuitWechatData = AppSaveInfoUtils.hasSuitWechatDataInfo()
+        val hasSuitWechatData = AppSaveInfo.hasSuitWechatDataInfo()
 
         //play开关是否打开的标记
-        val playVersion = AppSaveInfoUtils.isPlayVersionInfo()
+        val playVersion = AppSaveInfo.isPlayVersionInfo()
 
         //当前保存的微信版本号
-        val saveWechatVersionCode = AppSaveInfoUtils.wechatVersionInfo()
+        val saveWechatVersionCode = AppSaveInfo.wechatVersionInfo()
 
         //当前保存的主程序版本号
-        val saveHelperVersionCode = AppSaveInfoUtils.helpVersionCodeInfo()
+        val saveHelperVersionCode = AppSaveInfo.helpVersionCodeInfo()
 
         //当前的微信版本号
         val wechatVersionCode = MyApplication.get().getWechatVersionCode().toString()
@@ -182,7 +182,7 @@ class MainActivity : AppCompatActivity() {
 
             //否则则取出上次保存的合适的信息
             detail.setTextColor(0xFF888888.toInt())
-            detail.text = AppSaveInfoUtils.showInfo()
+            detail.text = AppSaveInfo.showInfo()
         }
     }
 
@@ -199,15 +199,15 @@ class MainActivity : AppCompatActivity() {
 
                 //保存匹配到的数据
                 if (code == 0) {
-                    AppSaveInfoUtils.setJson(jsonObject.get("data").toString())
+                    AppSaveInfo.setJson(jsonObject.get("data").toString())
                     setSuccessText(msg)
                 } else {
-                    AppSaveInfoUtils.setJson("")
+                    AppSaveInfo.setJson("")
                     setFailText(msg)
                 }
 
                 //保存主程序版本号
-                AppSaveInfoUtils.setHelpVersionCodeInfo(MyApplication.get().getHelperVersionCode().toString())
+                AppSaveInfo.setHelpVersionCodeInfo(MyApplication.get().getHelperVersionCode().toString())
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -231,8 +231,8 @@ class MainActivity : AppCompatActivity() {
             detail.text = msg
             detail.setTextColor(0xFFFF0000.toInt())
 
-            AppSaveInfoUtils.setSuitWechatDataInfo(false)
-            AppSaveInfoUtils.setShowInfo(msg)
+            AppSaveInfo.setSuitWechatDataInfo(false)
+            AppSaveInfo.setShowInfo(msg)
         }
     }
 
@@ -241,9 +241,9 @@ class MainActivity : AppCompatActivity() {
             detail.setTextColor(0xFF888888.toInt())
             detail.text = msg
 
-            AppSaveInfoUtils.setWechatVersionInfo(MyApplication.get().getWechatVersionCode().toString())
-            AppSaveInfoUtils.setSuitWechatDataInfo(true)
-            AppSaveInfoUtils.setShowInfo(msg)
+            AppSaveInfo.setWechatVersionInfo(MyApplication.get().getWechatVersionCode().toString())
+            AppSaveInfo.setSuitWechatDataInfo(true)
+            AppSaveInfo.setShowInfo(msg)
         }
     }
 

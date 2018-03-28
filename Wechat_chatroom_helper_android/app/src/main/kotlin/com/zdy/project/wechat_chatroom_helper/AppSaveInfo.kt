@@ -8,7 +8,7 @@ import com.zdy.project.wechat_chatroom_helper.Constants
 /**
  * Created by zhudo on 2017/11/4.
  */
-object AppSaveInfoUtils {
+object AppSaveInfo {
 
     private const val OPEN = "open"
     private const val IS_CIRCLE_AVATAR = "is_circle_avatar"

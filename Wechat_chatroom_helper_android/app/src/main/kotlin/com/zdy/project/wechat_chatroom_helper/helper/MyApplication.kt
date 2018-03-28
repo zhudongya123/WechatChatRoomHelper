@@ -5,7 +5,6 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import com.tencent.bugly.Bugly
 import com.zdy.project.wechat_chatroom_helper.Constants
-import utils.AppSaveInfoUtils
 
 /**
  * Created by Mr.Zdy on 2017/10/19.

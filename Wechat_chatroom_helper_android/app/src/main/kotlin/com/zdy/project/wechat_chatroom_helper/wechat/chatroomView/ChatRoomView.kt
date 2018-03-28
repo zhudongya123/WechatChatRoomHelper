@@ -16,17 +16,17 @@ import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout
 import com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Arrow
 import com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Setting
 import com.zdy.project.wechat_chatroom_helper.HookLogic
-import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.ConfigChatRoomDialog
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialog
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
-import com.zdy.project.wechat_chatroom_helper.utils.LogUtils
+import com.zdy.project.wechat_chatroom_helper.LogUtils
+import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
 import de.robv.android.xposed.XposedHelpers
 import network.ApiManager
-import utils.AppSaveInfoUtils
+import utils.AppSaveInfo
 import java.util.*
 
 /**
@@ -70,7 +70,7 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
         mainView.addView(mRecyclerView)
         mainView.isClickable = true
 
-        mainView.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.helperColorInfo()))
+        mainView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo()))
 
         initSwipeBack()
 
@@ -180,8 +180,8 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
                 .getIdentifier(Drawable_String_Arrow, "drawable", mContext.packageName))
 
         mToolbar.setNavigationOnClickListener { dismiss() }
-        mToolbar.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.toolbarColorInfo()))
-        mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.helperColorInfo()))
+        mToolbar.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.toolbarColorInfo()))
+        mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo()))
 
 
         when (pageType) {
@@ -242,7 +242,7 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
                         override fun onClick() {
                             val dialog = WhiteListDialog(mContext)
 
-                            if (AppSaveInfoUtils.chatRoomTypeInfo() == "1")
+                            if (AppSaveInfo.chatRoomTypeInfo() == "1")
                                 dialog.list = HookLogic.allChatRoomNickNameEntries
                             else
                                 dialog.list = HookLogic.muteChatRoomNickNameEntries

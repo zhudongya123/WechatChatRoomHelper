@@ -10,8 +10,9 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
-import utils.AppSaveInfoUtils
+import utils.AppSaveInfo
 
 class WhiteListDialog(private var mContext: Context) : Dialog(mContext) {
 
@@ -24,7 +25,7 @@ class WhiteListDialog(private var mContext: Context) : Dialog(mContext) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        keyName = if (pageType == com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.OFFICIAL) AppSaveInfoUtils.WHITE_LIST_OFFICIAL else AppSaveInfoUtils.WHITE_LIST_CHAT_ROOM
+        keyName = if (pageType == PageType.OFFICIAL) AppSaveInfo.WHITE_LIST_OFFICIAL else AppSaveInfo.WHITE_LIST_CHAT_ROOM
         setContentView(getContentView())
 
         val attributes = window.attributes
@@ -63,7 +64,7 @@ class WhiteListDialog(private var mContext: Context) : Dialog(mContext) {
         button.background = mContext.obtainStyledAttributes(intArrayOf(android.R.attr.selectableItemBackground)).getDrawable(0)
 
 
-        val existList = AppSaveInfoUtils.getWhiteList(keyName)
+        val existList = AppSaveInfo.getWhiteList(keyName)
         val listView = LinearLayout(mContext)
         listView.orientation = LinearLayout.VERTICAL
 
@@ -84,8 +85,8 @@ class WhiteListDialog(private var mContext: Context) : Dialog(mContext) {
 
             switch.setOnCheckedChangeListener { buttonView, isChecked ->
 
-                if (isChecked) AppSaveInfoUtils.setWhiteList(keyName, buttonView.text.toString())
-                else AppSaveInfoUtils.removeWhitList(keyName, buttonView.text.toString())
+                if (isChecked) AppSaveInfo.setWhiteList(keyName, buttonView.text.toString())
+                else AppSaveInfo.removeWhitList(keyName, buttonView.text.toString())
             }
 
             listView.addView(switch, params)

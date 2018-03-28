@@ -14,10 +14,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.zdy.project.wechat_chatroom_helper.R
-import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomRecyclerViewAdapter
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
-import utils.AppSaveInfoUtils
+import utils.AppSaveInfo
 
 /**
  * 此类为 UiSetting 中的预览 Fragment
@@ -119,8 +119,8 @@ class PreviewFragment : Fragment() {
 
 
      fun notifyUIToChangeColor() {
-        mToolbarContainer.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.toolbarColorInfo()))
-        mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.helperColorInfo()))
+        mToolbarContainer.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.toolbarColorInfo()))
+        mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo()))
         chatRoomRecyclerViewAdapter.notifyDataSetChanged()
     }
 

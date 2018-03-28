@@ -23,15 +23,12 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.zdy.project.wechat_chatroom_helper.helper.manager.PageType;
-import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel;
-import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter;
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo;
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker;
-import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
-import com.zdy.project.wechat_chatroom_helper.utils.LogUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 import com.zdy.project.wechat_chatroom_helper.utils.SoftKeyboardUtil;
+import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomRecyclerViewAdapter;
+import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter;
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker;
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -40,7 +37,7 @@ import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LoadPackage;
-import utils.AppSaveInfoUtils;
+import utils.AppSaveInfo;
 
 import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_Adapter_OnItemClickListener_Name;
 import static com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_Name;
@@ -129,11 +126,11 @@ public class HookLogic implements IXposedHookLoadPackage {
 
         if (!loadPackageParam.packageName.equals(WECHAT_PACKAGE_NAME)) return;
 
-        RuntimeInfo.mClassLoader = loadPackageParam.classLoader;
+        if (!AppSaveInfo.INSTANCE.initVariableName()) return;//判断是否获取了配置
 
-        if (!AppSaveInfoUtils.INSTANCE.initVariableName()) return;//判断是否获取了配置
+        if (!AppSaveInfo.INSTANCE.openInfo()) return;
 
-        if (!AppSaveInfoUtils.INSTANCE.openInfo()) return;
+        RuntimeInfo.INSTANCE.setMClassLoader(loadPackageParam.classLoader);
 
         findAndHookConstructor("com.tencent.mm.ui.HomeUI.FitSystemWindowLayoutView",
                 loadPackageParam.classLoader, Context.class, new XC_MethodHook() {
@@ -326,7 +323,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                 /*
                  * 微信在某个版本之后 View 数量发生变化，下标也要相应刷新
                  **/
-                if (isWechatHighVersion(AppSaveInfoUtils.INSTANCE.wechatVersionInfo())) {
+                if (isWechatHighVersion(AppSaveInfo.INSTANCE.wechatVersionInfo())) {
                     fitWindowChildCount = 3;
                     chattingViewPosition = 2;
                     chatRoomViewPosition = 2;
@@ -496,7 +493,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                             " headerViewsCount =" +
                             headerViewsCount + ", view = " + itemView + " adapterView  = " + param.args[0]);
 
-                    if (AppSaveInfoUtils.INSTANCE.autoCloseInfo()) chatRoomViewPresenter.dismiss();
+                    if (AppSaveInfo.INSTANCE.autoCloseInfo()) chatRoomViewPresenter.dismiss();
                 }
             });
             chatRoomViewPresenter.show();
@@ -519,7 +516,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                     XposedHelpers.callMethod(param.thisObject, "onItemClick"
                             , param.args[0], itemView, relativePosition + headerViewsCount, id);
 
-                    if (AppSaveInfoUtils.INSTANCE.autoCloseInfo()) officialViewPresenter.dismiss();
+                    if (AppSaveInfo.INSTANCE.autoCloseInfo()) officialViewPresenter.dismiss();
                 }
             });
             officialViewPresenter.show();
@@ -644,7 +641,7 @@ public class HookLogic implements IXposedHookLoadPackage {
     private CharSequence getNoMeasuredTextViewText(Object textView) {
         Class clazz = null;
         try {
-            clazz = XposedHelpers.findClass("com.tencent.mm.ui.base.NoMeasuredTextView", RuntimeInfo.mClassLoader);
+            clazz = XposedHelpers.findClass("com.tencent.mm.ui.base.NoMeasuredTextView", RuntimeInfo.INSTANCE.getMClassLoader());
 
             Field field = clazz.getDeclaredField("mText");
             field.setAccessible(true);
@@ -836,7 +833,7 @@ public class HookLogic implements IXposedHookLoadPackage {
     private boolean isOfficialConversation(Object value, Object messageStatus) {
         String username = XposedHelpers.getObjectField(messageStatus, Constants.Value_Message_Bean_NickName).toString();
 
-        ArrayList<String> list = AppSaveInfoUtils.INSTANCE.getWhiteList("white_list_official");
+        ArrayList<String> list = AppSaveInfo.INSTANCE.getWhiteList("white_list_official");
 
         boolean wcY = XposedHelpers.getBooleanField(messageStatus, Value_Message_Status_Is_OFFICIAL_1);
         int wcU = XposedHelpers.getIntField(messageStatus, Value_Message_Status_Is_OFFICIAL_2);
@@ -860,7 +857,7 @@ public class HookLogic implements IXposedHookLoadPackage {
         boolean uyI = XposedHelpers.getBooleanField(messageStatus, Value_Message_Status_Is_Mute_1);
         boolean uXX = XposedHelpers.getBooleanField(messageStatus, Value_Message_Status_Is_Mute_2);
 
-        ArrayList<String> list = AppSaveInfoUtils.INSTANCE.getWhiteList("white_list_chat_room");
+        ArrayList<String> list = AppSaveInfo.INSTANCE.getWhiteList("white_list_chat_room");
 
         String username = XposedHelpers.getObjectField(messageStatus, Constants.Value_Message_Bean_NickName).toString();
 
@@ -868,7 +865,7 @@ public class HookLogic implements IXposedHookLoadPackage {
         //这是个群聊
         if (uXX) {
             //搜集所有群聊的标记
-            if (AppSaveInfoUtils.INSTANCE.chatRoomTypeInfo().equals("1")) {
+            if (AppSaveInfo.INSTANCE.chatRoomTypeInfo().equals("1")) {
                 allChatRoomNickNameEntries.add(username);
                 for (String s : list) {
                     if (s.trim().equals(username)) return false;
@@ -890,7 +887,7 @@ public class HookLogic implements IXposedHookLoadPackage {
 
     public static void setAvatar(ImageView avatar, String field_username) {
         try {
-            XposedHelpers.callStaticMethod(Class.forName(Class_Set_Avatar, false, RuntimeInfo.mClassLoader),
+            XposedHelpers.callStaticMethod(Class.forName(Class_Set_Avatar, false, RuntimeInfo.INSTANCE.getMClassLoader()),
                     Constants.Method_Conversation_List_Get_Avatar, avatar, field_username);
         } catch (Throwable e) {
             e.printStackTrace();
@@ -902,7 +899,7 @@ public class HookLogic implements IXposedHookLoadPackage {
                 String.class, String.class, Object[].class, new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                        if (!AppSaveInfoUtils.INSTANCE.openInfo()) return;
+                        if (!AppSaveInfo.INSTANCE.openInfo()) return;
 
                         String desc = String.valueOf(param.args[1]);
                         Object[] objArr = (Object[]) param.args[2];

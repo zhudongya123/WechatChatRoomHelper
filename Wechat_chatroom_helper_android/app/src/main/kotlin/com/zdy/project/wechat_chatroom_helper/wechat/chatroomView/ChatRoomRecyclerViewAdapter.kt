@@ -11,8 +11,8 @@ import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.zdy.project.wechat_chatroom_helper.HookLogic
 import com.zdy.project.wechat_chatroom_helper.R
-import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel
-import utils.AppSaveInfoUtils
+import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
+import utils.AppSaveInfo
 import java.util.*
 
 /**
@@ -85,10 +85,10 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
             return@setOnLongClickListener true
         }
 
-        holder.nickname.setTextColor(Color.parseColor("#" + AppSaveInfoUtils.nicknameColorInfo()))
-        holder.content.setTextColor(Color.parseColor("#" + AppSaveInfoUtils.contentColorInfo()))
-        holder.time.setTextColor(Color.parseColor("#" + AppSaveInfoUtils.timeColorInfo()))
-        holder.divider.setBackgroundColor(Color.parseColor("#" + AppSaveInfoUtils.dividerColorInfo()))
+        holder.nickname.setTextColor(Color.parseColor("#" + AppSaveInfo.nicknameColorInfo()))
+        holder.content.setTextColor(Color.parseColor("#" + AppSaveInfo.contentColorInfo()))
+        holder.time.setTextColor(Color.parseColor("#" + AppSaveInfo.timeColorInfo()))
+        holder.divider.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.dividerColorInfo()))
     }
 
     override fun getItemCount(): Int {

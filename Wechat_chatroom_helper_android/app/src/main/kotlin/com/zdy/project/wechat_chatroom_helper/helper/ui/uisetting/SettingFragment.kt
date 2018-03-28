@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.zdy.project.wechat_chatroom_helper.R
-import com.zdy.project.wechat_chatroom_helper.utils.ColorUtils
+import com.zdy.project.wechat_chatroom_helper.helper.utils.ColorUtils
 
 /**
  * 此类为 UiSetting 中的设置 Fragment

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.zdy.project.wechat_chatroom_helper.utils
+package com.zdy.project.wechat_chatroom_helper.helper.utils
 
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
