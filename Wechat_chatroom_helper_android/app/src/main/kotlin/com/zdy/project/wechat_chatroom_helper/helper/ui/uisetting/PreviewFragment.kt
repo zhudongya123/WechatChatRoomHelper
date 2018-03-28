@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.ui.helper.uisetting
+package com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting
 
 import android.content.Context
 import android.graphics.Color
@@ -15,7 +15,7 @@ import android.view.ViewGroup
 import android.widget.*
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel
-import com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView.ChatRoomRecyclerViewAdapter
+import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomRecyclerViewAdapter
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import utils.AppSaveInfoUtils
 

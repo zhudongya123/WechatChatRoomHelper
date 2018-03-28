@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.ui.wechat.dialog
+package com.zdy.project.wechat_chatroom_helper.wechat.dialog
 
 import android.app.Dialog
 import android.content.Context

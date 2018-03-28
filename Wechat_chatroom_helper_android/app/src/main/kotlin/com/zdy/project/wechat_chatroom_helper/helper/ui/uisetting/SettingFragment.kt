@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.ui.helper.uisetting
+package com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting
 
 import android.arch.lifecycle.Observer
 import android.content.Context
@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.zdy.project.wechat_chatroom_helper.R
-import com.zdy.project.wechat_chatroom_helper.ui.helper.dialog.ChooseColorDialogHelper
 import com.zdy.project.wechat_chatroom_helper.utils.ColorUtils
 
 /**

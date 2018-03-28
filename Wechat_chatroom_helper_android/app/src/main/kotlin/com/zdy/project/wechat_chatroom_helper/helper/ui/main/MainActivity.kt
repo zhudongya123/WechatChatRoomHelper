@@ -14,7 +14,7 @@ import android.widget.TextView
 import com.google.gson.JsonParser
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
-import com.zdy.project.wechat_chatroom_helper.ui.helper.uisetting.UISettingActivity
+import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActivity
 import manager.PermissionHelper
 import network.ApiManager
 import utils.AppSaveInfoUtils

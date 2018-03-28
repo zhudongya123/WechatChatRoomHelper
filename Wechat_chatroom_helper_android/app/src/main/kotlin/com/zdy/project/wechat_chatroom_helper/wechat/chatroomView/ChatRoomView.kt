@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView
+package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 
 import android.content.Context
 import android.graphics.Color
@@ -16,11 +16,10 @@ import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout
 import com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Arrow
 import com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Setting
 import com.zdy.project.wechat_chatroom_helper.HookLogic
-import com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType
 import com.zdy.project.wechat_chatroom_helper.model.ChatInfoModel
-import com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.RuntimeInfo
-import com.zdy.project.wechat_chatroom_helper.ui.wechat.dialog.ConfigChatRoomDialog
-import com.zdy.project.wechat_chatroom_helper.ui.wechat.dialog.WhiteListDialog
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.dialog.ConfigChatRoomDialog
+import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialog
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.LogUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
@@ -90,7 +89,7 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
             }
 
             override fun onPanelOpened(panel: View) {
-                RuntimeInfo.changeCurrentPage(com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType.MAIN)
+                RuntimeInfo.changeCurrentPage(com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.MAIN)
             }
 
             override fun onPanelClosed(panel: View) {
@@ -140,7 +139,7 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
                     mAdapter.data = data
                     mAdapter.notifyItemChanged(i)
 
-                    LogUtils.log("showMessageRefresh for one recycler view , pageType = " + com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType.printPageType(pageType))
+                    LogUtils.log("showMessageRefresh for one recycler view , pageType = " + com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.printPageType(pageType))
                     return@Runnable
                 }
             }
@@ -151,8 +150,8 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
     override fun showMessageRefresh(muteListInAdapterPositions: ArrayList<Int>) {
         val currentPage = RuntimeInfo.currentPage
         when (currentPage) {
-            com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType.CHAT_ROOMS, com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType.CHATTING_WITH_CHAT_ROOMS -> if (pageType == com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType.OFFICIAL) return
-            com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType.OFFICIAL, com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType.CHATTING_WITH_OFFICIAL -> if (pageType == com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType.CHAT_ROOMS) return
+            com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.CHAT_ROOMS, com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.CHATTING_WITH_CHAT_ROOMS -> if (pageType == com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.OFFICIAL) return
+            com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.OFFICIAL, com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.CHATTING_WITH_OFFICIAL -> if (pageType == com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.CHAT_ROOMS) return
         }
 
         val data = muteListInAdapterPositions
@@ -164,7 +163,7 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
 
         mAdapter.notifyDataSetChanged()
 
-        LogUtils.log("showMessageRefresh for all recycler view , pageType = " + com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType.printPageType(pageType))
+        LogUtils.log("showMessageRefresh for all recycler view , pageType = " + com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.printPageType(pageType))
     }
 
 
@@ -185,8 +184,8 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
 
 
         when (pageType) {
-            com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType.CHAT_ROOMS -> mToolbar.title = "群消息助手"
-            com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType.OFFICIAL -> mToolbar.title = "服务号助手"
+            com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.CHAT_ROOMS -> mToolbar.title = "群消息助手"
+            com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.OFFICIAL -> mToolbar.title = "服务号助手"
         }
         mToolbar.setTitleTextColor(-0x50506)
 
@@ -224,14 +223,14 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
 
         imageView.setOnClickListener {
             when (pageType) {
-                com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType.OFFICIAL -> {
+                com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.OFFICIAL -> {
                     val dialog = WhiteListDialog(mContext)
                     dialog.list = HookLogic.officialNickNameEntries
-                    dialog.pageType = com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType.OFFICIAL
+                    dialog.pageType = com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.OFFICIAL
                     dialog.setOnClickListener(View.OnClickListener { XposedHelpers.callMethod(mPresenter.originAdapter, "notifyDataSetChanged") })
                     dialog.show()
                 }
-                com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType.CHAT_ROOMS -> {
+                com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.CHAT_ROOMS -> {
                     val configChatRoomDialog = ConfigChatRoomDialog(mContext)
                     configChatRoomDialog.setOnModeChangedListener(object : ConfigChatRoomDialog.OnModeChangedListener {
                         override fun onChanged() {
@@ -247,7 +246,7 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
                             else
                                 dialog.list = HookLogic.muteChatRoomNickNameEntries
 
-                            dialog.pageType = com.zdy.project.wechat_chatroom_helper.ui.wechat.manager.PageType.CHAT_ROOMS
+                            dialog.pageType = com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.CHAT_ROOMS
                             dialog.setOnClickListener(View.OnClickListener { XposedHelpers.callMethod(mPresenter.originAdapter, "notifyDataSetChanged") })
                             dialog.show()
 

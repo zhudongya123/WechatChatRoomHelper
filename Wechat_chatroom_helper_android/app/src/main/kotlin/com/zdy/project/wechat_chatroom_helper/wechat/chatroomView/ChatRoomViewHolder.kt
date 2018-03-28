@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.ui.wechat.chatroomView
+package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 
 import android.support.v7.widget.RecyclerView
 import android.view.View

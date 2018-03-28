@@ -38,7 +38,7 @@
         </activity-alias>
 
 
-        <activity android:name=".ui.helper.uisetting.UISettingActivity"/>
+        <activity android:name="com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActivity"/>
 
         <meta-data
             android:name="xposedmodule"

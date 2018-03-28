@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.ui.helper.uisetting
+package com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
