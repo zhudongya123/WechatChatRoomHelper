@@ -15,12 +15,12 @@ object RuntimeInfo {
         currentPage = page
 
         when (currentPage) {
-            com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.CHATTING -> LogUtils.log("currentPage = CHATTING")
-            com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.CHATTING_WITH_CHAT_ROOMS -> LogUtils.log("currentPage = CHATTING_WITH_CHAT_ROOMS")
-            com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.CHATTING_WITH_OFFICIAL -> LogUtils.log("currentPage = CHATTING_WITH_OFFICIAL")
-            com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.CHAT_ROOMS -> LogUtils.log("currentPage = CHAT_ROOMS")
-            com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.OFFICIAL -> LogUtils.log("currentPage = OFFICIAL")
-            com.zdy.project.wechat_chatroom_helper.wechat.manager.PageType.MAIN -> LogUtils.log("currentPage = MAIN")
+            PageType.CHATTING -> LogUtils.log("currentPage = CHATTING")
+            PageType.CHATTING_WITH_CHAT_ROOMS -> LogUtils.log("currentPage = CHATTING_WITH_CHAT_ROOMS")
+            PageType.CHATTING_WITH_OFFICIAL -> LogUtils.log("currentPage = CHATTING_WITH_OFFICIAL")
+            PageType.CHAT_ROOMS -> LogUtils.log("currentPage = CHAT_ROOMS")
+            PageType.OFFICIAL -> LogUtils.log("currentPage = OFFICIAL")
+            PageType.MAIN -> LogUtils.log("currentPage = MAIN")
 
         }
     }
