@@ -23,8 +23,6 @@ android {
 dependencies {
     provided files('libs/XposedBridgeApi-82.jar')
     provided files('libs/XposedBridgeApi-82-sources.jar')
-
-
     compile files('libs/gson-2.7.jar')
     compile "com.android.support:recyclerview-v7:$rootProject.ext.supportLibVersion"
     compile "com.android.support:appcompat-v7:$rootProject.ext.supportLibVersion"
@@ -32,8 +30,8 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     compile "android.arch.lifecycle:extensions:$rootProject.archLifecycleVersion"
-
-    implementation project(':swipebackLibrary')
+    implementation project(':swipeBackLibrary')
+    implementation project(':WechatSpellbook')
 }
 repositories {
     mavenCentral()
