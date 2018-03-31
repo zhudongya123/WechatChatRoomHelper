@@ -43,7 +43,7 @@ class PreviewFragment : Fragment() {
         thisActivity = context as UISettingActivity
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mRootView = (LayoutInflater.from(thisActivity).inflate(R.layout.fragment_preview, container, false) as ViewGroup)
                 .apply {
                     findViewById<LinearLayout>(R.id.fragment_preview_content)

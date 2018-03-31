@@ -33,7 +33,8 @@ class SettingFragment : Fragment() {
         thisActivity = context as UISettingActivity
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         contentLayout = LinearLayout(thisActivity).apply { orientation = LinearLayout.VERTICAL }
 

@@ -3,6 +3,7 @@ package utils
 import android.app.Activity
 import android.content.Intent
 import android.os.Environment
+import android.util.Log
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.zdy.project.wechat_chatroom_helper.Constants
@@ -138,6 +139,7 @@ class FileUtils {
         }
 
         private fun putFileString(string: String) {
+            Log.v("FileUtils", "putFileString = $string")
             try {
                 val fos = FileOutputStream(File(configPath))
                 fos.write(string.toByteArray())
