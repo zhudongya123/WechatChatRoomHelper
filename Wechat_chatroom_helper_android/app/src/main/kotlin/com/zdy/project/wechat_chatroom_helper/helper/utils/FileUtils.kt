@@ -135,6 +135,13 @@ class FileUtils {
             fis.read(buffer)
             val res = String(buffer, Charset.forName("UTF-8"))
             fis.close()
+            Log.v("FileUtils", "getFileString = $res")
+
+            try {
+                throw Exception()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
             return res
         }
 

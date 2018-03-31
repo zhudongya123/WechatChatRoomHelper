@@ -62,7 +62,8 @@ object AppSaveInfo {
     }
 
     fun openInfo(): Boolean {
-        return FileUtils.getJsonValue(OPEN, true)
+//        return FileUtils.getJsonValue(OPEN, true)
+    return false
     }
 
     fun setOpen(value: Boolean) {

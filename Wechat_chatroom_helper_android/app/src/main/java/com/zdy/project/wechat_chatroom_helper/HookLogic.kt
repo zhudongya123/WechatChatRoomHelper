@@ -87,7 +87,7 @@ class HookLogic : IXposedHookLoadPackage {
     @Throws(Throwable::class)
     override fun handleLoadPackage(loadPackageParam: XC_LoadPackage.LoadPackageParam) {
 
-        if (loadPackageParam.packageName != WECHAT_PACKAGE_NAME) return
+        if (loadPackageParam.processName != WECHAT_PACKAGE_NAME) return
 
         if (!AppSaveInfo.initVariableName()) return //判断是否获取了配置
 
@@ -296,17 +296,19 @@ class HookLogic : IXposedHookLoadPackage {
                     maskViewPosition = 3
                 }
 
-                LogUtils.log("FitSystemWindowLayoutView Constructor")
 
-                chattingView = fitSystemWindowLayoutView.getChildAt(chattingViewPosition)
                 if (fitSystemWindowLayoutView.childCount != fitWindowChildCount) return
                 if (fitSystemWindowLayoutView.getChildAt(0) !is LinearLayout) return
-                if (chattingView.javaClass.simpleName != "TestTimeForChatting") return
 
+                chattingView = fitSystemWindowLayoutView.getChildAt(chattingViewPosition)
+
+
+                if (chattingView.javaClass.simpleName != "TestTimeForChatting") return
                 if (chatRoomViewPresenter == null)
                     chatRoomViewPresenter = ChatRoomViewPresenter(context!!, PageType.CHAT_ROOMS)
                 if (officialViewPresenter == null)
                     officialViewPresenter = ChatRoomViewPresenter(context!!, PageType.OFFICIAL)
+
 
                 val chatRoomViewParent = chatRoomViewPresenter!!.presenterView.parent
                 if (chatRoomViewParent != null) {
@@ -820,7 +822,7 @@ class HookLogic : IXposedHookLoadPackage {
                 String::class.java, String::class.java, Array<Any>::class.java, object : XC_MethodHook() {
             @Throws(Throwable::class)
             override fun afterHookedMethod(param: XC_MethodHook.MethodHookParam) {
-                if (!AppSaveInfo.openInfo()) return
+              // if (!AppSaveInfo.openInfo()) return
 
                 try {
                     val desc = param.args[1].toString()

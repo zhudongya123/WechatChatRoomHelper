@@ -140,7 +140,7 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
                     mAdapter.data = data
                     mAdapter.notifyItemChanged(i)
 
-                    LogUtils.log("showMessageRefresh for one recycler view , pageType = " + PageType.printPageType(pageType))
+                //    LogUtils.log("showMessageRefresh for one recycler view , pageType = " + PageType.printPageType(pageType))
                     return@Runnable
                 }
             }
