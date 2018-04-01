@@ -90,7 +90,7 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
             }
 
             override fun onPanelOpened(panel: View) {
-                RuntimeInfo.changeCurrentPage(PageType.MAIN)
+              //  RuntimeInfo.changeCurrentPage(PageType.MAIN)
             }
 
             override fun onPanelClosed(panel: View) {
@@ -149,7 +149,7 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
 
 
     override fun showMessageRefresh(muteListInAdapterPositions: ArrayList<Int>) {
-        val currentPage = RuntimeInfo.currentPage
+        val currentPage = 0//RuntimeInfo.currentPage
         when (currentPage) {
             PageType.CHAT_ROOMS, PageType.CHATTING_WITH_CHAT_ROOMS -> if (pageType == PageType.OFFICIAL) return
             PageType.OFFICIAL, PageType.CHATTING_WITH_OFFICIAL -> if (pageType == PageType.CHAT_ROOMS) return

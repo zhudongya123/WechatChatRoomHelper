@@ -17,7 +17,28 @@ import android.widget.AdapterView
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
-import com.zdy.project.wechat_chatroom_helper.Constants.*
+import com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_Adapter_OnItemClickListener_Name
+import com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_Name
+import com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_Parent_Name
+import com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_SimpleName
+import com.zdy.project.wechat_chatroom_helper.Constants.Class_Set_Avatar
+import com.zdy.project.wechat_chatroom_helper.Constants.Class_Tencent_Log
+import com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object
+import com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_1
+import com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_2
+import com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_3
+import com.zdy.project.wechat_chatroom_helper.Constants.Method_Conversation_List_View_Adapter_Param
+import com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_Status_Bean
+import com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView
+import com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Avatar
+import com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Content
+import com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Title
+import com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_Mute_1
+import com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_Mute_2
+import com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_OFFICIAL_1
+import com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_OFFICIAL_2
+import com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_OFFICIAL_3
+import com.zdy.project.wechat_chatroom_helper.Constants.WECHAT_PACKAGE_NAME
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.utils.SoftKeyboardUtil
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomRecyclerViewAdapter
@@ -93,7 +114,7 @@ class HookLogic : IXposedHookLoadPackage {
 
         if (!AppSaveInfo.openInfo()) return
 
-        RuntimeInfo.mClassLoader = loadPackageParam.classLoader
+        // RuntimeInfo.mClassLoader = loadPackageParam.classLoader
 
         findAndHookConstructor("com.tencent.mm.ui.HomeUI.FitSystemWindowLayoutView",
                 loadPackageParam.classLoader, Context::class.java, object : XC_MethodHook() {
@@ -447,7 +468,7 @@ class HookLogic : IXposedHookLoadPackage {
                 }
             })
             chatRoomViewPresenter!!.show()
-            RuntimeInfo.changeCurrentPage(PageType.CHAT_ROOMS)
+            //RuntimeInfo.changeCurrentPage(PageType.CHAT_ROOMS)
             param.result = null
         }
 
@@ -466,7 +487,7 @@ class HookLogic : IXposedHookLoadPackage {
                 }
             })
             officialViewPresenter!!.show()
-            RuntimeInfo.changeCurrentPage(PageType.OFFICIAL)
+         //   RuntimeInfo.changeCurrentPage(PageType.OFFICIAL)
             param.result = null
         }
     }
@@ -586,7 +607,7 @@ class HookLogic : IXposedHookLoadPackage {
     private fun getNoMeasuredTextViewText(textView: Any): CharSequence {
         var clazz: Class<*>? = null
         try {
-            clazz = XposedHelpers.findClass("com.tencent.mm.ui.base.NoMeasuredTextView", RuntimeInfo.mClassLoader)
+           // clazz = XposedHelpers.findClass("com.tencent.mm.ui.base.NoMeasuredTextView", RuntimeInfo.mClassLoader)
 
             val field = clazz!!.getDeclaredField("mText")
             field.isAccessible = true
@@ -822,7 +843,7 @@ class HookLogic : IXposedHookLoadPackage {
                 String::class.java, String::class.java, Array<Any>::class.java, object : XC_MethodHook() {
             @Throws(Throwable::class)
             override fun afterHookedMethod(param: XC_MethodHook.MethodHookParam) {
-              // if (!AppSaveInfo.openInfo()) return
+                // if (!AppSaveInfo.openInfo()) return
 
                 try {
                     val desc = param.args[1].toString()
@@ -839,21 +860,21 @@ class HookLogic : IXposedHookLoadPackage {
                     if (desc.contains("closeChatting")) {
                         isInChatting = false
                         LogUtils.log("closeChatting")
-                        when (RuntimeInfo.currentPage) {
-                            PageType.CHATTING_WITH_OFFICIAL -> RuntimeInfo.changeCurrentPage(PageType.OFFICIAL)
-                            PageType.CHATTING_WITH_CHAT_ROOMS -> RuntimeInfo.changeCurrentPage(PageType.CHAT_ROOMS)
-                            PageType.CHATTING -> RuntimeInfo.changeCurrentPage(PageType.MAIN)
-                        }
+//                        when (RuntimeInfo.currentPage) {
+//                            PageType.CHATTING_WITH_OFFICIAL -> RuntimeInfo.changeCurrentPage(PageType.OFFICIAL)
+//                            PageType.CHATTING_WITH_CHAT_ROOMS -> RuntimeInfo.changeCurrentPage(PageType.CHAT_ROOMS)
+//                            PageType.CHATTING -> RuntimeInfo.changeCurrentPage(PageType.MAIN)
+//                        }
                     }
                     if (desc.contains("startChatting")) {
                         isInChatting = true
                         LogUtils.log("startChatting")
 
-                        when (RuntimeInfo.currentPage) {
-                            PageType.OFFICIAL -> RuntimeInfo.changeCurrentPage(PageType.CHATTING_WITH_OFFICIAL)
-                            PageType.CHAT_ROOMS -> RuntimeInfo.changeCurrentPage(PageType.CHATTING_WITH_CHAT_ROOMS)
-                            PageType.MAIN -> RuntimeInfo.changeCurrentPage(PageType.CHATTING)
-                        }
+//                        when (RuntimeInfo.currentPage) {
+//                            PageType.OFFICIAL -> RuntimeInfo.changeCurrentPage(PageType.CHATTING_WITH_OFFICIAL)
+//                            PageType.CHAT_ROOMS -> RuntimeInfo.changeCurrentPage(PageType.CHATTING_WITH_CHAT_ROOMS)
+//                            PageType.MAIN -> RuntimeInfo.changeCurrentPage(PageType.CHATTING)
+//                        }
                     }
 
                     //收到新消息
@@ -899,12 +920,12 @@ class HookLogic : IXposedHookLoadPackage {
         }
 
         fun setAvatar(avatar: ImageView, field_username: String) {
-            try {
-                XposedHelpers.callStaticMethod(Class.forName(Class_Set_Avatar, false, RuntimeInfo.mClassLoader),
-                        Constants.Method_Conversation_List_Get_Avatar, avatar, field_username)
-            } catch (e: Throwable) {
-                e.printStackTrace()
-            }
+//            try {
+//                XposedHelpers.callStaticMethod(Class.forName(Class_Set_Avatar, false, RuntimeInfo.mClassLoader),
+//                        Constants.Method_Conversation_List_Get_Avatar, avatar, field_username)
+//            } catch (e: Throwable) {
+//                e.printStackTrace()
+//            }
 
         }
     }

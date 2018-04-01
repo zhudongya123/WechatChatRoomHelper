@@ -2,6 +2,7 @@ package com.zdy.project.wechat_chatroom_helper.wechat.manager
 
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
+import utils.AppSaveInfo
 
 /**
  *  存储一些运行时的状态和消息
@@ -10,22 +11,32 @@ import com.zdy.project.wechat_chatroom_helper.PageType
  */
 object RuntimeInfo {
 
-    var mClassLoader: ClassLoader? = null
 
-    var currentPage = 0
+    var isOpen = false
+    var hasSuitWechatData = false
+    var isCircleAvatar = false
+    var isAutoClose = false
 
-    fun changeCurrentPage(page: Int) {
-        currentPage = page
 
-        when (currentPage) {
-            PageType.CHATTING -> LogUtils.log("currentPage = CHATTING")
-            PageType.CHATTING_WITH_CHAT_ROOMS -> LogUtils.log("currentPage = CHATTING_WITH_CHAT_ROOMS")
-            PageType.CHATTING_WITH_OFFICIAL -> LogUtils.log("currentPage = CHATTING_WITH_OFFICIAL")
-            PageType.CHAT_ROOMS -> LogUtils.log("currentPage = CHAT_ROOMS")
-            PageType.OFFICIAL -> LogUtils.log("currentPage = OFFICIAL")
-            PageType.MAIN -> LogUtils.log("currentPage = MAIN")
+    var isPlayVersion = false
+    var helperVersionCode = 0
+    var wechatVersion = 0
 
-        }
+
+    var isOpenLog = false
+
+
+    fun refresh() {
+
+        isOpen = AppSaveInfo.openInfo()
+        hasSuitWechatData = AppSaveInfo.hasSuitWechatDataInfo()
+        isCircleAvatar = AppSaveInfo.isCircleAvatarInfo()
+        isAutoClose = AppSaveInfo.autoCloseInfo()
+
+        isPlayVersion = AppSaveInfo.isPlayVersionInfo()
+        helperVersionCode = AppSaveInfo.helpVersionCodeInfo().toInt()
+        wechatVersion = AppSaveInfo.wechatVersionInfo().toInt()
+
+        isOpenLog = AppSaveInfo.openLogInfo()
     }
-
 }
