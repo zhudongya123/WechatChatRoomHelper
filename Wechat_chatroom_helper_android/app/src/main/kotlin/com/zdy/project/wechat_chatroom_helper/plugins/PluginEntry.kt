@@ -30,11 +30,16 @@ class PluginEntry : IXposedHookLoadPackage {
 
 //        runtimeInfo.refresh()
 
- //       classloader = p0.classLoader
+        //       classloader = p0.classLoader
 
-       // MainLauncherUI.execute()
+        // MainLauncherUI.execute()
 
-        SpellBook.startup(p0, listOf(MainAdapter, MessageHooker), listOf())
+        try {
+
+            SpellBook.startup(p0, listOf(MainAdapter, MessageHooker), listOf())
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
     }
 }

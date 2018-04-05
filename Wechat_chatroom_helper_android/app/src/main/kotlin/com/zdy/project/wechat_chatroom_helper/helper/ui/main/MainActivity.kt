@@ -18,6 +18,11 @@ import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActiv
 import manager.PermissionHelper
 import network.ApiManager
 import utils.AppSaveInfo
+import android.hardware.usb.UsbDevice.getDeviceId
+import android.content.Context.TELEPHONY_SERVICE
+import android.telephony.TelephonyManager
+
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -62,6 +67,10 @@ class MainActivity : AppCompatActivity() {
 
         //加載可配置項的佈局
         initSetting()
+
+
+        val telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
+        val imei = telephonyManager.deviceId
     }
 
     private fun initSetting() {
