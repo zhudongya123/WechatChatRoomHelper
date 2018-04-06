@@ -40,22 +40,22 @@ object MessageHooker : IDatabaseHook {
         if (sql.contains("rconversation.username like '%@chatroom'")) return onDatabaseQueried
         if (sql.contains("( parentRef is null  or parentRef = '' )  and ( 1 != 1  or")) return onDatabaseQueried
         if (sql.contains("(rconversation.username = rcontact.username and rcontact.verifyFlag == 0)")) return onDatabaseQueried
-        if (selectionArgs?.size != 0) return onDatabaseQueried
         if (editTable != null) return onDatabaseQueried
         if (cancellationSignal != null) return onDatabaseQueried
 
 
         try {
-            val sql1 = "select rconversation.unReadCount, rconversation.status, rconversation.isSend, rconversation.conversationTime, rconversation.username, rconversation.content, rconversation.msgType, rconversation.flag, rconversation.digest, rconversation.digestUser, rconversation.attrflag, rconversation.editingMsg, rconversation.atCount, rconversation.unReadMuteCount, rconversation.UnReadInvite\n" +
-                    "    from rconversation, rcontact where  ( parentRef is null  or parentRef = '' )  \n" +
-                    "    and (rconversation.username = rcontact.username and rcontact.verifyFlag == 0)\n" +
-                    "    and ( 1 != 1  or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  \n" +
-                    "    and rconversation.username != 'qmessage' order by flag desc"
+            val sql1 = "select rconversation.unReadCount, status, isSend, conversationTime, rconversation.username,content, " +
+                    "msgType,flag,digest, digestUser,attrflag, editingMsg, atCount,unReadMuteCount,UnReadInvite\n" +
+                    "from rconversation, rcontact where  ( parentRef is null  or parentRef = '' ) \n" +
+                    "and (rconversation.username = rcontact.username and rcontact.verifyFlag == 0)\n" +
+                    "and ( 1 != 1  or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' ) \n" +
+                    "and rconversation.username != 'qmessage' order by flag desc"
 
             Log.v("MessageHooker1", "onDatabaseQueried, thisObject = $thisObject, factory = $factory ,sql = $sql1 " +
                     ",selectionArgs = ${with(selectionArgs) {
                         var string = ""
-                        selectionArgs.forEach {
+                        selectionArgs?.forEach {
                             string += " $it"
 
                         }
