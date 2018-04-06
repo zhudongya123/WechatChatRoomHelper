@@ -69,8 +69,6 @@ class MainActivity : AppCompatActivity() {
         initSetting()
 
 
-        val telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
-        val imei = telephonyManager.deviceId
     }
 
     private fun initSetting() {

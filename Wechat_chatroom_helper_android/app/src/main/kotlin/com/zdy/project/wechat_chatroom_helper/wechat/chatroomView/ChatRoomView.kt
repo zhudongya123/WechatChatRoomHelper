@@ -133,12 +133,12 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
             for (i in data.indices) {
                 val item = data[i]
                 if (item.avatarString == targetUserName) {
-                    val bean = HookLogic.getMessageBeanForOriginIndex(mPresenter.originAdapter,
-                            mAdapter.muteListInAdapterPositions[i])
+//                    val bean = HookLogic.getMessageBeanForOriginIndex(mPresenter.originAdapter,
+//                            mAdapter.muteListInAdapterPositions[i])
 
-                    data[i] = ChatInfoModel.convertFromObject(bean, mPresenter.originAdapter, mContext)
-                    mAdapter.data = data
-                    mAdapter.notifyItemChanged(i)
+//                    data[i] = ChatInfoModel.convertFromObject(bean, mPresenter.originAdapter, mContext)
+//                    mAdapter.data = data
+//                    mAdapter.notifyItemChanged(i)
 
                 //    LogUtils.log("showMessageRefresh for one recycler view , pageType = " + PageType.printPageType(pageType))
                     return@Runnable
@@ -155,12 +155,12 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
             PageType.OFFICIAL, PageType.CHATTING_WITH_OFFICIAL -> if (pageType == PageType.CHAT_ROOMS) return
         }
 
-        val data = muteListInAdapterPositions
-                .map { HookLogic.getMessageBeanForOriginIndex(mPresenter.originAdapter, it) }
-                .mapTo(ArrayList()) { ChatInfoModel.convertFromObject(it, mPresenter.originAdapter, mContext) }
+//        val data = muteListInAdapterPositions
+//                .map { HookLogic.getMessageBeanForOriginIndex(mPresenter.originAdapter, it) }
+//                .mapTo(ArrayList()) { ChatInfoModel.convertFromObject(it, mPresenter.originAdapter, mContext) }
 
         mAdapter.muteListInAdapterPositions = muteListInAdapterPositions
-        mAdapter.data = data
+      //  mAdapter.data = data
 
         mAdapter.notifyDataSetChanged()
 
@@ -225,11 +225,11 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
         imageView.setOnClickListener {
             when (pageType) {
                 PageType.OFFICIAL -> {
-                    val dialog = WhiteListDialog(mContext)
-                    dialog.list = HookLogic.officialNickNameEntries
-                    dialog.pageType = PageType.OFFICIAL
-                    dialog.setOnClickListener(View.OnClickListener { XposedHelpers.callMethod(mPresenter.originAdapter, "notifyDataSetChanged") })
-                    dialog.show()
+//                    val dialog = WhiteListDialog(mContext)
+//                    dialog.list = HookLogic.officialNickNameEntries
+//                    dialog.pageType = PageType.OFFICIAL
+//                    dialog.setOnClickListener(View.OnClickListener { XposedHelpers.callMethod(mPresenter.originAdapter, "notifyDataSetChanged") })
+//                    dialog.show()
                 }
                 PageType.CHAT_ROOMS -> {
                     val configChatRoomDialog = ConfigChatRoomDialog(mContext)
@@ -242,10 +242,10 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
                         override fun onClick() {
                             val dialog = WhiteListDialog(mContext)
 
-                            if (AppSaveInfo.chatRoomTypeInfo() == "1")
-                                dialog.list = HookLogic.allChatRoomNickNameEntries
-                            else
-                                dialog.list = HookLogic.muteChatRoomNickNameEntries
+                         //   if (AppSaveInfo.chatRoomTypeInfo() == "1")
+                           //     dialog.list = HookLogic.allChatRoomNickNameEntries
+                        //    else
+                          //      dialog.list = HookLogic.muteChatRoomNickNameEntries
 
                             dialog.pageType = PageType.CHAT_ROOMS
                             dialog.setOnClickListener(View.OnClickListener { XposedHelpers.callMethod(mPresenter.originAdapter, "notifyDataSetChanged") })

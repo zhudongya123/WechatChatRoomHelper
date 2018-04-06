@@ -48,7 +48,7 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
         holder.time.text = item.time
 
         try {
-            HookLogic.setAvatar(holder.avatar, item.avatarString)
+            //HookLogic.setAvatar(holder.avatar, item.avatarString)
         } catch (e: Throwable) {
             e.printStackTrace()
             holder.avatar.setImageResource(R.mipmap.ic_launcher)

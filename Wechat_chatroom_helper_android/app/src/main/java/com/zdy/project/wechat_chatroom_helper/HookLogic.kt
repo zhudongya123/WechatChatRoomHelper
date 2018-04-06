@@ -1,66 +1,12 @@
 package com.zdy.project.wechat_chatroom_helper
 
-import android.app.Activity
-import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.ShapeDrawable
-import android.graphics.drawable.shapes.Shape
-import android.os.Bundle
-import android.util.AttributeSet
-import android.util.SparseIntArray
-import android.view.*
-import android.widget.AdapterView
-import android.widget.FrameLayout
-import android.widget.ImageView
-import android.widget.LinearLayout
-import com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_Adapter_OnItemClickListener_Name
-import com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_Name
-import com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_Parent_Name
-import com.zdy.project.wechat_chatroom_helper.Constants.Class_Conversation_List_View_Adapter_SimpleName
-import com.zdy.project.wechat_chatroom_helper.Constants.Class_Set_Avatar
-import com.zdy.project.wechat_chatroom_helper.Constants.Class_Tencent_Log
-import com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object
-import com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_1
-import com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_2
-import com.zdy.project.wechat_chatroom_helper.Constants.Method_Adapter_Get_Object_Step_3
-import com.zdy.project.wechat_chatroom_helper.Constants.Method_Conversation_List_View_Adapter_Param
-import com.zdy.project.wechat_chatroom_helper.Constants.Method_Message_Status_Bean
-import com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView
-import com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Avatar
-import com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Content
-import com.zdy.project.wechat_chatroom_helper.Constants.Value_ListView_Adapter_ViewHolder_Title
-import com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_Mute_1
-import com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_Mute_2
-import com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_OFFICIAL_1
-import com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_OFFICIAL_2
-import com.zdy.project.wechat_chatroom_helper.Constants.Value_Message_Status_Is_OFFICIAL_3
-import com.zdy.project.wechat_chatroom_helper.Constants.WECHAT_PACKAGE_NAME
-import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
-import com.zdy.project.wechat_chatroom_helper.utils.SoftKeyboardUtil
-import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomRecyclerViewAdapter
-import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
-import de.robv.android.xposed.IXposedHookLoadPackage
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedHelpers
-import de.robv.android.xposed.XposedHelpers.findAndHookConstructor
-import de.robv.android.xposed.XposedHelpers.findAndHookMethod
-import de.robv.android.xposed.callbacks.XC_LoadPackage
-import utils.AppSaveInfo
-import java.util.*
-
 
 /**
  *
  * Created by zhudo on 2017/7/2.
  */
 
-class HookLogic : IXposedHookLoadPackage {
+class HookLogic {/*: IXposedHookLoadPackage {
 
     //免打扰群组的数据位置
     private val chatRoomListInAdapterPositions = ArrayList<Int>()
@@ -930,4 +876,4 @@ class HookLogic : IXposedHookLoadPackage {
         }
     }
 
-}
+*/}

@@ -36,7 +36,7 @@ class PluginEntry : IXposedHookLoadPackage {
 
         try {
 
-            SpellBook.startup(p0, listOf(MainAdapter, MessageHooker), listOf())
+            SpellBook.startup(p0, listOf( MessageHooker), listOf())
         } catch (e: Exception) {
             e.printStackTrace()
         }
