@@ -22,7 +22,7 @@ object MessageHooker : IDatabaseHook {
 
     override fun onDatabaseQueried(thisObject: Any, factory: Any?, sql: String, selectionArgs: Array<String>?, editTable: String?, cancellationSignal: Any?, result: Any?): Operation<Any?> {
 
-        Log.v("MessageHooker1", "onDatabaseQueried, thisObject = $thisObject, factory = $factory ,sql = $sql " +
+        Log.v("MessageHooker", "onDatabaseQueried, thisObject = $thisObject, factory = $factory ,sql = $sql " +
                 ",selectionArgs = ${with(selectionArgs) {
 
                     when {
@@ -30,9 +30,7 @@ object MessageHooker : IDatabaseHook {
 
                         selectionArgs.isNotEmpty() -> {
                             var string = ""
-                            selectionArgs.forEach {
-                                string += " $it"
-                            }
+                            selectionArgs.forEach { string += " $it" }
                             string
                         }
                         else -> "empty selectionArgs"
@@ -43,7 +41,8 @@ object MessageHooker : IDatabaseHook {
         val onDatabaseQueried = Operation.nop<Any>()
 
 
-        if (sql.contains("( 1 != 1  or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )"))
+        if (sql.contains("digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite") &&
+                sql.contains("( 1 != 1  or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )"))
             try {
                 val sql1 = "select unReadCount, status, isSend, conversationTime, rconversation.username, content, msgType, flag, digest, digestUser, " +
                         "attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite \n" +
@@ -59,9 +58,7 @@ object MessageHooker : IDatabaseHook {
 
                                 selectionArgs.isNotEmpty() -> {
                                     var string = ""
-                                    selectionArgs.forEach {
-                                        string += " $it"
-                                    }
+                                    selectionArgs.forEach { string += " $it" }
                                     string
                                 }
                                 else -> "empty selectionArgs"
