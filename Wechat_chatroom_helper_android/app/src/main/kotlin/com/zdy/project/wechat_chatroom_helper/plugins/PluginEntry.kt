@@ -15,13 +15,17 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 @SuppressLint("StaticFieldLeak")
 class PluginEntry : IXposedHookLoadPackage {
 
-    lateinit var runtimeInfo: RuntimeInfo
 
-    lateinit var classloader: ClassLoader
+    companion object {
 
-    lateinit var chatRoomViewPresenter: ChatRoomViewPresenter
+        lateinit var runtimeInfo: RuntimeInfo
 
-    lateinit var officialViewPresenter: ChatRoomViewPresenter
+        lateinit var classloader: ClassLoader
+
+        lateinit var chatRoomViewPresenter: ChatRoomViewPresenter
+
+        lateinit var officialViewPresenter: ChatRoomViewPresenter
+    }
 
 
     override fun handleLoadPackage(p0: XC_LoadPackage.LoadPackageParam) {
@@ -29,13 +33,12 @@ class PluginEntry : IXposedHookLoadPackage {
         if (p0.processName != Constants.WECHAT_PACKAGE_NAME) return
 
 //        runtimeInfo.refresh()
-
-        //       classloader = p0.classLoader
-
-        // MainLauncherUI.execute()
+//
+//        classloader = p0.classLoader
+//
+//        MainLauncherUI.execute()
 
         try {
-
             SpellBook.startup(p0, listOf( MessageHooker), listOf())
         } catch (e: Exception) {
             e.printStackTrace()

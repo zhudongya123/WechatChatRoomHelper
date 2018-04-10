@@ -24,54 +24,57 @@ object MessageHooker : IDatabaseHook {
 
         Log.v("MessageHooker", "onDatabaseQueried, thisObject = $thisObject, factory = $factory ,sql = $sql " +
                 ",selectionArgs = ${with(selectionArgs) {
-                    var string = ""
-                    selectionArgs?.forEach {
-                        string += " $it"
 
+                    when {
+                        selectionArgs == null -> "null selectionArgs"
+
+                        selectionArgs.isNotEmpty() -> {
+                            var string = ""
+                            selectionArgs.forEach { string += " $it" }
+                            string
+                        }
+                        else -> "empty selectionArgs"
                     }
-                    return@with string
 
                 }}, editTable = $editTable, cancellationSignal = $cancellationSignal")
 
         val onDatabaseQueried = Operation.nop<Any>()
 
-        if (sql.contains("UnReadInvite")) return onDatabaseQueried
-        if (sql.contains("rconversation.username like '%@openim'")) return onDatabaseQueried
-        if (sql.contains("rconversation.username like '%@chatroom'")) return onDatabaseQueried
-        if (sql.contains("( parentRef is null  or parentRef = '' )  and ( 1 != 1  or")) return onDatabaseQueried
-        if (sql.contains("(rconversation.username = rcontact.username and rcontact.verifyFlag == 0)")) return onDatabaseQueried
-        if (editTable != null) return onDatabaseQueried
-        if (cancellationSignal != null) return onDatabaseQueried
 
+        if (sql.contains("digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite") &&
+                sql.contains("( 1 != 1  or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )"))
+            try {
+                val sql1 = "select unReadCount, status, isSend, conversationTime, rconversation.username, content, msgType, flag, digest, digestUser, " +
+                        "attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite \n" +
+                        "from rconversation, rcontact where  ( parentRef is null  or parentRef = '' )  \n" +
+                        "and (rconversation.username = rcontact.username and rcontact.verifyFlag = 0)\n" +
+                        "and ( 1 != 1 or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  \n" +
+                        "and rconversation.username != 'qmessage' order by flag desc"
 
-        try {
-            val sql1 = "select rconversation.unReadCount, status, isSend, conversationTime, rconversation.username,content, " +
-                    "msgType,flag,digest, digestUser,attrflag, editingMsg, atCount,unReadMuteCount,UnReadInvite\n" +
-                    "from rconversation, rcontact where  ( parentRef is null  or parentRef = '' ) \n" +
-                    "and (rconversation.username = rcontact.username and rcontact.verifyFlag == 0)\n" +
-                    "and ( 1 != 1  or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' ) \n" +
-                    "and rconversation.username != 'qmessage' order by flag desc"
+                Log.v("MessageHooker1", "onDatabaseQueried, thisObject = $thisObject, factory = $factory ,sql = $sql1 " +
+                        ",selectionArgs = ${with(selectionArgs) {
+                            when {
+                                selectionArgs == null -> "null selectionArgs"
 
-            Log.v("MessageHooker1", "onDatabaseQueried, thisObject = $thisObject, factory = $factory ,sql = $sql1 " +
-                    ",selectionArgs = ${with(selectionArgs) {
-                        var string = ""
-                        selectionArgs?.forEach {
-                            string += " $it"
+                                selectionArgs.isNotEmpty() -> {
+                                    var string = ""
+                                    selectionArgs.forEach { string += " $it" }
+                                    string
+                                }
+                                else -> "empty selectionArgs"
+                            }
 
-                        }
-                        return@with string
+                        }}, editTable = $editTable, cancellationSignal = $cancellationSignal")
 
-                    }}, editTable = $editTable, cancellationSignal = $cancellationSignal")
+                val result = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, sql1, selectionArgs, editTable, cancellationSignal)
 
-            val result = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, sql1, null, editTable, cancellationSignal)
+                return Operation(result, 0, true)
 
-            return Operation(result, 0, true)
-
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return onDatabaseQueried
-        }
-
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return onDatabaseQueried
+            }
+        else return onDatabaseQueried
 
     }
 
