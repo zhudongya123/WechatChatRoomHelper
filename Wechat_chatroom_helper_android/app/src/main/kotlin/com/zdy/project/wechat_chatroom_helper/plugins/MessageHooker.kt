@@ -13,6 +13,8 @@ object MessageHooker : IDatabaseHook {
 
     private var flag = true
 
+    private var SqlForGetFristOfficial = "select rconversation.username from rconversation,rcontact where (rconversation.username = rcontact.username and rcontact.verifyFlag != 0 ) order by flag desc limit 1"
+    private var SqlForGetFristChatroom = "select username from rconversation where  rconversation.username like '%@chatroom' order by flag desc limit 1"
 
     override fun onDatabaseOpened(path: String, factory: Any?, flags: Int, errorHandler: Any?, result: Any?): Operation<Any?> {
 
@@ -41,14 +43,16 @@ object MessageHooker : IDatabaseHook {
         val onDatabaseQueried = Operation.nop<Any>()
 
 
-        if (sql.contains("digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite") &&
-                sql.contains("( 1 != 1  or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )"))
+        var other = "digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite"
+        var other1 = "( 1 != 1  or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )"
+        if (sql.contains(other) &&
+                sql.contains(other1))
             try {
                 val sql1 = "select unReadCount, status, isSend, conversationTime, rconversation.username, content, msgType, flag, digest, digestUser, " +
-                        "attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite \n" +
-                        "from rconversation, rcontact where  ( parentRef is null  or parentRef = '' )  \n" +
-                        "and (rconversation.username = rcontact.username and rcontact.verifyFlag = 0)\n" +
-                        "and ( 1 != 1 or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  \n" +
+                        "attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite " +
+                        "from rconversation, rcontact where  ( parentRef is null  or parentRef = '' )  " +
+                        "and (rconversation.username = rcontact.username and rcontact.verifyFlag = 0)" +
+                        "and ( 1 != 1 or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  " +
                         "and rconversation.username != 'qmessage' order by flag desc"
 
                 Log.v("MessageHooker1", "onDatabaseQueried, thisObject = $thisObject, factory = $factory ,sql = $sql1 " +

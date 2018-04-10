@@ -30,6 +30,8 @@ object MainLauncherUI : IActivityHook {
         hookAllConstructors(PluginEntry.classloader.loadClass(Constants.FitSystemWindowLayoutView), object : XC_MethodHook() {
 
             override fun afterHookedMethod(param: MethodHookParam) {
+
+
                 super.afterHookedMethod(param)
 
 
