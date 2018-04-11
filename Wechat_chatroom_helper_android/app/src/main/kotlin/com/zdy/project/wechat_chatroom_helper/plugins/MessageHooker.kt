@@ -48,9 +48,8 @@ object MessageHooker : IDatabaseHook {
         if (sql.contains(other) && sql.contains(other1))
             try {
 
-
-                var cursorForOfficial = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, SqlForGetFirstOfficial, null, null) as Cursor
-                var cursorForChatroom = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, SqlForGetFirstChatroom, null, null) as Cursor
+                val cursorForOfficial = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, SqlForGetFirstOfficial, null, null) as Cursor
+                val cursorForChatroom = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, SqlForGetFirstChatroom, null, null) as Cursor
 
                 cursorForOfficial.moveToNext()
                 val firstOfficial = cursorForOfficial.getString(0)
