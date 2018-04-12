@@ -3,6 +3,7 @@ package     com.zdy.project.wechat_chatroom_helper.plugins
 import android.annotation.SuppressLint
 import com.gh0u1l5.wechatmagician.spellbook.SpellBook
 import com.zdy.project.wechat_chatroom_helper.Constants
+import com.zdy.project.wechat_chatroom_helper.plugins.log.LogRecord
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
 import de.robv.android.xposed.IXposedHookLoadPackage
@@ -36,7 +37,8 @@ class PluginEntry : IXposedHookLoadPackage {
 //
 //        classloader = p0.classLoader
 //
-//        MainLauncherUI.execute()
+  //      MainLauncherUI.execute()
+
 
         try {
             SpellBook.startup(p0, listOf( MessageHooker), listOf())
@@ -44,5 +46,6 @@ class PluginEntry : IXposedHookLoadPackage {
             e.printStackTrace()
         }
 
+        LogRecord.executeHook()
     }
 }
