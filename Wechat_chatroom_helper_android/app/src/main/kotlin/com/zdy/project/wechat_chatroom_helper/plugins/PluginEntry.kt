@@ -19,7 +19,7 @@ class PluginEntry : IXposedHookLoadPackage {
 
     companion object {
 
-        lateinit var runtimeInfo: RuntimeInfo
+      //  lateinit var runtimeInfo: RuntimeInfo
 
         lateinit var classloader: ClassLoader
 

@@ -48,7 +48,7 @@ object MainLauncherUI : IActivityHook {
                         /*
                          * 微信在某个版本之后 View 数量发生变化，下标也要相应刷新
                          **/
-                        if (isWechatHighVersion(PluginEntry.runtimeInfo.wechatVersion)) {
+                        if (isWechatHighVersion(1140)) {
                             fitWindowChildCount = 3
                             chattingViewPosition = 2
                             chatRoomViewPosition = 2

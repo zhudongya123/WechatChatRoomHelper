@@ -1,7 +1,5 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.manager
 
-import com.zdy.project.wechat_chatroom_helper.LogUtils
-import com.zdy.project.wechat_chatroom_helper.PageType
 import utils.AppSaveInfo
 
 /**
@@ -23,8 +21,11 @@ object RuntimeInfo {
     var wechatVersion = 0
 
 
-    var isOpenLog = false
+    var isOpenLog = true
 
+    init {
+        refresh()
+    }
 
     fun refresh() {
 

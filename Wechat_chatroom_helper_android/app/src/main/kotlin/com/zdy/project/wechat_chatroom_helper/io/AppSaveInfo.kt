@@ -54,7 +54,7 @@ object AppSaveInfo {
     }
 
     fun openLogInfo(): Boolean {
-        return FileUtils.getJsonValue(OPEN_LOG, false)
+        return FileUtils.getJsonValue(OPEN_LOG, true)
     }
 
     fun setOpenLog(value: Boolean) {
