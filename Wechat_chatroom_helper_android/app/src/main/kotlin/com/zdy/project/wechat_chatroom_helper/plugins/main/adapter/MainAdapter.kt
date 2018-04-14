@@ -1,12 +1,17 @@
-package com.zdy.project.wechat_chatroom_helper.plugins
+package com.zdy.project.wechat_chatroom_helper.plugins.main.adapter
 
 import android.content.ContentValues
+import android.view.View
+import android.view.ViewGroup
 import android.widget.BaseAdapter
 import com.gh0u1l5.wechatmagician.spellbook.base.Operation
 import com.gh0u1l5.wechatmagician.spellbook.interfaces.IAdapterHook
 import com.gh0u1l5.wechatmagician.spellbook.interfaces.IDatabaseHook
+import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.Methods.MMBaseAdapter_getItemInternal
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.conversation.Classes
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
 
 /**
@@ -36,34 +41,51 @@ object MainAdapter : IAdapterHook, IDatabaseHook {
 
     fun executeHook() {
 
-
         val conversationWithCacheAdapter = Classes.ConversationWithCacheAdapter
 
-        findAndHookMethod(BaseAdapter::class.java, "getCount", object : XC_MethodHook() {
+        findAndHookMethod(conversationWithCacheAdapter.superclass, "getCount", object : XC_MethodHook() {
+
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                if (param.thisObject::class.simpleName != conversationWithCacheAdapter.simpleName) return
+
+
+            }
+        })
+
+        findAndHookMethod(conversationWithCacheAdapter, "notifyDataSetChanged", object : XC_MethodHook() {
+
+            override fun beforeHookedMethod(param: MethodHookParam) {
+
+
+            }
+        })
+
+        findAndHookMethod(conversationWithCacheAdapter, "getView",
+                Int::class.java, View::class.java, ViewGroup::class.java,
+                object : XC_MethodHook() {
+
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+
+                    }
+                })
+
+
+        findAndHookMethod(conversationWithCacheAdapter.superclass, MMBaseAdapter_getItemInternal,
+                Int::class.java, object : XC_MethodHook() {
 
             override fun beforeHookedMethod(param: MethodHookParam) {
 
                 if (param.thisObject::class.simpleName != conversationWithCacheAdapter.simpleName) return
 
-            }
-        })
-
-        findAndHookMethod(BaseAdapter::class.java, "notifyDataSetChanged", object : XC_MethodHook() {
-
-            override fun beforeHookedMethod(param: MethodHookParam) {
-
-                if (param.thisObject::class.simpleName != conversationWithCacheAdapter.simpleName) return
 
             }
         })
 
 
-        findAndHookMethod(conversationWithCacheAdapter, "getView", object : XC_MethodHook() {
+        XposedBridge.log("MMBaseAdapter, MMBaseAdapter_getItemInternal = " + MMBaseAdapter_getItemInternal)
 
-            override fun beforeHookedMethod(param: MethodHookParam) {
+        XposedBridge.log("MMBaseAdapter, MMBaseAdapter = " + com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.Classes.MMBaseAdapter)
 
-            }
-        })
-
+        XposedBridge.log("MMBaseAdapter, ConversationWithCacheAdapter = " + Classes.ConversationWithCacheAdapter)
     }
 }

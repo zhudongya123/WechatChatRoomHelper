@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.plugins
+package com.zdy.project.wechat_chatroom_helper.plugins.main
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -12,6 +12,7 @@ import android.widget.LinearLayout
 import com.gh0u1l5.wechatmagician.spellbook.interfaces.IActivityHook
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.PageType
+import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge.hookAllConstructors
