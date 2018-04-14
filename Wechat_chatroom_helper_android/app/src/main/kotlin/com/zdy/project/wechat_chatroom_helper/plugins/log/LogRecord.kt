@@ -11,8 +11,6 @@ object LogRecord {
 
     fun executeHook() {
 
-
-
         val findMethodsByExactParameters = findMethodsByExactParameters(Classes.Logcat, null, String::class.java, String::class.java, Array<Any>::class.java)
 
         findMethodsByExactParameters.forEach {
@@ -20,7 +18,6 @@ object LogRecord {
                     object : XC_MethodHook() {
 
                         override fun afterHookedMethod(param: MethodHookParam) {
-                            super.afterHookedMethod(param)
 
                         //    if (!PluginEntry.runtimeInfo.isOpenLog) return
 

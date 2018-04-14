@@ -58,13 +58,27 @@ object MessageHooker : IDatabaseHook {
                 val firstChatRoom = cursorForChatroom.getString(0)
 
 
-                Log.v("MessageHooker1", "firstOfficial = $firstOfficial, cursorForChatroom = $cursorForChatroom")
+
+                Log.v("MessageHooker1", "firstOfficial = $firstOfficial, firstChatRoom = $firstChatRoom")
 
                 val sql1 = "select unReadCount, status, isSend, conversationTime, rconversation.username, content, msgType, flag, digest, digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite " +
                         "from rconversation, rcontact where  ( parentRef is null  or parentRef = ''  ) " +
-                        "and ((rconversation.username = rcontact.username and rcontact.verifyFlag = 0) or ( rconversation.username = rcontact.username and rcontact.username = '" + firstOfficial + "') ) " +
-                        "and ( 1 != 1 or rconversation.username like '%@openim' or rconversation.username not like '%@%' ) " +
-                        "and rconversation.username != 'qmessage'or (rconversation.username = rcontact.username and  rcontact.username = '" + firstChatRoom + "') order by flag desc"
+                        "and " +
+                       // "(" +
+                        "(rconversation.username = rcontact.username and rcontact.verifyFlag = 0) " +
+                        //"or " +
+                      //  "( rconversation.username = rcontact.username and rcontact.username = '" + firstOfficial + "') " +
+                    //    ") " +
+                        "and " +
+                        "( 1 != 1 or rconversation.username like '%@openim' or rconversation.username not like '%@%' ) " +
+                        "and " +
+                        "rconversation.username != 'qmessage' " +
+                      //  "or " +
+                      //  "(rconversation.username = rcontact.username " +
+                      //  "and  " +
+                      //  "rcontact.username = '" + firstChatRoom + "'" +
+                     //   ") " +
+                        "order by flag desc"
 
 
 //                val sql1 = "select unReadCount, status, isSend, conversationTime, rconversation.username, content, msgType, flag, digest, digestUser, " +
