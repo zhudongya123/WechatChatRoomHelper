@@ -2,7 +2,6 @@ package com.zdy.project.wechat_chatroom_helper.plugins.log
 
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.sdk.platformtools.Classes
 import com.zdy.project.wechat_chatroom_helper.LogUtils
-import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
 import de.robv.android.xposed.XposedHelpers.findMethodsByExactParameters
