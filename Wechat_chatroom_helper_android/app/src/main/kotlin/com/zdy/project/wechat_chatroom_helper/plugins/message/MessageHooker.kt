@@ -91,6 +91,10 @@ object MessageHooker : IDatabaseHook {
                         it.avatarString = cursor.getString(cursor.columnNames.indexOf("unReadMuteCount"))
                     }
 
+
+
+                    XposedBridge.log("MessageHooker2.8, nickname = $nickname, firstOfficialNickname = $firstOfficialNickname")
+
                     if (nickname == firstOfficialNickname) {
                         officialChatInfoModel = chatInfoModel
                         officialPosition = cursor.position
@@ -104,10 +108,9 @@ object MessageHooker : IDatabaseHook {
                         chatRoomChatInfoModel = chatInfoModel
                         chatRoomPosition = cursor.position
 
-                        XposedBridge.log("MessageHooker2.5, firstOfficialInfoModel = $chatInfoModel, cursor.position = ${cursor.position}")
+                        XposedBridge.log("MessageHooker2.5, firstChatRoomNickname = $chatInfoModel, cursor.position = ${cursor.position}")
 
                     }
-
                 }
 
                 count1++

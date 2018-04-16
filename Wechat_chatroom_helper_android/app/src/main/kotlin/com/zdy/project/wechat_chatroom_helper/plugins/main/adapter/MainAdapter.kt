@@ -1,5 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.plugins.main.adapter
 
+import android.graphics.drawable.BitmapDrawable
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
@@ -86,15 +87,18 @@ object MainAdapter : IAdapterHook {
 
                             when (position) {
                                 firstChatroomPosition -> {
-                                    setTextForMeasureTextView(nickname, firstChatroomInfoModel.nickname)
-                                    setTextForMeasureTextView(content, firstChatroomInfoModel.content)
+                                    setTextForMeasureTextView(nickname, "群消息")
+                                    setTextForMeasureTextView(content, "")
+                                    avatar.setImageDrawable(BitmapDrawable())
 
                                     param.result = param.result
 
                                 }
                                 firstOfficialPosition -> {
-                                    setTextForMeasureTextView(nickname, firstOfficialInfoModel.nickname)
-                                    setTextForMeasureTextView(content, firstOfficialInfoModel.content)
+                                    setTextForMeasureTextView(nickname, "服务号")
+                                    setTextForMeasureTextView(content, "")
+                                    avatar.setImageDrawable(BitmapDrawable())
+
 
                                     param.result = param.result
                                 }
@@ -122,19 +126,24 @@ object MainAdapter : IAdapterHook {
 
                 if (firstChatroomPosition == -1 || firstOfficialPosition == -1) return
 
-                val firstEntryPosition = min(firstChatroomPosition, firstChatroomPosition)
-                val secondEntryPosition = max(firstChatroomPosition, firstOfficialPosition)
+                val min = min(firstChatroomPosition, firstOfficialPosition)
+                val max = max(firstChatroomPosition, firstOfficialPosition)
 
-                param.args[0] = when (index) {
-                    in 0 until firstEntryPosition -> index
-                    firstEntryPosition -> index //TODO
-                    in firstEntryPosition + 1 until secondEntryPosition -> index - 1
-                    secondEntryPosition -> index //TODO
-                    in secondEntryPosition + 1 until Int.MAX_VALUE -> index - 2
+                val newIndex = when (index) {
+                    in 0 until min -> index
+                    min -> index //TODO
+                    in min + 1 until max -> index - 1
+                    max -> index //TODO
+                    in max + 1 until Int.MAX_VALUE -> index - 2
                     else -> index
                 }
 
-                param.args[0]
+
+                XposedBridge.log("MessageHooker2.7, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
+
+
+                param.args[0] = newIndex
+
 
             }
         })
