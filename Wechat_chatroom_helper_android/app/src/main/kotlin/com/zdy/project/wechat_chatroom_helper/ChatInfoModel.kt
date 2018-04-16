@@ -41,4 +41,10 @@ class ChatInfoModel {
             return model
         }
     }
+
+    override fun toString(): String {
+        return "ChatInfoModel(nickname=$nickname, content=$content, time=$time, avatarString='$avatarString', unReadCount=$unReadCount)"
+    }
+
+
 }
