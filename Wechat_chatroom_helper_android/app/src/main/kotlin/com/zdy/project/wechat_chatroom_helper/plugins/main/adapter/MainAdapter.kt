@@ -3,16 +3,20 @@ package com.zdy.project.wechat_chatroom_helper.plugins.main.adapter
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.ImageView
+import android.widget.TextView
 import com.gh0u1l5.wechatmagician.spellbook.interfaces.IAdapterHook
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.Methods.MMBaseAdapter_getItemInternal
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.conversation.Classes
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
-import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.IMainAdapterRefresh
+import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.IMainAdapterHelperEntryRefresh
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHooker
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Created by Mr.Zdy on 2018/4/1.
@@ -21,11 +25,11 @@ object MainAdapter : IAdapterHook {
 
     var originAdapter: BaseAdapter? = null
 
-    private var firstChatroomPosition = 0
-    private var firstOfficialPosition = 1
+    private var firstChatroomPosition = -1
+    private var firstOfficialPosition = -1
 
-    var firstChatroomInfoModel = ChatInfoModel()
-    var firstOfficialInfoModel = ChatInfoModel()
+    lateinit var firstChatroomInfoModel: ChatInfoModel
+    lateinit var firstOfficialInfoModel: ChatInfoModel
 
 
     override fun onConversationAdapterCreated(adapter: BaseAdapter) {
@@ -48,9 +52,7 @@ object MainAdapter : IAdapterHook {
         })
 
         findAndHookMethod(conversationWithCacheAdapter, "notifyDataSetChanged", object : XC_MethodHook() {
-
             override fun beforeHookedMethod(param: MethodHookParam) {
-
 
             }
         })
@@ -59,7 +61,7 @@ object MainAdapter : IAdapterHook {
                 Int::class.java, View::class.java, ViewGroup::class.java,
                 object : XC_MethodHook() {
 
-                    override fun beforeHookedMethod(param: MethodHookParam) {
+                    override fun afterHookedMethod(param: MethodHookParam) {
 
                         val position = param.args[0] as Int
                         val view = param.args[1] as View?
@@ -67,10 +69,38 @@ object MainAdapter : IAdapterHook {
 
                         XposedBridge.log("MMBaseAdapter_getView, index = " + position)
 
-                        if (position == firstChatroomPosition || position == firstOfficialPosition) {
-                            view?.setBackgroundColor(0xffEEEEEE.toInt())
+                        view?.let {
+                            val itemView = view as ViewGroup
 
-                            param.result = null
+                            val avatarContainer = itemView.getChildAt(0) as ViewGroup
+                            val contentContainer = itemView.getChildAt(1) as ViewGroup
+
+                            val avatar = avatarContainer.getChildAt(0) as ImageView
+                            val unReadCount = avatarContainer.getChildAt(1) as TextView
+                            val unMuteReadIndicators = avatarContainer.getChildAt(2) as ImageView
+
+                            val nickname = ((contentContainer.getChildAt(0) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(0)
+                            val time = (contentContainer.getChildAt(0) as ViewGroup).getChildAt(1)
+
+                            val content = ((contentContainer.getChildAt(1) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(1)
+
+                            when (position) {
+                                firstChatroomPosition -> {
+                                    setTextForMeasureTextView(nickname, firstChatroomInfoModel.nickname)
+                                    setTextForMeasureTextView(content, firstChatroomInfoModel.content)
+
+                                    param.result = param.result
+
+                                }
+                                firstOfficialPosition -> {
+                                    setTextForMeasureTextView(nickname, firstOfficialInfoModel.nickname)
+                                    setTextForMeasureTextView(content, firstOfficialInfoModel.content)
+
+                                    param.result = param.result
+                                }
+                                else -> {
+                                }
+                            }
                         }
 
                     }
@@ -86,74 +116,46 @@ object MainAdapter : IAdapterHook {
 
                 if (param.thisObject::class.simpleName != conversationWithCacheAdapter.simpleName) return
 
-                val originAdapter = param.thisObject
-                var index = param.args[0] as Int
+                val index = param.args[0] as Int
 
-                XposedBridge.log("MMBaseAdapter_getItemInternal, index = " + index)
+                XposedBridge.log("MMBaseAdapter_getItemInternal, index = $index, firstChatroomPosition = $firstChatroomPosition ,firstOfficialPosition = $firstOfficialPosition")
 
-//                if (flag) {
-//
-//                    val trueIndex = removeIndexMask(index)
-//
-//                    XposedBridge.log("MMBaseAdapter_getItemInternal, trueIndex = " + trueIndex)
-//
-//                    param.result = callGetObjectByIndex(originAdapter, MMBaseAdapter_getItemInternal, trueIndex)
-//
-//                    return
-//
-//                } else {
-//
-                if (index >= 2) index -= 2
+                if (firstChatroomPosition == -1 || firstOfficialPosition == -1) return
 
-                param.args[0] = index
-//
-//                    val maskIndex = addIndexMask(index)
-//
-//                    XposedBridge.log("MMBaseAdapter_getItemInternal, maskIndex = " + maskIndex)
-//
-//                    param.result = callGetObjectByIndex(originAdapter, MMBaseAdapter_getItemInternal, index)
-//
-//
-//                    flag = true
-//                }
+                val firstEntryPosition = min(firstChatroomPosition, firstChatroomPosition)
+                val secondEntryPosition = max(firstChatroomPosition, firstOfficialPosition)
+
+                param.args[0] = when (index) {
+                    in 0 until firstEntryPosition -> index
+                    firstEntryPosition -> index //TODO
+                    in firstEntryPosition + 1 until secondEntryPosition -> index - 1
+                    secondEntryPosition -> index //TODO
+                    in secondEntryPosition + 1 until Int.MAX_VALUE -> index - 2
+                    else -> index
+                }
+
+                param.args[0]
 
             }
         })
 
-        MessageHooker.addAdapterRefreshListener(object : IMainAdapterRefresh {
-            override fun onFirstChatroomRefresh(position: Int, chatInfoModel: ChatInfoModel) {
-                firstChatroomPosition = position
-                firstChatroomInfoModel = chatInfoModel
-   //             originAdapter?.notifyDataSetChanged()
-            }
+        MessageHooker.addAdapterRefreshListener(object : IMainAdapterHelperEntryRefresh {
+            override fun onFirstChatroomRefresh(chatRoomPosition: Int, chatRoomChatInfoModel: ChatInfoModel, officialPosition: Int, officialChatInfoModel: ChatInfoModel) {
 
-            override fun onFirstOfficialRefresh(position: Int, chatInfoModel: ChatInfoModel) {
-                firstOfficialPosition = position
-                firstOfficialInfoModel = chatInfoModel
-       //         originAdapter?.notifyDataSetChanged()
+                firstChatroomPosition = chatRoomPosition
+                firstOfficialPosition = officialPosition
+
+                firstChatroomInfoModel = chatRoomChatInfoModel
+                firstOfficialInfoModel = officialChatInfoModel
+
+
+                XposedBridge.log("MessageHooker2.6, firstChatroomPosition = $chatRoomPosition \n")
+                XposedBridge.log("MessageHooker2.6, firstOfficialPosition = $officialPosition \n")
             }
         })
     }
 
 
-    private fun callGetObjectByIndex(adapter: Any, methodName: String, index: Int) = XposedHelpers.callMethod(adapter, methodName, index)
-
-    private fun addIndexMask(index: Int): Int {
-        return (1 shl MODE_SHIFT) + index
-    }
-
-    private fun isIndexMask(index: Int): Boolean {
-        return index shr MODE_SHIFT != 0
-    }
-
-    private fun removeIndexMask(index: Int): Int {
-        return index - (1 shl MODE_SHIFT)
-    }
-
-    private val MODE_SHIFT = 30
-    private val MODE_MASK = 0x3 shl MODE_SHIFT
-
-    val UNSPECIFIED = 0 shl MODE_SHIFT
-
+    fun setTextForMeasureTextView(measureTextView: Any, charSequence: CharSequence) = XposedHelpers.callMethod(measureTextView, "setText", charSequence)
 
 }
