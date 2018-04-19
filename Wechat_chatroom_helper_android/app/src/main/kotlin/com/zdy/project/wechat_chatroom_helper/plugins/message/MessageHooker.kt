@@ -16,13 +16,14 @@ import de.robv.android.xposed.XposedHelpers
 object MessageHooker : IDatabaseHook {
 
 
-    private var SqlForGetFirstOfficial = "select rconversation.username from rconversation,rcontact where (rconversation.username = rcontact.username and rcontact.verifyFlag != 0 ) order by flag desc limit 1"
-    private var SqlForGetFirstChatroom = "select username from rconversation where  rconversation.username like '%@chatroom' order by flag desc limit 1"
-
+    private const val SqlForGetFirstOfficial = "select rconversation.username from rconversation,rcontact where (rconversation.username = rcontact.username and rcontact.verifyFlag != 0 ) order by flag desc limit 1"
+    private const val SqlForGetFirstChatroom = "select username from rconversation where  rconversation.username like '%@chatroom' order by flag desc limit 1"
+    private const val SqlForAllConversation = "select unReadCount, status, isSend, conversationTime, username, content, msgType, flag, digest, digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite from rconversation where  ( parentRef is null  or parentRef = '' )  and ( 1 != 1  or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  and rconversation.username != 'qmessage' order by flag desc"
+    private const val KeyWordFilterAllConversation1 = "UnReadInvite"
+    private const val KeyWordFilterAllConversation2 = "by flag desc"
 
     private var count1 = 0
     private var count2 = 0
-
 
     var iMainAdapterRefreshes = ArrayList<IMainAdapterHelperEntryRefresh>()
 
@@ -38,29 +39,20 @@ object MessageHooker : IDatabaseHook {
 
     override fun onDatabaseQueried(thisObject: Any, factory: Any?, sql: String, selectionArgs: Array<String>?, editTable: String?, cancellationSignal: Any?, result: Any?): Operation<Any?> {
 
-//        Log.v("MessageHooker", "onDatabaseQueried, thisObject = $thisObject, factory = $factory ,sql = $sql " +
-//                ",selectionArgs = ${with(selectionArgs) {
-//
-//                    when {
-//                        selectionArgs == null -> "null selectionArgs"
-//
-//                        selectionArgs.isNotEmpty() -> {
-//                            var string = ""
-//                            selectionArgs.forEach { string += " $it" }
-//                            string
-//                        }
-//                        else -> "empty selectionArgs"
-//                    }
-//
-//                }}, editTable = $editTable, cancellationSignal = $cancellationSignal")
+        Log.v("MessageHooker", "onDatabaseQueried, thisObject = $thisObject, sql = $sql ")
 
         val onDatabaseQueried = Operation.nop<Any>()
 
 
-        val other = "digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite"
-        val other1 = "( 1 != 1  or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  and rconversation.username != 'qmessage' order by flag desc"
-        if (sql.contains(other) && sql.contains(other1))
+
+
+        if (!sql.contains(KeyWordFilterAllConversation1)) return onDatabaseQueried
+        if (!sql.contains(KeyWordFilterAllConversation2)) return onDatabaseQueried
+
+        if (sql == SqlForAllConversation)
             try {
+                XposedBridge.log("MessageHooker2.10, QUERY ALL CONVERSATION")
+
 
                 val cursorForOfficial = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, SqlForGetFirstOfficial, null, null) as Cursor
                 val cursorForChatroom = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, SqlForGetFirstChatroom, null, null) as Cursor
@@ -91,15 +83,13 @@ object MessageHooker : IDatabaseHook {
                         it.avatarString = cursor.getString(cursor.columnNames.indexOf("unReadMuteCount"))
                     }
 
-
-
                     XposedBridge.log("MessageHooker2.8, nickname = $nickname, firstOfficialNickname = $firstOfficialNickname")
 
                     if (nickname == firstOfficialNickname) {
                         officialChatInfoModel = chatInfoModel
                         officialPosition = cursor.position
 
-                        XposedBridge.log("MessageHooker2.5, firstOfficialInfoModel = $chatInfoModel, cursor.position = ${cursor.position}")
+                        XposedBridge.log("MessageHooker2.5,找到了第一个公众号 firstOfficialInfoModel = $chatInfoModel, cursor.position = ${cursor.position}")
 
                         count2++
                     }
@@ -108,7 +98,7 @@ object MessageHooker : IDatabaseHook {
                         chatRoomChatInfoModel = chatInfoModel
                         chatRoomPosition = cursor.position
 
-                        XposedBridge.log("MessageHooker2.5, firstChatRoomNickname = $chatInfoModel, cursor.position = ${cursor.position}")
+                        XposedBridge.log("MessageHooker2.5,找到了第一个聊天 firstChatRoomNickname = $chatInfoModel, cursor.position = ${cursor.position}")
 
                     }
                 }

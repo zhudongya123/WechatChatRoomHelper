@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
+import android.widget.ListView
 import android.widget.TextView
 import com.gh0u1l5.wechatmagician.spellbook.interfaces.IAdapterHook
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.Methods.MMBaseAdapter_getItemInternal
@@ -54,6 +55,7 @@ object MainAdapter : IAdapterHook {
 
         findAndHookMethod(conversationWithCacheAdapter, "notifyDataSetChanged", object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
+                XposedBridge.log("MessageHooker2.10, notifyDataSetChanged")
 
             }
         })
@@ -157,11 +159,29 @@ object MainAdapter : IAdapterHook {
                 firstChatroomInfoModel = chatRoomChatInfoModel
                 firstOfficialInfoModel = officialChatInfoModel
 
+                originAdapter?.let {
+                    it.notifyDataSetChanged()
+                }
 
                 XposedBridge.log("MessageHooker2.6, firstChatroomPosition = $chatRoomPosition \n")
                 XposedBridge.log("MessageHooker2.6, firstOfficialPosition = $officialPosition \n")
             }
         })
+    }
+
+    private fun updateItem(position: Int, listView: ListView) {
+        /**第一个可见的位置 */
+        val firstVisiblePosition = listView.getFirstVisiblePosition()
+        /**最后一个可见的位置 */
+        val lastVisiblePosition = listView.getLastVisiblePosition()
+
+        /**在看见范围内才更新，不可见的滑动后自动会调用getView方法更新 */
+        if (position >= firstVisiblePosition && position <= lastVisiblePosition) {
+            /**获取指定位置view对象 */
+            val view = listView.getChildAt(position - firstVisiblePosition)
+            originAdapter?.getView(position, view, listView)
+        }
+
     }
 
 
