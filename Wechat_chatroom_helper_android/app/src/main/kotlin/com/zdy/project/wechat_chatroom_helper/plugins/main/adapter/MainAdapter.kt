@@ -1,5 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.plugins.main.adapter
 
+import android.annotation.SuppressLint
 import android.graphics.drawable.BitmapDrawable
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.Methods.MMBaseAdapter_g
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.conversation.Classes
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.IMainAdapterHelperEntryRefresh
+import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ConversationWithAppBrandListView
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHooker
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
@@ -20,12 +22,14 @@ import de.robv.android.xposed.XposedHelpers.findAndHookMethod
 import kotlin.math.max
 import kotlin.math.min
 
+@SuppressLint("StaticFieldLeak")
 /**
  * Created by Mr.Zdy on 2018/4/1.
  */
 object MainAdapter : IAdapterHook {
 
-    var originAdapter: BaseAdapter? = null
+    private var originAdapter: BaseAdapter? = null
+    private var listView: ListView? = null
 
     private var firstChatroomPosition = -1
     private var firstOfficialPosition = -1
@@ -43,11 +47,15 @@ object MainAdapter : IAdapterHook {
 
         val conversationWithCacheAdapter = Classes.ConversationWithCacheAdapter
 
-        findAndHookMethod(conversationWithCacheAdapter.superclass, "getCount", object : XC_MethodHook() {
+//        findAndHookMethod(ConversationWithAppBrandListView, "setAdapter", object : XC_MethodHook() {
+//            override fun afterHookedMethod(param: MethodHookParam) {
+//                listView = param.thisObject as ListView
+//            }
+//        })
 
+        findAndHookMethod(conversationWithCacheAdapter.superclass, "getCount", object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 if (param.thisObject::class.simpleName != conversationWithCacheAdapter.simpleName) return
-
                 param.result = param.result as Int + 2
             }
 
@@ -101,7 +109,6 @@ object MainAdapter : IAdapterHook {
                                     setTextForMeasureTextView(content, "")
                                     avatar.setImageDrawable(BitmapDrawable())
 
-
                                     param.result = param.result
                                 }
                                 else -> {
@@ -140,7 +147,6 @@ object MainAdapter : IAdapterHook {
                     else -> index
                 }
 
-
                 XposedBridge.log("MessageHooker2.7, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
 
 
@@ -159,9 +165,13 @@ object MainAdapter : IAdapterHook {
                 firstChatroomInfoModel = chatRoomChatInfoModel
                 firstOfficialInfoModel = officialChatInfoModel
 
-                originAdapter?.let {
-                    it.notifyDataSetChanged()
-                }
+//                originAdapter?.let {
+//                    it.notifyDataSetChanged()
+//                }
+
+//                updateItem(firstChatroomPosition, listView!!)
+//                updateItem(firstOfficialPosition, listView!!)
+
 
                 XposedBridge.log("MessageHooker2.6, firstChatroomPosition = $chatRoomPosition \n")
                 XposedBridge.log("MessageHooker2.6, firstOfficialPosition = $officialPosition \n")
