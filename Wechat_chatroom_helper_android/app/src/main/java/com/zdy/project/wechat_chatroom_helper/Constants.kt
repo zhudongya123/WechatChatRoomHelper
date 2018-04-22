@@ -46,9 +46,9 @@ object Constants {
 
     var Class_Tencent_Log: String? = null
 
-    var Drawable_String_Arrow: String? = null
-    var Drawable_String_Setting: String? = null
-    var Drawable_String_Chatroom_Avatar: String? = null
+//    var Drawable_String_Arrow: String? = null
+//    var Drawable_String_Setting: String? = null
+//    var Drawable_String_Chatroom_Avatar: String? = null
 
     var Value_Message_Bean_Content: String? = null
     var Value_Message_Bean_NickName: String? = null
@@ -69,7 +69,7 @@ object Constants {
 
 
 
-    const val FitSystemWindowLayoutView = "com.tencent.mm.ui.HomeUI.FitSystemWindowLayoutView"
+    const val FitSystemWindowLayoutView = "com.tencent.mm.ui.HomeUI\$FitSystemWindowLayoutView"
 
 
 }

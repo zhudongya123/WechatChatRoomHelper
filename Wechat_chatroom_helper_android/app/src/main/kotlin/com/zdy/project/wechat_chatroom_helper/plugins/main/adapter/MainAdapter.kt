@@ -8,6 +8,7 @@ import android.widget.*
 import com.gh0u1l5.wechatmagician.spellbook.interfaces.IAdapterHook
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.conversation.Classes
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.IMainAdapterHelperEntryRefresh
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ConversationWithAppBrandListView
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHooker
@@ -28,8 +29,8 @@ object MainAdapter : IAdapterHook {
     private var firstChatroomPosition = -1
     private var firstOfficialPosition = -1
 
-    lateinit var firstChatroomInfoModel: ChatInfoModel
-    lateinit var firstOfficialInfoModel: ChatInfoModel
+    var firstChatroomNickname = ""
+    var firstOfficialNickname = ""
 
 
     override fun onConversationAdapterCreated(adapter: BaseAdapter) {
@@ -78,34 +79,33 @@ object MainAdapter : IAdapterHook {
                 object : XC_MethodHook() {
 
 
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-
-                        val position = param.args[0] as Int
-                        val view = param.args[1] as View?
-
-                        XposedBridge.log("MMBaseAdapter_getView, beforeHookedMethod, index = " + position)
-
-                        if (view == null) {
-                            /**
-                             * 此时为第一次刷新，处理逻辑放在{@link XC_MethodHook.afterHookedMethod}
-                             */
-                        } else {
-                            /**
-                             * 后续刷新
-                             * 一旦符合条件，只做相应自定义UI刷新，跳过微信处理逻辑
-                             */
-                            refreshEntryView(view, position, param)
-                        }
-                    }
+//                    override fun beforeHookedMethod(param: MethodHookParam) {
+//
+//                        val position = param.args[0] as Int
+//                        val view = param.args[1] as View?
+//
+//                        XposedBridge.log("MMBaseAdapter_getView, beforeHookedMethod, index = " + position)
+//
+//                        if (view == null) {
+//                            /**
+//                             * 此时为第一次刷新，处理逻辑放在{@link XC_MethodHook.afterHookedMethod}
+//                             */
+//                        } else {
+//                            /**
+//                             * 后续刷新
+//                             * 一旦符合条件，只做相应自定义UI刷新，跳过微信处理逻辑
+//                             */
+//                            refreshEntryView(view, position, param)
+//                        }
+//                    }
 
                     override fun afterHookedMethod(param: MethodHookParam) {
 
                         val position = param.args[0] as Int
-                        val view = param.args[1] as View?
 
                         XposedBridge.log("MMBaseAdapter_getView, afterHookedMethod, index = " + position)
 
-                        refreshEntryView(view, position, param)
+                        refreshEntryView(param.result as View, position, param)
                     }
 
                     private fun refreshEntryView(view: View?, position: Int, param: MethodHookParam) {
@@ -123,8 +123,12 @@ object MainAdapter : IAdapterHook {
 
                         val content = ((contentContainer.getChildAt(1) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(1)
 
-                        when (position) {
-                            firstChatroomPosition -> {
+                        val mTextField = XposedHelpers.findField(XposedHelpers.findClass("com.tencent.mm.ui.base.NoMeasuredTextView", PluginEntry.classloader), "mText")
+                        mTextField.isAccessible = true
+                        val nickNameCharSequence = mTextField.get(nickname) as CharSequence
+
+                        when (nickNameCharSequence) {
+                            firstChatroomNickname -> {
                                 setTextForMeasureTextView(nickname, "群消息")
                                 setTextForMeasureTextView(content, "")
                                 avatar.setImageDrawable(BitmapDrawable())
@@ -132,7 +136,7 @@ object MainAdapter : IAdapterHook {
                                 param.result = view
 
                             }
-                            firstOfficialPosition -> {
+                            firstOfficialNickname -> {
                                 setTextForMeasureTextView(nickname, "服务号")
                                 setTextForMeasureTextView(content, "")
                                 avatar.setImageDrawable(BitmapDrawable())
@@ -183,13 +187,21 @@ object MainAdapter : IAdapterHook {
 //        })
 
         MessageHooker.addAdapterRefreshListener(object : IMainAdapterHelperEntryRefresh {
-            override fun onFirstChatroomRefresh(chatRoomPosition: Int, chatRoomChatInfoModel: ChatInfoModel, officialPosition: Int, officialChatInfoModel: ChatInfoModel) {
+            override fun onFirstChatroomRefresh(chatRoomNickname: String, chatRoomUsername: String,
+                                                officialNickname: String, officialUsername: String) {
+
+                this@MainAdapter.firstChatroomNickname = chatRoomNickname
+                this@MainAdapter.firstOfficialNickname = officialNickname
+
+            }
+
+            fun onFirstChatroomRefresh(chatRoomPosition: Int, chatRoomChatInfoModel: ChatInfoModel, officialPosition: Int, officialChatInfoModel: ChatInfoModel) {
 
                 firstChatroomPosition = chatRoomPosition
                 firstOfficialPosition = officialPosition
 
-                firstChatroomInfoModel = chatRoomChatInfoModel
-                firstOfficialInfoModel = officialChatInfoModel
+//                firstChatroomInfoModel = chatRoomChatInfoModel
+//                firstOfficialInfoModel = officialChatInfoModel
 
 
                 /**

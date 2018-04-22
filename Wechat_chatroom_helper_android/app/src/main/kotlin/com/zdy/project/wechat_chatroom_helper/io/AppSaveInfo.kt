@@ -260,9 +260,9 @@ object AppSaveInfo {
             Constants.Class_Tencent_Log = jsonObject.get("ctl").asString
             Constants.Class_Set_Avatar = jsonObject.get("csa").asString
 
-            Constants.Drawable_String_Arrow = jsonObject.get("dsa").asString
-            Constants.Drawable_String_Setting = jsonObject.get("dss").asString
-            Constants.Drawable_String_Chatroom_Avatar = jsonObject.get("dsca").asString
+//            Constants.Drawable_String_Arrow = jsonObject.get("dsa").asString
+//            Constants.Drawable_String_Setting = jsonObject.get("dss").asString
+//            Constants.Drawable_String_Chatroom_Avatar = jsonObject.get("dsca").asString
 
             Constants.Value_Message_Bean_Content = jsonObject.get("vmbc").asString
             Constants.Value_Message_Bean_NickName = jsonObject.get("vmbn").asString

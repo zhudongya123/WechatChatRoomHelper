@@ -16,15 +16,13 @@ import de.robv.android.xposed.XposedHelpers
 object MessageHooker : IDatabaseHook {
 
 
-    private const val SqlForGetFirstOfficial = "select rconversation.username from rconversation,rcontact where (rconversation.username = rcontact.username and rcontact.verifyFlag == 24 ) order by flag desc limit 1"
-    private const val SqlForGetFirstChatroom = "select username from rconversation where  rconversation.username like '%@chatroom' order by flag desc limit 1"
+    private const val SqlForGetFirstOfficial = "select rconversation.username, rcontact.nickname from rconversation, rcontact where (rconversation.username = rcontact.username and rcontact.verifyFlag == 24 ) order by flag desc limit 1"
+    private const val SqlForGetFirstChatroom = "select rconversation.username, rcontact.nickname from rconversation, rcontact where (rconversation.username = rcontact.username) and rconversation.username like '%@chatroom' order by flag desc limit 1"
     private const val SqlForAllConversation = "select unReadCount, status, isSend, conversationTime, username, content, msgType, flag, digest, digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite from rconversation where  ( parentRef is null  or parentRef = '' )  and ( 1 != 1  or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  and rconversation.username != 'qmessage' order by flag desc"
     private const val KeyWordFilterAllConversation1 = "UnReadInvite"
     private const val KeyWordFilterAllConversation2 = "by flag desc"
 
     var sqlForAllConversationAndEntry = ""
-
-    var conversationSize = 0
 
     var iMainAdapterRefreshes = ArrayList<IMainAdapterHelperEntryRefresh>()
 
@@ -48,8 +46,6 @@ object MessageHooker : IDatabaseHook {
         if (!sql.contains(KeyWordFilterAllConversation1)) return onDatabaseQueried
         if (!sql.contains(KeyWordFilterAllConversation2)) return onDatabaseQueried
 
-        conversationSize = 0
-
         if (sql == SqlForAllConversation)
             try {
                 XposedBridge.log("MessageHooker2.10, QUERY ALL CONVERSATION")
@@ -58,31 +54,35 @@ object MessageHooker : IDatabaseHook {
                 val cursorForChatroom = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, SqlForGetFirstChatroom, null, null) as Cursor
 
                 cursorForOfficial.moveToNext()
-                val firstOfficialNickname = cursorForOfficial.getString(0)
+                val firstOfficialUsername = cursorForOfficial.getString(0)
+                val firstOfficialNickname = cursorForOfficial.getString(1)
 
                 cursorForChatroom.moveToNext()
-                val firstChatRoomNickname = cursorForChatroom.getString(0)
+
+                val firstChatRoomUsername = cursorForChatroom.getString(0)
+                val firstChatRoomNickname = cursorForOfficial.getString(1)
+
+                iMainAdapterRefreshes.forEach { it.onFirstChatroomRefresh(firstChatRoomNickname, firstChatRoomUsername, firstOfficialNickname, firstOfficialUsername) }
 
 
-                sqlForAllConversationAndEntry = "select unReadCount, status, isSend, conversationTime, rconversation.username, content, msgType, flag, digest, digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite " +
+                sqlForAllConversationAndEntry = "select unReadCount, status, isSend, conversationTime, rconversation.username, " +
+                        "content, msgType, flag, digest, digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite " +
                         "from rconversation, rcontact where  ( parentRef is null  or parentRef = ''  ) " +
                         "and " +
-                        "(" +
-                        "(rconversation.username = rcontact.username and rcontact.verifyFlag = 0) " +
-                        "or " +
-                        "( rconversation.username = rcontact.username and rcontact.username = '" + firstOfficialNickname + "') " +
-                        ") " +
-                        "and " +
-                        "( 1 != 1 or rconversation.username like '%@openim' or rconversation.username not like '%@%' ) " +
-                        "and " +
+                        "(" + "(" +
+                        "rconversation.username = rcontact.username and rcontact.verifyFlag = 0" +
+                        ") or ( " +
+                        "rconversation.username = rcontact.username and rcontact.username = '" + firstOfficialUsername + "'" +
+                        ")) and ( " +
+                        "1 != 1 or rconversation.username like '%@openim' or rconversation.username not like '%@%' " +
+                        ") and " +
                         "rconversation.username != 'qmessage' " +
-                        "or " +
-                        "(rconversation.username = rcontact.username " +
+                        "or (" +
+                        "rconversation.username = rcontact.username " +
                         "and  " +
-                        "rcontact.username = '" + firstChatRoomNickname + "'" +
+                        "rcontact.username = '" + firstChatRoomUsername + "'" +
                         ") " +
                         "order by flag desc"
-
 
 //                val sql1 = "select unReadCount, status, isSend, conversationTime, rconversation.username, content, msgType, flag, digest, digestUser, " +
 //                        "attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite " +
@@ -90,21 +90,6 @@ object MessageHooker : IDatabaseHook {
 //                        "and (rconversation.username = rcontact.username and rcontact.verifyFlag = 0)" +
 //                        "and ( 1 != 1 or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  " +
 //                        "and rconversation.username != 'qmessage' order by flag desc"
-
-                Log.v("MessageHooker1", "onDatabaseQueried, thisObject = $thisObject, factory = $factory ,sql = $sqlForAllConversationAndEntry " +
-                        ",selectionArgs = ${with(selectionArgs) {
-                            when {
-                                selectionArgs == null -> "null selectionArgs"
-
-                                selectionArgs.isNotEmpty() -> {
-                                    var string = ""
-                                    selectionArgs.forEach { string += " $it" }
-                                    string
-                                }
-                                else -> "empty selectionArgs"
-                            }
-
-                        }}, editTable = $editTable, cancellationSignal = $cancellationSignal")
 
                 val result = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, sqlForAllConversationAndEntry, selectionArgs, editTable, cancellationSignal)
 
@@ -114,67 +99,66 @@ object MessageHooker : IDatabaseHook {
                 e.printStackTrace()
                 return onDatabaseQueried
             }
-        else if (sql == sqlForAllConversationAndEntry) {
-
-            val cursorForOfficial = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, SqlForGetFirstOfficial, null, null) as Cursor
-            val cursorForChatroom = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, SqlForGetFirstChatroom, null, null) as Cursor
-
-            cursorForOfficial.moveToNext()
-            val firstOfficialNickname = cursorForOfficial.getString(0)
-
-            cursorForChatroom.moveToNext()
-            val firstChatRoomNickname = cursorForChatroom.getString(0)
-
-            val cursor = result as Cursor
-
-            var officialChatInfoModel = ChatInfoModel()
-            var chatRoomChatInfoModel = ChatInfoModel()
-
-            var officialPosition = -1
-            var chatRoomPosition = -1
-
-            while (cursor.moveToNext()) {
-
-                conversationSize++
-
-                val nickname = cursor.getString(cursor.columnNames.indexOf("username"))
-
-                val chatInfoModel = ChatInfoModel().also {
-                    it.nickname = nickname
-                    it.time = cursor.getString(cursor.columnNames.indexOf("conversationTime"))
-                    it.unReadCount = cursor.getInt(cursor.columnNames.indexOf("unReadCount"))
-                    it.content = cursor.getString(cursor.columnNames.indexOf("digest"))
-                    it.avatarString = cursor.getString(cursor.columnNames.indexOf("unReadMuteCount"))
-                }
-                XposedBridge.log("MessageHooker2.5,nickname = ${chatInfoModel.nickname}, cursor.position = ${cursor.position}, $firstOfficialNickname, $firstChatRoomNickname")
-
-
-                if (nickname == firstOfficialNickname) {
-                    officialChatInfoModel = chatInfoModel
-                    officialPosition = cursor.position
-
-                    XposedBridge.log("MessageHooker2.5,找到了第一个公众号 firstOfficialInfoModel = $chatInfoModel, cursor.position = ${cursor.position}")
-
-                }
-
-                if (nickname == firstChatRoomNickname) {
-                    chatRoomChatInfoModel = chatInfoModel
-                    chatRoomPosition = cursor.position
-
-                    XposedBridge.log("MessageHooker2.5,找到了第一个聊天 firstChatRoomNickname = $chatInfoModel, cursor.position = ${cursor.position}")
-                }
-            }
-
-            XposedBridge.log("MessageHooker2, firstChatroomPosition = $chatRoomPosition, firstChatRoomNickname = $firstChatRoomNickname \n")
-            XposedBridge.log("MessageHooker2, firstOfficialPosition = $officialPosition, firstOfficialNickname = $firstOfficialNickname \n")
-
-            iMainAdapterRefreshes.forEach { it.onFirstChatroomRefresh(chatRoomPosition, chatRoomChatInfoModel, officialPosition, officialChatInfoModel) }
-
-            cursor.move(0)
-
-            return onDatabaseQueried
-
-        } else return onDatabaseQueried
+//        else if (sql == sqlForAllConversationAndEntry) {
+//
+//            val cursorForOfficial = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, SqlForGetFirstOfficial, null, null) as Cursor
+//            val cursorForChatroom = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, SqlForGetFirstChatroom, null, null) as Cursor
+//
+//            cursorForOfficial.moveToNext()
+//            val firstOfficialNickname = cursorForOfficial.getString(0)
+//
+//            cursorForChatroom.moveToNext()
+//            val firstChatRoomNickname = cursorForChatroom.getString(0)
+//
+//            val cursor = result as Cursor
+//
+//            var officialChatInfoModel = ChatInfoModel()
+//            var chatRoomChatInfoModel = ChatInfoModel()
+//
+//            var officialPosition = -1
+//            var chatRoomPosition = -1
+//
+//            while (cursor.moveToNext()) {
+//
+//                val nickname = cursor.getString(cursor.columnNames.indexOf("username"))
+////
+////                val chatInfoModel = ChatInfoModel().also {
+////                    it.nickname = nickname
+////                    it.time = cursor.getString(cursor.columnNames.indexOf("conversationTime"))
+////                    it.unReadCount = cursor.getInt(cursor.columnNames.indexOf("unReadCount"))
+////                    it.content = cursor.getString(cursor.columnNames.indexOf("digest"))
+////                    it.avatarString = cursor.getString(cursor.columnNames.indexOf("unReadMuteCount"))
+////                }
+//                XposedBridge.log("MessageHooker2.5,nickname = $nickname, cursor.position = ${cursor.position}, $firstOfficialNickname, $firstChatRoomNickname")
+//
+//
+//                if (nickname == firstOfficialNickname) {
+//                //    officialChatInfoModel = chatInfoModel
+//                    officialPosition = cursor.position
+//
+//                    XposedBridge.log("MessageHooker2.5,找到了第一个公众号 firstOfficialInfoModel = $nickname, cursor.position = ${cursor.position}")
+//
+//                }
+//
+//                if (nickname == firstChatRoomNickname) {
+//                 //   chatRoomChatInfoModel = chatInfoModel
+//                    chatRoomPosition = cursor.position
+//
+//                   XposedBridge.log("MessageHooker2.5,找到了第一个聊天 firstChatRoomNickname = $nickname, cursor.position = ${cursor.position}")
+//                }
+//            }
+////
+//            XposedBridge.log("MessageHooker2, firstChatroomPosition = $chatRoomPosition, firstChatRoomNickname = $firstChatRoomNickname \n")
+//            XposedBridge.log("MessageHooker2, firstOfficialPosition = $officialPosition, firstOfficialNickname = $firstOfficialNickname \n")
+////
+//            iMainAdapterRefreshes.forEach { it.onFirstChatroomRefresh(chatRoomPosition, chatRoomChatInfoModel, officialPosition, officialChatInfoModel) }
+//
+//            cursor.move(0)
+//
+//            return onDatabaseQueried
+//
+//        }
+        else return onDatabaseQueried
 
     }
 

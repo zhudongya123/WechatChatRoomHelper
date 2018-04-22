@@ -2,7 +2,6 @@ package com.zdy.project.wechat_chatroom_helper.wechat.manager
 
 import android.content.Context
 import android.graphics.*
-import com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Chatroom_Avatar
 import com.zdy.project.wechat_chatroom_helper.PageType
 import utils.AppSaveInfo
 
@@ -24,11 +23,11 @@ object AvatarMaker {
             PageType.CHAT_ROOMS ->
                 makeAvatarBitmap(canvas, paint, AVATAR_BLUE,
                         {
-                            val identifier = context.resources.getIdentifier(Drawable_String_Chatroom_Avatar, "drawable", context.packageName)
-                            val rawDrawable = BitmapFactory.decodeResource(context.resources, identifier)
-                            Bitmap.createScaledBitmap(rawDrawable, contentSize, contentSize, false)
-                                    .copy(Bitmap.Config.ARGB_8888, false)
-
+//                            val identifier = context.resources.getIdentifier(Drawable_String_Chatroom_Avatar, "drawable", context.packageName)
+//                            val rawDrawable = BitmapFactory.decodeResource(context.resources, identifier)
+//                            Bitmap.createScaledBitmap(rawDrawable, contentSize, contentSize, false)
+//                                    .copy(Bitmap.Config.ARGB_8888, false)
+                            Bitmap.createBitmap(contentSize, contentSize, Bitmap.Config.ARGB_8888)
                         })
 
 

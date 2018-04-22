@@ -21,8 +21,6 @@ class PluginEntry : IXposedHookLoadPackage {
 
     companion object {
 
-          lateinit var runtimeInfo: RuntimeInfo
-
         lateinit var classloader: ClassLoader
 
         lateinit var chatRoomViewPresenter: ChatRoomViewPresenter
@@ -35,11 +33,7 @@ class PluginEntry : IXposedHookLoadPackage {
 
         if (p0.processName != Constants.WECHAT_PACKAGE_NAME) return
 
-        runtimeInfo.refresh()
-
         classloader = p0.classLoader
-
-
 
         try {
             SpellBook.startup(p0, listOf(MessageHooker, MainAdapter, MainLauncherUI), listOf())

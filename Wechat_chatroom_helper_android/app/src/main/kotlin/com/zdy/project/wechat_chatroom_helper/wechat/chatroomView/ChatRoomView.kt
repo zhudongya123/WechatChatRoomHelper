@@ -13,17 +13,12 @@ import android.view.ViewGroup
 import android.widget.*
 import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout
-import com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Arrow
-import com.zdy.project.wechat_chatroom_helper.Constants.Drawable_String_Setting
-import com.zdy.project.wechat_chatroom_helper.HookLogic
-import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
-import com.zdy.project.wechat_chatroom_helper.wechat.dialog.ConfigChatRoomDialog
-import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialog
-import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
+import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.dialog.ConfigChatRoomDialog
+import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialog
 import de.robv.android.xposed.XposedHelpers
 import network.ApiManager
 import utils.AppSaveInfo
@@ -176,13 +171,12 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
         val height = ScreenUtils.dip2px(mContext, 48f)
 
         mToolbar.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
-        mToolbar.setNavigationIcon(mContext.resources
-                .getIdentifier(Drawable_String_Arrow, "drawable", mContext.packageName))
+//        mToolbar.setNavigationIcon(mContext.resources
+//                .getIdentifier(Drawable_String_Arrow, "drawable", mContext.packageName))
 
         mToolbar.setNavigationOnClickListener { dismiss() }
         mToolbar.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.toolbarColorInfo()))
         mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo()))
-
 
         when (pageType) {
             PageType.CHAT_ROOMS -> mToolbar.title = "群消息助手"
@@ -220,7 +214,7 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
 
         imageView.layoutParams = params
         imageView.setPadding(height / 5, height / 5, height / 5, height / 5)
-        imageView.setImageResource(mContext.resources.getIdentifier(Drawable_String_Setting, "drawable", mContext.packageName))
+   //     imageView.setImageResource(mContext.resources.getIdentifier(Drawable_String_Setting, "drawable", mContext.packageName))
 
         imageView.setOnClickListener {
             when (pageType) {
@@ -258,7 +252,7 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
             }
         }
 
-        imageView.drawable.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
+     //   imageView.drawable.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
 
         mToolbarContainer.addView(mToolbar)
         mToolbarContainer.addView(imageView)
