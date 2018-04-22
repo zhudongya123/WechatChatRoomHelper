@@ -26,14 +26,11 @@ object MainLauncherUI : IActivityHook {
     private lateinit var mActivity: Activity
 
 
-    fun execute() {
+    fun executeHook() {
 
         hookAllConstructors(PluginEntry.classloader.loadClass(Constants.FitSystemWindowLayoutView), object : XC_MethodHook() {
 
             override fun afterHookedMethod(param: MethodHookParam) {
-
-
-                super.afterHookedMethod(param)
 
 
                 val fitSystemWindowLayoutView = param.thisObject as ViewGroup
