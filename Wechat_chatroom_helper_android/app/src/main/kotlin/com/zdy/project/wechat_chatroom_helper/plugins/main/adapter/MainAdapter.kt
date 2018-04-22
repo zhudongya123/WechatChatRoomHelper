@@ -4,10 +4,7 @@ import android.annotation.SuppressLint
 import android.graphics.drawable.BitmapDrawable
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.ImageView
-import android.widget.ListView
-import android.widget.TextView
+import android.widget.*
 import com.gh0u1l5.wechatmagician.spellbook.interfaces.IAdapterHook
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.Methods.MMBaseAdapter_getItemInternal
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.conversation.Classes
@@ -47,11 +44,11 @@ object MainAdapter : IAdapterHook {
 
         val conversationWithCacheAdapter = Classes.ConversationWithCacheAdapter
 
-//        findAndHookMethod(ConversationWithAppBrandListView, "setAdapter", object : XC_MethodHook() {
-//            override fun afterHookedMethod(param: MethodHookParam) {
-//                listView = param.thisObject as ListView
-//            }
-//        })
+        findAndHookMethod(ConversationWithAppBrandListView, "setAdapter", ListAdapter::class.java, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                listView = param.thisObject as ListView
+            }
+        })
 
         findAndHookMethod(conversationWithCacheAdapter.superclass, "getCount", object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -169,8 +166,8 @@ object MainAdapter : IAdapterHook {
 //                    it.notifyDataSetChanged()
 //                }
 
-//                updateItem(firstChatroomPosition, listView!!)
-//                updateItem(firstOfficialPosition, listView!!)
+                updateItem(firstChatroomPosition, listView!!)
+                updateItem(firstOfficialPosition, listView!!)
 
 
                 XposedBridge.log("MessageHooker2.6, firstChatroomPosition = $chatRoomPosition \n")
