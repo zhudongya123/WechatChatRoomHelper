@@ -3,9 +3,11 @@ package     com.zdy.project.wechat_chatroom_helper.plugins
 import android.annotation.SuppressLint
 import com.gh0u1l5.wechatmagician.spellbook.SpellBook
 import com.zdy.project.wechat_chatroom_helper.Constants
+import com.zdy.project.wechat_chatroom_helper.plugins.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHooker
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
@@ -19,7 +21,7 @@ class PluginEntry : IXposedHookLoadPackage {
 
     companion object {
 
-        //  lateinit var runtimeInfo: RuntimeInfo
+          lateinit var runtimeInfo: RuntimeInfo
 
         lateinit var classloader: ClassLoader
 
@@ -33,19 +35,19 @@ class PluginEntry : IXposedHookLoadPackage {
 
         if (p0.processName != Constants.WECHAT_PACKAGE_NAME) return
 
-//        runtimeInfo.refresh()
-//
-//        classloader = p0.classLoader
-//
-        //      MainLauncherUI.execute()
+        runtimeInfo.refresh()
+
+        classloader = p0.classLoader
+
 
 
         try {
-            SpellBook.startup(p0, listOf(MessageHooker, MainAdapter), listOf())
+            SpellBook.startup(p0, listOf(MessageHooker, MainAdapter, MainLauncherUI), listOf())
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
+        MainLauncherUI.executeHook()
         MainAdapter.executeHook()
         //LogRecord.executeHook()
     }
