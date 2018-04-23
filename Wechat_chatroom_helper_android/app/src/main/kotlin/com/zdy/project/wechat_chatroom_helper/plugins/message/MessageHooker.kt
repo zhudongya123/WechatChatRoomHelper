@@ -16,7 +16,7 @@ import de.robv.android.xposed.XposedHelpers
 object MessageHooker : IDatabaseHook {
 
 
-    private const val SqlForGetFirstOfficial = "select rconversation.username, rcontact.nickname from rconversation, rcontact where (rconversation.username = rcontact.username and rcontact.verifyFlag == 24 ) order by flag desc limit 1"
+    private const val SqlForGetFirstOfficial = "select rconversation.username,rcontact.nickname from rconversation,rcontact where ( rcontact.username = rconversation.username and rcontact.verifyFlag = 24) and ( parentRef is null  or parentRef = '' )  and ( 1 !=1 or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  and rconversation.username != 'qmessage' order by flag desc limit 1"
     private const val SqlForGetFirstChatroom = "select rconversation.username, rcontact.nickname from rconversation, rcontact where (rconversation.username = rcontact.username) and rconversation.username like '%@chatroom' order by flag desc limit 1"
     private const val SqlForAllConversation = "select unReadCount, status, isSend, conversationTime, username, content, msgType, flag, digest, digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite from rconversation where  ( parentRef is null  or parentRef = '' )  and ( 1 != 1  or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  and rconversation.username != 'qmessage' order by flag desc"
     private const val KeyWordFilterAllConversation1 = "UnReadInvite"
@@ -42,7 +42,6 @@ object MessageHooker : IDatabaseHook {
 
         val onDatabaseQueried = Operation.nop<Any>()
 
-
         if (!sql.contains(KeyWordFilterAllConversation1)) return onDatabaseQueried
         if (!sql.contains(KeyWordFilterAllConversation2)) return onDatabaseQueried
 
@@ -60,7 +59,7 @@ object MessageHooker : IDatabaseHook {
                 cursorForChatroom.moveToNext()
 
                 val firstChatRoomUsername = cursorForChatroom.getString(0)
-                val firstChatRoomNickname = cursorForOfficial.getString(1)
+                val firstChatRoomNickname = cursorForChatroom.getString(1)
 
                 iMainAdapterRefreshes.forEach { it.onFirstChatroomRefresh(firstChatRoomNickname, firstChatRoomUsername, firstOfficialNickname, firstOfficialUsername) }
 
@@ -84,12 +83,6 @@ object MessageHooker : IDatabaseHook {
                         ") " +
                         "order by flag desc"
 
-//                val sql1 = "select unReadCount, status, isSend, conversationTime, rconversation.username, content, msgType, flag, digest, digestUser, " +
-//                        "attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite " +
-//                        "from rconversation, rcontact where  ( parentRef is null  or parentRef = '' )  " +
-//                        "and (rconversation.username = rcontact.username and rcontact.verifyFlag = 0)" +
-//                        "and ( 1 != 1 or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  " +
-//                        "and rconversation.username != 'qmessage' order by flag desc"
 
                 val result = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, sqlForAllConversationAndEntry, selectionArgs, editTable, cancellationSignal)
 

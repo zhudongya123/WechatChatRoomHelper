@@ -103,7 +103,6 @@ object MainAdapter : IAdapterHook {
 
                         val position = param.args[0] as Int
 
-                        XposedBridge.log("MMBaseAdapter_getView, afterHookedMethod, index = " + position)
 
                         refreshEntryView(param.result as View, position, param)
                     }
@@ -123,31 +122,29 @@ object MainAdapter : IAdapterHook {
 
                         val content = ((contentContainer.getChildAt(1) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(1)
 
-                        val mTextField = XposedHelpers.findField(XposedHelpers.findClass("com.tencent.mm.ui.base.NoMeasuredTextView", PluginEntry.classloader), "mText")
-                        mTextField.isAccessible = true
-                        val nickNameCharSequence = mTextField.get(nickname) as CharSequence
+                        val nickNameCharSequence = getTextFromNoMeasuredTextView(nickname)
 
-                        when (nickNameCharSequence) {
-                            firstChatroomNickname -> {
-                                setTextForMeasureTextView(nickname, "群消息")
-                                setTextForMeasureTextView(content, "")
-                                avatar.setImageDrawable(BitmapDrawable())
+                        XposedBridge.log("MessageHooker2.6,position = $position, nickNameCharSequence = $nickNameCharSequence, firstChatroomNickname = $firstChatroomNickname ,firstOfficialNickname = $firstOfficialNickname \n")
 
-                                param.result = view
+                        if (nickNameCharSequence.toString() == firstChatroomNickname) {
 
-                            }
-                            firstOfficialNickname -> {
-                                setTextForMeasureTextView(nickname, "服务号")
-                                setTextForMeasureTextView(content, "")
-                                avatar.setImageDrawable(BitmapDrawable())
 
-                                param.result = view
-                            }
-                            else -> {
-                            }
+                            setTextForNoMeasuredTextView(nickname, "群消息")
+                            setTextForNoMeasuredTextView(content, "")
+                            avatar.setImageDrawable(BitmapDrawable())
+
+
+                        }
+                        if (nickNameCharSequence.toString() == firstOfficialNickname) {
+
+
+                            setTextForNoMeasuredTextView(nickname, "服务号")
+                            setTextForNoMeasuredTextView(content, "")
+                            avatar.setImageDrawable(BitmapDrawable())
+
+
                         }
                     }
-
 
                 })
 
@@ -186,30 +183,32 @@ object MainAdapter : IAdapterHook {
 //            }
 //        })
 
-        MessageHooker.addAdapterRefreshListener(object : IMainAdapterHelperEntryRefresh {
-            override fun onFirstChatroomRefresh(chatRoomNickname: String, chatRoomUsername: String,
-                                                officialNickname: String, officialUsername: String) {
+        MessageHooker.addAdapterRefreshListener(
+                object : IMainAdapterHelperEntryRefresh {
+                    override fun onFirstChatroomRefresh(chatRoomNickname: String, chatRoomUsername: String,
+                                                        officialNickname: String, officialUsername: String) {
 
-                this@MainAdapter.firstChatroomNickname = chatRoomNickname
-                this@MainAdapter.firstOfficialNickname = officialNickname
+                        this@MainAdapter.firstChatroomNickname = chatRoomNickname
+                        this@MainAdapter.firstOfficialNickname = officialNickname
 
-            }
 
-            fun onFirstChatroomRefresh(chatRoomPosition: Int, chatRoomChatInfoModel: ChatInfoModel, officialPosition: Int, officialChatInfoModel: ChatInfoModel) {
+                    }
 
-                firstChatroomPosition = chatRoomPosition
-                firstOfficialPosition = officialPosition
+                    fun onFirstChatroomRefresh(chatRoomPosition: Int, chatRoomChatInfoModel: ChatInfoModel, officialPosition: Int, officialChatInfoModel: ChatInfoModel) {
+
+                        firstChatroomPosition = chatRoomPosition
+                        firstOfficialPosition = officialPosition
 
 //                firstChatroomInfoModel = chatRoomChatInfoModel
 //                firstOfficialInfoModel = officialChatInfoModel
 
 
-                /**
-                 *
-                 * notifyDataSetChanged 之后会调用
-                 *
-                 *
-                 */
+                        /**
+                         *
+                         * notifyDataSetChanged 之后会调用
+                         *
+                         *
+                         */
 //                originAdapter?.let {
 //                    it.notifyDataSetChanged()
 //                }
@@ -218,11 +217,12 @@ object MainAdapter : IAdapterHook {
 //                updateItem(firstOfficialPosition, listView!!)
 
 
-                XposedBridge.log("MessageHooker2.6, firstChatroomPosition = $chatRoomPosition \n")
-                XposedBridge.log("MessageHooker2.6, firstOfficialPosition = $officialPosition \n")
-            }
-        })
+                        XposedBridge.log("MessageHooker2.6, firstChatroomPosition = $chatRoomPosition \n")
+                        XposedBridge.log("MessageHooker2.6, firstOfficialPosition = $officialPosition \n")
+                    }
+                })
     }
+
 
     private fun updateItem(position: Int, listView: ListView) {
         /**第一个可见的位置 */
@@ -240,6 +240,10 @@ object MainAdapter : IAdapterHook {
     }
 
 
-    fun setTextForMeasureTextView(measureTextView: Any, charSequence: CharSequence) = XposedHelpers.callMethod(measureTextView, "setText", charSequence)
-
+    fun setTextForNoMeasuredTextView(noMeasuredTextView: Any, charSequence: CharSequence) = XposedHelpers.callMethod(noMeasuredTextView, "setText", charSequence)
+    fun getTextFromNoMeasuredTextView(noMeasuredTextView: Any): CharSequence {
+        val mTextField = XposedHelpers.findField(XposedHelpers.findClass("com.tencent.mm.ui.base.NoMeasuredTextView", PluginEntry.classloader), "mText")
+        mTextField.isAccessible = true
+        return mTextField.get(noMeasuredTextView) as CharSequence
+    }
 }
