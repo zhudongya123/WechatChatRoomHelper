@@ -5,7 +5,6 @@ import android.database.Cursor
 import android.util.Log
 import com.gh0u1l5.wechatmagician.spellbook.base.Operation
 import com.gh0u1l5.wechatmagician.spellbook.interfaces.IDatabaseHook
-import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.IMainAdapterHelperEntryRefresh
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
@@ -16,8 +15,8 @@ import de.robv.android.xposed.XposedHelpers
 object MessageHooker : IDatabaseHook {
 
 
-    private const val SqlForGetFirstOfficial = "select rconversation.username,rcontact.nickname from rconversation,rcontact where ( rcontact.username = rconversation.username and rcontact.verifyFlag = 24) and ( parentRef is null  or parentRef = '' )  and ( 1 !=1 or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  and rconversation.username != 'qmessage' order by flag desc limit 1"
-    private const val SqlForGetFirstChatroom = "select rconversation.username, rcontact.nickname from rconversation, rcontact where (rconversation.username = rcontact.username) and rconversation.username like '%@chatroom' order by flag desc limit 1"
+    private const val SqlForGetFirstOfficial = "select rconversation.username from rconversation,rcontact where ( rcontact.username = rconversation.username and rcontact.verifyFlag = 24) and ( parentRef is null  or parentRef = '' )  and ( 1 !=1 or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  and rconversation.username != 'qmessage' order by flag desc limit 1"
+    private const val SqlForGetFirstChatroom = "select username from rconversation where  username like '%@chatroom' order by flag desc limit 1"
     private const val SqlForAllConversation = "select unReadCount, status, isSend, conversationTime, username, content, msgType, flag, digest, digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite from rconversation where  ( parentRef is null  or parentRef = '' )  and ( 1 != 1  or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  and rconversation.username != 'qmessage' order by flag desc"
     private const val KeyWordFilterAllConversation1 = "UnReadInvite"
     private const val KeyWordFilterAllConversation2 = "by flag desc"
@@ -54,14 +53,11 @@ object MessageHooker : IDatabaseHook {
 
                 cursorForOfficial.moveToNext()
                 val firstOfficialUsername = cursorForOfficial.getString(0)
-                val firstOfficialNickname = cursorForOfficial.getString(1)
 
                 cursorForChatroom.moveToNext()
-
                 val firstChatRoomUsername = cursorForChatroom.getString(0)
-                val firstChatRoomNickname = cursorForChatroom.getString(1)
 
-                iMainAdapterRefreshes.forEach { it.onFirstChatroomRefresh(firstChatRoomNickname, firstChatRoomUsername, firstOfficialNickname, firstOfficialUsername) }
+                iMainAdapterRefreshes.forEach { it.onFirstChatroomRefresh("", firstChatRoomUsername, "", firstOfficialUsername) }
 
 
                 sqlForAllConversationAndEntry = "select unReadCount, status, isSend, conversationTime, rconversation.username, " +

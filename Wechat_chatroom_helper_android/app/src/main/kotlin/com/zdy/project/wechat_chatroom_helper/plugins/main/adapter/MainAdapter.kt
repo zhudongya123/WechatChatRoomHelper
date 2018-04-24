@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.gh0u1l5.wechatmagician.spellbook.interfaces.IAdapterHook
+import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.Methods.MMBaseAdapter_getItemInternal
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.conversation.Classes
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
@@ -29,8 +30,8 @@ object MainAdapter : IAdapterHook {
     private var firstChatroomPosition = -1
     private var firstOfficialPosition = -1
 
-    var firstChatroomNickname = ""
-    var firstOfficialNickname = ""
+    var firstChatroomUserName = ""
+    var firstOfficialUserName = ""
 
 
     override fun onConversationAdapterCreated(adapter: BaseAdapter) {
@@ -122,26 +123,23 @@ object MainAdapter : IAdapterHook {
 
                         val content = ((contentContainer.getChildAt(1) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(1)
 
-                        val nickNameCharSequence = getTextFromNoMeasuredTextView(nickname)
+                        val field_username = XposedHelpers.getObjectField(XposedHelpers.callMethod(param.thisObject, MMBaseAdapter_getItemInternal, position), "field_username") as String
 
-                        XposedBridge.log("MessageHooker2.6,position = $position, nickNameCharSequence = $nickNameCharSequence, firstChatroomNickname = $firstChatroomNickname ,firstOfficialNickname = $firstOfficialNickname \n")
+                        XposedBridge.log("MessageHooker2.6,position = $position, field_username = $field_username, " +
+                                "firstChatroomUserName = $firstChatroomUserName ,firstOfficialUserName = $firstOfficialUserName \n")
 
-                        if (nickNameCharSequence.toString() == firstChatroomNickname) {
-
+                        if (field_username == firstChatroomUserName) {
 
                             setTextForNoMeasuredTextView(nickname, "群消息")
                             setTextForNoMeasuredTextView(content, "")
                             avatar.setImageDrawable(BitmapDrawable())
 
-
                         }
-                        if (nickNameCharSequence.toString() == firstOfficialNickname) {
-
+                        if (field_username == firstOfficialUserName) {
 
                             setTextForNoMeasuredTextView(nickname, "服务号")
                             setTextForNoMeasuredTextView(content, "")
                             avatar.setImageDrawable(BitmapDrawable())
-
 
                         }
                     }
@@ -188,8 +186,8 @@ object MainAdapter : IAdapterHook {
                     override fun onFirstChatroomRefresh(chatRoomNickname: String, chatRoomUsername: String,
                                                         officialNickname: String, officialUsername: String) {
 
-                        this@MainAdapter.firstChatroomNickname = chatRoomNickname
-                        this@MainAdapter.firstOfficialNickname = officialNickname
+                        this@MainAdapter.firstChatroomUserName = chatRoomUsername
+                        this@MainAdapter.firstOfficialUserName = officialUsername
 
 
                     }
