@@ -37,12 +37,14 @@ object MessageHooker : IDatabaseHook {
 
     override fun onDatabaseQueried(thisObject: Any, factory: Any?, sql: String, selectionArgs: Array<String>?, editTable: String?, cancellationSignal: Any?, result: Any?): Operation<Any?> {
 
-        Log.v("MessageHooker", "onDatabaseQueried, thisObject = $thisObject, sql = $sql ")
+        Log.v("MessageHooker", "onDatabaseQueried, thisObject = $thisObject, sql = $sql sql getCount  = ${(result as Cursor).count}")
 
         val onDatabaseQueried = Operation.nop<Any>()
 
         if (!sql.contains(KeyWordFilterAllConversation1)) return onDatabaseQueried
         if (!sql.contains(KeyWordFilterAllConversation2)) return onDatabaseQueried
+
+
 
         if (sql == SqlForAllConversation)
             try {
