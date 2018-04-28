@@ -11,6 +11,7 @@ import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.conversation.Classes
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.IMainAdapterHelperEntryRefresh
+import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ClassesByCursor
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ConversationWithAppBrandListView
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHooker
 import de.robv.android.xposed.XC_MethodHook
@@ -48,6 +49,16 @@ object MainAdapter : IAdapterHook {
                 listView = param.thisObject as ListView
             }
         })
+
+
+        ClassesByCursor.classes.forEach {
+            findAndHookMethod(it, "getCount", object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    param.throwable = RuntimeException("MessageHooker2.10, className = ${param.thisObject::class.java.simpleName} getCount = ${param.result}")
+                }
+            })
+        }
+
 
         findAndHookMethod(conversationWithCacheAdapter.superclass, "getCount", object : XC_MethodHook() {
 
