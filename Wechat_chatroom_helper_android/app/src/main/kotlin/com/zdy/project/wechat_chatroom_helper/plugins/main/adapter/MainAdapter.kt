@@ -50,11 +50,14 @@ object MainAdapter : IAdapterHook {
             }
         })
 
+        ClassesByCursor.forEach { XposedBridge.log("MessageHooker2.11, className = ${it.name}") }
 
-        ClassesByCursor.classes.forEach {
+
+        ClassesByCursor.forEach {
             findAndHookMethod(it, "getCount", object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    param.throwable = RuntimeException("MessageHooker2.10, className = ${param.thisObject::class.java.simpleName} getCount = ${param.result}")
+                    XposedBridge.log("MessageHooker2.11, className = ${param.thisObject::class.java.name} getCount = ${param.result}")
+
                 }
             })
         }

@@ -57,12 +57,12 @@ object MessageHooker : IDatabaseHook {
     }
     override fun onDatabaseQueried(thisObject: Any, factory: Any?, sql: String, selectionArgs: Array<String>?, editTable: String?, cancellationSignal: Any?, result: Any?): Operation<Any?> {
 
-//        try {
-//
-//            Log.v("MessageHooker", "onDatabaseQueried, thisObject = $thisObject, sql = $sql sql getCount  = ${(result as Cursor).count}")
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//        }
+        try {
+
+            Log.v("MessageHooker", "onDatabaseQueried, thisObject = $thisObject, sql = $sql sql getCount  = ${(result as Cursor).count}")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
         val onDatabaseQueried = Operation.nop<Any>()
 

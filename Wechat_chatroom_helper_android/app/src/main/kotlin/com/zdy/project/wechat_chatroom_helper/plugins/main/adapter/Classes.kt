@@ -3,6 +3,8 @@ package com.zdy.project.wechat_chatroom_helper.plugins.main.adapter
 import android.database.Cursor
 import com.gh0u1l5.wechatmagician.spellbook.WechatGlobal
 import com.gh0u1l5.wechatmagician.spellbook.util.ReflectionUtil
+import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
+import de.robv.android.xposed.XposedHelpers
 
 object Classes {
 
@@ -11,11 +13,15 @@ object Classes {
     }
 
     val WechatClasses by WechatGlobal.wxLazy("WechatClasses") {
-        ReflectionUtil.findClassesFromPackage(WechatGlobal.wxLoader!!, WechatGlobal.wxClasses!!, WechatGlobal.wxPackageName)
+        WechatGlobal.wxClasses!!.filter { it.contains(WechatGlobal.wxPackageName) }.map { XposedHelpers.findClass(it, PluginEntry.classloader) }
     }
 
     val ClassesByCursor by WechatGlobal.wxLazy("ClassesByCursor") {
-        WechatClasses.filterBySuper(Cursor::class.java)
+        WechatClasses.filter { it.interfaces.contains(Cursor::class.java) }
+                .flatMap {
+                    val clazz = it
+                    WechatClasses.filter { it.interfaces.contains(clazz) }
+                }
     }
 
 
