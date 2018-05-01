@@ -1,6 +1,7 @@
 package com.zdy.project.wechat_chatroom_helper.plugins.main.adapter
 
 import android.database.Cursor
+import com.gh0u1l5.wechatmagician.spellbook.C
 import com.gh0u1l5.wechatmagician.spellbook.WechatGlobal
 import com.gh0u1l5.wechatmagician.spellbook.util.ReflectionUtil
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
@@ -22,6 +23,14 @@ object Classes {
                     val clazz = it
                     WechatClasses.filter { it.interfaces.contains(clazz) }
                 }
+    }
+
+
+    val ConversationClickListener: Class<*> by WechatGlobal.wxLazy("ConversationClickListener") {
+        ReflectionUtil.findClassesFromPackage(WechatGlobal.wxLoader!!, WechatGlobal.wxClasses!!, "${WechatGlobal.wxPackageName}.ui.conversation")
+                .filterByMethod(null, "onItemClick", C.AdapterView, C.View, C.Int, C.Long)
+                .firstOrNull()
+
     }
 
 

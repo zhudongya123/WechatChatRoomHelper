@@ -7,7 +7,6 @@ import com.zdy.project.wechat_chatroom_helper.plugins.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHooker
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
@@ -36,12 +35,12 @@ class PluginEntry : IXposedHookLoadPackage {
         classloader = p0.classLoader
 
         try {
-            SpellBook.startup(p0, listOf(MessageHooker, MainAdapter), listOf())
+            SpellBook.startup(p0, listOf(MainLauncherUI, MessageHooker, MainAdapter), listOf())
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
-      //  MainLauncherUI.executeHook()
+        MainLauncherUI.executeHook()
         MainAdapter.executeHook()
     }
 }

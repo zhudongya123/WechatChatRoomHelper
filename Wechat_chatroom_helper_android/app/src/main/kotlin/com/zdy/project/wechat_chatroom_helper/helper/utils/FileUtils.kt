@@ -137,11 +137,7 @@ class FileUtils {
             fis.close()
             Log.v("FileUtils", "getFileString = $res")
 
-            try {
-                throw Exception()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+
             return res
         }
 

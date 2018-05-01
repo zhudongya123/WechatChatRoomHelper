@@ -2,7 +2,6 @@ package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 
 import android.content.Context
 import android.graphics.Color
-import android.graphics.PorterDuff
 import android.os.Build
 import android.os.Handler
 import android.support.v7.widget.LinearLayoutManager
@@ -19,6 +18,7 @@ import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.ConfigChatRoomDialog
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialog
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
 import de.robv.android.xposed.XposedHelpers
 import network.ApiManager
 import utils.AppSaveInfo
@@ -65,7 +65,7 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
         mainView.addView(mRecyclerView)
         mainView.isClickable = true
 
-        mainView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo()))
+        mainView.setBackgroundColor(Color.parseColor("#" + RuntimeInfo.helperColor))
 
         initSwipeBack()
 
@@ -175,8 +175,8 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
 //                .getIdentifier(Drawable_String_Arrow, "drawable", mContext.packageName))
 
         mToolbar.setNavigationOnClickListener { dismiss() }
-        mToolbar.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.toolbarColorInfo()))
-        mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo()))
+        mToolbar.setBackgroundColor(Color.parseColor("#" + RuntimeInfo.toolbarColor))
+        mRecyclerView.setBackgroundColor(Color.parseColor("#" + RuntimeInfo.helperColor))
 
         when (pageType) {
             PageType.CHAT_ROOMS -> mToolbar.title = "群消息助手"

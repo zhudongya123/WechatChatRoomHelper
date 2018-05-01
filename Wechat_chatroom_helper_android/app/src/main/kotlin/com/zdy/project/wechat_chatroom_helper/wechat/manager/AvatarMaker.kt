@@ -83,7 +83,7 @@ object AvatarMaker {
 
         //填充背景
         canvas.run {
-            if (AppSaveInfo.isCircleAvatarInfo())
+            if (RuntimeInfo.isCircleAvatar)
                 drawCircle(contentSize.toFloat(), contentSize.toFloat(), contentSize.toFloat(),
                         paint.apply {
                             color = backgroundColor

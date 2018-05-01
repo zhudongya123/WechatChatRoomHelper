@@ -5,6 +5,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.gh0u1l5.wechatmagician.spellbook.C
 import com.gh0u1l5.wechatmagician.spellbook.interfaces.IAdapterHook
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.Methods.MMBaseAdapter_getItemInternal
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.conversation.Classes
@@ -12,6 +13,7 @@ import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.IMainAdapterHelperEntryRefresh
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ClassesByCursor
+import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ConversationClickListener
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ConversationWithAppBrandListView
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHooker
 import de.robv.android.xposed.XC_MethodHook
@@ -89,6 +91,33 @@ object MainAdapter : IAdapterHook {
             }
         })
 
+        findAndHookMethod(ConversationClickListener, "onItemClick", C.AdapterView, C.View, C.Int, C.Long, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val position = param.args[2] as Int
+
+                val field_username = XposedHelpers.getObjectField(XposedHelpers.callMethod(param.thisObject, MMBaseAdapter_getItemInternal, position), "field_username") as String
+
+                XposedBridge.log("MessageHooker2.6,position = $position, field_username = $field_username, " +
+                        "firstChatroomUserName = $firstChatroomUserName ,firstOfficialUserName = $firstOfficialUserName \n")
+
+                if (field_username == firstChatroomUserName) {
+
+
+                    PluginEntry.chatRoomViewPresenter.show()
+                    param.result = null
+                }
+                if (field_username == firstOfficialUserName) {
+
+
+                    PluginEntry.officialViewPresenter.show()
+
+                    param.result = null
+                }
+
+
+            }
+        })
+
         findAndHookMethod(conversationWithCacheAdapter, "getView",
                 Int::class.java, View::class.java, ViewGroup::class.java,
                 object : XC_MethodHook() {
@@ -117,7 +146,6 @@ object MainAdapter : IAdapterHook {
                     override fun afterHookedMethod(param: MethodHookParam) {
 
                         val position = param.args[0] as Int
-
 
                         refreshEntryView(param.result as View, position, param)
                     }

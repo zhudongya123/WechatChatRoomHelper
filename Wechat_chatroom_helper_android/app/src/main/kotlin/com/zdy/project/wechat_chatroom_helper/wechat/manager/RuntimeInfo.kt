@@ -19,9 +19,16 @@ object RuntimeInfo {
     var isPlayVersion = false
     var helperVersionCode = 0
     var wechatVersion = 0
-
-
     var isOpenLog = true
+
+
+    var toolbarColor = ""
+    var helperColor = ""
+    var nicknameColor = ""
+    var contentColor = ""
+    var timeColor = ""
+    var dividerColor = ""
+
 
     init {
         refresh()
@@ -39,5 +46,12 @@ object RuntimeInfo {
         wechatVersion = AppSaveInfo.wechatVersionInfo().toInt()
 
         isOpenLog = AppSaveInfo.openLogInfo()
+
+        toolbarColor = AppSaveInfo.toolbarColorInfo()
+        helperColor = AppSaveInfo.helperColorInfo()
+        nicknameColor = AppSaveInfo.nicknameColorInfo()
+        contentColor = AppSaveInfo.contentColorInfo()
+        timeColor = AppSaveInfo.contentColorInfo()
+        dividerColor = AppSaveInfo.dividerColorInfo()
     }
 }
