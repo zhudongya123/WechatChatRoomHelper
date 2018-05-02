@@ -107,7 +107,6 @@ object MainAdapter : IAdapterHook {
 
                 if (field_username == firstChatroomUserName) {
 
-
                     PluginEntry.chatRoomViewPresenter.show()
                     param.result = null
                 }

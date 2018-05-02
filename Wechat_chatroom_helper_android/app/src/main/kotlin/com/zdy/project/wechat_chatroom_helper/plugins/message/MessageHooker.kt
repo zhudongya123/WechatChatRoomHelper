@@ -55,6 +55,7 @@ object MessageHooker : IDatabaseHook {
 
         return super.onDatabaseQuerying(thisObject, factory, sql, selectionArgs, editTable, cancellationSignal)
     }
+
     override fun onDatabaseQueried(thisObject: Any, factory: Any?, sql: String, selectionArgs: Array<String>?, editTable: String?, cancellationSignal: Any?, result: Any?): Operation<Any?> {
 
         try {
@@ -179,6 +180,13 @@ object MessageHooker : IDatabaseHook {
     }
 
     override fun onDatabaseInserted(thisObject: Any, table: String, nullColumnHack: String?, initialValues: ContentValues?, conflictAlgorithm: Int, result: Long): Operation<Long?> {
+
+
+        if (table == "message") {
+            var talker = initialValues?.getAsString("talker")
+            var createTime = initialValues?.getAsLong("createTime")
+            var content = initialValues?.get("content")
+        }
 
         Log.v("MessageHooker", "onDatabaseInserted, thisObject = $thisObject, table = $table ,nullColumnHack = $nullColumnHack ,initialValues = $initialValues, conflictAlgorithm = $conflictAlgorithm, result = $result")
 
