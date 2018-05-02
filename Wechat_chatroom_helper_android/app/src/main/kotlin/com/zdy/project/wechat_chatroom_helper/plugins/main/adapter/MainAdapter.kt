@@ -58,7 +58,7 @@ object MainAdapter : IAdapterHook {
         ClassesByCursor.forEach {
             findAndHookMethod(it, "getCount", object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    XposedBridge.log("MessageHooker2.11, className = ${param.thisObject::class.java.name} getCount = ${param.result}")
+                //    XposedBridge.log("MessageHooker2.15, className = ${param.thisObject::class.java.name} getCount = ${param.result}")
 
                 }
             })
@@ -95,7 +95,12 @@ object MainAdapter : IAdapterHook {
             override fun beforeHookedMethod(param: MethodHookParam) {
                 val position = param.args[2] as Int
 
-                val field_username = XposedHelpers.getObjectField(XposedHelpers.callMethod(param.thisObject, MMBaseAdapter_getItemInternal, position), "field_username") as String
+//
+//                var field = XposedHelpers.findFirstFieldByExactType(param.thisObject.javaClass, conversationWithCacheAdapter)
+//
+//                var get = field.get(param.thisObject)
+
+                val field_username = XposedHelpers.getObjectField(XposedHelpers.callMethod(originAdapter, MMBaseAdapter_getItemInternal, position), "field_username") as String
 
                 XposedBridge.log("MessageHooker2.6,position = $position, field_username = $field_username, " +
                         "firstChatroomUserName = $firstChatroomUserName ,firstOfficialUserName = $firstOfficialUserName \n")
