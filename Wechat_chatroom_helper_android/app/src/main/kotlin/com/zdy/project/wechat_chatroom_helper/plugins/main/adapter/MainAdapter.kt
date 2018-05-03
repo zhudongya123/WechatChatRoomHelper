@@ -11,11 +11,11 @@ import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.Methods.MMBaseAdapter_g
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.conversation.Classes
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
-import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.IMainAdapterHelperEntryRefresh
+import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.MessageEventNotifyListener
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ClassesByCursor
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ConversationClickListener
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ConversationWithAppBrandListView
-import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHooker
+import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHandler
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
@@ -70,7 +70,7 @@ object MainAdapter : IAdapterHook {
 //            override fun beforeHookedMethod(param: MethodHookParam) {
 //                if (param.thisObject::class.simpleName != conversationWithCacheAdapter.simpleName) return
 //
-//                param.result = MessageHooker.conversationSize
+//                param.result = MessageHandler.conversationSize
 //            }
 
 //            override fun afterHookedMethod(param: MethodHookParam) {
@@ -227,16 +227,20 @@ object MainAdapter : IAdapterHook {
 //            }
 //        })
 
-        MessageHooker.addAdapterRefreshListener(
-                object : IMainAdapterHelperEntryRefresh {
-                    override fun onFirstChatroomRefresh(chatRoomNickname: String, chatRoomUsername: String,
-                                                        officialNickname: String, officialUsername: String) {
+        MessageHandler.addMessageEventNotifyListener(
+                object : MessageEventNotifyListener {
+                    override fun onEntryRefresh(chatRoomUsername: String, officialUsername: String) {
 
                         this@MainAdapter.firstChatroomUserName = chatRoomUsername
                         this@MainAdapter.firstOfficialUserName = officialUsername
 
+                    }
+
+                    override fun onNewMessageCreate(talker: String, createTime: Long, content: Any) {
 
                     }
+
+
 
                     fun onFirstChatroomRefresh(chatRoomPosition: Int, chatRoomChatInfoModel: ChatInfoModel, officialPosition: Int, officialChatInfoModel: ChatInfoModel) {
 

@@ -19,7 +19,6 @@ class ChatRoomViewPresenter(mContext: Context, pageType: Int) : ChatRoomContract
 
     private val mView: ChatRoomContract.View
 
-
     init {
         presenterView = FrameLayout(mContext).also {
             it.layoutParams = ViewGroup.LayoutParams(ViewGroup
