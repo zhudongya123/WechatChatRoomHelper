@@ -14,6 +14,7 @@ import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
+import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageFactory
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.ConfigChatRoomDialog
@@ -22,13 +23,14 @@ import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
 import de.robv.android.xposed.XposedHelpers
 import network.ApiManager
 import utils.AppSaveInfo
+import java.text.MessageFormat
 import java.util.*
 
 /**
  * Created by Mr.Zdy on 2017/8/27.
  */
 
-class ChatRoomView(private val mContext: Context, private val mContainer: ViewGroup, private val pageType: Int) : ChatRoomContract.View {
+class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private val pageType: Int) : ChatRoomContract.View {
 
 
     private lateinit var mPresenter: ChatRoomContract.Presenter
@@ -85,7 +87,7 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
             }
 
             override fun onPanelOpened(panel: View) {
-              //  RuntimeInfo.changeCurrentPage(PageType.MAIN)
+                //  RuntimeInfo.changeCurrentPage(PageType.MAIN)
             }
 
             override fun onPanelClosed(panel: View) {
@@ -123,39 +125,46 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
     }
 
     override fun showMessageRefresh(targetUserName: String) {
-        Handler(mContext.mainLooper).post(Runnable {
-            val data = mAdapter.data
-            for (i in data.indices) {
-                val item = data[i]
-                if (item.avatarString == targetUserName) {
+//        Handler(mContext.mainLooper).post(Runnable {
+//            val data = mAdapter.data
+//            for (i in data.indices) {
+//                val item = data[i]
+//                if (item.avatarString == targetUserName) {
 //                    val bean = HookLogic.getMessageBeanForOriginIndex(mPresenter.originAdapter,
 //                            mAdapter.muteListInAdapterPositions[i])
-
+//
 //                    data[i] = ChatInfoModel.convertFromObject(bean, mPresenter.originAdapter, mContext)
 //                    mAdapter.data = data
 //                    mAdapter.notifyItemChanged(i)
+//
+//                    LogUtils.log("showMessageRefresh for one recycler view , pageType = " + PageType.printPageType(pageType))
+//                    return@Runnable
+//                }
+//            }
+//        })
 
-                //    LogUtils.log("showMessageRefresh for one recycler view , pageType = " + PageType.printPageType(pageType))
-                    return@Runnable
-                }
-            }
-        })
+
     }
 
 
     override fun showMessageRefresh(muteListInAdapterPositions: ArrayList<Int>) {
-        val currentPage = 0//RuntimeInfo.currentPage
-        when (currentPage) {
-            PageType.CHAT_ROOMS, PageType.CHATTING_WITH_CHAT_ROOMS -> if (pageType == PageType.OFFICIAL) return
-            PageType.OFFICIAL, PageType.CHATTING_WITH_OFFICIAL -> if (pageType == PageType.CHAT_ROOMS) return
-        }
+//        val currentPage = 0//RuntimeInfo.currentPage
+
+
+//        when (currentPage) {
+//            PageType.CHAT_ROOMS, PageType.CHATTING_WITH_CHAT_ROOMS -> if (pageType == PageType.OFFICIAL) return
+//            PageType.OFFICIAL, PageType.CHATTING_WITH_OFFICIAL -> if (pageType == PageType.CHAT_ROOMS) return
+//        }
 
 //        val data = muteListInAdapterPositions
 //                .map { HookLogic.getMessageBeanForOriginIndex(mPresenter.originAdapter, it) }
 //                .mapTo(ArrayList()) { ChatInfoModel.convertFromObject(it, mPresenter.originAdapter, mContext) }
 
-        mAdapter.muteListInAdapterPositions = muteListInAdapterPositions
-      //  mAdapter.data = data
+        //  mAdapter.muteListInAdapterPositions = muteListInAdapterPositions
+        //  mAdapter.data = data
+
+        mAdapter.data = if (pageType == PageType.CHAT_ROOMS) MessageFactory.getAllChatroom() else MessageFactory.getAllOfficial()
+
 
         mAdapter.notifyDataSetChanged()
 
@@ -214,7 +223,7 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
 
         imageView.layoutParams = params
         imageView.setPadding(height / 5, height / 5, height / 5, height / 5)
-   //     imageView.setImageResource(mContext.resources.getIdentifier(Drawable_String_Setting, "drawable", mContext.packageName))
+        //     imageView.setImageResource(mContext.resources.getIdentifier(Drawable_String_Setting, "drawable", mContext.packageName))
 
         imageView.setOnClickListener {
             when (pageType) {
@@ -236,10 +245,10 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
                         override fun onClick() {
                             val dialog = WhiteListDialog(mContext)
 
-                         //   if (AppSaveInfo.chatRoomTypeInfo() == "1")
-                           //     dialog.list = HookLogic.allChatRoomNickNameEntries
-                        //    else
-                          //      dialog.list = HookLogic.muteChatRoomNickNameEntries
+                            //   if (AppSaveInfo.chatRoomTypeInfo() == "1")
+                            //     dialog.list = HookLogic.allChatRoomNickNameEntries
+                            //    else
+                            //      dialog.list = HookLogic.muteChatRoomNickNameEntries
 
                             dialog.pageType = PageType.CHAT_ROOMS
                             dialog.setOnClickListener(View.OnClickListener { XposedHelpers.callMethod(mPresenter.originAdapter, "notifyDataSetChanged") })
@@ -252,7 +261,7 @@ class ChatRoomView(private val mContext: Context, private val mContainer: ViewGr
             }
         }
 
-     //   imageView.drawable.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
+        //   imageView.drawable.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
 
         mToolbarContainer.addView(mToolbar)
         mToolbarContainer.addView(imageView)

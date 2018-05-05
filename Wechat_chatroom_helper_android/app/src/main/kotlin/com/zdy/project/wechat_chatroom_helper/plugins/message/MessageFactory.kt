@@ -25,15 +25,20 @@ object MessageFactory {
             "where rconversation.username = rcontact.username and rconversation.username = '$field_username'"
 
 
-    private fun getDataBaseFactory(any: Any) = XposedHelpers.findField(any::class.java, "mCursorFactory").apply { isAccessible = true }.get(any)!!
+    @JvmStatic
+    fun getDataBaseFactory(any: Any) = XposedHelpers.findField(any::class.java, "mCursorFactory").apply { isAccessible = true }.get(any)
 
 
-    fun getAllChatroom(): MutableList<ChatInfoModel> {
+    fun getAllChatroom(): ArrayList<ChatInfoModel> {
+        //     XposedBridge.log("getAllChatroom = ${WechatGlobal.MainDatabaseObject}")
 
-        val cursor = XposedHelpers.callMethod(WechatGlobal.MainDatabaseObject, "rawQueryWithFactory",
-                getDataBaseFactory(WechatGlobal.MainDatabaseObject!!), SqlForGetAllChatroom, null, null) as Cursor
+        //  val dataBaseFactory = getDataBaseFactory(WechatGlobal.MainDatabaseObject!!)
 
-        val list = mutableListOf<ChatInfoModel>()
+        //   XposedBridge.log("getAllChatroom = $dataBaseFactory")
+
+        val cursor = XposedHelpers.callMethod(WechatGlobal.MainDatabaseObject, "rawQuery", SqlForGetAllChatroom, null) as Cursor
+
+        val list = arrayListOf<ChatInfoModel>()
 
         while (cursor.moveToNext()) {
 
@@ -50,18 +55,16 @@ object MessageFactory {
     }
 
 
-    fun getChatroom(field_username: String) {
+    fun getSingle(field_username: String) {
         val cursor = XposedHelpers.callMethod(WechatGlobal.MainDatabaseObject, "rawQueryWithFactory",
                 getDataBaseFactory(WechatGlobal.MainDatabaseObject!!), SqlForByUsername(field_username), null, null) as Cursor
     }
 
 
+    fun getAllOfficial(): ArrayList<ChatInfoModel> {
+        val cursor = XposedHelpers.callMethod(WechatGlobal.MainDatabaseObject, "rawQuery", SqlForGetAllOfficial, null) as Cursor
 
-    fun getOfficial(field_username: String): MutableList<ChatInfoModel> {
-        val cursor = XposedHelpers.callMethod(WechatGlobal.MainDatabaseObject, "rawQueryWithFactory",
-                getDataBaseFactory(WechatGlobal.MainDatabaseObject!!), SqlForGetAllOfficial, null, null) as Cursor
-
-        val list = mutableListOf<ChatInfoModel>()
+        val list = arrayListOf<ChatInfoModel>()
 
         while (cursor.moveToNext()) {
 

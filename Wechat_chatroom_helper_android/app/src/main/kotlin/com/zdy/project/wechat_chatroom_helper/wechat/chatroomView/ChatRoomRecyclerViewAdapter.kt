@@ -47,12 +47,12 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
         holder.content.text = item.content
         holder.time.text = item.time
 
-        try {
-            //HookLogic.setAvatar(holder.avatar, item.avatarString)
-        } catch (e: Throwable) {
-            e.printStackTrace()
-            holder.avatar.setImageResource(R.mipmap.ic_launcher)
-        }
+//        try {
+//            HookLogic.setAvatar(holder.avatar, item.avatarString)
+//        } catch (e: Throwable) {
+//            e.printStackTrace()
+//            holder.avatar.setImageResource(R.mipmap.ic_launcher)
+//        }
 
         if (item.unReadCount > 0)
             holder.unread.background = ShapeDrawable(object : Shape() {

@@ -6,6 +6,7 @@ import android.util.Log
 import com.gh0u1l5.wechatmagician.spellbook.WechatGlobal
 import com.gh0u1l5.wechatmagician.spellbook.base.Operation
 import com.gh0u1l5.wechatmagician.spellbook.interfaces.IDatabaseHook
+import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.MessageEventNotifyListener
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
@@ -57,6 +58,14 @@ object MessageHandler : IDatabaseHook {
 
     override fun onDatabaseQueried(thisObject: Any, factory: Any?, sql: String, selectionArgs: Array<String>?, editTable: String?, cancellationSignal: Any?, result: Any?): Operation<Any?> {
 
+        val path = thisObject.toString()
+        if (path.endsWith("EnMicroMsg.db")) {
+            if (WechatGlobal.MainDatabaseObject !== thisObject) {
+                WechatGlobal.MainDatabaseObject = thisObject
+            }
+        }
+
+
 //        try {
 //
 //            Log.v("MessageHandler", "onDatabaseQueried, thisObject = $thisObject, sql = $sql sql getCount  = ${(result as Cursor).count}")
@@ -95,6 +104,10 @@ object MessageHandler : IDatabaseHook {
                         "rcontact.username = '" + firstChatRoomUsername + "'" +
                         ") " +
                         "order by flag desc"
+
+
+                PluginEntry.chatRoomViewPresenter.setListInAdapterPositions(arrayListOf())
+                PluginEntry.officialViewPresenter.setListInAdapterPositions(arrayListOf())
 
 
                 val result = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, sqlForAllConversationAndEntry, selectionArgs, editTable, cancellationSignal)
@@ -172,8 +185,8 @@ object MessageHandler : IDatabaseHook {
         val mCursorFactory = XposedHelpers.findField(thisObject::class.java, "mCursorFactory").apply { isAccessible = true }.get(thisObject)
 
 
-        val cursorForOfficial = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", mCursorFactory, SqlForGetFirstOfficial, null, null) as Cursor
-        val cursorForChatroom = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", mCursorFactory, SqlForGetFirstChatroom, null, null) as Cursor
+        val cursorForOfficial = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", MessageFactory.getDataBaseFactory(thisObject), SqlForGetFirstOfficial, null, null) as Cursor
+        val cursorForChatroom = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", MessageFactory.getDataBaseFactory(thisObject), SqlForGetFirstChatroom, null, null) as Cursor
 
         cursorForOfficial.moveToNext()
         val firstOfficialUsername = cursorForOfficial.getString(0)
@@ -221,8 +234,6 @@ object MessageHandler : IDatabaseHook {
         }
 
         return super.onDatabaseUpdated(thisObject, table, values, whereClause, whereArgs, conflictAlgorithm, result)
-
-
 
     }
 

@@ -91,6 +91,8 @@ object MainLauncherUI : IActivityHook {
 
         PluginEntry.chatRoomViewPresenter = ChatRoomViewPresenter(mActivity, PageType.CHAT_ROOMS)
         PluginEntry.officialViewPresenter = ChatRoomViewPresenter(mActivity, PageType.OFFICIAL)
+        PluginEntry.chatRoomViewPresenter.start()
+        PluginEntry.officialViewPresenter.start()
     }
 
 
