@@ -13,6 +13,7 @@ class ChatInfoModel {
     lateinit var content: CharSequence
     lateinit var time: CharSequence
     lateinit var avatarString: String
+    lateinit var unReadMuteCount: String
     var unReadCount = 0
 
     companion object {

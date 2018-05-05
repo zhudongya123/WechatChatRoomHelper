@@ -3,6 +3,7 @@ package com.zdy.project.wechat_chatroom_helper.plugins.message
 import android.content.ContentValues
 import android.database.Cursor
 import android.util.Log
+import com.gh0u1l5.wechatmagician.spellbook.WechatGlobal
 import com.gh0u1l5.wechatmagician.spellbook.base.Operation
 import com.gh0u1l5.wechatmagician.spellbook.interfaces.IDatabaseHook
 import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.MessageEventNotifyListener
@@ -31,7 +32,7 @@ object MessageHandler : IDatabaseHook {
 
     var sqlForAllConversationAndEntry = ""
 
-    var iMainAdapterRefreshes = ArrayList<MessageEventNotifyListener>()
+    private var iMainAdapterRefreshes = ArrayList<MessageEventNotifyListener>()
 
     fun addMessageEventNotifyListener(messageEventNotifyListener: MessageEventNotifyListener) {
         iMainAdapterRefreshes.add(messageEventNotifyListener)
@@ -168,8 +169,7 @@ object MessageHandler : IDatabaseHook {
     }
 
     private fun refreshEntryUsername(thisObject: Any): Pair<String, String> {
-        val mCursorFactoryField = XposedHelpers.findField(thisObject::class.java, "mCursorFactory").apply { isAccessible = true }
-        val mCursorFactory = mCursorFactoryField.get(thisObject)
+        val mCursorFactory = XposedHelpers.findField(thisObject::class.java, "mCursorFactory").apply { isAccessible = true }.get(thisObject)
 
 
         val cursorForOfficial = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", mCursorFactory, SqlForGetFirstOfficial, null, null) as Cursor
@@ -212,7 +212,18 @@ object MessageHandler : IDatabaseHook {
 
     override fun onDatabaseUpdated(thisObject: Any, table: String, values: ContentValues, whereClause: String?, whereArgs: Array<String>?, conflictAlgorithm: Int, result: Int): Operation<Int?> {
         Log.v("MessageHandler", "onDatabaseUpdated, thisObject = $thisObject, table = $table ,values = $values ,whereClause = $whereClause, whereArgs = ${whereArgs.toString()}, conflictAlgorithm = $conflictAlgorithm, result = $result")
+
+        val path = thisObject.toString()
+        if (path.endsWith("EnMicroMsg.db")) {
+            if (WechatGlobal.MainDatabaseObject !== thisObject) {
+                WechatGlobal.MainDatabaseObject = thisObject
+            }
+        }
+
         return super.onDatabaseUpdated(thisObject, table, values, whereClause, whereArgs, conflictAlgorithm, result)
+
+
+
     }
 
     override fun onDatabaseDeleted(thisObject: Any, table: String, whereClause: String?, whereArgs: Array<String>?, result: Int): Operation<Int?> {
