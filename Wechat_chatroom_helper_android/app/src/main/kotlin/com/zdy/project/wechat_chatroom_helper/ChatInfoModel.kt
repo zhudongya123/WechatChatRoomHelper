@@ -9,6 +9,7 @@ import de.robv.android.xposed.XposedHelpers
  */
 class ChatInfoModel {
 
+    lateinit var username: CharSequence
     lateinit var nickname: CharSequence
     lateinit var content: CharSequence
     lateinit var time: CharSequence

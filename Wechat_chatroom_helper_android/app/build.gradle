@@ -38,6 +38,8 @@ dependencies {
     implementation project(':SwipeBackLibrary')
     implementation project(':WechatSpellbook')
     implementation "org.jetbrains.kotlin:kotlin-reflect:1.2.31"
+    implementation 'org.springframework:spring-core:4.3.16.RELEASE'
+
 }
 repositories {
     mavenCentral()

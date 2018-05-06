@@ -8,15 +8,16 @@ import de.robv.android.xposed.XposedHelpers
 object MessageFactory {
 
     private const val SqlForGetAllOfficial = "select  unReadCount, status, isSend, conversationTime," +
-            "rconversation.username, content, msgType ,digest, digestUser, attrflag, editingMsg, " +
+            "rconversation.username, rcontact.nickname, content, msgType ,digest, digestUser, attrflag, editingMsg, " +
             "atCount, unReadMuteCount, UnReadInvite from rconversation,rcontact " +
             "where ( rcontact.username = rconversation.username and rcontact.verifyFlag = 24) and ( parentRef is null  or parentRef = '' )  " +
             "and ( 1 !=1 or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  " +
             "and rconversation.username != 'qmessage' order by flag desc"
 
     private const val SqlForGetAllChatroom = "select unReadCount, status, isSend, conversationTime, " +
-            "username, content, msgType, digest, digestUser, attrflag, editingMsg, atCount, " +
-            "unReadMuteCount, UnReadInvite from rconversation where  username like '%@chatroom' order by flag desc"
+            "rconversation.username, rcontact.nickname, content, msgType, digest, digestUser, attrflag, editingMsg, atCount, " +
+            "unReadMuteCount, UnReadInvite from rconversation ,rcontact " +
+            "where  rcontact.username = rconversation.username and  rconversation.username like '%@chatroom' order by flag desc"
 
     private fun SqlForByUsername(field_username: String) = "select unReadCount, status, isSend, " +
             "conversationTime, rconversation.username, rcontact.nickname, content, msgType, digest," +
@@ -30,11 +31,6 @@ object MessageFactory {
 
 
     fun getAllChatroom(): ArrayList<ChatInfoModel> {
-        //     XposedBridge.log("getAllChatroom = ${WechatGlobal.MainDatabaseObject}")
-
-        //  val dataBaseFactory = getDataBaseFactory(WechatGlobal.MainDatabaseObject!!)
-
-        //   XposedBridge.log("getAllChatroom = $dataBaseFactory")
 
         val cursor = XposedHelpers.callMethod(WechatGlobal.MainDatabaseObject, "rawQuery", SqlForGetAllChatroom, null) as Cursor
 
@@ -44,7 +40,8 @@ object MessageFactory {
 
             list.add(
                     ChatInfoModel().apply {
-                        nickname = cursor.getString(cursor.getColumnIndex("username"))
+                        username = cursor.getString(cursor.getColumnIndex("username"))
+                        nickname = cursor.getString(cursor.getColumnIndex("nickname"))
                         content = cursor.getString(cursor.getColumnIndex("digest"))
                         time = cursor.getString(cursor.getColumnIndex("conversationTime"))
                         unReadMuteCount = cursor.getString(cursor.getColumnIndex("unReadMuteCount"))
@@ -70,7 +67,8 @@ object MessageFactory {
 
             list.add(
                     ChatInfoModel().apply {
-                        nickname = cursor.getString(cursor.getColumnIndex("username"))
+                        username = cursor.getString(cursor.getColumnIndex("username"))
+                        nickname = cursor.getString(cursor.getColumnIndex("nickname"))
                         content = cursor.getString(cursor.getColumnIndex("digest"))
                         time = cursor.getString(cursor.getColumnIndex("conversationTime"))
                         unReadMuteCount = cursor.getString(cursor.getColumnIndex("unReadMuteCount"))

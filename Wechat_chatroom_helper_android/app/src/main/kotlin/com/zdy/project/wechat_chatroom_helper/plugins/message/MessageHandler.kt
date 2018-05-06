@@ -182,8 +182,6 @@ object MessageHandler : IDatabaseHook {
     }
 
     private fun refreshEntryUsername(thisObject: Any): Pair<String, String> {
-        val mCursorFactory = XposedHelpers.findField(thisObject::class.java, "mCursorFactory").apply { isAccessible = true }.get(thisObject)
-
 
         val cursorForOfficial = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", MessageFactory.getDataBaseFactory(thisObject), SqlForGetFirstOfficial, null, null) as Cursor
         val cursorForChatroom = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", MessageFactory.getDataBaseFactory(thisObject), SqlForGetFirstChatroom, null, null) as Cursor
@@ -194,7 +192,7 @@ object MessageHandler : IDatabaseHook {
         cursorForChatroom.moveToNext()
         val firstChatRoomUsername = cursorForChatroom.getString(0)
 
-        iMainAdapterRefreshes.forEach { it.onEntryRefresh(firstChatRoomUsername,  firstOfficialUsername) }
+        iMainAdapterRefreshes.forEach { it.onEntryRefresh(firstChatRoomUsername, firstOfficialUsername) }
         return Pair(firstOfficialUsername, firstChatRoomUsername)
     }
 
@@ -215,6 +213,7 @@ object MessageHandler : IDatabaseHook {
             var talker = initialValues.getAsString("talker")
             var createTime = initialValues.getAsLong("createTime")
             var content = initialValues.get("content")
+
 
         }
 

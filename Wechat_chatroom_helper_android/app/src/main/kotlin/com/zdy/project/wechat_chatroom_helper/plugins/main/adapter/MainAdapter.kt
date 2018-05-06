@@ -2,6 +2,7 @@ package com.zdy.project.wechat_chatroom_helper.plugins.main.adapter
 
 import android.annotation.SuppressLint
 import android.graphics.drawable.BitmapDrawable
+import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -9,17 +10,22 @@ import com.gh0u1l5.wechatmagician.spellbook.C
 import com.gh0u1l5.wechatmagician.spellbook.interfaces.IAdapterHook
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.Methods.MMBaseAdapter_getItemInternal
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.conversation.Classes
+import com.gh0u1l5.wechatmagician.spellbook.util.ReflectionUtil
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.MessageEventNotifyListener
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ClassesByCursor
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ConversationClickListener
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ConversationWithAppBrandListView
+import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageFactory
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHandler
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
+import org.springframework.core.ParameterizedTypeReference
+import java.lang.reflect.ParameterizedType
+import java.lang.reflect.Type
 
 @SuppressLint("StaticFieldLeak")
 /**
@@ -42,7 +48,11 @@ object MainAdapter : IAdapterHook {
         originAdapter = adapter
     }
 
+    private inline fun <reified T : Any> typeRef(): ParameterizedTypeReference<T> = object : ParameterizedTypeReference<T>() {}
+
+
     fun executeHook() {
+
 
         val conversationWithCacheAdapter = Classes.ConversationWithCacheAdapter
 
@@ -58,11 +68,47 @@ object MainAdapter : IAdapterHook {
         ClassesByCursor.forEach {
             findAndHookMethod(it, "getCount", object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    //    XposedBridge.log("MessageHooker2.15, className = ${param.thisObject::class.java.name} getCount = ${param.result}")
-
+                    XposedBridge.log("MessageHooker2.15, className = ${param.thisObject::class.java.name} getCount = ${param.result}")
                 }
             })
         }
+        XposedBridge.log("MessageHooker2.16, ParameterizedTypeReference")
+
+
+        val list: Array<SparseArray<String>> = arrayOf()
+
+        val methods = XposedHelpers.findMethodsByExactParameters(conversationWithCacheAdapter,
+                list::class.java, HashSet::class.java, list::class.java).firstOrNull()
+
+        ReflectionUtil.findAndHookMethod(conversationWithCacheAdapter, methods, object : XC_MethodHook() {
+
+            override fun beforeHookedMethod(param: MethodHookParam) {
+
+                var hashSet = param.args[0] as HashSet<Any>
+                var sparseArray = param.args[1]
+
+                val it = hashSet.iterator()
+
+                while (it.hasNext()) {
+
+                    val next = it.next()
+                    val field = XposedHelpers.findField(next::class.java, "object")
+
+                    val field_username = field.get(next) as String
+
+                    XposedBridge.log("MessageHooker2.16, SparseArray = $field_username ")
+
+                    if (MessageFactory.getAllChatroom().any { it.username == field_username }) {
+                        param.result = sparseArray
+
+                    } else if (MessageFactory.getAllOfficial().any { it.username == field_username }) {
+                        param.result = sparseArray
+                    }
+
+                }
+            }
+
+        })
 
 
         findAndHookMethod(conversationWithCacheAdapter.superclass, "getCount", object : XC_MethodHook() {
@@ -84,12 +130,15 @@ object MainAdapter : IAdapterHook {
 
         })
 
-        findAndHookMethod(conversationWithCacheAdapter, "notifyDataSetChanged", object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                XposedBridge.log("MessageHooker2.10, notifyDataSetChanged")
-
-            }
-        })
+//        findAndHookMethod(conversationWithCacheAdapter, "notifyDataSetChanged", object : XC_MethodHook() {
+//            override fun beforeHookedMethod(param: MethodHookParam) {
+//                XposedBridge.log("MessageHooker2.10, notifyDataSetChanged")
+//
+//
+//                throw RuntimeException("12312312312313")
+//
+//            }
+//        })
 
         findAndHookMethod(ConversationClickListener, "onItemClick", C.AdapterView, C.View, C.Int, C.Long, object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {

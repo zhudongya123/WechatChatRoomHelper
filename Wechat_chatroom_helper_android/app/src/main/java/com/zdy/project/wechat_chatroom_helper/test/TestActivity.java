@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
@@ -56,6 +57,8 @@ public class TestActivity extends Activity {
         swipeBackLayout.attachToView(mainView, this);
         content.addView(swipeBackLayout, params);
 
+
+            Class<SparseArray[]> aClass = SparseArray[].class;
     }
 
     @Override
