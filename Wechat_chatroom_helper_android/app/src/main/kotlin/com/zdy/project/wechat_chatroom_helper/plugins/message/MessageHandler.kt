@@ -59,19 +59,14 @@ object MessageHandler : IDatabaseHook {
     override fun onDatabaseQueried(thisObject: Any, factory: Any?, sql: String, selectionArgs: Array<String>?, editTable: String?, cancellationSignal: Any?, result: Any?): Operation<Any?> {
 
         val path = thisObject.toString()
+
+
         if (path.endsWith("EnMicroMsg.db")) {
             if (WechatGlobal.MainDatabaseObject !== thisObject) {
                 WechatGlobal.MainDatabaseObject = thisObject
             }
         }
 
-
-//        try {
-//
-//            Log.v("MessageHandler", "onDatabaseQueried, thisObject = $thisObject, sql = $sql sql getCount  = ${(result as Cursor).count}")
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//        }
 
         val onDatabaseQueried = Operation.nop<Any>()
 
@@ -85,6 +80,8 @@ object MessageHandler : IDatabaseHook {
                 XposedBridge.log("MessageHooker2.10, QUERY ALL CONVERSATION")
 
                 val (firstOfficialUsername, firstChatRoomUsername) = refreshEntryUsername(thisObject)
+
+                iMainAdapterRefreshes.forEach { it.onEntryRefresh(firstChatRoomUsername, firstOfficialUsername) }
 
                 sqlForAllConversationAndEntry = "select unReadCount, status, isSend, conversationTime, rconversation.username, " +
                         "content, msgType, flag, digest, digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite " +
@@ -192,7 +189,6 @@ object MessageHandler : IDatabaseHook {
         cursorForChatroom.moveToNext()
         val firstChatRoomUsername = cursorForChatroom.getString(0)
 
-        iMainAdapterRefreshes.forEach { it.onEntryRefresh(firstChatRoomUsername, firstOfficialUsername) }
         return Pair(firstOfficialUsername, firstChatRoomUsername)
     }
 
@@ -202,18 +198,23 @@ object MessageHandler : IDatabaseHook {
 
 
         if (table == "message") {
+
             if (initialValues == null) return operation
+
             if (!initialValues.containsKey("msgId")) return operation
             if (!initialValues.containsKey("talker")) return operation
             if (!initialValues.containsKey("createTime")) return operation
             if (!initialValues.containsKey("content")) return operation
 
-            refreshEntryUsername(thisObject)
+            val pair = refreshEntryUsername(thisObject)
 
-            var talker = initialValues.getAsString("talker")
-            var createTime = initialValues.getAsLong("createTime")
-            var content = initialValues.get("content")
+            iMainAdapterRefreshes.forEach { it.onEntryRefresh(pair.first, pair.second) }
 
+            val talker = initialValues.getAsString("talker")
+            val createTime = initialValues.getAsLong("createTime")
+            val content = initialValues.get("content")
+
+            iMainAdapterRefreshes.forEach { it.onNewMessageCreate(talker, createTime, content) }
 
         }
 

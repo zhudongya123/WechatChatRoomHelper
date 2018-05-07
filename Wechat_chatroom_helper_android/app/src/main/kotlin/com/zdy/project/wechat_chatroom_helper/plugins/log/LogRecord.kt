@@ -23,8 +23,13 @@ object LogRecord {
                             val str1 = param.args[0] as String
                             val str2 = param.args[1] as String
 
+
+                            if (str1 != "MicroMsg.ConversationWithCacheAdapter")return
+
                             if (param.args[2] == null) {
+
                                 LogUtils.log("level = " + param.method.name + ", name = $str1, value = $str2")
+
                             } else {
                                 val objArr = param.args[2] as Array<Any>
 

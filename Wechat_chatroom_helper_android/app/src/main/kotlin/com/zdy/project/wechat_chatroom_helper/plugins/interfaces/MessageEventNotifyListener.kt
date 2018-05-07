@@ -1,11 +1,19 @@
 package com.zdy.project.wechat_chatroom_helper.plugins.interfaces
 
-import android.provider.ContactsContract
-import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
+import android.util.Log
 
 interface MessageEventNotifyListener {
 
-    fun onEntryRefresh(chatRoomUsername: String, officialUsername: String)
+    fun onEntryRefresh(chatRoomUsername: String, officialUsername: String) {
+        Log.v("LogRecord", "MessageEventNotifyListener, onEntryRefresh, chatRoomUsername = $chatRoomUsername, officialUsername = $officialUsername")
+    }
 
-    fun onNewMessageCreate(talker: String, createTime: Long, content: Any)
+    fun onEntryInit(chatRoomUsername: String, officialUsername: String) {
+        Log.v("LogRecord", "MessageEventNotifyListener, onEntryInit, chatRoomUsername = $chatRoomUsername, officialUsername = $officialUsername")
+
+    }
+
+    fun onNewMessageCreate(talker: String, createTime: Long, content: Any) {
+        Log.v("LogRecord", "MessageEventNotifyListener, onEntryRefresh, talker = $talker, createTime = $createTime, content = $content")
+    }
 }

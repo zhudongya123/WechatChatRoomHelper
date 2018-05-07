@@ -32,14 +32,14 @@ import org.springframework.core.ParameterizedTypeReference
 object MainAdapter : IAdapterHook {
 
     private var originAdapter: BaseAdapter? = null
-    private var listView: ListView? = null
+    private lateinit var listView: ListView
 
-    private var firstChatroomPosition = -1
-    private var firstOfficialPosition = -1
 
     var firstChatroomUserName = ""
     var firstOfficialUserName = ""
 
+
+    var refreshFlag = false
 
     override fun onConversationAdapterCreated(adapter: BaseAdapter) {
         super.onConversationAdapterCreated(adapter)
@@ -70,8 +70,6 @@ object MainAdapter : IAdapterHook {
                 }
             })
         }
-        XposedBridge.log("MessageHooker2.16, ParameterizedTypeReference")
-
 
         val list: Array<SparseArray<String>> = arrayOf()
 
@@ -101,16 +99,19 @@ object MainAdapter : IAdapterHook {
                     val allOfficial = lazy { MessageFactory.getAllOfficial() }
 
 
-                    if (allChatroom.value.any { it.username == field_username }) {
+                    if (!refreshFlag) param.result = sparseArray
 
-                        if (allChatroom.value.first().username == field_username)
-                            param.result = sparseArray
-
-                    } else if (allOfficial.value.any { it.username == field_username }) {
-
-                        if (allOfficial.value.first().username == field_username)
-                            param.result = sparseArray
-                    }
+//
+//                    if (allChatroom.value.any { it.username == field_username }) {
+//
+//                        if (allChatroom.value.first().username == field_username)
+//                            param.result = sparseArray
+//
+//                    } else if (allOfficial.value.any { it.username == field_username }) {
+//
+//                        if (allOfficial.value.first().username == field_username)
+//                            param.result = sparseArray
+//                    }
 
                 }
             }
@@ -120,41 +121,11 @@ object MainAdapter : IAdapterHook {
 
         findAndHookMethod(conversationWithCacheAdapter.superclass, "getCount", object : XC_MethodHook() {
 
-//            override fun beforeHookedMethod(param: MethodHookParam) {
-//                if (param.thisObject::class.simpleName != conversationWithCacheAdapter.simpleName) return
-//
-//                param.result = MessageHandler.conversationSize
-//            }
-
-//            override fun afterHookedMethod(param: MethodHookParam) {
-//                if (param.thisObject::class.simpleName != conversationWithCacheAdapter.simpleName) return
-//
-//
-//                XposedBridge.log("MessageHooker2.10, getCount")
-//
-//                param.result = param.result as Int + 2
-//            }
-
         })
-
-//        findAndHookMethod(conversationWithCacheAdapter, "notifyDataSetChanged", object : XC_MethodHook() {
-//            override fun beforeHookedMethod(param: MethodHookParam) {
-//                XposedBridge.log("MessageHooker2.10, notifyDataSetChanged")
-//
-//
-//                throw RuntimeException("12312312312313")
-//
-//            }
-//        })
 
         findAndHookMethod(ConversationClickListener, "onItemClick", C.AdapterView, C.View, C.Int, C.Long, object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
-                val position = (param.args[2] as Int) - listView!!.headerViewsCount
-
-
-//                var field = XposedHelpers.findFirstFieldByExactType(param.thisObject.javaClass, conversationWithCacheAdapter)
-//
-//                var get = field.get(param.thisObject)
+                val position = (param.args[2] as Int) - listView.headerViewsCount
 
                 val field_username = XposedHelpers.getObjectField(XposedHelpers.callMethod(originAdapter, MMBaseAdapter_getItemInternal, position), "field_username") as String
 
@@ -290,43 +261,46 @@ object MainAdapter : IAdapterHook {
         MessageHandler.addMessageEventNotifyListener(
                 object : MessageEventNotifyListener {
                     override fun onEntryRefresh(chatRoomUsername: String, officialUsername: String) {
+                        super.onEntryRefresh(chatRoomUsername, officialUsername)
+//                        refreshFlag = true
+//
+//                        if (firstChatroomUserName == chatRoomUsername) {
+//                            refreshFlag = false
+//
+//                            listView.post { updateItem(listView.headerViewsCount, listView) }
+//                        }
+//
+//                        if (firstOfficialUserName == officialUsername) {
+//                            refreshFlag = false
+//
+//                            listView.post { updateItem(listView.headerViewsCount, listView) }
+//                        }
 
                         this@MainAdapter.firstChatroomUserName = chatRoomUsername
                         this@MainAdapter.firstOfficialUserName = officialUsername
 
                     }
 
+
+                    override fun onEntryInit(chatRoomUsername: String, officialUsername: String) {
+                        super.onEntryInit(chatRoomUsername, officialUsername)
+
+                        this@MainAdapter.firstChatroomUserName = chatRoomUsername
+                        this@MainAdapter.firstOfficialUserName = officialUsername
+                    }
+
                     override fun onNewMessageCreate(talker: String, createTime: Long, content: Any) {
+                        super.onNewMessageCreate(talker, createTime, content)
 
                     }
 
 
-                    fun onFirstChatroomRefresh(chatRoomPosition: Int, chatRoomChatInfoModel: ChatInfoModel, officialPosition: Int, officialChatInfoModel: ChatInfoModel) {
-
-                        firstChatroomPosition = chatRoomPosition
-                        firstOfficialPosition = officialPosition
-
-//                firstChatroomInfoModel = chatRoomChatInfoModel
-//                firstOfficialInfoModel = officialChatInfoModel
-
-
-                        /**
-                         *
-                         * notifyDataSetChanged 之后会调用
-                         *
-                         *
-                         */
-//                originAdapter?.let {
-//                    it.notifyDataSetChanged()
-//                }
-
-//                updateItem(firstChatroomPosition, listView!!)
-//                updateItem(firstOfficialPosition, listView!!)
-
-
-//                        XposedBridge.log("MessageHooker2.6, firstChatroomPosition = $chatRoomPosition \n")
-//                        XposedBridge.log("MessageHooker2.6, firstOfficialPosition = $officialPosition \n")
-                    }
+                    /**
+                     *
+                     * notifyDataSetChanged 之后会调用
+                     *
+                     *
+                     */
                 })
     }
 
