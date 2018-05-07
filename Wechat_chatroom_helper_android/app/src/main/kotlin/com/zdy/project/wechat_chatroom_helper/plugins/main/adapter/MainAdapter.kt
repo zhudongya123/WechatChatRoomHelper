@@ -24,8 +24,6 @@ import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
 import org.springframework.core.ParameterizedTypeReference
-import java.lang.reflect.ParameterizedType
-import java.lang.reflect.Type
 
 @SuppressLint("StaticFieldLeak")
 /**
@@ -84,8 +82,8 @@ object MainAdapter : IAdapterHook {
 
             override fun beforeHookedMethod(param: MethodHookParam) {
 
-                var hashSet = param.args[0] as HashSet<Any>
-                var sparseArray = param.args[1]
+                val hashSet = param.args[0] as HashSet<Any>
+                val sparseArray = param.args[1]
 
                 val it = hashSet.iterator()
 
@@ -98,11 +96,20 @@ object MainAdapter : IAdapterHook {
 
                     XposedBridge.log("MessageHooker2.16, SparseArray = $field_username ")
 
-                    if (MessageFactory.getAllChatroom().any { it.username == field_username }) {
-                        param.result = sparseArray
 
-                    } else if (MessageFactory.getAllOfficial().any { it.username == field_username }) {
-                        param.result = sparseArray
+                    val allChatroom = lazy { MessageFactory.getAllChatroom() }
+                    val allOfficial = lazy { MessageFactory.getAllOfficial() }
+
+
+                    if (allChatroom.value.any { it.username == field_username }) {
+
+                        if (allChatroom.value.first().username == field_username)
+                            param.result = sparseArray
+
+                    } else if (allOfficial.value.any { it.username == field_username }) {
+
+                        if (allOfficial.value.first().username == field_username)
+                            param.result = sparseArray
                     }
 
                 }
