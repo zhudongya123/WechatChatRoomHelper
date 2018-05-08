@@ -59,4 +59,5 @@ class ChatRoomViewPresenter(mContext: Context, pageType: Int) : ChatRoomContract
     }
 
 
+
 }

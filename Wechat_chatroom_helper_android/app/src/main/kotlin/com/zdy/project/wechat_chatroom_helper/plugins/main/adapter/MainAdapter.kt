@@ -10,14 +10,11 @@ import com.gh0u1l5.wechatmagician.spellbook.C
 import com.gh0u1l5.wechatmagician.spellbook.interfaces.IAdapterHook
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.Methods.MMBaseAdapter_getItemInternal
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.conversation.Classes
-import com.gh0u1l5.wechatmagician.spellbook.util.ReflectionUtil
-import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.MessageEventNotifyListener
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ClassesByCursor
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ConversationClickListener
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ConversationWithAppBrandListView
-import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageFactory
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHandler
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
@@ -49,6 +46,10 @@ object MainAdapter : IAdapterHook {
     private inline fun <reified T : Any> typeRef(): ParameterizedTypeReference<T> = object : ParameterizedTypeReference<T>() {}
 
 
+    private var firstChatroomPosition = -1
+    private var firstOfficialPosition = -1
+
+
     fun executeHook() {
 
 
@@ -76,51 +77,55 @@ object MainAdapter : IAdapterHook {
         val methods = XposedHelpers.findMethodsByExactParameters(conversationWithCacheAdapter,
                 list::class.java, HashSet::class.java, list::class.java).firstOrNull()
 
-        ReflectionUtil.findAndHookMethod(conversationWithCacheAdapter, methods, object : XC_MethodHook() {
-
-            override fun beforeHookedMethod(param: MethodHookParam) {
-
-                val hashSet = param.args[0] as HashSet<Any>
-                val sparseArray = param.args[1]
-
-                val it = hashSet.iterator()
-
-                while (it.hasNext()) {
-
-                    val next = it.next()
-                    val field = XposedHelpers.findField(next::class.java, "object")
-
-                    val field_username = field.get(next) as String
-
-                    XposedBridge.log("MessageHooker2.16, SparseArray = $field_username ")
-
-
-                    val allChatroom = lazy { MessageFactory.getAllChatroom() }
-                    val allOfficial = lazy { MessageFactory.getAllOfficial() }
-
-
-                    if (!refreshFlag) param.result = sparseArray
-
+//        ReflectionUtil.findAndHookMethod(conversationWithCacheAdapter, methods, object : XC_MethodHook() {
 //
-//                    if (allChatroom.value.any { it.username == field_username }) {
+//            override fun beforeHookedMethod(param: MethodHookParam) {
 //
-//                        if (allChatroom.value.first().username == field_username)
-//                            param.result = sparseArray
+//                val hashSet = param.args[0] as HashSet<Any>
+//                val sparseArray = param.args[1]
 //
-//                    } else if (allOfficial.value.any { it.username == field_username }) {
+//                val it = hashSet.iterator()
 //
-//                        if (allOfficial.value.first().username == field_username)
-//                            param.result = sparseArray
-//                    }
-
-                }
-            }
-
-        })
+//                while (it.hasNext()) {
+//
+//                    val next = it.next()
+//                    val field = XposedHelpers.findField(next::class.java, "object")
+//
+//                    val field_username = field.get(next) as String
+//
+//                    XposedBridge.log("MessageHooker2.16, SparseArray = $field_username ")
+//
+//
+//                    val allChatroom = lazy { MessageFactory.getAllChatroom() }
+//                    val allOfficial = lazy { MessageFactory.getAllOfficial() }
+//
+//
+//                    if (!refreshFlag) param.result = sparseArray
+//
+////
+////                    if (allChatroom.value.any { it.username == field_username }) {
+////
+////                        if (allChatroom.value.first().username == field_username)
+////                            param.result = sparseArray
+////
+////                    } else if (allOfficial.value.any { it.username == field_username }) {
+////
+////                        if (allOfficial.value.first().username == field_username)
+////                            param.result = sparseArray
+////                    }
+//
+//                }
+//            }
+//
+//        })
 
 
         findAndHookMethod(conversationWithCacheAdapter.superclass, "getCount", object : XC_MethodHook() {
 
+            override fun afterHookedMethod(param: MethodHookParam) {
+
+                param.result = param.result as Int + 2
+            }
         })
 
         findAndHookMethod(ConversationClickListener, "onItemClick", C.AdapterView, C.View, C.Int, C.Long, object : XC_MethodHook() {
@@ -132,7 +137,7 @@ object MainAdapter : IAdapterHook {
                 XposedBridge.log("MessageHooker2.6,position = $position, field_username = $field_username, " +
                         "firstChatroomUserName = $firstChatroomUserName ,firstOfficialUserName = $firstOfficialUserName \n")
 
-                if (field_username == firstChatroomUserName) {
+                if (position == firstChatroomPosition) {
 
                     XposedBridge.log("MessageHooker2.6,position = $position, firstChatroomUserName equal")
 
@@ -140,7 +145,7 @@ object MainAdapter : IAdapterHook {
 
                     param.result = null
                 }
-                if (field_username == firstOfficialUserName) {
+                if (position == firstOfficialPosition) {
 
                     XposedBridge.log("MessageHooker2.6,position = $position, firstOfficialUserName equal")
 
@@ -182,10 +187,10 @@ object MainAdapter : IAdapterHook {
 
                         val position = param.args[0] as Int
 
-                        refreshEntryView(param.result as View, position, param)
+                        refreshEntryView(param.result as View, position)
                     }
 
-                    private fun refreshEntryView(view: View?, position: Int, param: MethodHookParam) {
+                    private fun refreshEntryView(view: View?, position: Int) {
                         val itemView = view as ViewGroup
 
                         val avatarContainer = itemView.getChildAt(0) as ViewGroup
@@ -200,20 +205,20 @@ object MainAdapter : IAdapterHook {
 
                         val content = ((contentContainer.getChildAt(1) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(1)
 
-                        val field_username = XposedHelpers.getObjectField(XposedHelpers.callMethod(param.thisObject, MMBaseAdapter_getItemInternal, position), "field_username") as String
+//                        val field_username = XposedHelpers.getObjectField(XposedHelpers.callMethod(param.thisObject, MMBaseAdapter_getItemInternal, position), "field_username") as String
 
-//                        XposedBridge.log("MessageHooker2.6,position = $position, field_username = $field_username, " +
-//                                "firstChatroomUserName = $firstChatroomUserName ,firstOfficialUserName = $firstOfficialUserName \n")
+                        XposedBridge.log("MessageHooker2.6,position = $position, position = $position, " +
+                                "firstChatroomPosition = $firstChatroomPosition ,firstOfficialPosition = $firstOfficialPosition \n")
 
-                        if (field_username == firstChatroomUserName) {
 
+                        if (position == firstChatroomPosition) {
                             setTextForNoMeasuredTextView(nickname, "群消息")
                             setTextForNoMeasuredTextView(content, "")
                             avatar.setImageDrawable(BitmapDrawable())
 
                         }
-                        if (field_username == firstOfficialUserName) {
-
+//                        if (field_username == firstOfficialUserName) {
+                        if (position == firstOfficialPosition) {
                             setTextForNoMeasuredTextView(nickname, "服务号")
                             setTextForNoMeasuredTextView(content, "")
                             avatar.setImageDrawable(BitmapDrawable())
@@ -224,39 +229,39 @@ object MainAdapter : IAdapterHook {
                 })
 
 
-//        findAndHookMethod(conversationWithCacheAdapter.superclass, MMBaseAdapter_getItemInternal,
-//                Int::class.java, object : XC_MethodHook() {
-//
-//            override fun beforeHookedMethod(param: MethodHookParam) {
-//
-//                if (param.thisObject::class.simpleName != conversationWithCacheAdapter.simpleName) return
-//
-//                val index = param.args[0] as Int
-//
-//                XposedBridge.log("MMBaseAdapter_getItemInternal, index = $index, firstChatroomPosition = $firstChatroomPosition ,firstOfficialPosition = $firstOfficialPosition")
-//
-//                if (firstChatroomPosition == -1 || firstOfficialPosition == -1) return
-//
-//                val min = min(firstChatroomPosition, firstOfficialPosition)
-//                val max = max(firstChatroomPosition, firstOfficialPosition)
-//
-//                val newIndex = when (index) {
-//                    in 0 until min -> index
-//                    min -> index //TODO
-//                    in min + 1 until max -> index - 1
-//                    max -> index //TODO
-//                    in max + 1 until Int.MAX_VALUE -> index - 2
-//                    else -> index
-//                }
-//
-//                XposedBridge.log("MessageHooker2.7, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
-//
-//
-//                param.args[0] = newIndex
-//
-//
-//            }
-//        })
+        findAndHookMethod(conversationWithCacheAdapter.superclass, MMBaseAdapter_getItemInternal,
+                Int::class.java, object : XC_MethodHook() {
+
+            override fun beforeHookedMethod(param: MethodHookParam) {
+
+                if (param.thisObject::class.simpleName != conversationWithCacheAdapter.simpleName) return
+
+                val index = param.args[0] as Int
+
+                XposedBridge.log("MMBaseAdapter_getItemInternal, index = $index, firstChatroomPosition = $firstChatroomPosition ,firstOfficialPosition = $firstOfficialPosition")
+
+                if (firstChatroomPosition == -1 || firstOfficialPosition == -1) return
+
+                val min = Math.min(firstChatroomPosition, firstOfficialPosition)
+                val max = Math.max(firstChatroomPosition, firstOfficialPosition)
+
+                val newIndex = when (index) {
+                    in 0 until min -> index
+                    min -> index //TODO
+                    in min + 1 until max -> index - 1
+                    max -> index //TODO
+                    in max + 1 until Int.MAX_VALUE -> index - 2
+                    else -> index
+                }
+
+                XposedBridge.log("MessageHooker2.7, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
+
+
+                param.args[0] = newIndex
+
+
+            }
+        })
 
         MessageHandler.addMessageEventNotifyListener(
                 object : MessageEventNotifyListener {
@@ -292,6 +297,12 @@ object MainAdapter : IAdapterHook {
                     override fun onNewMessageCreate(talker: String, createTime: Long, content: Any) {
                         super.onNewMessageCreate(talker, createTime, content)
 
+                    }
+
+                    override fun onEntryPositionChanged(chatroomPosition: Int, officialPosition: Int) {
+                        super.onEntryPositionChanged(chatroomPosition, officialPosition)
+                        firstChatroomPosition = chatroomPosition
+                        firstOfficialPosition = officialPosition
                     }
 
 
