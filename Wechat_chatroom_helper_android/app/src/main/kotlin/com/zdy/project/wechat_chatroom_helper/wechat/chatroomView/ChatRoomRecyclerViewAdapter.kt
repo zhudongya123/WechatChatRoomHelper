@@ -2,17 +2,15 @@ package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.Shape
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
-import com.zdy.project.wechat_chatroom_helper.HookLogic
-import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
-import utils.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes
+import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
 import java.util.*
 
 /**
@@ -45,7 +43,7 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
 
         holder.nickname.text = item.nickname
         holder.content.text = item.content
-        holder.time.text = item.time
+        holder.time.text =  item.time
 
 //        try {
 //            HookLogic.setAvatar(holder.avatar, item.avatarString)
@@ -85,10 +83,10 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
             return@setOnLongClickListener true
         }
 
-        holder.nickname.setTextColor(Color.parseColor("#" + AppSaveInfo.nicknameColorInfo()))
-        holder.content.setTextColor(Color.parseColor("#" + AppSaveInfo.contentColorInfo()))
-        holder.time.setTextColor(Color.parseColor("#" + AppSaveInfo.timeColorInfo()))
-        holder.divider.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.dividerColorInfo()))
+//        holder.nickname.setTextColor(Color.parseColor("#" + AppSaveInfo.nicknameColorInfo()))
+//        holder.content.setTextColor(Color.parseColor("#" + AppSaveInfo.contentColorInfo()))
+//        holder.time.setTextColor(Color.parseColor("#" + AppSaveInfo.timeColorInfo()))
+//        holder.divider.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.dividerColorInfo()))
     }
 
     override fun getItemCount(): Int {

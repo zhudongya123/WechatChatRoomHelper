@@ -3,6 +3,8 @@ package com.zdy.project.wechat_chatroom_helper.plugins.message
 import android.database.Cursor
 import com.gh0u1l5.wechatmagician.spellbook.WechatGlobal
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes
+import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
 import de.robv.android.xposed.XposedHelpers
 
 object MessageFactory {
@@ -43,7 +45,7 @@ object MessageFactory {
                         username = cursor.getString(cursor.getColumnIndex("username"))
                         nickname = cursor.getString(cursor.getColumnIndex("nickname"))
                         content = cursor.getString(cursor.getColumnIndex("digest"))
-                        time = cursor.getString(cursor.getColumnIndex("conversationTime"))
+                        time = Classes.getConversationTimeString(MainAdapter.originAdapter, cursor.getLong(cursor.getColumnIndex("conversationTime")))
                         unReadMuteCount = cursor.getString(cursor.getColumnIndex("unReadMuteCount"))
                     })
 
@@ -70,7 +72,7 @@ object MessageFactory {
                         username = cursor.getString(cursor.getColumnIndex("username"))
                         nickname = cursor.getString(cursor.getColumnIndex("nickname"))
                         content = cursor.getString(cursor.getColumnIndex("digest"))
-                        time = cursor.getString(cursor.getColumnIndex("conversationTime"))
+                        time = Classes.getConversationTimeString(MainAdapter.originAdapter, cursor.getLong(cursor.getColumnIndex("conversationTime")))
                         unReadMuteCount = cursor.getString(cursor.getColumnIndex("unReadMuteCount"))
                     })
 

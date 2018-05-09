@@ -28,7 +28,7 @@ import org.springframework.core.ParameterizedTypeReference
  */
 object MainAdapter : IAdapterHook {
 
-    private var originAdapter: BaseAdapter? = null
+    lateinit  var originAdapter: BaseAdapter
     private lateinit var listView: ListView
 
 
@@ -51,7 +51,6 @@ object MainAdapter : IAdapterHook {
 
 
     fun executeHook() {
-
 
         val conversationWithCacheAdapter = Classes.ConversationWithCacheAdapter
 
@@ -326,7 +325,7 @@ object MainAdapter : IAdapterHook {
         if (position >= firstVisiblePosition && position <= lastVisiblePosition) {
             /**获取指定位置view对象 */
             val view = listView.getChildAt(position - firstVisiblePosition)
-            originAdapter?.getView(position, view, listView)
+            originAdapter.getView(position, view, listView)
         }
 
     }
