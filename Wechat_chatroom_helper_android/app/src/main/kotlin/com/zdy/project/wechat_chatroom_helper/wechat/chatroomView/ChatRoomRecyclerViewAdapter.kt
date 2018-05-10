@@ -1,6 +1,7 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
@@ -9,8 +10,9 @@ import android.graphics.drawable.shapes.Shape
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
-import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes
-import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
+import com.zdy.project.wechat_chatroom_helper.plugins.main.MainLauncherUI
+import com.zdy.project.wechat_chatroom_helper.plugins.main.MainLauncherUI.launcherUI
+import de.robv.android.xposed.XposedHelpers
 import java.util.*
 
 /**
@@ -68,11 +70,14 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
 
         holder.itemView.background = ChatRoomViewHelper.getItemViewBackground(mContext)
         holder.itemView.setOnClickListener {
-            try {
-                onDialogItemClickListener.onItemClick(muteListInAdapterPositions[position])
-            } catch (t: Throwable) {
-                t.printStackTrace()
-            }
+            //            try {
+//                onDialogItemClickListener.onItemClick(muteListInAdapterPositions[position])
+//            } catch (t: Throwable) {
+//                t.printStackTrace()
+//            }
+
+            XposedHelpers.callMethod(MainLauncherUI.launcherUI, "startChatting", item.username, null, true)
+
         }
         holder.itemView.setOnLongClickListener {
             try {

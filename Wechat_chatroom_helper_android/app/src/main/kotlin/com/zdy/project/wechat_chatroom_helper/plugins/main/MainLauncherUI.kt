@@ -23,10 +23,11 @@ import de.robv.android.xposed.XposedBridge.hookAllConstructors
  */
 object MainLauncherUI : IActivityHook {
 
-    private lateinit var mActivity: Activity
+    lateinit var launcherUI: Activity
 
 
     fun executeHook() {
+
 
         hookAllConstructors(PluginEntry.classloader.loadClass(Constants.FitSystemWindowLayoutView), object : XC_MethodHook() {
 
@@ -87,10 +88,10 @@ object MainLauncherUI : IActivityHook {
         super.onActivityCreating(activity, savedInstanceState)
         if (activity::class.java.simpleName != "LauncherUI") return
 
-        mActivity = activity
+        launcherUI = activity
 
-        PluginEntry.chatRoomViewPresenter = ChatRoomViewPresenter(mActivity, PageType.CHAT_ROOMS)
-        PluginEntry.officialViewPresenter = ChatRoomViewPresenter(mActivity, PageType.OFFICIAL)
+        PluginEntry.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
+        PluginEntry.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
         PluginEntry.chatRoomViewPresenter.start()
         PluginEntry.officialViewPresenter.start()
     }
