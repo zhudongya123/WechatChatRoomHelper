@@ -1,6 +1,7 @@
 package com.zdy.project.wechat_chatroom_helper.plugins.main.adapter
 
 import android.database.Cursor
+import android.widget.ImageView
 import com.gh0u1l5.wechatmagician.spellbook.C
 import com.gh0u1l5.wechatmagician.spellbook.WechatGlobal
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.conversation.Classes
@@ -60,6 +61,14 @@ object Classes {
         return ""
     }
 
+
+    fun getConversationAvatar(string: String, imageView: ImageView) {
+
+        WechatClasses.filter { it.name.contains("com.tencent.mm.pluginsdk.ui") }
+                .filter { it.declaredClasses.isNotEmpty() }
+                .filter { it.declaredClasses.any { it.methods.map { it.name }.contains("doInvalidate") } }
+
+    }
 
 //    val ConversationOnItemClickListener: Class<*> by WechatGlobal.wxLazy("ConversationOnItemClickListener") {
 //        ReflectionUtil.findClassesFromPackage(WechatGlobal.wxLoader!!, WechatGlobal.wxClasses!!, "${WechatGlobal.wxPackageName}.ui.conversation")
