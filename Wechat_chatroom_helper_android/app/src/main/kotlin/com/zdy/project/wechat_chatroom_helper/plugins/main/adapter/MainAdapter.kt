@@ -28,7 +28,7 @@ import org.springframework.core.ParameterizedTypeReference
  */
 object MainAdapter : IAdapterHook {
 
-    lateinit  var originAdapter: BaseAdapter
+    lateinit var originAdapter: BaseAdapter
     private lateinit var listView: ListView
 
 
@@ -66,15 +66,14 @@ object MainAdapter : IAdapterHook {
         ClassesByCursor.forEach {
             findAndHookMethod(it, "getCount", object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    XposedBridge.log("MessageHooker2.15, className = ${param.thisObject::class.java.name} getCount = ${param.result}")
                 }
             })
         }
 
-        val list: Array<SparseArray<String>> = arrayOf()
-
-        val methods = XposedHelpers.findMethodsByExactParameters(conversationWithCacheAdapter,
-                list::class.java, HashSet::class.java, list::class.java).firstOrNull()
+//        val list: Array<SparseArray<String>> = arrayOf()
+//
+//        val methods = XposedHelpers.findMethodsByExactParameters(conversationWithCacheAdapter,
+//                list::class.java, HashSet::class.java, list::class.java).firstOrNull()
 
 //        ReflectionUtil.findAndHookMethod(conversationWithCacheAdapter, methods, object : XC_MethodHook() {
 //
@@ -101,17 +100,17 @@ object MainAdapter : IAdapterHook {
 //
 //                    if (!refreshFlag) param.result = sparseArray
 //
-////
-////                    if (allChatroom.value.any { it.username == field_username }) {
-////
-////                        if (allChatroom.value.first().username == field_username)
-////                            param.result = sparseArray
-////
-////                    } else if (allOfficial.value.any { it.username == field_username }) {
-////
-////                        if (allOfficial.value.first().username == field_username)
-////                            param.result = sparseArray
-////                    }
+//
+//                    if (allChatroom.value.any { it.username == field_username }) {
+//
+//                        if (allChatroom.value.first().username == field_username)
+//                            param.result = sparseArray
+//
+//                    } else if (allOfficial.value.any { it.username == field_username }) {
+//
+//                        if (allOfficial.value.first().username == field_username)
+//                            param.result = sparseArray
+//                    }
 //
 //                }
 //            }
@@ -123,7 +122,9 @@ object MainAdapter : IAdapterHook {
 
             override fun afterHookedMethod(param: MethodHookParam) {
 
-                param.result = param.result as Int + 2
+                var count = param.result as Int + (if (firstChatroomPosition != -1) 1 else 0)
+                count += (if (firstOfficialPosition != -1) 1 else 0)
+                param.result = count
             }
         })
 
@@ -216,7 +217,6 @@ object MainAdapter : IAdapterHook {
                             avatar.setImageDrawable(BitmapDrawable())
 
                         }
-//                        if (field_username == firstOfficialUserName) {
                         if (position == firstOfficialPosition) {
                             setTextForNoMeasuredTextView(nickname, "服务号")
                             setTextForNoMeasuredTextView(content, "")

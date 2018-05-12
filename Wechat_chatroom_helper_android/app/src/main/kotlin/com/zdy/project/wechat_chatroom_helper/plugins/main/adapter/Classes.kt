@@ -37,8 +37,6 @@ object Classes {
 
     fun getConversationTimeString(adapter: Any, conversationTime: Long): CharSequence {
 
-        XposedBridge.log("aads0 methodName ")
-
         val method = Classes.ConversationWithCacheAdapter.declaredMethods
                 .filter { !it.isAccessible }
                 .filter { it.returnType == CharSequence::class.java }
@@ -58,7 +56,6 @@ object Classes {
 
                 return XposedHelpers.callMethod(adapter, method.name, obj) as CharSequence
             }
-
         }
         return ""
     }
