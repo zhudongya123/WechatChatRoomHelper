@@ -7,7 +7,6 @@ import com.gh0u1l5.wechatmagician.spellbook.WechatGlobal
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.conversation.Classes
 import com.gh0u1l5.wechatmagician.spellbook.util.ReflectionUtil
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 
 object Classes {
@@ -28,6 +27,23 @@ object Classes {
                 }
     }
 
+    val SetAvatarClass by WechatGlobal.wxLazy("SetAvatarClass") {
+        WechatClasses.filter { it.name.contains("com.tencent.mm.pluginsdk.ui") }
+                .filter { it.declaredClasses.isNotEmpty() }
+                .firstOrNull { it.declaredClasses.any { it.methods.map { it.name }.contains("doInvalidate") } }
+                ?.declaredClasses
+                ?.firstOrNull {
+                    it.methods.any {
+                        it.parameterTypes.isNotEmpty() &&
+                                it.parameterTypes[0].name == ImageView::class.java.name
+                    }
+                }!!
+    }
+    val SetAvatarMethod by WechatGlobal.wxLazy("SetAvatarMethod") {
+        SetAvatarClass.methods.firstOrNull {
+            it.parameterTypes.isNotEmpty() && it.parameterTypes[0].name == ImageView::class.java.name
+        }!!.name
+    }
 
     val ConversationClickListener: Class<*> by WechatGlobal.wxLazy("ConversationClickListener") {
         ReflectionUtil.findClassesFromPackage(WechatGlobal.wxLoader!!, WechatGlobal.wxClasses!!, "${WechatGlobal.wxPackageName}.ui.conversation")
@@ -62,37 +78,9 @@ object Classes {
     }
 
 
-    fun getConversationAvatar(string: String, imageView: ImageView) {
-
-        WechatClasses.filter { it.name.contains("com.tencent.mm.pluginsdk.ui") }
-                .filter { it.declaredClasses.isNotEmpty() }
-                .filter { it.declaredClasses.any { it.methods.map { it.name }.contains("doInvalidate") } }
+    fun getConversationAvatar(field_username: String, imageView: ImageView) {
+        XposedHelpers.callStaticMethod(SetAvatarClass, SetAvatarMethod, imageView, field_username)
 
     }
 
-//    val ConversationOnItemClickListener: Class<*> by WechatGlobal.wxLazy("ConversationOnItemClickListener") {
-//        ReflectionUtil.findClassesFromPackage(WechatGlobal.wxLoader!!, WechatGlobal.wxClasses!!, "${WechatGlobal.wxPackageName}.ui.conversation")
-//                .classes
-//                .filter { it.interfaces.contains(AdapterView.OnItemClickListener::class.java) }
-//                .filter {
-//                    it.fields.filter {
-//                        it.type == Activity::class.java
-//                    }.firstOrNull {
-//                        it.type == ListView::class.java
-//                    } == null
-//                }
-//                .filter {
-//                    it.constructors.firstOrNull {
-//                        it.parameterTypes.filter {
-//                            it.name == Classes.ConversationWithCacheAdapter.name
-//                        }.filter {
-//                            it.name == ListView::class.java.name
-//                        }.firstOrNull {
-//                            it.name == Activity::class.java.name
-//                        } == null
-//                    } == null
-//                }
-//                .firstOrNull()
-//
-//    }
 }

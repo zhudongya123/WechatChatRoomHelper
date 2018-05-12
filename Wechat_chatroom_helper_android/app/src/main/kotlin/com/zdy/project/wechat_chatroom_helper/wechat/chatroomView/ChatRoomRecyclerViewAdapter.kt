@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.plugins.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.plugins.main.MainLauncherUI.launcherUI
+import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes
 import de.robv.android.xposed.XposedHelpers
 import java.util.*
 
@@ -45,7 +46,7 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
 
         holder.nickname.text = item.nickname
         holder.content.text = item.content
-        holder.time.text =  item.time
+        holder.time.text = item.time
 
 //        try {
 //            HookLogic.setAvatar(holder.avatar, item.avatarString)
@@ -54,10 +55,12 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
 //            holder.avatar.setImageResource(R.mipmap.ic_launcher)
 //        }
 
+        Classes.getConversationAvatar(item.username.toString(), holder.avatar)
+
         if (item.unReadCount > 0)
             holder.unread.background = ShapeDrawable(object : Shape() {
                 override fun draw(canvas: Canvas, paint: Paint) {
-                    val size = (canvas.width/2).toFloat()
+                    val size = (canvas.width / 2).toFloat()
 
                     paint.isAntiAlias = true
                     paint.color = -0x10000
