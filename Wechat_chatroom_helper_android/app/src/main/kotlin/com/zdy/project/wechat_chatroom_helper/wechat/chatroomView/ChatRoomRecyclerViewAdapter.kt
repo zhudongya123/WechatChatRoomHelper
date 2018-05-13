@@ -13,6 +13,7 @@ import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.plugins.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.plugins.main.MainLauncherUI.launcherUI
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes
+import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
 import de.robv.android.xposed.XposedHelpers
 import java.util.*
 
@@ -45,8 +46,8 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
         val item = getObject(position)
 
         holder.nickname.text = item.nickname
-        holder.content.text = item.content
-        holder.time.text = item.time
+       // holder.content.text = Classes.getConversationContent(MainAdapter.originAdapter, item, position)
+        holder.time.text = Classes.getConversationTimeString(MainAdapter.originAdapter, item.conversationTime)
 
 //        try {
 //            HookLogic.setAvatar(holder.avatar, item.avatarString)

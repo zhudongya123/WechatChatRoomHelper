@@ -8,11 +8,10 @@ import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.Classes.MMBaseAdapter
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.conversation.Classes
 import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.conversation.Classes.ConversationWithCacheAdapter
 import com.gh0u1l5.wechatmagician.spellbook.util.ReflectionUtil
+import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import de.robv.android.xposed.XposedHelpers
-import java.lang.reflect.Field
 import java.lang.reflect.ParameterizedType
-import java.text.FieldPosition
 
 object Classes {
 
@@ -88,26 +87,39 @@ object Classes {
             XposedHelpers.callStaticMethod(SetAvatarClass, SetAvatarMethod, imageView, field_username)
 
 
-    fun getConversationContent(adapter: Any, bean: Any, position: Int) {
-
+    fun getConversationContent(adapter: Any, chatInfoModel: ChatInfoModel, position: Int): CharSequence {
 
         val parameterizedType = ConversationWithCacheAdapter.genericSuperclass as ParameterizedType
         val typeArguments = parameterizedType.actualTypeArguments
 
-        val paramAE = (typeArguments[1] as Class<*>)
-        var paramD = ConversationWithCacheAdapter.declaredClasses.first { it.fields.map { it.name }.contains("nickName") }
-
+        val aeClass = (typeArguments[1] as Class<*>)
+//        var paramD = ConversationWithCacheAdapter.declaredClasses.first { it.fields.map { it.name }.contains("nickName") }!!
 
         val getContentMethod = ConversationWithCacheAdapter.methods
                 .filter { it.parameterTypes.size == 3 }
                 .first {
-                    it.parameterTypes[0].simpleName == paramAE.simpleName &&
+                    it.parameterTypes[0].simpleName == aeClass.simpleName &&
                             it.parameterTypes[1].simpleName == Int::class.java.simpleName &&
                             it.parameterTypes[2].simpleName == Boolean::class.java.simpleName
                 }
 
+        val aeConstructor = aeClass.constructors.filter { it.parameterTypes.size == 1 }.firstOrNull { it.parameterTypes[0] == String::class.java }!!
+        val ae = aeConstructor.newInstance(chatInfoModel.username)
 
-//        XposedHelpers.callMethod(adapter,getContentMethod.name,bean,position,)
+        aeClass.getField("field_editingMsg").set(ae, chatInfoModel.editingMsg)
+        aeClass.getField("field_atCount").set(ae, chatInfoModel.atCount)
+        aeClass.getField("field_unReadCount").set(ae, chatInfoModel.unReadCount)
+        aeClass.getField("field_unReadMuteCount").set(ae, chatInfoModel.unReadMuteCount)
+        aeClass.getField("field_msgType").set(ae, chatInfoModel.msgType)
+        aeClass.getField("field_username").set(ae, chatInfoModel.username)
+        aeClass.getField("field_content").set(ae, chatInfoModel.content)
+        aeClass.getField("field_digest").set(ae, chatInfoModel.digest)
+        aeClass.getField("field_digestUser").set(ae, chatInfoModel.digestUser)
+        aeClass.getField("field_isSend").set(ae, chatInfoModel.isSend)
+        aeClass.getField("field_UnReadInvite").set(ae, chatInfoModel.UnReadInvite)
+        aeClass.getField("field_atCount").set(ae, chatInfoModel.atCount)
+
+        return XposedHelpers.callMethod(adapter, getContentMethod.name, ae, position, true) as CharSequence
     }
 
 }

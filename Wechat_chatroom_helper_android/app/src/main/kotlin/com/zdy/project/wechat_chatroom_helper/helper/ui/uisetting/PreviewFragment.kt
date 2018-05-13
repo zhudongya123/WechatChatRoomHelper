@@ -85,7 +85,7 @@ class PreviewFragment : Fragment() {
                                 it.gravity = Gravity.CENTER
                             }
                     it.requestLayout()
-        }
+                }
 
         val imageView = ImageView(thisActivity)
                 .also {
@@ -118,7 +118,7 @@ class PreviewFragment : Fragment() {
     }
 
 
-     fun notifyUIToChangeColor() {
+    fun notifyUIToChangeColor() {
         mToolbarContainer.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.toolbarColorInfo()))
         mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo()))
         chatRoomRecyclerViewAdapter.notifyDataSetChanged()
@@ -130,14 +130,14 @@ class PreviewFragment : Fragment() {
                         .apply {
                             nickname = "欢迎使用微信群消息助手"
                             content = "这是回话的消息内容"
-                            time = "07:30"
+                            conversationTime = System.currentTimeMillis() / 1000
                             unReadCount = 1
                         })
                 it.add(ChatInfoModel()
                         .apply {
                             nickname = "Welcome to WechatChatRoomHelper"
                             content = "this is the content of the conversation"
-                            time = "07:30"
+                            conversationTime = System.currentTimeMillis() / 1000
                             unReadCount = 0
                         })
             }
