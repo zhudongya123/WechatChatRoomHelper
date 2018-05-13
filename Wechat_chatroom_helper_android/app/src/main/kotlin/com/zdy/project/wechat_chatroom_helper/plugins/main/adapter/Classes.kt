@@ -85,10 +85,10 @@ object Classes {
 
 
     fun getConversationAvatar(field_username: String, imageView: ImageView) =
-            XposedHelpers.callStaticMethod(SetAvatarClass, SetAvatarMethod, imageView, field_username)!!
+            XposedHelpers.callStaticMethod(SetAvatarClass, SetAvatarMethod, imageView, field_username)
 
 
-    fun getConversationContent(adapter: Any, bean :Any, position: Int) {
+    fun getConversationContent(adapter: Any, bean: Any, position: Int) {
 
 
         val parameterizedType = ConversationWithCacheAdapter.genericSuperclass as ParameterizedType
