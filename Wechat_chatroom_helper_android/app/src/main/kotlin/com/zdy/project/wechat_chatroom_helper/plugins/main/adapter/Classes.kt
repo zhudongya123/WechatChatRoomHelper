@@ -95,9 +95,9 @@ object Classes {
         val aeClass = (typeArguments[1] as Class<*>)
 //        var paramD = ConversationWithCacheAdapter.declaredClasses.first { it.fields.map { it.name }.contains("nickName") }!!
 
-        val getContentMethod = ConversationWithCacheAdapter.methods
+        val getContentMethod = ConversationWithCacheAdapter.declaredMethods
                 .filter { it.parameterTypes.size == 3 }
-                .first {
+                .single {
                     it.parameterTypes[0].simpleName == aeClass.simpleName &&
                             it.parameterTypes[1].simpleName == Int::class.java.simpleName &&
                             it.parameterTypes[2].simpleName == Boolean::class.java.simpleName

@@ -2,7 +2,6 @@ package com.zdy.project.wechat_chatroom_helper.plugins.main.adapter
 
 import android.annotation.SuppressLint
 import android.graphics.drawable.BitmapDrawable
-import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -187,7 +186,8 @@ object MainAdapter : IAdapterHook {
 
                         val position = param.args[0] as Int
 
-                        refreshEntryView(param.result as View, position)
+                        if (param.result != null)
+                            refreshEntryView(param.result as View, position)
                     }
 
                     private fun refreshEntryView(view: View?, position: Int) {
@@ -253,12 +253,9 @@ object MainAdapter : IAdapterHook {
                     else -> index
                 }
 
-                XposedBridge.log("MessageHooker2.7, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
-
+                XposedBridge.log("MessageHooker2.7,size = ${originAdapter.count}, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
 
                 param.args[0] = newIndex
-
-
             }
         })
 

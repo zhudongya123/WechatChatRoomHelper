@@ -46,7 +46,7 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
         val item = getObject(position)
 
         holder.nickname.text = item.nickname
-       // holder.content.text = Classes.getConversationContent(MainAdapter.originAdapter, item, position)
+        holder.content.text = Classes.getConversationContent(MainAdapter.originAdapter, item, position)
         holder.time.text = Classes.getConversationTimeString(MainAdapter.originAdapter, item.conversationTime)
 
 //        try {
