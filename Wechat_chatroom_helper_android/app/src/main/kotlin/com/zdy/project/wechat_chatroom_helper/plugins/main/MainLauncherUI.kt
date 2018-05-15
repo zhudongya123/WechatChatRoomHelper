@@ -11,11 +11,13 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import com.gh0u1l5.wechatmagician.spellbook.interfaces.IActivityHook
 import com.zdy.project.wechat_chatroom_helper.Constants
+import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge.hookAllConstructors
+import de.robv.android.xposed.XposedHelpers
 
 @SuppressLint("StaticFieldLeak")
 /**
@@ -26,13 +28,47 @@ object MainLauncherUI : IActivityHook {
     lateinit var launcherUI: Activity
 
 
+
     fun executeHook() {
 
+        XposedHelpers.findAndHookMethod("com.tencent.mm.ui.LauncherUI",PluginEntry.classloader,
+                "onCreate",Bundle::class.java,object :XC_MethodHook(){
+            override fun afterHookedMethod(param: MethodHookParam) {
+                LogUtils.log("onFitSystemWindowLayoutViewReady-1")
+                LogUtils.log("onFitSystemWindowLayoutViewReady-1")
+                LogUtils.log("onFitSystemWindowLayoutViewReady-1")
+                LogUtils.log("onFitSystemWindowLayoutViewReady-1")
+                LogUtils.log("onFitSystemWindowLayoutViewReady-1")
+                LogUtils.log("onFitSystemWindowLayoutViewReady-1")
+                LogUtils.log("onFitSystemWindowLayoutViewReady-1")
+                LogUtils.log("onFitSystemWindowLayoutViewReady-1")
+                LogUtils.log("onFitSystemWindowLayoutViewReady-1")
+                LogUtils.log("onFitSystemWindowLayoutViewReady-1")
+                LogUtils.log("onFitSystemWindowLayoutViewReady-1")
+                LogUtils.log("onFitSystemWindowLayoutViewReady-1")
+                LogUtils.log("onFitSystemWindowLayoutViewReady-1")
+                LogUtils.log("onFitSystemWindowLayoutViewReady-1")
+                LogUtils.log("onFitSystemWindowLayoutViewReady-1")
+                LogUtils.log("onFitSystemWindowLayoutViewReady-1")
+                LogUtils.log("onFitSystemWindowLayoutViewReady-1")
+
+             //   if (activity::class.java.simpleName != "LauncherUI") return
+
+                launcherUI = param.thisObject as Activity
+
+                LogUtils.log("onFitSystemWindowLayoutViewReady0")
+
+                PluginEntry.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
+                PluginEntry.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
+
+                LogUtils.log("onFitSystemWindowLayoutViewReady1, chatRoomViewPresenter = ${PluginEntry.chatRoomViewPresenter}, " +
+                        "officialViewPresenter = ${PluginEntry.officialViewPresenter} ")
+            }
+        })
 
         hookAllConstructors(PluginEntry.classloader.loadClass(Constants.FitSystemWindowLayoutView), object : XC_MethodHook() {
 
             override fun afterHookedMethod(param: MethodHookParam) {
-
 
                 val fitSystemWindowLayoutView = param.thisObject as ViewGroup
                 fitSystemWindowLayoutView.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
@@ -84,20 +120,28 @@ object MainLauncherUI : IActivityHook {
         return wechatVersion >= 1140
     }
 
-    override fun onActivityCreating(activity: Activity, savedInstanceState: Bundle?) {
-        super.onActivityCreating(activity, savedInstanceState)
-        if (activity::class.java.simpleName != "LauncherUI") return
-
-        launcherUI = activity
-
-        PluginEntry.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
-        PluginEntry.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
-        PluginEntry.chatRoomViewPresenter.start()
-        PluginEntry.officialViewPresenter.start()
-    }
+//    override fun onActivityCreating(activity: Activity, savedInstanceState: Bundle?) {
+//        LogUtils.log("onFitSystemWindowLayoutViewReady-1")
+//
+//        if (activity::class.java.simpleName != "LauncherUI") return
+//
+//        launcherUI = activity
+//
+//        LogUtils.log("onFitSystemWindowLayoutViewReady0")
+//
+//        PluginEntry.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
+//        PluginEntry.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
+//
+//        LogUtils.log("onFitSystemWindowLayoutViewReady1, chatRoomViewPresenter = ${PluginEntry.chatRoomViewPresenter}, " +
+//                "officialViewPresenter = ${PluginEntry.officialViewPresenter} ")
+//    }
 
 
     fun onFitSystemWindowLayoutViewReady(chatRoomIndex: Int, officialIndex: Int, fitSystemWindowLayoutView: ViewGroup) {
+
+        LogUtils.log("onFitSystemWindowLayoutViewReady2, chatRoomViewPresenter = ${PluginEntry.chatRoomViewPresenter}, " +
+                "officialViewPresenter = ${PluginEntry.officialViewPresenter} ")
+
 
         val chatRoomViewParent = PluginEntry.chatRoomViewPresenter.presenterView.parent
         if (chatRoomViewParent != null) {

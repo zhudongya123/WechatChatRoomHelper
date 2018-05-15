@@ -7,11 +7,10 @@ import android.view.ViewGroup
 import android.widget.*
 import com.gh0u1l5.wechatmagician.spellbook.C
 import com.gh0u1l5.wechatmagician.spellbook.interfaces.IAdapterHook
-import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.Methods.MMBaseAdapter_getItemInternal
-import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.conversation.Classes
+import com.gh0u1l5.wechatmagician.spellbook.mirror.com.tencent.mm.ui.Methods.MMBaseAdapter_getItemInternal
+import com.gh0u1l5.wechatmagician.spellbook.mirror.com.tencent.mm.ui.conversation.Classes.ConversationWithCacheAdapter
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.MessageEventNotifyListener
-import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ClassesByCursor
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ConversationClickListener
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ConversationWithAppBrandListView
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHandler
@@ -34,9 +33,6 @@ object MainAdapter : IAdapterHook {
     var firstChatroomUserName = ""
     var firstOfficialUserName = ""
 
-
-    var refreshFlag = false
-
     override fun onConversationAdapterCreated(adapter: BaseAdapter) {
         super.onConversationAdapterCreated(adapter)
         originAdapter = adapter
@@ -51,23 +47,26 @@ object MainAdapter : IAdapterHook {
 
     fun executeHook() {
 
-        val conversationWithCacheAdapter = Classes.ConversationWithCacheAdapter
+        val conversationWithCacheAdapter = ConversationWithCacheAdapter
 
         findAndHookMethod(ConversationWithAppBrandListView, "setAdapter", ListAdapter::class.java, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 listView = param.thisObject as ListView
+
+                PluginEntry.chatRoomViewPresenter.start()
+                PluginEntry.officialViewPresenter.start()
             }
         })
-
-        ClassesByCursor.forEach { XposedBridge.log("MessageHooker2.11, className = ${it.name}") }
-
-
-        ClassesByCursor.forEach {
-            findAndHookMethod(it, "getCount", object : XC_MethodHook() {
-                override fun afterHookedMethod(param: MethodHookParam) {
-                }
-            })
-        }
+//
+//        ClassesByCursor.forEach { XposedBridge.log("MessageHooker2.11, className = ${it.name}") }
+//
+//
+//        ClassesByCursor.forEach {
+//            findAndHookMethod(it, "getCount", object : XC_MethodHook() {
+//                override fun afterHookedMethod(param: MethodHookParam) {
+//                }
+//            })
+//        }
 
 //        val list: Array<SparseArray<String>> = arrayOf()
 //
@@ -120,7 +119,6 @@ object MainAdapter : IAdapterHook {
         findAndHookMethod(conversationWithCacheAdapter.superclass, "getCount", object : XC_MethodHook() {
 
             override fun afterHookedMethod(param: MethodHookParam) {
-
                 var count = param.result as Int + (if (firstChatroomPosition != -1) 1 else 0)
                 count += (if (firstOfficialPosition != -1) 1 else 0)
                 param.result = count
@@ -160,7 +158,6 @@ object MainAdapter : IAdapterHook {
         findAndHookMethod(conversationWithCacheAdapter, "getView",
                 Int::class.java, View::class.java, ViewGroup::class.java,
                 object : XC_MethodHook() {
-
 
 //                    override fun beforeHookedMethod(param: MethodHookParam) {
 //

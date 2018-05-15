@@ -4,9 +4,7 @@ import android.database.Cursor
 import android.widget.ImageView
 import com.gh0u1l5.wechatmagician.spellbook.C
 import com.gh0u1l5.wechatmagician.spellbook.WechatGlobal
-import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.Classes.MMBaseAdapter
-import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.conversation.Classes
-import com.gh0u1l5.wechatmagician.spellbook.mirror.mm.ui.conversation.Classes.ConversationWithCacheAdapter
+import com.gh0u1l5.wechatmagician.spellbook.mirror.com.tencent.mm.ui.conversation.Classes.ConversationWithCacheAdapter
 import com.gh0u1l5.wechatmagician.spellbook.util.ReflectionUtil
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
@@ -17,12 +15,12 @@ object Classes {
 
 
     private val WechatClasses by WechatGlobal.wxLazy("WechatClasses") {
-        WechatGlobal.wxClasses!!.filter { it.contains(WechatGlobal.wxPackageName) }.map { XposedHelpers.findClass(it, PluginEntry.classloader) }
+        WechatGlobal.wxClasses!!.filter { it.className.contains(WechatGlobal.wxPackageName) }.map { XposedHelpers.findClass(it.className, PluginEntry.classloader) }
     }
 
 
     val ConversationWithAppBrandListView: Class<*> by WechatGlobal.wxLazy("ConversationWithAppBrandListView") {
-        ReflectionUtil.findClassIfExists("${WechatGlobal.wxPackageName}.ui.conversation.ConversationWithAppBrandListView", WechatGlobal.wxLoader)
+        ReflectionUtil.findClassIfExists("${WechatGlobal.wxPackageName}.ui.conversation.ConversationWithAppBrandListView", WechatGlobal.wxLoader!!)
     }
 
     val ClassesByCursor by WechatGlobal.wxLazy("ClassesByCursor") {
@@ -58,7 +56,7 @@ object Classes {
 
     }
 
-    val SetConversationString = Classes.ConversationWithCacheAdapter.declaredMethods
+    val SetConversationString = ConversationWithCacheAdapter.declaredMethods
             .filter { !it.isAccessible }
             .filter { it.returnType == CharSequence::class.java }
             .firstOrNull { it.parameterTypes.size == 1 }!!

@@ -3,7 +3,6 @@ package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 import android.content.Context
 import android.graphics.Color
 import android.os.Build
-import android.os.Handler
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.TypedValue
@@ -22,8 +21,6 @@ import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialog
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
 import de.robv.android.xposed.XposedHelpers
 import network.ApiManager
-import utils.AppSaveInfo
-import java.text.MessageFormat
 import java.util.*
 
 /**
@@ -121,7 +118,8 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
     override fun init() {
         mAdapter = ChatRoomRecyclerViewAdapter(mContext)
-        mRecyclerView.adapter = mAdapter
+        LogUtils.log("mRecyclerView = $mRecyclerView, mAdapter = $mAdapter")
+     //   mRecyclerView.setAdapter(mAdapter)
     }
 
     override fun showMessageRefresh(targetUserName: String) {
