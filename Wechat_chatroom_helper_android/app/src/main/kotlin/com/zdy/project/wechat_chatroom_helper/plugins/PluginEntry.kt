@@ -3,8 +3,6 @@ package     com.zdy.project.wechat_chatroom_helper.plugins
 import android.annotation.SuppressLint
 import com.gh0u1l5.wechatmagician.spellbook.SpellBook
 import com.gh0u1l5.wechatmagician.spellbook.util.BasicUtil
-import com.zdy.project.wechat_chatroom_helper.Constants
-import com.zdy.project.wechat_chatroom_helper.plugins.log.LogRecord
 import com.zdy.project.wechat_chatroom_helper.plugins.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHandler
@@ -32,22 +30,19 @@ class PluginEntry : IXposedHookLoadPackage {
 
     override fun handleLoadPackage(p0: XC_LoadPackage.LoadPackageParam) {
 
-        if (p0.packageName != Constants.WECHAT_PACKAGE_NAME) return
-        if (p0.processName != Constants.WECHAT_PACKAGE_NAME) return
 
-        classloader = p0.classLoader
+        BasicUtil.tryVerbosely {
+            if (SpellBook.isImportantWechatProcess(p0)) {
 
+                classloader = p0.classLoader
 
+                SpellBook.startup(p0, listOf(MainLauncherUI, MessageHandler, MainAdapter), listOf(MainAdapter, MainLauncherUI))
 
-        SpellBook.startup(p0, listOf( MessageHandler))
+//                MainAdapter.executeHook()
+//                MainLauncherUI.executeHook()
+                //LogRecord.executeHook()
 
-        BasicUtil.tryAsynchronously {
-
-//            SpellBook.startup(p0, listOf(MainLauncherUI, MessageHandler, MainAdapter), listOf())
-
-//            LogRecord.executeHook()
-//            MainAdapter.executeHook()
-//            MainLauncherUI.executeHook()
+            }
         }
     }
 }

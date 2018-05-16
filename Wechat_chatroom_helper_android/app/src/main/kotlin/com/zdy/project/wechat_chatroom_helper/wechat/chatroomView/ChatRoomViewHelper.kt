@@ -16,7 +16,7 @@ import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 /**
  * Created by Mr.Zdy on 2017/8/27.
  */
-
+@SuppressWarnings("ResourceType")
 object ChatRoomViewHelper {
 
     @IdRes  val id_avatar_container = 7

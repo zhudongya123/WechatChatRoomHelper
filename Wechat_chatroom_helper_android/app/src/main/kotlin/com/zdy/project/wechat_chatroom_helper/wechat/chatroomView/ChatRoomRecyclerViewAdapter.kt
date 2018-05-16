@@ -1,7 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
@@ -11,12 +10,12 @@ import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.plugins.main.MainLauncherUI
-import com.zdy.project.wechat_chatroom_helper.plugins.main.MainLauncherUI.launcherUI
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
 import de.robv.android.xposed.XposedHelpers
 import java.util.*
 
+@Suppress("DEPRECATION")
 /**
  * Created by Mr.Zdy on 2017/8/27.
  */
@@ -46,7 +45,7 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
         val item = getObject(position)
 
         holder.nickname.text = item.nickname
-        holder.content.text = Classes.getConversationContent(MainAdapter.originAdapter, item, position)
+        holder.content.text = Classes.getConversationContent(MainAdapter.originAdapter, item, position) ?: (item.content)
         holder.time.text = Classes.getConversationTimeString(MainAdapter.originAdapter, item.conversationTime)
 
 //        try {
@@ -75,7 +74,8 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
         holder.itemView.background = ChatRoomViewHelper.getItemViewBackground(mContext)
         holder.itemView.setOnClickListener {
             //            try {
-//                onDialogItemClickListener.onItemClick(muteListInAdapterPositions[position])
+//                o
+// nDialogItemClickListener.onItemClick(muteListInAdapterPositions[position])
 //            } catch (t: Throwable) {
 //                t.printStackTrace()
 //            }

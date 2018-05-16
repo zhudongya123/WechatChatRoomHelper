@@ -119,7 +119,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
     override fun init() {
         mAdapter = ChatRoomRecyclerViewAdapter(mContext)
         LogUtils.log("mRecyclerView = $mRecyclerView, mAdapter = $mAdapter")
-     //   mRecyclerView.setAdapter(mAdapter)
+        mRecyclerView.setAdapter(mAdapter)
     }
 
     override fun showMessageRefresh(targetUserName: String) {
@@ -162,8 +162,6 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         //  mAdapter.data = data
 
         mAdapter.data = if (pageType == PageType.CHAT_ROOMS) MessageFactory.getAllChatroom() else MessageFactory.getAllOfficial()
-
-
         mAdapter.notifyDataSetChanged()
 
         LogUtils.log("showMessageRefresh for all recycler view , pageType = " + PageType.printPageType(pageType))
