@@ -60,7 +60,7 @@ class HookLogic {/*: IXposedHookLoadPackage {
 
         if (!AppSaveInfo.openInfo()) return
 
-        // RuntimeInfo.mClassLoader = loadPackageParam.classLoader
+        // ConfigInfo.mClassLoader = loadPackageParam.classLoader
 
         findAndHookConstructor("com.tencent.mm.ui.HomeUI.FitSystemWindowLayoutView",
                 loadPackageParam.classLoader, Context::class.java, object : XC_MethodHook() {
@@ -414,7 +414,7 @@ class HookLogic {/*: IXposedHookLoadPackage {
                 }
             })
             chatRoomViewPresenter!!.show()
-            //RuntimeInfo.changeCurrentPage(PageType.CHAT_ROOMS)
+            //ConfigInfo.changeCurrentPage(PageType.CHAT_ROOMS)
             param.result = null
         }
 
@@ -433,7 +433,7 @@ class HookLogic {/*: IXposedHookLoadPackage {
                 }
             })
             officialViewPresenter!!.show()
-         //   RuntimeInfo.changeCurrentPage(PageType.OFFICIAL)
+         //   ConfigInfo.changeCurrentPage(PageType.OFFICIAL)
             param.result = null
         }
     }
@@ -553,7 +553,7 @@ class HookLogic {/*: IXposedHookLoadPackage {
     private fun getNoMeasuredTextViewText(textView: Any): CharSequence {
         var clazz: Class<*>? = null
         try {
-           // clazz = XposedHelpers.findClass("com.tencent.mm.ui.base.NoMeasuredTextView", RuntimeInfo.mClassLoader)
+           // clazz = XposedHelpers.findClass("com.tencent.mm.ui.base.NoMeasuredTextView", ConfigInfo.mClassLoader)
 
             val field = clazz!!.getDeclaredField("mText")
             field.isAccessible = true
@@ -806,20 +806,20 @@ class HookLogic {/*: IXposedHookLoadPackage {
                     if (desc.contains("closeChatting")) {
                         isInChatting = false
                         LogUtils.log("closeChatting")
-//                        when (RuntimeInfo.currentPage) {
-//                            PageType.CHATTING_WITH_OFFICIAL -> RuntimeInfo.changeCurrentPage(PageType.OFFICIAL)
-//                            PageType.CHATTING_WITH_CHAT_ROOMS -> RuntimeInfo.changeCurrentPage(PageType.CHAT_ROOMS)
-//                            PageType.CHATTING -> RuntimeInfo.changeCurrentPage(PageType.MAIN)
+//                        when (ConfigInfo.currentPage) {
+//                            PageType.CHATTING_WITH_OFFICIAL -> ConfigInfo.changeCurrentPage(PageType.OFFICIAL)
+//                            PageType.CHATTING_WITH_CHAT_ROOMS -> ConfigInfo.changeCurrentPage(PageType.CHAT_ROOMS)
+//                            PageType.CHATTING -> ConfigInfo.changeCurrentPage(PageType.MAIN)
 //                        }
                     }
                     if (desc.contains("startChatting")) {
                         isInChatting = true
                         LogUtils.log("startChatting")
 
-//                        when (RuntimeInfo.currentPage) {
-//                            PageType.OFFICIAL -> RuntimeInfo.changeCurrentPage(PageType.CHATTING_WITH_OFFICIAL)
-//                            PageType.CHAT_ROOMS -> RuntimeInfo.changeCurrentPage(PageType.CHATTING_WITH_CHAT_ROOMS)
-//                            PageType.MAIN -> RuntimeInfo.changeCurrentPage(PageType.CHATTING)
+//                        when (ConfigInfo.currentPage) {
+//                            PageType.OFFICIAL -> ConfigInfo.changeCurrentPage(PageType.CHATTING_WITH_OFFICIAL)
+//                            PageType.CHAT_ROOMS -> ConfigInfo.changeCurrentPage(PageType.CHATTING_WITH_CHAT_ROOMS)
+//                            PageType.MAIN -> ConfigInfo.changeCurrentPage(PageType.CHATTING)
 //                        }
                     }
 
@@ -867,7 +867,7 @@ class HookLogic {/*: IXposedHookLoadPackage {
 
         fun setAvatar(avatar: ImageView, field_username: String) {
 //            try {
-//                XposedHelpers.callStaticMethod(Class.forName(Class_Set_Avatar, false, RuntimeInfo.mClassLoader),
+//                XposedHelpers.callStaticMethod(Class.forName(Class_Set_Avatar, false, ConfigInfo.mClassLoader),
 //                        Constants.Method_Conversation_List_Get_Avatar, avatar, field_username)
 //            } catch (e: Throwable) {
 //                e.printStackTrace()

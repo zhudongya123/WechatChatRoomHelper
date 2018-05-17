@@ -1,9 +1,9 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.manager
 
-import android.content.Context
 import android.graphics.*
+import android.graphics.drawable.BitmapDrawable
+import android.widget.ImageView
 import com.zdy.project.wechat_chatroom_helper.PageType
-import utils.AppSaveInfo
 
 /**
  * Created by Mr.Zdy on 2018/3/2.
@@ -15,9 +15,12 @@ object AvatarMaker {
     private val AVATAR_AMBER = 0xFFF5CB00.toInt()
 
 
-    fun handleAvatarDrawable(context: Context, canvas: Canvas, paint: Paint, type: Int) {
+    fun handleAvatarDrawable(imageView: ImageView, type: Int): BitmapDrawable {
+        val contentSize = imageView.measuredHeight / 2
 
-        val contentSize = canvas.width / 2
+        val paint = Paint()
+        val drawableBitmap = Bitmap.createBitmap(imageView.measuredHeight, imageView.measuredHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(drawableBitmap)
 
         when (type) {
             PageType.CHAT_ROOMS ->
@@ -47,9 +50,10 @@ object AvatarMaker {
                             logoCanvas.drawCircle((contentSize - contentSize / 4 - contentSize / 10).toFloat(), (contentSize / 2).toFloat(), (contentSize / 4).toFloat(), paint)
                             rawDrawable
                         })
-            else -> TODO("internal error")
+            else -> {
+            }
         }
-
+        return BitmapDrawable(imageView.context.resources, drawableBitmap)
     }
 
 
@@ -83,7 +87,7 @@ object AvatarMaker {
 
         //填充背景
         canvas.run {
-            if (RuntimeInfo.isCircleAvatar)
+            if (ConfigInfo.isCircleAvatar)
                 drawCircle(contentSize.toFloat(), contentSize.toFloat(), contentSize.toFloat(),
                         paint.apply {
                             color = backgroundColor

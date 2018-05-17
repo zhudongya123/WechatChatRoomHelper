@@ -3,7 +3,7 @@ package     com.zdy.project.wechat_chatroom_helper.plugins
 import android.annotation.SuppressLint
 import com.gh0u1l5.wechatmagician.spellbook.SpellBook
 import com.gh0u1l5.wechatmagician.spellbook.util.BasicUtil
-import com.zdy.project.wechat_chatroom_helper.plugins.main.MainLauncherUI
+import com.zdy.project.wechat_chatroom_helper.plugins.main.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHandler
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter

@@ -11,12 +11,14 @@ import com.gh0u1l5.wechatmagician.spellbook.base.HookerProvider
 import com.gh0u1l5.wechatmagician.spellbook.interfaces.IAdapterHook
 import com.gh0u1l5.wechatmagician.spellbook.mirror.com.tencent.mm.ui.Methods.MMBaseAdapter_getItemInternal
 import com.gh0u1l5.wechatmagician.spellbook.mirror.com.tencent.mm.ui.conversation.Classes.ConversationWithCacheAdapter
+import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.MessageEventNotifyListener
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ConversationClickListener
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes.ConversationWithAppBrandListView
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageFactory
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHandler
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
@@ -40,10 +42,9 @@ object MainAdapter : IAdapterHook, HookerProvider {
         originAdapter = adapter
     }
 
-
-
     private var firstChatroomPosition = -1
     private var firstOfficialPosition = -1
+
     override fun provideStaticHookers(): List<Hooker>? {
         return listOf(Hooker {
 
@@ -112,9 +113,7 @@ object MainAdapter : IAdapterHook, HookerProvider {
 //
 //                }
 //            }
-//
 //        })
-
 
             findAndHookMethod(conversationWithCacheAdapter.superclass, "getCount", object : XC_MethodHook() {
 
@@ -213,14 +212,12 @@ object MainAdapter : IAdapterHook, HookerProvider {
                                 avatar.setImageDrawable(BitmapDrawable())
                                 setTextForNoMeasuredTextView(time, Classes.getConversationTimeString(originAdapter, MessageFactory.getSingle(firstChatroomUserName).conversationTime))
 
-
                             }
                             if (position == firstOfficialPosition) {
                                 setTextForNoMeasuredTextView(nickname, "服务号")
                                 setTextForNoMeasuredTextView(content, "")
-                                avatar.setImageDrawable(BitmapDrawable())
+                                avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.OFFICIAL))
                                 setTextForNoMeasuredTextView(time, Classes.getConversationTimeString(originAdapter, MessageFactory.getSingle(firstOfficialUserName).conversationTime))
-
                             }
 
                         }

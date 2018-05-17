@@ -3,6 +3,7 @@ package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 import android.content.Context
 import android.graphics.Color
 import android.os.Build
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.TypedValue
@@ -11,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.*
 import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout
+import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageFactory
@@ -18,10 +20,11 @@ import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.ConfigChatRoomDialog
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialog
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.ConfigInfo
 import de.robv.android.xposed.XposedHelpers
 import network.ApiManager
 import java.util.*
+
 
 /**
  * Created by Mr.Zdy on 2017/8/27.
@@ -64,7 +67,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         mainView.addView(mRecyclerView)
         mainView.isClickable = true
 
-        mainView.setBackgroundColor(Color.parseColor("#" + RuntimeInfo.helperColor))
+        mainView.setBackgroundColor(Color.parseColor("#" + ConfigInfo.helperColor))
 
         initSwipeBack()
 
@@ -84,7 +87,6 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             }
 
             override fun onPanelOpened(panel: View) {
-                //  RuntimeInfo.changeCurrentPage(PageType.MAIN)
             }
 
             override fun onPanelClosed(panel: View) {
@@ -146,7 +148,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
 
     override fun showMessageRefresh(muteListInAdapterPositions: ArrayList<Int>) {
-//        val currentPage = 0//RuntimeInfo.currentPage
+//        val currentPage = 0//ConfigInfo.currentPage
 
 
 //        when (currentPage) {
@@ -161,12 +163,35 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         //  mAdapter.muteListInAdapterPositions = muteListInAdapterPositions
         //  mAdapter.data = data
 
-        mAdapter.data = if (pageType == PageType.CHAT_ROOMS) MessageFactory.getAllChatroom() else MessageFactory.getAllOfficial()
-        mAdapter.notifyDataSetChanged()
+        val newDatas = if (pageType == PageType.CHAT_ROOMS) MessageFactory.getAllChatroom() else MessageFactory.getAllOfficial()
+        val oldDatas = mAdapter.data
+
+        val diffResult = DiffUtil.calculateDiff(DiffCallBack(newDatas, oldDatas), true)
+        diffResult.dispatchUpdatesTo(mAdapter)
+
+        mAdapter.data = newDatas
 
         LogUtils.log("showMessageRefresh for all recycler view , pageType = " + PageType.printPageType(pageType))
     }
 
+
+    internal class DiffCallBack(private var mOldDatas: ArrayList<ChatInfoModel>,
+                                private var mNewDatas: ArrayList<ChatInfoModel>) : DiffUtil.Callback() {
+
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) = true
+
+        override fun getOldListSize() = mOldDatas.size
+
+        override fun getNewListSize() = mNewDatas.size
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                mOldDatas[oldItemPosition].username == mNewDatas[newItemPosition].username
+
+        override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
+            return super.getChangePayload(oldItemPosition, newItemPosition)
+        }
+    }
 
     private fun initToolbar(): View {
         mToolbarContainer = RelativeLayout(mContext)
@@ -180,8 +205,8 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 //                .getIdentifier(Drawable_String_Arrow, "drawable", mContext.packageName))
 
         mToolbar.setNavigationOnClickListener { dismiss() }
-        mToolbar.setBackgroundColor(Color.parseColor("#" + RuntimeInfo.toolbarColor))
-        mRecyclerView.setBackgroundColor(Color.parseColor("#" + RuntimeInfo.helperColor))
+        mToolbar.setBackgroundColor(Color.parseColor("#" + ConfigInfo.toolbarColor))
+        mRecyclerView.setBackgroundColor(Color.parseColor("#" + ConfigInfo.helperColor))
 
         when (pageType) {
             PageType.CHAT_ROOMS -> mToolbar.title = "群消息助手"

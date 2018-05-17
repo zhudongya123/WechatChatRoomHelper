@@ -9,7 +9,7 @@ import android.graphics.drawable.shapes.Shape
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
-import com.zdy.project.wechat_chatroom_helper.plugins.main.MainLauncherUI
+import com.zdy.project.wechat_chatroom_helper.plugins.main.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
 import de.robv.android.xposed.XposedHelpers
@@ -20,9 +20,8 @@ import java.util.*
  * Created by Mr.Zdy on 2017/8/27.
  */
 
-class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Context) : RecyclerView.Adapter<ChatRoomViewHolder>() {
+class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : RecyclerView.Adapter<ChatRoomViewHolder>() {
 
-    var muteListInAdapterPositions = ArrayList<Int>()
 
     private lateinit var onDialogItemClickListener: OnDialogItemClickListener
 
@@ -48,13 +47,6 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
         holder.content.text = Classes.getConversationContent(MainAdapter.originAdapter, item, position) ?: (item.content)
         holder.time.text = Classes.getConversationTimeString(MainAdapter.originAdapter, item.conversationTime)
 
-//        try {
-//            HookLogic.setAvatar(holder.avatar, item.avatarString)
-//        } catch (e: Throwable) {
-//            e.printStackTrace()
-//            holder.avatar.setImageResource(R.mipmap.ic_launcher)
-//        }
-
         Classes.getConversationAvatar(item.username.toString(), holder.avatar)
 
         if (item.unReadCount > 0)
@@ -73,22 +65,9 @@ class ChatRoomRecyclerViewAdapter internal constructor(private val mContext: Con
 
         holder.itemView.background = ChatRoomViewHelper.getItemViewBackground(mContext)
         holder.itemView.setOnClickListener {
-            //            try {
-//                o
-// nDialogItemClickListener.onItemClick(muteListInAdapterPositions[position])
-//            } catch (t: Throwable) {
-//                t.printStackTrace()
-//            }
-
             XposedHelpers.callMethod(MainLauncherUI.launcherUI, "startChatting", item.username, null, true)
-
         }
         holder.itemView.setOnLongClickListener {
-            try {
-                onDialogItemClickListener.onItemLongClick(muteListInAdapterPositions[position])
-            } catch (t: Throwable) {
-                t.printStackTrace()
-            }
             return@setOnLongClickListener true
         }
 
