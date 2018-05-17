@@ -21,7 +21,6 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
-import org.springframework.core.ParameterizedTypeReference
 
 @SuppressLint("StaticFieldLeak")
 /**
@@ -41,7 +40,6 @@ object MainAdapter : IAdapterHook, HookerProvider {
         originAdapter = adapter
     }
 
-    private inline fun <reified T : Any> typeRef(): ParameterizedTypeReference<T> = object : ParameterizedTypeReference<T>() {}
 
 
     private var firstChatroomPosition = -1
