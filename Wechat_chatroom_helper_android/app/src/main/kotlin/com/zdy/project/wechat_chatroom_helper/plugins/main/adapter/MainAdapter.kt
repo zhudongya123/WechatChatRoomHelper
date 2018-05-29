@@ -209,7 +209,7 @@ object MainAdapter : IAdapterHook, HookerProvider {
                             if (position == firstChatroomPosition) {
                                 setTextForNoMeasuredTextView(nickname, "群消息")
                                 setTextForNoMeasuredTextView(content, "")
-                                avatar.setImageDrawable(BitmapDrawable())
+                                avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.CHAT_ROOMS))
                                 setTextForNoMeasuredTextView(time, Classes.getConversationTimeString(originAdapter, MessageFactory.getSingle(firstChatroomUserName).conversationTime))
 
                             }
