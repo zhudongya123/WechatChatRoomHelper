@@ -1,9 +1,5 @@
 package com.zdy.project.wechat_chatroom_helper
 
-import android.content.Context
-import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
-import de.robv.android.xposed.XposedHelpers
-
 /**
  * Created by Mr.Zdy on 2017/11/7.
  */
@@ -56,6 +52,19 @@ class ChatInfoModel {
 
     override fun toString(): String {
         return "ChatInfoModel(username=$username, nickname=$nickname, content=$content, digest=$digest, digestUser=$digestUser, editingMsg=$editingMsg, msgType=$msgType, conversationTime=$conversationTime, isSend=$isSend, status=$status, attrflag=$attrflag, atCount=$atCount, unReadMuteCount=$unReadMuteCount, UnReadInvite=$UnReadInvite, unReadCount=$unReadCount)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        if (other !is ChatInfoModel) return false
+
+        if (other.nickname != nickname) return false
+        if (other.content != content) return false
+        if (other.conversationTime != conversationTime) return false
+        if (other.unReadMuteCount != unReadMuteCount) return false
+        if (other.unReadCount != unReadCount) return false
+
+        return true
     }
 
 

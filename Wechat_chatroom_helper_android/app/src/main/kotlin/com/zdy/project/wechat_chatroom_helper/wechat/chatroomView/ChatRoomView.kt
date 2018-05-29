@@ -186,11 +186,8 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         override fun getNewListSize() = mNewDatas.size
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-                mOldDatas[oldItemPosition].username == mNewDatas[newItemPosition].username
+                mOldDatas[oldItemPosition] == mNewDatas[newItemPosition]
 
-        override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-            return super.getChangePayload(oldItemPosition, newItemPosition)
-        }
     }
 
     private fun initToolbar(): View {

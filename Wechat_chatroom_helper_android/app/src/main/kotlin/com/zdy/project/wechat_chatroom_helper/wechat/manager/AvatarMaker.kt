@@ -25,7 +25,16 @@ object AvatarMaker {
         when (type) {
             PageType.CHAT_ROOMS ->
             {
-                canvas.drawColor(AVATAR_BLUE)
+                canvas.run {
+                    if (ConfigInfo.isCircleAvatar)
+                        drawCircle(contentSize.toFloat(), contentSize.toFloat(), contentSize.toFloat(),
+                                paint.apply {
+                                    color = AVATAR_BLUE
+                                    strokeWidth = 0f
+                                    style = Paint.Style.FILL_AND_STROKE
+                                })
+                    else drawColor(AVATAR_BLUE)
+                }
 
                 paint.color = 0xFFFFFFFF.toInt()
                 paint.isAntiAlias = true
