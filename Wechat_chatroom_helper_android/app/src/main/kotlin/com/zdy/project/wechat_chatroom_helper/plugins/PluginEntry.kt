@@ -9,7 +9,12 @@ import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHandler
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter
 import de.robv.android.xposed.IXposedHookLoadPackage
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
+import okhttp3.OkHttpClient
+import okhttp3.Request
 
 /**
  * Created by Mr.Zdy on 2018/3/31.
@@ -30,6 +35,26 @@ class PluginEntry : IXposedHookLoadPackage {
 
 
     override fun handleLoadPackage(p0: XC_LoadPackage.LoadPackageParam) {
+
+
+        if (p0.packageName == "com.ss.android.ugc.aweme") {
+            XposedHelpers.findAndHookMethod(OkHttpClient::class.java, "newCall",
+                    Request::class.java, object : XC_MethodHook() {
+
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val request = param.args[0] as Request
+
+                    val url = request.url()
+                    XposedBridge.log("aweme_detect, url = $url")
+
+                    val headers = request.headers()
+
+                    XposedBridge.log("aweme_detect, headers = $headers")
+
+                }
+
+            })
+        }
 
         if (p0.processName != Constants.WECHAT_PACKAGE_NAME) return
 
