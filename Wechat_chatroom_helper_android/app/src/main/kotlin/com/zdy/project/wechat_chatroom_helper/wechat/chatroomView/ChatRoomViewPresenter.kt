@@ -3,13 +3,15 @@ package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 import android.content.Context
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import com.zdy.project.wechat_chatroom_helper.PageType
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
 import java.util.*
 
 /**
  * Created by Mr.Zdy on 2017/8/25.
  */
 
-class ChatRoomViewPresenter(mContext: Context, pageType: Int) : ChatRoomContract.Presenter {
+class ChatRoomViewPresenter(mContext: Context, var pageType: Int) : ChatRoomContract.Presenter {
 
     override val presenterView: ViewGroup
     override lateinit var originAdapter: Any
@@ -48,10 +50,12 @@ class ChatRoomViewPresenter(mContext: Context, pageType: Int) : ChatRoomContract
 
     override fun show() {
         mView.show()
+        RuntimeInfo.currentPage = pageType
     }
 
     override fun dismiss() {
         mView.dismiss()
+        RuntimeInfo.currentPage = PageType.MAIN
     }
 
     override fun start() {

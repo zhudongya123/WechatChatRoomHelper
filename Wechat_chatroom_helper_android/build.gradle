@@ -23,24 +23,18 @@ allprojects {
     }
 }
 
-
-
 ext {
 
     buildToolVersion = '27.0.3'
     sdkVersion = 27
     minSdkVersion = 21
-    supportLibVersion = '27.1.0'
-
+    supportLibVersion = '27.1.1'
     archLifecycleVersion = '1.1.1'
-
 }
 repositories {
     mavenCentral()
 }
-dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-}
+
 compileKotlin {
     kotlinOptions {
         jvmTarget = "1.8"

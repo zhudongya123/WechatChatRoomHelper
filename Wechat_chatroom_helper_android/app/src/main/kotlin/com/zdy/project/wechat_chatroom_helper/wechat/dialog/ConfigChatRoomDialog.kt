@@ -14,6 +14,7 @@ import utils.AppSaveInfo
 /**
  * Created by zhudo on 2017/11/6.
  */
+@SuppressWarnings("ResourceType")
 class ConfigChatRoomDialog(private var mContext: Context) : Dialog(mContext) {
 
 

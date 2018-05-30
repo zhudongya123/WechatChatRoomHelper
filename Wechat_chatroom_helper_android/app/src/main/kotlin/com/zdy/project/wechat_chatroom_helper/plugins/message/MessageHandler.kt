@@ -79,7 +79,6 @@ object MessageHandler : IDatabaseHook {
                 val (firstOfficialUsername, firstChatRoomUsername) = refreshEntryUsername(thisObject)
                 iMainAdapterRefreshes.forEach { it.onEntryInit(firstChatRoomUsername, firstOfficialUsername) }
 
-
                 sqlForAllConversationAndEntry = "select unReadCount, status, isSend, conversationTime, rconversation.username, " +
                         "content, msgType, flag, digest, digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite " +
                         "from rconversation, rcontact where  ( parentRef is null  or parentRef = ''  ) " +
@@ -102,7 +101,6 @@ object MessageHandler : IDatabaseHook {
 //                        "rcontact.username = '" + firstChatRoomUsername + "'" +
 //                        ") " +
                         "order by flag desc"
-
 
                 PluginEntry.chatRoomViewPresenter.run { presenterView.post { setListInAdapterPositions(arrayListOf()) }}
                 PluginEntry.officialViewPresenter.run { presenterView.post { setListInAdapterPositions(arrayListOf()) }}

@@ -3,8 +3,6 @@ package com.zdy.project.wechat_chatroom_helper.plugins.message
 import android.database.Cursor
 import com.gh0u1l5.wechatmagician.spellbook.WechatGlobal
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
-import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes
-import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
 import de.robv.android.xposed.XposedHelpers
 
 object MessageFactory {
@@ -39,36 +37,14 @@ object MessageFactory {
         val list = arrayListOf<ChatInfoModel>()
 
         while (cursor.moveToNext()) {
-
-            list.add(
-                    ChatInfoModel().apply {
-                        username = cursor.getString(cursor.getColumnIndex("username"))
-                        nickname = cursor.getString(cursor.getColumnIndex("nickname"))
-                        content = cursor.getString(cursor.getColumnIndex("content"))
-                        digest = cursor.getString(cursor.getColumnIndex("digest"))
-                        digestUser = cursor.getString(cursor.getColumnIndex("digestUser"))
-                        editingMsg = cursor.getString(cursor.getColumnIndex("editingMsg"))
-                        msgType = cursor.getString(cursor.getColumnIndex("msgType"))
-
-                        conversationTime = cursor.getLong(cursor.getColumnIndex("conversationTime"))
-
-                        isSend = cursor.getInt(cursor.getColumnIndex("isSend"))
-                        status = cursor.getInt(cursor.getColumnIndex("status"))
-                        attrflag = cursor.getInt(cursor.getColumnIndex("attrflag"))
-                        atCount = cursor.getInt(cursor.getColumnIndex("atCount"))
-                        unReadMuteCount = cursor.getInt(cursor.getColumnIndex("unReadMuteCount"))
-                        UnReadInvite = cursor.getInt(cursor.getColumnIndex("UnReadInvite"))
-                        unReadCount = cursor.getInt(cursor.getColumnIndex("unReadCount"))
-                    })
-
+            list.add(buildChatInfoModelByCursor(cursor))
         }
         return list
     }
 
-    fun getSingle(field_username: String) {
-        val cursor = XposedHelpers.callMethod(WechatGlobal.MainDatabaseObject, "rawQueryWithFactory",
-                getDataBaseFactory(WechatGlobal.MainDatabaseObject!!), SqlForByUsername(field_username), null, null) as Cursor
-    }
+    fun getSingle(field_username: String) =
+            buildChatInfoModelByCursor((XposedHelpers.callMethod(WechatGlobal.MainDatabaseObject, "rawQueryWithFactory",
+                    getDataBaseFactory(WechatGlobal.MainDatabaseObject!!), SqlForByUsername(field_username), null, null) as Cursor).apply { moveToNext() })
 
 
     fun getAllOfficial(): ArrayList<ChatInfoModel> {
@@ -77,30 +53,29 @@ object MessageFactory {
         val list = arrayListOf<ChatInfoModel>()
 
         while (cursor.moveToNext()) {
-
-            list.add(
-                    ChatInfoModel().apply {
-                        username = cursor.getString(cursor.getColumnIndex("username"))
-                        nickname = cursor.getString(cursor.getColumnIndex("nickname"))
-//                        content = cursor.getString(cursor.getColumnIndex("content"))
-//                        digest = cursor.getString(cursor.getColumnIndex("digest"))
-//                        digestUser = cursor.getString(cursor.getColumnIndex("digestUser"))
-//                        editingMsg = cursor.getString(cursor.getColumnIndex("editingMsg"))
-//                        msgType = cursor.getString(cursor.getColumnIndex("msgType"))
-
-                        conversationTime = cursor.getLong(cursor.getColumnIndex("conversationTime"))
-
-//                        isSend = cursor.getInt(cursor.getColumnIndex("isSend"))
-//                        status = cursor.getInt(cursor.getColumnIndex("status"))
-//                        attrflag = cursor.getInt(cursor.getColumnIndex("attrflag"))
-//                        atCount = cursor.getInt(cursor.getColumnIndex("atCount"))
-//                        unReadMuteCount = cursor.getInt(cursor.getColumnIndex("unReadMuteCount"))
-//                        UnReadInvite = cursor.getInt(cursor.getColumnIndex("UnReadInvite"))
-//                        unReadCount = cursor.getInt(cursor.getColumnIndex("unReadCount"))
-                    })
-
+            list.add(buildChatInfoModelByCursor(cursor))
         }
         return list
+    }
+
+    private fun buildChatInfoModelByCursor(cursor: Cursor): ChatInfoModel {
+        return ChatInfoModel().apply {
+            username = cursor.getString(cursor.getColumnIndex("username"))
+            nickname = cursor.getString(cursor.getColumnIndex("nickname"))
+            content = cursor.getString(cursor.getColumnIndex("content"))
+            digest = cursor.getString(cursor.getColumnIndex("digest"))
+            digestUser = cursor.getString(cursor.getColumnIndex("digestUser"))
+            editingMsg = cursor.getString(cursor.getColumnIndex("editingMsg"))
+            msgType = cursor.getString(cursor.getColumnIndex("msgType"))
+            conversationTime = cursor.getLong(cursor.getColumnIndex("conversationTime"))
+            isSend = cursor.getInt(cursor.getColumnIndex("isSend"))
+            status = cursor.getInt(cursor.getColumnIndex("status"))
+            attrflag = cursor.getInt(cursor.getColumnIndex("attrflag"))
+            atCount = cursor.getInt(cursor.getColumnIndex("atCount"))
+            unReadMuteCount = cursor.getInt(cursor.getColumnIndex("unReadMuteCount"))
+            UnReadInvite = cursor.getInt(cursor.getColumnIndex("UnReadInvite"))
+            unReadCount = cursor.getInt(cursor.getColumnIndex("unReadCount"))
+        }
     }
 
 }
