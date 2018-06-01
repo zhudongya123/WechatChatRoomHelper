@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
 
     inner class PermissionBroadCastReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            bindView()
+            //bindView()
         }
     }
 
@@ -64,6 +64,7 @@ class MainActivity : AppCompatActivity() {
         detail = findViewById<TextView>(R.id.detail)
         listContent = findViewById<LinearLayout>(R.id.list_content)
 
+        detail.text ="新版本暂时不需要任何适配，也暂时不支持配置，安装重启就可以用了"
 
         //加載可配置項的佈局
         initSetting()
