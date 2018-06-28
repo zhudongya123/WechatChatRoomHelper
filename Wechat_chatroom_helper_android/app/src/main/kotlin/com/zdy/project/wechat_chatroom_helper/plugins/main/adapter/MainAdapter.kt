@@ -208,14 +208,14 @@ object MainAdapter : IAdapterHook, HookerProvider {
                             if (position == firstChatroomPosition) {
                                 setTextForNoMeasuredTextView(nickname, "群消息")
                                 setTextForNoMeasuredTextView(content, "")
-                                avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.CHAT_ROOMS))
+                                avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.CHAT_ROOMS)) }
                                 setTextForNoMeasuredTextView(time, Classes.getConversationTimeString(originAdapter, MessageFactory.getSingle(firstChatroomUserName).conversationTime))
 
                             }
                             if (position == firstOfficialPosition) {
                                 setTextForNoMeasuredTextView(nickname, "服务号")
                                 setTextForNoMeasuredTextView(content, "")
-                                avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.OFFICIAL))
+                                avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.OFFICIAL))}
                                 setTextForNoMeasuredTextView(time, Classes.getConversationTimeString(originAdapter, MessageFactory.getSingle(firstOfficialUserName).conversationTime))
                             }
 

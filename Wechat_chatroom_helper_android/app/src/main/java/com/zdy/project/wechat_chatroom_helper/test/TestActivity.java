@@ -59,6 +59,8 @@ public class TestActivity extends Activity {
 
 
             Class<SparseArray[]> aClass = SparseArray[].class;
+
+        boolean a = "a".contains("a");
     }
 
     @Override

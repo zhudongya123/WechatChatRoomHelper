@@ -24,6 +24,15 @@ object Classes {
         ReflectionUtil.findClassIfExists("${WechatGlobal.wxPackageName}.ui.conversation.ConversationWithAppBrandListView", WechatGlobal.wxLoader!!)
     }
 
+    val ConversationClickListener: Class<*> by WechatGlobal.wxLazy("ConversationClickListener") {
+        val classes = ReflectionUtil.findClassesFromPackage(WechatGlobal.wxLoader!!, WechatGlobal.wxClasses!!, "${WechatGlobal.wxPackageName}.ui.conversation")
+                .filterByMethod(null, "onItemClick", C.AdapterView, C.View, C.Int, C.Long)
+                .filterBySuper(Object::class.java)
+
+        val list = ReflectionUtil.Classes::class.java.getDeclaredField("classes").also { it.isAccessible = true }.get(classes) as List<Class<*>>
+        return@wxLazy list.firstOrNull()
+    }
+
     val ClassesByCursor by WechatGlobal.wxLazy("ClassesByCursor") {
         WechatClasses.filter { it.interfaces.contains(Cursor::class.java) }
                 .flatMap {
@@ -50,12 +59,6 @@ object Classes {
         }!!.name
     }
 
-    val ConversationClickListener: Class<*> by WechatGlobal.wxLazy("ConversationClickListener") {
-        ReflectionUtil.findClassesFromPackage(WechatGlobal.wxLoader!!, WechatGlobal.wxClasses!!, "${WechatGlobal.wxPackageName}.ui.conversation")
-                .filterByMethod(null, "onItemClick", C.AdapterView, C.View, C.Int, C.Long)
-                .firstOrNull()
-
-    }
 
     val SetConversationString = ConversationWithCacheAdapter.declaredMethods
             .filter { !it.isAccessible }
@@ -80,7 +83,6 @@ object Classes {
         }
         return ""
     }
-
 
     fun getConversationAvatar(field_username: String, imageView: ImageView) =
             XposedHelpers.callStaticMethod(SetAvatarClass, SetAvatarMethod, imageView, field_username)

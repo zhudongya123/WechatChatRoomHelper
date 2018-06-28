@@ -3,6 +3,7 @@ package     com.zdy.project.wechat_chatroom_helper.plugins
 import android.annotation.SuppressLint
 import com.gh0u1l5.wechatmagician.spellbook.SpellBook
 import com.gh0u1l5.wechatmagician.spellbook.util.BasicUtil
+import com.zdy.project.wechat_chatroom_helper.plugins.log.LogRecord
 import com.zdy.project.wechat_chatroom_helper.plugins.main.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHandler
@@ -33,16 +34,11 @@ class PluginEntry : IXposedHookLoadPackage {
 
         BasicUtil.tryVerbosely {
             if (SpellBook.isImportantWechatProcess(p0)) {
-
                 classloader = p0.classLoader
-
-                SpellBook.startup(p0, listOf(MainLauncherUI, MessageHandler, MainAdapter), listOf(MainAdapter, MainLauncherUI))
-
-//                MainAdapter.executeHook()
-//                MainLauncherUI.executeHook()
-                //LogRecord.executeHook()
+                SpellBook.startup(p0, listOf(MainLauncherUI, MessageHandler, MainAdapter, LogRecord))
 
             }
         }
+
     }
 }

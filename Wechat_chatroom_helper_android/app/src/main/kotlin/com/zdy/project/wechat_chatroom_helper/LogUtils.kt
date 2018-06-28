@@ -8,7 +8,6 @@ import utils.AppSaveInfo
  */
 object LogUtils {
 
-
     fun log(s: String) {
        // if (!PluginEntry.runtimeInfo.isOpenLog) return
         XposedBridge.log("WCRH : $s")

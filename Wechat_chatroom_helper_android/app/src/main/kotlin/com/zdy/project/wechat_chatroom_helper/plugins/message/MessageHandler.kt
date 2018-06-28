@@ -102,12 +102,12 @@ object MessageHandler : IDatabaseHook {
 //                        ") " +
                         "order by flag desc"
 
-                PluginEntry.chatRoomViewPresenter.run { presenterView.post { setListInAdapterPositions(arrayListOf()) }}
-                PluginEntry.officialViewPresenter.run { presenterView.post { setListInAdapterPositions(arrayListOf()) }}
+                PluginEntry.chatRoomViewPresenter.run { presenterView.post { setListInAdapterPositions(arrayListOf()) } }
+                PluginEntry.officialViewPresenter.run { presenterView.post { setListInAdapterPositions(arrayListOf()) } }
 
                 val result = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, sqlForAllConversationAndEntry, selectionArgs, editTable, cancellationSignal)
 
-                return Operation(result, 0, true)
+                return Operation.replacement(result, 0)
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -208,8 +208,7 @@ object MessageHandler : IDatabaseHook {
 
             return onDatabaseQueried
 
-        }
-        else return onDatabaseQueried
+        } else return onDatabaseQueried
     }
 
     private fun refreshEntryUsername(thisObject: Any): Pair<String, String> {
@@ -271,9 +270,7 @@ object MessageHandler : IDatabaseHook {
     }
 
     override fun onDatabaseDeleted(thisObject: Any, table: String, whereClause: String?, whereArgs: Array<String>?, result: Int): Operation<Int?> {
-
         Log.v("MessageHandler", "onDatabaseDeleted, thisObject = $thisObject, table = $table ,whereClause = $whereClause ,whereArgs = $whereArgs, result = $result")
-
         return super.onDatabaseDeleted(thisObject, table, whereClause, whereArgs, result)
     }
 
