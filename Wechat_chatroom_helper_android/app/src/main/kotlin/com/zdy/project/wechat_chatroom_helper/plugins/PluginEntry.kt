@@ -35,7 +35,7 @@ class PluginEntry : IXposedHookLoadPackage {
         BasicUtil.tryVerbosely {
             if (SpellBook.isImportantWechatProcess(p0)) {
                 classloader = p0.classLoader
-                SpellBook.startup(p0, listOf(MainLauncherUI, MessageHandler, MainAdapter, LogRecord))
+                SpellBook.startup(p0, listOf(/*MainLauncherUI, MessageHandler, MainAdapter,*/ LogRecord))
 
             }
         }

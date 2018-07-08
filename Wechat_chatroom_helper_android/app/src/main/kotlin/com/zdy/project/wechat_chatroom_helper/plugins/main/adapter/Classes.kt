@@ -19,6 +19,11 @@ object Classes {
         WechatGlobal.wxClasses!!.filter { it.className.contains(WechatGlobal.wxPackageName) }.map { XposedHelpers.findClass(it.className, PluginEntry.classloader) }
     }
 
+    val ConversationWithCacheAdapter: Class<*> by WechatGlobal.wxLazy("ConversationWithCacheAdapter") {
+        ReflectionUtil.findClassesFromPackage(WechatGlobal.wxLoader!!, WechatGlobal.wxClasses!!, "${WechatGlobal.wxPackageName}.ui.conversation")
+                .filterByMethod(null, "clearCache")
+                .firstOrNull()
+    }
 
     val ConversationWithAppBrandListView: Class<*> by WechatGlobal.wxLazy("ConversationWithAppBrandListView") {
         ReflectionUtil.findClassIfExists("${WechatGlobal.wxPackageName}.ui.conversation.ConversationWithAppBrandListView", WechatGlobal.wxLoader!!)

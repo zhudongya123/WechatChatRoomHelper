@@ -47,7 +47,7 @@ object MainAdapter : IAdapterHook, HookerProvider {
     override fun provideStaticHookers(): List<Hooker>? {
         return listOf(Hooker {
 
-            val conversationWithCacheAdapter = ConversationWithCacheAdapter
+            val conversationWithCacheAdapter = Classes.ConversationWithCacheAdapter
 
             findAndHookMethod(ConversationWithAppBrandListView, "setAdapter", ListAdapter::class.java, object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {

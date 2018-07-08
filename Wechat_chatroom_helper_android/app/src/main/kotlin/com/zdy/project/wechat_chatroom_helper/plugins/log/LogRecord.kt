@@ -2,8 +2,8 @@ package com.zdy.project.wechat_chatroom_helper.plugins.log
 
 import com.gh0u1l5.wechatmagician.spellbook.base.Hooker
 import com.gh0u1l5.wechatmagician.spellbook.base.HookerProvider
-import com.gh0u1l5.wechatmagician.spellbook.mirror.com.tencent.mm.sdk.platformtools.Classes
 import com.zdy.project.wechat_chatroom_helper.LogUtils
+import com.zdy.project.wechat_chatroom_helper.plugins.log.Classes.Logcat
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
 import de.robv.android.xposed.XposedHelpers.findMethodsByExactParameters
@@ -13,7 +13,7 @@ object LogRecord :HookerProvider {
     override fun provideStaticHookers(): List<Hooker>? {
         return listOf(Hooker {
 
-            val findMethodsByExactParameters = findMethodsByExactParameters(Classes.Logcat, null, String::class.java, String::class.java, Array<Any>::class.java)
+            val findMethodsByExactParameters = findMethodsByExactParameters(Logcat, null, String::class.java, String::class.java, Array<Any>::class.java)
 
             findMethodsByExactParameters.forEach {
                 findAndHookMethod(Classes.Logcat, it.name, String::class.java, String::class.java, Array<Any>::class.java,
@@ -28,7 +28,7 @@ object LogRecord :HookerProvider {
                                     val str2 = param.args[1] as String
 
 
-                                    if (str1 != "MicroMsg.ConversationWithCacheAdapter") return
+                                   // if (str1 != "MicroMsg.ConversationWithCacheAdapter") return
 
                                     if (param.args[2] == null) {
 
