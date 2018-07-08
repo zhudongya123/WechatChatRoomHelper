@@ -1,9 +1,19 @@
 package com.zdy.project.wechat_chatroom_helper.plugins
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.ContentValues
+import android.content.Context
+import android.content.DialogInterface
 import android.database.Cursor
 import android.os.Bundle
+import android.view.Gravity
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseAdapter
+import android.widget.LinearLayout
+import android.widget.TextView
 import com.gh0u1l5.wechatmagician.spellbook.C
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import de.robv.android.xposed.IXposedHookLoadPackage
@@ -49,75 +59,152 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
         hookSayHiPage()
     }
 
+    inner class DataModel {
+        var ticket: String? = null
+        var scene = 0
+        var sayhiuser: String? = null
+    }
+
+    inner class MyListAdapter(val m: Class<*>, val au: Class<*>) : BaseAdapter() {
+
+        private val cursor: Cursor = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
+                msgDataBaseFactory, "SELECT * FROM LBSVerifyMessage where isSend = 0 ORDER BY createtime desc", null, null) as Cursor
+
+        private val data = mutableListOf<DataModel>()
+
+        init {
+
+            while (cursor.moveToNext()) {
+
+                val type = cursor.getInt(cursor.getColumnIndex("type"))
+                val scene = cursor.getInt(cursor.getColumnIndex("scene"))
+                val createtime = cursor.getLong(cursor.getColumnIndex("createtime"))
+                val talker = cursor.getString(cursor.getColumnIndex("talker"))
+                val content = cursor.getString(cursor.getColumnIndex("content"))
+                val sayhiuser = cursor.getString(cursor.getColumnIndex("sayhiuser"))
+                val sayhiencryptuser = cursor.getString(cursor.getColumnIndex("sayhiencryptuser"))
+                val ticket = cursor.getString(cursor.getColumnIndex("ticket"))
+                val flag = cursor.getInt(cursor.getColumnIndex("flag"))
+
+                XposedBridge.log("LBSVerifyMessage, type = $type, scene = $scene, createtime = $createtime, talker = $talker, " +
+                        "content = $content, sayhiuser = $sayhiuser, sayhiencryptuser = $sayhiencryptuser, ticket = $ticket" +
+                        ", flag = $flag")
+
+                data.add(DataModel().also {
+                    it.ticket = ticket
+                    it.scene = scene
+                    it.sayhiuser = sayhiuser
+                })
+            }
+
+        }
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+
+            val context = parent.context as Context
+
+            val itemView = LinearLayout(context)
+            val data = data[position]
+
+            itemView.gravity = Gravity.CENTER_VERTICAL
+            itemView.orientation = LinearLayout.HORIZONTAL
+
+            val name = TextView(context)
+            val addition = TextView(context)
+
+
+            name.text = data.sayhiuser
+
+
+            val rcontactResult = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
+                    msgDataBaseFactory, "SELECT * FROM rcontact where username = '${data.sayhiuser}'", null, null) as Cursor
+
+            addition.setPadding(100, 0, 0, 0)
+            addition.setText(rcontactResult.count.toString())
+
+
+            itemView.addView(name)
+            itemView.addView(addition)
+
+            itemView.setOnClickListener {
+
+                val addContactClass = m
+
+                val constructor = XposedHelpers.findConstructorExact(addContactClass, String::class.java, String::class.java, Int::class.java)
+                constructor.isAccessible = true
+                val m = constructor.newInstance(data.sayhiuser, data.ticket, data.scene)
+                val auDF = XposedHelpers.callStaticMethod(au, "DF")
+                XposedHelpers.callMethod(auDF, "a", m, 0)
+            }
+
+            return itemView
+        }
+
+        override fun getItem(position: Int) = data[position]
+
+        override fun getItemId(position: Int) = position.toLong()
+
+        override fun getCount() = data.size
+
+
+    }
+
+
     private fun hookSayHiPage() {
+
+        val m = XposedHelpers.findClass("com.tencent.mm.pluginsdk.model.m", classLoader)
+        val au = XposedHelpers.findClass("com.tencent.mm.model.au", classLoader)
+
+
         XposedHelpers.findAndHookMethod(Activity::class.java, "onCreate",
                 Bundle::class.java, object : XC_MethodHook() {
 
             override fun afterHookedMethod(param: MethodHookParam) {
                 if (param.thisObject::class.java.simpleName == "NearbySayHiListUI") {
 
-                    val cursor = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
-                            msgDataBaseFactory, "SELECT * FROM LBSVerifyMessage where isSend = 0 ORDER BY createtime desc", null, null) as Cursor
-
-                    while (cursor.moveToNext()) {
-
-                        val type = cursor.getInt(cursor.getColumnIndex("type"))
-                        val scene = cursor.getInt(cursor.getColumnIndex("scene"))
-                        val createtime = cursor.getLong(cursor.getColumnIndex("createtime"))
-                        val talker = cursor.getString(cursor.getColumnIndex("talker"))
-                        val content = cursor.getString(cursor.getColumnIndex("content"))
-                        val sayhiuser = cursor.getString(cursor.getColumnIndex("sayhiuser"))
-                        val sayhiencryptuser = cursor.getString(cursor.getColumnIndex("sayhiencryptuser"))
-                        val ticket = cursor.getString(cursor.getColumnIndex("ticket"))
-                        val flag = cursor.getInt(cursor.getColumnIndex("flag"))
-
-                        XposedBridge.log("LBSVerifyMessage, type = $type, scene = $scene, createtime = $createtime, talker = $talker, " +
-                                "content = $content, sayhiuser = $sayhiuser, sayhiencryptuser = $sayhiencryptuser, ticket = $ticket" +
-                                ", flag = $flag")
-
-
-                    }
-
 
                 }
-
             }
         })
 
-
-        val findClass = XposedHelpers.findClass("com.tencent.mm.pluginsdk.model.m", classLoader)
-
-        XposedBridge.log("findClass.methods = " + findClass.methods.joinToString { it.toString() + ", \n" })
-        XposedBridge.log("findClass.methods = " + findClass.declaredMethods.joinToString { it.toString() + ", \n" })
-
-        try {
-            XposedBridge.log("findClass.declaringClass.methods = " + findClass.declaringClass.methods.joinToString { it.toString() + ", \n" })
-        }catch (e:Exception){
-            e.printStackTrace()
-        }
-
-        try {
-            XposedBridge.log("findClass.declaringClass.methods = " + findClass.declaringClass.declaredMethods.joinToString { it.toString() + ", \n" })
-        }catch (e:Exception){
-            e.printStackTrace()
-        }
-
-        try {
-            XposedBridge.log("findClass.enclosingClass.methods = " + findClass.enclosingClass.methods.joinToString { it.toString() + ", \n" })
-        }catch (e:Exception){
-            e.printStackTrace()
-        }
-
-        try {
-            XposedBridge.log("findClass.enclosingClass.methods = " + findClass.enclosingClass.declaredMethods.joinToString { it.toString() + ", \n" })
-        }catch (e:Exception){
-            e.printStackTrace()
-        }
+        XposedHelpers.findAndHookMethod(XposedHelpers.findClass(
+                "com.tencent.mm.plugin.nearby.ui.NearbySayHiListUI", classLoader),
+                "initView", object : XC_MethodHook() {
 
 
+            override fun afterHookedMethod(param: MethodHookParam) {
+                super.afterHookedMethod(param)
 
-        XposedHelpers.findAndHookMethod(findClass, "m", String::class.java, String::class.java,
-                Integer::class.java, object : XC_MethodHook() {
+                val thisObject = param.thisObject
+
+                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 1, "鸡掰", object : MenuItem.OnMenuItemClickListener {
+                    override fun onMenuItemClick(item: MenuItem?): Boolean {
+
+
+                        AlertDialog.Builder(thisObject as Activity).setAdapter(MyListAdapter(m, au), object : DialogInterface.OnClickListener {
+                            override fun onClick(dialog: DialogInterface?, which: Int) {
+
+                            }
+
+                        }).show()
+
+                        return true
+                    }
+                })
+
+
+            }
+
+
+        })
+
+
+        XposedBridge.log("findClass.methods = " + m.methods.joinToString { it.toString() + ", \n" })
+        XposedBridge.log("findClass.methods = " + m.declaredMethods.joinToString { it.toString() + ", \n" })
+
+
+        XposedHelpers.findAndHookConstructor(m, String::class.java, String::class.java,
+                Int::class.java, object : XC_MethodHook() {
 
             override fun beforeHookedMethod(param: MethodHookParam) {
                 super.beforeHookedMethod(param)
@@ -127,13 +214,10 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                 val arg2 = param.args[2] as Int
 
                 XposedBridge.log("LBSVerifyMessage, arg0 = $arg0, arg1 = $arg1, arg2 = $arg2")
-
             }
 
             override fun afterHookedMethod(param: MethodHookParam) {
                 super.afterHookedMethod(param)
-
-                param.throwable = RuntimeException("fuckfuckfuck")
             }
         })
 
@@ -206,19 +290,20 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                         val str2 = param.args[1] as String
 
                         if (param.args[2] == null) {
-                            LogUtils.log("level = " + param.method.name + ", name = $str1, value = $str2")
+                            //        LogUtils.log("level = " + param.method.name + ", name = $str1, value = $str2")
 
                         } else {
                             val objArr = param.args[2] as Array<Any>
 
                             val format = String.format(str2, *objArr)
 
-                            LogUtils.log("level = " + param.method.name + ", name = $str1, value = $format")
+                            //    LogUtils.log("level = " + param.method.name + ", name = $str1, value = $format")
                         }
 
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
+
                 }
             })
         }
