@@ -8,6 +8,7 @@ import com.gh0u1l5.wechatmagician.spellbook.C
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
@@ -21,7 +22,6 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
     val DBSIGN = "com.tencent.wcdb.support.CancellationSignal"
 
     lateinit var classLoader: ClassLoader
-
 
     lateinit var msgDataBase: Any
     var msgDataBaseFactory: Any? = null
@@ -59,14 +59,22 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                     val cursor = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
                             msgDataBaseFactory, "SELECT * FROM LBSVerifyMessage where isSend = 0 ORDER BY createtime desc", null, null) as Cursor
 
-
                     while (cursor.moveToNext()) {
-                        for (index in 0 until cursor.columnCount) {
-                            val name = cursor.columnNames[index]
-                            val value = cursor.getString(cursor.getColumnIndex(name))
 
-                            LogUtils.log("LBSVerifyMessage, name = $name, value = $value")
-                        }
+                        val type = cursor.getInt(cursor.getColumnIndex("type"))
+                        val scene = cursor.getInt(cursor.getColumnIndex("scene"))
+                        val createtime = cursor.getLong(cursor.getColumnIndex("createtime"))
+                        val talker = cursor.getString(cursor.getColumnIndex("talker"))
+                        val content = cursor.getString(cursor.getColumnIndex("content"))
+                        val sayhiuser = cursor.getString(cursor.getColumnIndex("sayhiuser"))
+                        val sayhiencryptuser = cursor.getString(cursor.getColumnIndex("sayhiencryptuser"))
+                        val ticket = cursor.getString(cursor.getColumnIndex("ticket"))
+                        val flag = cursor.getInt(cursor.getColumnIndex("flag"))
+
+                        XposedBridge.log("LBSVerifyMessage, type = $type, scene = $scene, createtime = $createtime, talker = $talker, " +
+                                "content = $content, sayhiuser = $sayhiuser, sayhiencryptuser = $sayhiencryptuser, ticket = $ticket" +
+                                ", flag = $flag")
+
 
                     }
 
@@ -76,7 +84,61 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
             }
         })
 
-       // "SELECT * FROM LBSVerifyMessage where isSend = 0 ORDER BY createtime desc"
+
+        val findClass = XposedHelpers.findClass("com.tencent.mm.pluginsdk.model.m", classLoader)
+
+        XposedBridge.log("findClass.methods = " + findClass.methods.joinToString { it.toString() + ", \n" })
+        XposedBridge.log("findClass.methods = " + findClass.declaredMethods.joinToString { it.toString() + ", \n" })
+
+        try {
+            XposedBridge.log("findClass.declaringClass.methods = " + findClass.declaringClass.methods.joinToString { it.toString() + ", \n" })
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+
+        try {
+            XposedBridge.log("findClass.declaringClass.methods = " + findClass.declaringClass.declaredMethods.joinToString { it.toString() + ", \n" })
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+
+        try {
+            XposedBridge.log("findClass.enclosingClass.methods = " + findClass.enclosingClass.methods.joinToString { it.toString() + ", \n" })
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+
+        try {
+            XposedBridge.log("findClass.enclosingClass.methods = " + findClass.enclosingClass.declaredMethods.joinToString { it.toString() + ", \n" })
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
+
+
+
+        XposedHelpers.findAndHookMethod(findClass, "m", String::class.java, String::class.java,
+                Integer::class.java, object : XC_MethodHook() {
+
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                super.beforeHookedMethod(param)
+
+                val arg0 = param.args[0] as String
+                val arg1 = param.args[1] as String
+                val arg2 = param.args[2] as Int
+
+                XposedBridge.log("LBSVerifyMessage, arg0 = $arg0, arg1 = $arg1, arg2 = $arg2")
+
+            }
+
+            override fun afterHookedMethod(param: MethodHookParam) {
+                super.afterHookedMethod(param)
+
+                param.throwable = RuntimeException("fuckfuckfuck")
+            }
+        })
+
+
+        // "SELECT * FROM LBSVerifyMessage where isSend = 0 ORDER BY createtime desc"
     }
 
     private fun hookDataBase() {
