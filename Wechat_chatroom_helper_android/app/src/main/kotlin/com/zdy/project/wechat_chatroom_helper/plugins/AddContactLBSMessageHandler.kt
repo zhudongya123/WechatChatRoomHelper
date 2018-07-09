@@ -41,22 +41,23 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
         classLoader = lpparam.classLoader
 
-        if (lpparam.processName != "com.tencent.mm") return
+     //   if (lpparam.processName != "com.tencent.mm") return
 //        if (!lpparam.processName .contains("dkmodel")) return
 
 
-//        try {
-//            XposedHelpers.findClass(DB, lpparam.classLoader)
-//            hookLog()
-//            hookDataBase()
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//        }
+        try {
+            XposedHelpers.findClass(DB, lpparam.classLoader)
+
+            hookLog()
+            hookDataBase()
+            hookSayHiPage()
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
 
-        hookLog()
-        hookDataBase()
-        hookSayHiPage()
+
     }
 
     inner class DataModel {
