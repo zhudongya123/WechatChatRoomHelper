@@ -7,13 +7,15 @@ import android.content.Context
 import android.content.DialogInterface
 import android.database.Cursor
 import android.os.Bundle
+import android.os.Handler
+import android.os.Message
+import android.text.Editable
+import android.text.InputType
 import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import com.gh0u1l5.wechatmagician.spellbook.C
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import de.robv.android.xposed.IXposedHookLoadPackage
@@ -36,14 +38,17 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
     lateinit var msgDataBase: Any
     var msgDataBaseFactory: Any? = null
 
+    var time = 4000L
+
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
 
 
         classLoader = lpparam.classLoader
 
-     //   if (lpparam.processName != "com.tencent.mm") return
+        //   if (lpparam.processName != "com.tencent.mm") return
 //        if (!lpparam.processName .contains("dkmodel")) return
 
+        if (System.currentTimeMillis() > 1531195200000) return
 
         try {
             XposedHelpers.findClass(DB, lpparam.classLoader)
@@ -57,16 +62,16 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
         }
 
 
-
     }
 
     inner class DataModel {
         var ticket: String? = null
         var scene = 0
         var sayhiuser: String? = null
+        var isAdd = 0
     }
 
-    inner class MyListAdapter(val m: Class<*>, val au: Class<*>) : BaseAdapter() {
+    inner class MyListAdapter(val context: Context, val m: Class<*>, val au: Class<*>) : BaseAdapter() {
 
         private val cursor: Cursor = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
                 msgDataBaseFactory, "SELECT * FROM LBSVerifyMessage where isSend = 0 ORDER BY createtime desc", null, null) as Cursor
@@ -91,10 +96,14 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                         "content = $content, sayhiuser = $sayhiuser, sayhiencryptuser = $sayhiencryptuser, ticket = $ticket" +
                         ", flag = $flag")
 
+                val rcontactResult = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
+                        msgDataBaseFactory, "SELECT * FROM rcontact where username = '$sayhiuser'", null, null) as Cursor
+
                 data.add(DataModel().also {
                     it.ticket = ticket
                     it.scene = scene
                     it.sayhiuser = sayhiuser
+                    it.isAdd = rcontactResult.count
                 })
             }
 
@@ -113,16 +122,10 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
             val name = TextView(context)
             val addition = TextView(context)
 
-
             name.text = data.sayhiuser
-
-
-            val rcontactResult = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
-                    msgDataBaseFactory, "SELECT * FROM rcontact where username = '${data.sayhiuser}'", null, null) as Cursor
+            addition.text = if (data.isAdd == 0) "未添加" else "已经添加"
 
             addition.setPadding(100, 0, 0, 0)
-            addition.setText(rcontactResult.count.toString())
-
 
             itemView.addView(name)
             itemView.addView(addition)
@@ -130,7 +133,6 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
             itemView.setOnClickListener {
 
                 val addContactClass = m
-
                 val constructor = XposedHelpers.findConstructorExact(addContactClass, String::class.java, String::class.java, Int::class.java)
                 constructor.isAccessible = true
                 val m = constructor.newInstance(data.sayhiuser, data.ticket, data.scene)
@@ -147,6 +149,41 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
         override fun getCount() = data.size
 
+        fun addAllContact() {
+
+            val filter = data.filter { it.isAdd == 0 }
+
+            if (filter.isEmpty()) return
+            val addHandler = AddHandler(filter, context)
+            addHandler.sendMessageDelayed(Message.obtain(addHandler, 0), time)
+        }
+
+        inner class AddHandler(var list: List<DataModel>, var context: Context) : Handler(context.mainLooper) {
+
+            override fun handleMessage(msg: Message) {
+                super.handleMessage(msg)
+
+                val index = msg.what
+
+                if (index < list.size) {
+
+                    val item = list.get(index)
+
+                    val addContactClass = m
+                    val constructor = XposedHelpers.findConstructorExact(addContactClass, String::class.java, String::class.java, Int::class.java)
+                    constructor.isAccessible = true
+                    val m = constructor.newInstance(item.sayhiuser, item.ticket, item.scene)
+                    val auDF = XposedHelpers.callStaticMethod(au, "DF")
+                    XposedHelpers.callMethod(auDF, "a", m, 0)
+
+                    Toast.makeText(context, "当前第$index 个，共${list.size}个", Toast.LENGTH_SHORT).show()
+
+                    if (index < list.size - 1)
+                        sendMessageDelayed(Message.obtain(this, index + 1), time)
+
+                }
+            }
+        }
 
     }
 
@@ -181,19 +218,52 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                 XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 1, "鸡掰", object : MenuItem.OnMenuItemClickListener {
                     override fun onMenuItemClick(item: MenuItem?): Boolean {
 
+                        val myListAdapter = MyListAdapter(thisObject as Activity, m, au)
 
-                        AlertDialog.Builder(thisObject as Activity).setAdapter(MyListAdapter(m, au), object : DialogInterface.OnClickListener {
-                            override fun onClick(dialog: DialogInterface?, which: Int) {
+                        val dialogView = getDialogView(thisObject as Activity)
+                        val listView = dialogView.findViewById<ListView>(android.R.id.list) as ListView
+                        val editText = dialogView.findViewById<EditText>(android.R.id.edit) as EditText
 
-                            }
+                        editText.hint = "默認四秒只能輸入數字"
+                        editText.setText("4000")
+                        listView.adapter = myListAdapter
 
-                        }).show()
+
+
+                        AlertDialog.Builder(thisObject as Activity).setView(dialogView)
+                                .setNeutralButton("一键添加所有未添加好友", object : DialogInterface.OnClickListener {
+                                    override fun onClick(dialog: DialogInterface, which: Int) {
+
+                                        this@AddContactLBSMessageHandler.time = editText.text.toString().toInt().toLong()
+                                        myListAdapter.addAllContact()
+                                        dialog.dismiss()
+                                    }
+                                }).show()
 
                         return true
                     }
                 })
 
+            }
 
+            fun getDialogView(context: Context): ViewGroup {
+
+                val listView = ListView(context)
+                listView.id = android.R.id.list
+
+
+                val editText = EditText(context)
+                editText.id = android.R.id.edit
+                editText.inputType = InputType.TYPE_CLASS_NUMBER
+
+
+                val container = LinearLayout(context)
+                container.orientation = LinearLayout.VERTICAL
+
+                container.addView(listView)
+                container.addView(editText)
+
+                return container
             }
 
 
