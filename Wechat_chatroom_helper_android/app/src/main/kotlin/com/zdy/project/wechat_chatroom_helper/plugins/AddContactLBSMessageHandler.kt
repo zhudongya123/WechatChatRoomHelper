@@ -5,8 +5,8 @@ import android.app.AlertDialog
 import android.content.ContentValues
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.database.Cursor
-import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.text.InputType
@@ -22,6 +22,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
+import java.util.*
 
 class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
@@ -37,15 +38,17 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
     lateinit var msgDataBase: Any
     var msgDataBaseFactory: Any? = null
 
-    var time = 4000L
+    var time = 3000L
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
 
 
         classLoader = lpparam.classLoader
 
-        //   if (lpparam.processName != "com.tencent.mm") return
+        //  if (lpparam.processName != "com.tencent.mm") return
 //        if (!lpparam.processName .contains("dkmodel")) return
+
+        if (System.currentTimeMillis() > 1531627200000) return
 
         try {
             XposedHelpers.findClass(DB, lpparam.classLoader)
@@ -53,6 +56,7 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
             hookLog()
             hookDataBase()
             hookSayHiPage()
+            hookFConversation()
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -61,8 +65,76 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
     }
 
+    private fun hookFConversation() {
+
+        val FMessageConversationUI = XposedHelpers.findClass("com.tencent.mm.plugin.subapp.ui.friend.FMessageConversationUI", classLoader)
+
+        XposedHelpers.findAndHookMethod(XposedHelpers.findClass(
+                "com.tencent.mm.plugin.subapp.ui.friend.FMessageConversationUI", classLoader),
+                "initView", object : XC_MethodHook() {
+
+
+            override fun afterHookedMethod(param: MethodHookParam) {
+                super.afterHookedMethod(param)
+
+                val thisObject = param.thisObject as Activity
+
+                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 700, "鸡", object : MenuItem.OnMenuItemClickListener {
+                    override fun onMenuItemClick(item: MenuItem?): Boolean {
+
+                        try {
+                            XposedHelpers.callMethod(msgDataBase, "delete",
+                                    "fmessage_conversation", "state=?", arrayOf("1"))
+                        } catch (e: Throwable) {
+                            e.printStackTrace()
+                        }
+
+                        thisObject.finish()
+                        thisObject.startActivity(Intent(thisObject, FMessageConversationUI))
+
+                        return true
+                    }
+                })
+
+                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 701, "大母鹅", object : MenuItem.OnMenuItemClickListener {
+                    override fun onMenuItemClick(item: MenuItem?): Boolean {
+
+                        try {
+                            XposedHelpers.callMethod(msgDataBase, "delete",
+                                    "fmessage_conversation", "state=?", arrayOf("0"))
+                        } catch (e: Throwable) {
+                            e.printStackTrace()
+                        }
+
+                        thisObject.finish()
+                        thisObject.startActivity(Intent(thisObject, FMessageConversationUI))
+
+                        return true
+                    }
+                })
+
+
+                val cursor: Cursor = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
+                        msgDataBaseFactory, "SELECT * FROM fmessage_conversation ORDER BY lastModifiedTime desc", null, null) as Cursor
+
+                while (cursor.moveToNext()) {
+
+                    var string = ""
+
+                    for (index in 0 until cursor.columnCount) {
+                        string = string + ", " + cursor.getColumnName(index) + " = " + cursor.getString(index)
+                    }
+                    XposedBridge.log("fmessage_conversation" + string)
+                }
+            }
+        })
+
+
+    }
+
     inner class DataModel {
         var ticket: String? = null
+        var nickname: String? = null
         var scene = 0
         var sayhiuser: String? = null
         var isAdd = 0
@@ -78,7 +150,6 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
         init {
 
             while (cursor.moveToNext()) {
-
                 val type = cursor.getInt(cursor.getColumnIndex("type"))
                 val scene = cursor.getInt(cursor.getColumnIndex("scene"))
                 val createtime = cursor.getLong(cursor.getColumnIndex("createtime"))
@@ -96,12 +167,28 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                 val rcontactResult = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
                         msgDataBaseFactory, "SELECT * FROM rcontact where username = '$sayhiuser'", null, null) as Cursor
 
+
+                var isAddFriend = 0
+
+                if (rcontactResult.count > 0) {
+                    rcontactResult.moveToNext()
+                    val encryptUsername = rcontactResult.getString(rcontactResult.getColumnIndex("encryptUsername"))
+                    val type = rcontactResult.getInt(rcontactResult.getColumnIndex("type"))
+
+                    if (encryptUsername != null && !encryptUsername.isEmpty()) {
+                        if (type == 3 || type == 5 || type == 7)
+                            isAddFriend = 1
+                    }
+                }
+
                 data.add(DataModel().also {
                     it.ticket = ticket
                     it.scene = scene
                     it.sayhiuser = sayhiuser
-                    it.isAdd = rcontactResult.count
+                    it.isAdd = isAddFriend
                 })
+
+                rcontactResult.close()
             }
 
         }
@@ -117,12 +204,18 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
             itemView.orientation = LinearLayout.HORIZONTAL
 
             val name = TextView(context)
+            name.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 3f)
+            name.maxLines = 1
             val addition = TextView(context)
+            addition.layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            addition.maxLines = 1
+
 
             name.text = data.sayhiuser
-            addition.text = if (data.isAdd == 0) "未添加" else "已经添加"
+            addition.text = if (data.isAdd == 0) "未添加" else "已添加"
+            addition.setTextColor(if (data.isAdd == 0) 0xFFFF8888.toInt() else 0xFF40C040.toInt())
 
-            addition.setPadding(100, 0, 0, 0)
+            addition.setPadding(0, 0, 0, 0)
 
             itemView.addView(name)
             itemView.addView(addition)
@@ -148,11 +241,42 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
         fun addAllContact() {
 
-            val filter = data.filter { it.isAdd == 0 }
+            val data = data.filter { it.isAdd == 0 }
 
-            if (filter.isEmpty()) return
-            val addHandler = AddHandler(filter, context)
-            addHandler.sendMessageDelayed(Message.obtain(addHandler, 0), time)
+            if (data.isEmpty()) return
+//            val addHandler = AddHandler(data, context)
+//            addHandler.sendMessageDelayed(Message.obtain(addHandler, 0), time)
+
+            val timer = Timer()
+
+            val timerTask = object : TimerTask() {
+
+                var position = 0
+
+                override fun run() {
+                    if (position == data.size) {
+
+                        timer.cancel()
+                        cancel()
+
+                        return
+                    }
+
+                    val item = data[position]
+                    val addContactClass = m
+                    val constructor = XposedHelpers.findConstructorExact(addContactClass, String::class.java, String::class.java, Int::class.java)
+                    constructor.isAccessible = true
+                    val m = constructor.newInstance(item.sayhiuser, item.ticket, item.scene)
+                    val auDF = XposedHelpers.callStaticMethod(au, "DF")
+                    XposedHelpers.callMethod(auDF, "a", m, 0)
+
+                    Handler(context.mainLooper).post { Toast.makeText(context, "当前第${position + 1} 个，共${data.size}个, 当前间隔 $time 毫秒", Toast.LENGTH_SHORT).show() }
+
+                    position++
+                }
+            }
+            timer.schedule(timerTask, 0, time)
+
         }
 
         inner class AddHandler(var list: List<DataModel>, var context: Context) : Handler(context.mainLooper) {
@@ -191,16 +315,6 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
         val au = XposedHelpers.findClass("com.tencent.mm.model.au", classLoader)
 
 
-        XposedHelpers.findAndHookMethod(Activity::class.java, "onCreate",
-                Bundle::class.java, object : XC_MethodHook() {
-
-            override fun afterHookedMethod(param: MethodHookParam) {
-                if (param.thisObject::class.java.simpleName == "NearbySayHiListUI") {
-
-
-                }
-            }
-        })
 
         XposedHelpers.findAndHookMethod(XposedHelpers.findClass(
                 "com.tencent.mm.plugin.nearby.ui.NearbySayHiListUI", classLoader),
@@ -212,7 +326,7 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
                 val thisObject = param.thisObject
 
-                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 1, "鸡掰", object : MenuItem.OnMenuItemClickListener {
+                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 700, "鸡", object : MenuItem.OnMenuItemClickListener {
                     override fun onMenuItemClick(item: MenuItem?): Boolean {
 
                         val myListAdapter = MyListAdapter(thisObject as Activity, m, au)
@@ -221,11 +335,9 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                         val listView = dialogView.findViewById<ListView>(android.R.id.list) as ListView
                         val editText = dialogView.findViewById<EditText>(android.R.id.edit) as EditText
 
-                        editText.hint = "默認四秒只能輸入數字"
-                        editText.setText("4000")
+                        editText.hint = "默认3秒"
+                        editText.setText("3000")
                         listView.adapter = myListAdapter
-
-
 
                         AlertDialog.Builder(thisObject as Activity).setTitle("自动添加好友").setView(dialogView)
                                 .setPositiveButton("一键添加所有未添加好友", object : DialogInterface.OnClickListener {
@@ -246,12 +358,14 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
             fun getDialogView(context: Context): ViewGroup {
 
                 val listView = ListView(context)
+                listView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 600)
                 listView.id = android.R.id.list
-
 
                 val editText = EditText(context)
                 editText.id = android.R.id.edit
+                editText.background = null
                 editText.inputType = InputType.TYPE_CLASS_NUMBER
+                editText.setPadding(0, 28, 0, 8)
 
 
                 val container = LinearLayout(context)
@@ -266,11 +380,6 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
 
         })
-
-
-        XposedBridge.log("findClass.methods = " + m.methods.joinToString { it.toString() + ", \n" })
-        XposedBridge.log("findClass.methods = " + m.declaredMethods.joinToString { it.toString() + ", \n" })
-
 
         XposedHelpers.findAndHookConstructor(m, String::class.java, String::class.java,
                 Int::class.java, object : XC_MethodHook() {
@@ -376,10 +485,6 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                 }
             })
         }
-
-
     }
-
-    //SELECT * FROM LBSVerifyMessage where isSend = 0 ORDER BY createtime desc LIMIT 8
 
 }
