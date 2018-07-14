@@ -9,7 +9,6 @@ import android.database.Cursor
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
-import android.text.Editable
 import android.text.InputType
 import android.view.Gravity
 import android.view.MenuItem
@@ -47,8 +46,6 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
         //   if (lpparam.processName != "com.tencent.mm") return
 //        if (!lpparam.processName .contains("dkmodel")) return
-
-        if (System.currentTimeMillis() > 1531195200000) return
 
         try {
             XposedHelpers.findClass(DB, lpparam.classLoader)
@@ -176,7 +173,7 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                     val auDF = XposedHelpers.callStaticMethod(au, "DF")
                     XposedHelpers.callMethod(auDF, "a", m, 0)
 
-                    Toast.makeText(context, "当前第$index 个，共${list.size}个", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "当前第$index 个，共${list.size}个, 当前间隔 $time 毫秒", Toast.LENGTH_SHORT).show()
 
                     if (index < list.size - 1)
                         sendMessageDelayed(Message.obtain(this, index + 1), time)
@@ -230,8 +227,8 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
 
 
-                        AlertDialog.Builder(thisObject as Activity).setView(dialogView)
-                                .setNeutralButton("一键添加所有未添加好友", object : DialogInterface.OnClickListener {
+                        AlertDialog.Builder(thisObject as Activity).setTitle("自动添加好友").setView(dialogView)
+                                .setPositiveButton("一键添加所有未添加好友", object : DialogInterface.OnClickListener {
                                     override fun onClick(dialog: DialogInterface, which: Int) {
 
                                         this@AddContactLBSMessageHandler.time = editText.text.toString().toInt().toLong()
@@ -260,6 +257,7 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                 val container = LinearLayout(context)
                 container.orientation = LinearLayout.VERTICAL
 
+                container.setPadding(100, 60, 100, 60)
                 container.addView(listView)
                 container.addView(editText)
 
