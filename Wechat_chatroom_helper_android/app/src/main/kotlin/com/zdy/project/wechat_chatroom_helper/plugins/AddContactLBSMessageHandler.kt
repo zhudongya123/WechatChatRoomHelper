@@ -48,7 +48,7 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
         //  if (lpparam.processName != "com.tencent.mm") return
 //        if (!lpparam.processName .contains("dkmodel")) return
 
-        if (System.currentTimeMillis() > 1531627200000) return
+      //  if (System.currentTimeMillis() > 1531627200000) return
 
         try {
             XposedHelpers.findClass(DB, lpparam.classLoader)
@@ -99,15 +99,33 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                 XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 701, "大母鹅", object : MenuItem.OnMenuItemClickListener {
                     override fun onMenuItemClick(item: MenuItem?): Boolean {
 
-                        try {
-                            XposedHelpers.callMethod(msgDataBase, "delete",
-                                    "fmessage_conversation", "state=?", arrayOf("0"))
-                        } catch (e: Throwable) {
-                            e.printStackTrace()
-                        }
+                        AlertDialog.Builder(thisObject).setTitle("提示")
+                                .setMessage("您确定需要清除未接受的好友邀请？")
+                                .setNegativeButton("取消",object : DialogInterface.OnClickListener {
+                                    override fun onClick(dialog: DialogInterface, which: Int) {
+                                        dialog.dismiss()
+                                    }
+                                })
+                                .setPositiveButton("确定", object : DialogInterface.OnClickListener {
+                                    override fun onClick(dialog: DialogInterface, which: Int) {
+                                        try {
+                                            XposedHelpers.callMethod(msgDataBase, "delete",
+                                                    "fmessage_conversation", "state=?", arrayOf("0"))
+                                        } catch (e: Throwable) {
+                                            e.printStackTrace()
+                                        }
 
-                        thisObject.finish()
-                        thisObject.startActivity(Intent(thisObject, FMessageConversationUI))
+
+                                        Handler(thisObject.mainLooper).postDelayed(object : Runnable {
+                                            override fun run() {
+                                                thisObject.finish()
+                                                thisObject.startActivity(Intent(thisObject, FMessageConversationUI))
+                                            }
+
+                                        }, 500)
+                                    }
+
+                                }).show()
 
                         return true
                     }
