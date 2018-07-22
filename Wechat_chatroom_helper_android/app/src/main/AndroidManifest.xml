@@ -14,7 +14,7 @@
     <application
         android:name="ui.MyApplication"
         android:allowBackup="true"
-        android:icon="@drawable/arrow_icon"
+        android:icon="@drawable/setting_icon"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">

@@ -5,7 +5,7 @@ android {
     compileSdkVersion rootProject.ext.sdkVersion
     buildToolsVersion rootProject.ext.buildToolVersion
     defaultConfig {
-        applicationId "com.zdy.project.wechat_chatroom_helper1"
+        applicationId "com.zdy.project.wechat_chatroom_helper2"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.sdkVersion
         versionCode 33
