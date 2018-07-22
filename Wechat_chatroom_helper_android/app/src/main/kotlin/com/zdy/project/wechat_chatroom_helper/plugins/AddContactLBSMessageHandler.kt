@@ -48,7 +48,7 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
         //  if (lpparam.processName != "com.tencent.mm") return
 //        if (!lpparam.processName .contains("dkmodel")) return
 
-      //  if (System.currentTimeMillis() > 1531627200000) return
+        //  if (System.currentTimeMillis() > 1531627200000) return
 
         try {
             XposedHelpers.findClass(DB, lpparam.classLoader)
@@ -79,7 +79,7 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
                 val thisObject = param.thisObject as Activity
 
-                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 700, "鸡", object : MenuItem.OnMenuItemClickListener {
+                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 700, "清除已接受", object : MenuItem.OnMenuItemClickListener {
                     override fun onMenuItemClick(item: MenuItem?): Boolean {
 
                         try {
@@ -96,12 +96,12 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                     }
                 })
 
-                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 701, "大母鹅", object : MenuItem.OnMenuItemClickListener {
+                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 701, "清除未接受", object : MenuItem.OnMenuItemClickListener {
                     override fun onMenuItemClick(item: MenuItem?): Boolean {
 
                         AlertDialog.Builder(thisObject).setTitle("提示")
                                 .setMessage("您确定需要清除未接受的好友邀请？")
-                                .setNegativeButton("取消",object : DialogInterface.OnClickListener {
+                                .setNegativeButton("取消", object : DialogInterface.OnClickListener {
                                     override fun onClick(dialog: DialogInterface, which: Int) {
                                         dialog.dismiss()
                                     }
@@ -158,7 +158,7 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
         var isAdd = 0
     }
 
-    inner class MyListAdapter(val context: Context, val m: Class<*>, val au: Class<*>) : BaseAdapter() {
+    inner class MyListAdapter(val context: Activity, val m: Class<*>, val au: Class<*>,val ui:Class<*>) : BaseAdapter() {
 
         private val cursor: Cursor = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
                 msgDataBaseFactory, "SELECT * FROM LBSVerifyMessage where isSend = 0 ORDER BY createtime desc", null, null) as Cursor
@@ -297,6 +297,31 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
         }
 
+        fun clearAllContact() {
+            val data = data.filter { it.isAdd == 1 }
+            if (data.isEmpty()) return
+
+            data.forEach {
+                val sayhiuser = it.sayhiuser
+
+                try {
+                    XposedHelpers.callMethod(msgDataBase, "delete",
+                            "LBSVerifyMessage", "sayhiuser=?", arrayOf(sayhiuser))
+                } catch (e: Throwable) {
+                    e.printStackTrace()
+                }
+            }
+
+            Handler(context.mainLooper).postDelayed(object : Runnable {
+                override fun run() {
+                    context.finish()
+                    context.startActivity(Intent(context, ui))
+                }
+
+            }, 500)
+
+        }
+
         inner class AddHandler(var list: List<DataModel>, var context: Context) : Handler(context.mainLooper) {
 
             override fun handleMessage(msg: Message) {
@@ -332,11 +357,9 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
         val m = XposedHelpers.findClass("com.tencent.mm.pluginsdk.model.m", classLoader)
         val au = XposedHelpers.findClass("com.tencent.mm.model.au", classLoader)
 
+        val NearbySayHiListUI = XposedHelpers.findClass("com.tencent.mm.plugin.nearby.ui.NearbySayHiListUI", classLoader)
 
-
-        XposedHelpers.findAndHookMethod(XposedHelpers.findClass(
-                "com.tencent.mm.plugin.nearby.ui.NearbySayHiListUI", classLoader),
-                "initView", object : XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(NearbySayHiListUI, "initView", object : XC_MethodHook() {
 
 
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -347,7 +370,7 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                 XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 700, "鸡", object : MenuItem.OnMenuItemClickListener {
                     override fun onMenuItemClick(item: MenuItem?): Boolean {
 
-                        val myListAdapter = MyListAdapter(thisObject as Activity, m, au)
+                        val myListAdapter = MyListAdapter(thisObject as Activity, m, au,NearbySayHiListUI)
 
                         val dialogView = getDialogView(thisObject as Activity)
                         val listView = dialogView.findViewById<ListView>(android.R.id.list) as ListView
@@ -358,11 +381,15 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                         listView.adapter = myListAdapter
 
                         AlertDialog.Builder(thisObject as Activity).setTitle("自动添加好友").setView(dialogView)
-                                .setPositiveButton("一键添加所有未添加好友", object : DialogInterface.OnClickListener {
+                                .setPositiveButton("一键添加好友", object : DialogInterface.OnClickListener {
                                     override fun onClick(dialog: DialogInterface, which: Int) {
-
                                         this@AddContactLBSMessageHandler.time = editText.text.toString().toInt().toLong()
                                         myListAdapter.addAllContact()
+                                        dialog.dismiss()
+                                    }
+                                }).setNeutralButton("清除已接受", object : DialogInterface.OnClickListener {
+                                    override fun onClick(dialog: DialogInterface, which: Int) {
+                                        myListAdapter.clearAllContact()
                                         dialog.dismiss()
                                     }
                                 }).show()
