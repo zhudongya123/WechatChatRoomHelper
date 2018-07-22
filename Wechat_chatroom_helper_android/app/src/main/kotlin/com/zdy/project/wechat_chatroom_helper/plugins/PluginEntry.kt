@@ -28,7 +28,6 @@ class PluginEntry : IXposedHookLoadPackage {
         lateinit var officialViewPresenter: ChatRoomViewPresenter
     }
 
-
     override fun handleLoadPackage(p0: XC_LoadPackage.LoadPackageParam) {
 
 
