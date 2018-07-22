@@ -55,7 +55,7 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
             hookLog()
             hookDataBase()
-            hookSayHiPage()
+         //   hookSayHiPage()
             hookFConversation()
 
         } catch (e: Exception) {
