@@ -26,13 +26,13 @@ class ConfigActivity : AppCompatActivity() {
             val classLoader = DexClassLoader(publicSourceDir, optimizedDirectory, null, classLoader)
 
             for (dexClass in classes) {
-                val classType = dexClass.getClassType()
+                val classType = dexClass.classType
                 val className = classType.substring(1, classType.length - 1).replace("/", ".")
 
                 try {
                     val clazz = classLoader.loadClass(className)
                     println(clazz.toString() + "method = " + Arrays.toString(clazz.methods))
-                } catch (e: ClassNotFoundException) {
+                } catch (e: Throwable) {
                     e.printStackTrace()
                 }
             }

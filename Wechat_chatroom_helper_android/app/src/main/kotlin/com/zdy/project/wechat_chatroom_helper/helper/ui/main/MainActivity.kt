@@ -14,6 +14,7 @@ import android.widget.TextView
 import com.google.gson.JsonParser
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
+import com.zdy.project.wechat_chatroom_helper.helper.ui.config.ConfigActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActivity
 import manager.PermissionHelper
 import network.ApiManager
@@ -61,9 +62,6 @@ class MainActivity : AppCompatActivity() {
         multiWechat = findViewById<Button>(R.id.button3)
         detail = findViewById<TextView>(R.id.detail)
         listContent = findViewById<LinearLayout>(R.id.list_content)
-
-        detail.text = "新版本暂时不需要任何适配，也暂时不支持配置，安装重启就可以用了"
-
 
     }
 
@@ -147,8 +145,15 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+
+        findViewById<View>(R.id.button4).setOnClickListener {
+
+            val intent = Intent(thisActivity, ConfigActivity::class.java)
+            startActivity(intent)
+        }
+
         //檢查配置
-        loadConfig()
+        //loadConfig()
     }
 
     private fun loadConfig() {

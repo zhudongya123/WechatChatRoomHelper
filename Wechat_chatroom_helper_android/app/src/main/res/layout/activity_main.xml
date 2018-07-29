@@ -18,20 +18,37 @@
 
             <Button
                 android:id="@+id/button"
+                android:textSize="12sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="项目主页" />
 
             <Button
                 android:text="给我捐钱"
+                android:textSize="12sp"
                 android:id="@+id/button2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
 
             <Button
+                android:textSize="12sp"
                 android:text="MIUI 双开/分身解决方案"
                 android:id="@+id/button3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:textSize="12sp"
+                android:text="获取配置"
+                android:id="@+id/button4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
