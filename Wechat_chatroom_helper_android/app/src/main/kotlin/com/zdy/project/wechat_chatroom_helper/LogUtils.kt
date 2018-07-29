@@ -1,7 +1,7 @@
 package com.zdy.project.wechat_chatroom_helper
 
 import de.robv.android.xposed.XposedBridge
-import utils.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 
 /**
  * Created by zhudo on 2018/2/11.

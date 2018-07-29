@@ -17,7 +17,7 @@ import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomRecyclerViewAdapter
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
-import utils.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 
 /**
  * 此类为 UiSetting 中的预览 Fragment

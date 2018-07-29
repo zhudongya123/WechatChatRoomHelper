@@ -9,7 +9,7 @@ import android.net.Uri
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import com.zdy.project.wechat_chatroom_helper.Constants
-import utils.FileUtils
+import utils.WechatJsonUtils
 
 /**
  * Created by Mr.Zdy on 2017/11/3.
@@ -20,7 +20,7 @@ class PermissionHelper(private var activity: Activity) {
         fun check(activity: Activity): PermissionHelper? {
 
             return if (ContextCompat.checkSelfPermission(activity,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
                 val permissionHelper = PermissionHelper(activity)
                 if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE))
@@ -29,7 +29,7 @@ class PermissionHelper(private var activity: Activity) {
 
                 permissionHelper
             } else {
-                FileUtils.init(activity)
+                WechatJsonUtils.init(activity)
                 null
             }
 
@@ -68,7 +68,8 @@ class PermissionHelper(private var activity: Activity) {
 
     fun onRequestPermissionsResult(requestCode: Int, grantResults: IntArray) {
         if (Constants.WRITE_EXTERNAL_STORAGE_RESULT_CODE == requestCode) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) FileUtils.init(activity)
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                WechatJsonUtils.init(activity)
             else settingDialog.show()
         }
     }

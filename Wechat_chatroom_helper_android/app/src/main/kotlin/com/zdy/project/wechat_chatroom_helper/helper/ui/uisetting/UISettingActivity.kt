@@ -8,7 +8,7 @@ import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.utils.ActivityUtils
 import ui.MyApplication
-import utils.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 
 /**
  * UiSetting Activity

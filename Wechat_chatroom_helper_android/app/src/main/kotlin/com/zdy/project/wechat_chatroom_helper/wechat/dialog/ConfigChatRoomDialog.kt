@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
-import utils.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 
 
 /**

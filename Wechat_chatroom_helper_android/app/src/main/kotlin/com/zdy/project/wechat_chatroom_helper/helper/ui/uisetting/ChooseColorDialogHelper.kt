@@ -14,7 +14,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import com.zdy.project.wechat_chatroom_helper.helper.utils.ColorUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
-import utils.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 
 /**
  * Created by zhudo on 2017/11/14.

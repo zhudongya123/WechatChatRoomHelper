@@ -49,7 +49,6 @@
         android:layout_below="@id/head">
 
         <LinearLayout
-            android:visibility="gone"
             android:id="@+id/list_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

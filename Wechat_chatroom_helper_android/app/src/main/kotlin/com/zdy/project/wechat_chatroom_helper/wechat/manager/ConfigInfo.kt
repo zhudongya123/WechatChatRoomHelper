@@ -1,6 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.manager
 
-import utils.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 
 /**
  *  存储一些运行时的状态和消息
