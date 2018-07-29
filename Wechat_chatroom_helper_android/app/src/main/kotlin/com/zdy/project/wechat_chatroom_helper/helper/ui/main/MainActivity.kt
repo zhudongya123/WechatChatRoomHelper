@@ -31,12 +31,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var listContent: LinearLayout
 
     private lateinit var receiver: PermissionBroadCastReceiver
-    private var permissionHelper: PermissionHelper? = null
+    private lateinit var permissionHelper: PermissionHelper
 
 
     inner class PermissionBroadCastReceiver : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
+        override fun onReceive(context: Context, intent: Intent) {
+
             bindView()
+            //加載可配置項的佈局
+            initSetting()
         }
     }
 
@@ -51,7 +54,6 @@ class MainActivity : AppCompatActivity() {
         //检查权限
         permissionHelper = PermissionHelper.check(thisActivity)
 
-
         //加載佈局
         setContentView(R.layout.activity_main)
         clickMe = findViewById<Button>(R.id.button)
@@ -62,15 +64,11 @@ class MainActivity : AppCompatActivity() {
 
         detail.text = "新版本暂时不需要任何适配，也暂时不支持配置，安装重启就可以用了"
 
-        //加載可配置項的佈局
-        initSetting()
-
 
     }
 
     private fun initSetting() {
         val titles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手UI设置", "Xposed日志开关", "隐藏程序入口")
-
 
         repeat(titles.size) {
 
@@ -253,12 +251,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        permissionHelper?.onRequestPermissionsResult(requestCode, grantResults)
+        permissionHelper.onRequestPermissionsResult(requestCode, grantResults)
     }
 
-    override fun onRestart() {
-        super.onRestart()
-        permissionHelper = PermissionHelper.check(thisActivity)
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+
+        if (hasFocus) {
+            permissionHelper = PermissionHelper.check(thisActivity)
+        }
     }
 
 }

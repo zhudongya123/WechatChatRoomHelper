@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.Settings
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import com.zdy.project.wechat_chatroom_helper.Constants
@@ -17,30 +18,36 @@ import utils.WechatJsonUtils
 class PermissionHelper(private var activity: Activity) {
 
     companion object {
-        fun check(activity: Activity): PermissionHelper? {
+        @JvmStatic
+        fun check(activity: Activity): PermissionHelper {
 
-            return if (ContextCompat.checkSelfPermission(activity,
+            val permissionHelper = PermissionHelper(activity)
+
+            //没有权限
+            if (ContextCompat.checkSelfPermission(activity,
                             Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-
-                val permissionHelper = PermissionHelper(activity)
-                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+                //拒絕過權限授予，直接提醒跳轉到設置
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     permissionHelper.settingDialog.show()
-                else permissionHelper.remindDialog.show()
+                }
+                //請求權限授予
+                else {
+                    permissionHelper.remindDialog.show()
+                }
 
-                permissionHelper
-            } else {
-                WechatJsonUtils.init(activity)
-                null
             }
-
+            //有权限，初始化文件
+            else {
+                WechatJsonUtils.init(activity)
+            }
+            return permissionHelper
         }
     }
 
     private var remindDialog: AlertDialog = AlertDialog.Builder(activity)
-            .setMessage("因为Android 7.0 的一些变化，原来的存储方式已经不适用于所有的Android版本，" +
-                    "故现在本地的配置文件已经移动到sdcard根目录，请授与我们读写本地存储的权限，" +
+            .setMessage("因为Android 7.0 的一些变化，我们需要读写本地存储的权限后才能正常工作。\n" +
                     "同时也请不要删除sdcard/WechatChatroomHelper下的文件，以免影响使用。")
-            .setTitle("消息")
+            .setTitle("授予权限消息")
             .setPositiveButton("授权") { dialog, _ ->
                 ActivityCompat.requestPermissions(activity,
                         arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
@@ -51,15 +58,15 @@ class PermissionHelper(private var activity: Activity) {
             .create()
 
     private var settingDialog: AlertDialog = AlertDialog.Builder(activity)
-            .setMessage("您已经拒绝了我们的权限申请，前往设置项打开读写文件的权限")
-            .setTitle("消息")
+            .setMessage("我们必须获得读写文件的权限才能正常工作，请前往设置项授予相应权限。")
+            .setTitle("授予权限消息")
             .setPositiveButton("去设置") { dialog, _ ->
-                val intent = Intent()
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                intent.action = "android.settings.APPLICATION_DETAILS_SETTINGS"
-                intent.data = Uri.fromParts("package", activity.packageName, null)
+                val intent = Intent().also { intent ->
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                    intent.data = Uri.fromParts("package", activity.packageName, null)
+                }
                 activity.startActivity(intent)
-
                 dialog.dismiss()
             }
             .setCancelable(false)
@@ -68,9 +75,14 @@ class PermissionHelper(private var activity: Activity) {
 
     fun onRequestPermissionsResult(requestCode: Int, grantResults: IntArray) {
         if (Constants.WRITE_EXTERNAL_STORAGE_RESULT_CODE == requestCode) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            //回调中获得了权限
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 WechatJsonUtils.init(activity)
-            else settingDialog.show()
+            }
+            //刚拒绝了权限
+            else {
+                settingDialog.show()
+            }
         }
     }
 
