@@ -9,65 +9,21 @@ import com.gh0u1l5.wechatmagician.spellbook.util.ReflectionUtil
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
+import com.zdy.project.wechat_chatroom_helper.wechat.WCRHClasses
 import de.robv.android.xposed.XposedHelpers
 import java.lang.reflect.ParameterizedType
 
-object Classes {
+object ConversationItemHandler {
 
+    private val conversationWithCacheAdapter = XposedHelpers.findClass(WCRHClasses.ConversationWithCacheAdapter, PluginEntry.classloader)
+    private val conversationAvatar = XposedHelpers.findClass(WCRHClasses.ConversationAvatar, PluginEntry.classloader)
 
-    private val WechatClasses by WechatGlobal.wxLazy("WechatClasses") {
-        WechatGlobal.wxClasses!!.filter { it.className.contains(WechatGlobal.wxPackageName) }.map { XposedHelpers.findClass(it.className, PluginEntry.classloader) }
-    }
-
-
-    val ConversationWithAppBrandListView: Class<*> by WechatGlobal.wxLazy("ConversationWithAppBrandListView") {
-        ReflectionUtil.findClassIfExists("${WechatGlobal.wxPackageName}.ui.conversation.ConversationWithAppBrandListView", WechatGlobal.wxLoader!!)
-    }
-
-    val ConversationClickListener: Class<*> by WechatGlobal.wxLazy("ConversationClickListener") {
-        val classes = ReflectionUtil.findClassesFromPackage(WechatGlobal.wxLoader!!, WechatGlobal.wxClasses!!, "${WechatGlobal.wxPackageName}.ui.conversation")
-                .filterByMethod(null, "onItemClick", C.AdapterView, C.View, C.Int, C.Long)
-                .filterBySuper(Object::class.java)
-
-        val list = ReflectionUtil.Classes::class.java.getDeclaredField("classes").also { it.isAccessible = true }.get(classes) as List<Class<*>>
-        return@wxLazy list.firstOrNull()
-    }
-
-    val ClassesByCursor by WechatGlobal.wxLazy("ClassesByCursor") {
-        WechatClasses.filter { it.interfaces.contains(Cursor::class.java) }
-                .flatMap {
-                    val clazz = it
-                    WechatClasses.filter { it.interfaces.contains(clazz) }
-                }
-    }
-
-    val SetAvatarClass by WechatGlobal.wxLazy("SetAvatarClass") {
-        WechatClasses.filter { it.name.contains("com.tencent.mm.pluginsdk.ui") }
-                .filter { it.declaredClasses.isNotEmpty() }
-                .firstOrNull { it.declaredClasses.any { it.methods.map { it.name }.contains("doInvalidate") } }
-                ?.declaredClasses
-                ?.firstOrNull {
-                    it.methods.any {
-                        it.parameterTypes.isNotEmpty() &&
-                                it.parameterTypes[0].name == ImageView::class.java.name
-                    }
-                }!!
-    }
-    val SetAvatarMethod by WechatGlobal.wxLazy("SetAvatarMethod") {
-        SetAvatarClass.methods.firstOrNull {
-            it.parameterTypes.isNotEmpty() && it.parameterTypes[0].name == ImageView::class.java.name
-        }!!.name
-    }
-
-
-    val SetConversationString = ConversationWithCacheAdapter.declaredMethods
-            .filter { !it.isAccessible }
-            .filter { it.returnType == CharSequence::class.java }
-            .firstOrNull { it.parameterTypes.size == 1 }!!
+    private val conversationContentMethod = conversationWithCacheAdapter.declaredMethods.first { it.name == WCRHClasses.ConversationContentMethod }
+    private val conversationAvatarMethod = conversationAvatar.methods.first { it.name == WCRHClasses.ConversationAvatarMethod }
 
     fun getConversationTimeString(adapter: Any, conversationTime: Long): CharSequence {
 
-        SetConversationString.let {
+        conversationContentMethod.let {
 
             val aeClass = XposedHelpers.findClass(it.parameterTypes[0].name, PluginEntry.classloader)
             val constructor = aeClass.constructors.filter { it.parameterTypes.size == 1 }.firstOrNull { it.parameterTypes[0] == String::class.java }
@@ -78,14 +34,14 @@ object Classes {
                 aeClass.getField("field_status").set(obj, 0)
                 aeClass.getField("field_conversationTime").set(obj, conversationTime)
 
-                return XposedHelpers.callMethod(adapter, SetConversationString.name, obj) as CharSequence
+                return XposedHelpers.callMethod(adapter, conversationContentMethod.name, obj) as CharSequence
             }
         }
         return ""
     }
 
     fun getConversationAvatar(field_username: String, imageView: ImageView) =
-            XposedHelpers.callStaticMethod(SetAvatarClass, SetAvatarMethod, imageView, field_username)
+            XposedHelpers.callStaticMethod(conversationAvatar, conversationAvatarMethod.name, imageView, field_username)
 
 
     fun getConversationContent(adapter: Any, chatInfoModel: ChatInfoModel, position: Int): CharSequence? {

@@ -15,7 +15,6 @@ interface MessageEventNotifyListener {
 
     fun onEntryPositionChanged(chatroomPosition: Int, officialPosition: Int) {
         Log.v("LogRecord", "MessageEventNotifyListener, onEntryPositionChanged, chatroomPosition = $chatroomPosition, officialPosition = $officialPosition")
-
     }
 
     fun onNewMessageCreate(talker: String, createTime: Long, content: Any) {

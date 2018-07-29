@@ -10,7 +10,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.plugins.main.main.MainLauncherUI
-import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.Classes
+import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.ConversationItemHandler
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
 import de.robv.android.xposed.XposedHelpers
 import java.util.*
@@ -44,10 +44,10 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
         val item = getObject(position)
 
         holder.nickname.text = item.nickname
-        holder.content.text = Classes.getConversationContent(MainAdapter.originAdapter, item, position) ?: (item.content)
-        holder.time.text = Classes.getConversationTimeString(MainAdapter.originAdapter, item.conversationTime)
+        holder.content.text = ConversationItemHandler.getConversationContent(MainAdapter.originAdapter, item, position) ?: (item.content)
+        holder.time.text = ConversationItemHandler.getConversationTimeString(MainAdapter.originAdapter, item.conversationTime)
 
-        Classes.getConversationAvatar(item.username.toString(), holder.avatar)
+        ConversationItemHandler.getConversationAvatar(item.username.toString(), holder.avatar)
 
         if (item.unReadCount > 0)
             holder.unread.background = ShapeDrawable(object : Shape() {
