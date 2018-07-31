@@ -1,25 +1,21 @@
 package com.zdy.project.wechat_chatroom_helper.plugins.main.adapter
 
-import android.database.Cursor
 import android.widget.ImageView
-import com.gh0u1l5.wechatmagician.spellbook.C
-import com.gh0u1l5.wechatmagician.spellbook.WechatGlobal
 import com.gh0u1l5.wechatmagician.spellbook.mirror.com.tencent.mm.ui.conversation.Classes.ConversationWithCacheAdapter
-import com.gh0u1l5.wechatmagician.spellbook.util.ReflectionUtil
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
-import com.zdy.project.wechat_chatroom_helper.wechat.WCRHClasses
+import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import de.robv.android.xposed.XposedHelpers
 import java.lang.reflect.ParameterizedType
 
 object ConversationItemHandler {
 
-    private val conversationWithCacheAdapter = XposedHelpers.findClass(WCRHClasses.ConversationWithCacheAdapter, PluginEntry.classloader)
-    private val conversationAvatar = XposedHelpers.findClass(WCRHClasses.ConversationAvatar, PluginEntry.classloader)
+    private val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.ConversationWithCacheAdapter, PluginEntry.classloader)
+    private val conversationAvatar = XposedHelpers.findClass(WXObject.ConversationAvatar, PluginEntry.classloader)
 
-    private val conversationContentMethod = conversationWithCacheAdapter.declaredMethods.first { it.name == WCRHClasses.ConversationContentMethod }
-    private val conversationAvatarMethod = conversationAvatar.methods.first { it.name == WCRHClasses.ConversationAvatarMethod }
+    private val conversationContentMethod = conversationWithCacheAdapter.declaredMethods.first { it.name == WXObject.ConversationContentMethod }
+    private val conversationAvatarMethod = conversationAvatar.methods.first { it.name == WXObject.ConversationAvatarMethod }
 
     fun getConversationTimeString(adapter: Any, conversationTime: Long): CharSequence {
 

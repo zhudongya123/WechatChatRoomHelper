@@ -6,16 +6,7 @@ import android.widget.ImageView
 import com.zdy.project.wechat_chatroom_helper.Constants
 import java.lang.reflect.Method
 
-object WCRHClasses {
-
-    var Logcat = ""
-
-    var ConversationWithCacheAdapter = ""
-    var ConversationWithAppBrandListView = ""
-    var ConversationClickListener = ""
-    var ConversationAvatar = ""
-    var ConversationAvatarMethod = ""
-    var ConversationContentMethod = ""
+object WXClassParser {
 
 
     class Platformtool {

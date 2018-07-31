@@ -19,6 +19,7 @@ import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry.Companion.chatRoomViewPresenter
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry.Companion.officialViewPresenter
+import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
 import de.robv.android.xposed.XC_MethodHook
@@ -29,95 +30,102 @@ import de.robv.android.xposed.XposedHelpers.findAndHookMethod
 /**
  * Created by Mr.Zdy on 2018/4/1.
  */
-object MainLauncherUI : IActivityHook, HookerProvider {
+object MainLauncherUI : IActivityHook {
 
     lateinit var launcherUI: Activity
 
-    override fun provideStaticHookers(): List<Hooker>? {
-        val hook: () -> Unit = {
+    fun executeHook() {
 
-            hookAllConstructors(PluginEntry.classloader.loadClass(Constants.FitSystemWindowLayoutView), object : XC_MethodHook() {
+        hookAllConstructors(PluginEntry.classloader.loadClass(Constants.FitSystemWindowLayoutView), object : XC_MethodHook() {
 
-                override fun afterHookedMethod(param: MethodHookParam) {
-                    val fitSystemWindowLayoutView = param.thisObject as ViewGroup
-                    fitSystemWindowLayoutView.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
-                        override fun onChildViewAdded(parent: View, child: View) {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                val fitSystemWindowLayoutView = param.thisObject as ViewGroup
+                fitSystemWindowLayoutView.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
+                    override fun onChildViewAdded(parent: View, child: View) {
 
-                            val chattingView: View//聊天View
-                            val chattingViewPosition: Int//聊天View的下標
-                            var fitWindowChildCount = 0//fitSystemWindowLayoutView的 child 数量
-                            var chatRoomViewPosition = 0
-                            var officialViewPosition = 0
+                        val chattingView: View//聊天View
+                        val chattingViewPosition: Int//聊天View的下標
+                        var fitWindowChildCount = 0//fitSystemWindowLayoutView的 child 数量
+                        var chatRoomViewPosition = 0
+                        var officialViewPosition = 0
 
-                            /*
-                             * 微信在某个版本之后 View 数量发生变化，下标也要相应刷新
-                             **/
-                            if (isWechatHighVersion(1140)) {
+                        /*
+                         * 微信在某个版本之后 View 数量发生变化，下标也要相应刷新
+                         **/
+                        if (isWechatHighVersion(1140)) {
 
-                                fitWindowChildCount = 3
-                                chattingViewPosition = 2
-                                chatRoomViewPosition = 2
-                                officialViewPosition = 3
+                            fitWindowChildCount = 3
+                            chattingViewPosition = 2
+                            chatRoomViewPosition = 2
+                            officialViewPosition = 3
 
-                            } else {
+                        } else {
 
-                                fitWindowChildCount = 2
-                                chattingViewPosition = 1
-                                chatRoomViewPosition = 1
-                                officialViewPosition = 2
+                            fitWindowChildCount = 2
+                            chattingViewPosition = 1
+                            chatRoomViewPosition = 1
+                            officialViewPosition = 2
 
-                            }
-
-                            if (fitSystemWindowLayoutView.childCount != fitWindowChildCount) return
-                            if (fitSystemWindowLayoutView.getChildAt(0) !is LinearLayout) return
-                            chattingView = fitSystemWindowLayoutView.getChildAt(chattingViewPosition)
-                            if (chattingView.javaClass.simpleName != "TestTimeForChatting") return
-
-                            onFitSystemWindowLayoutViewReady(chatRoomViewPosition, officialViewPosition, fitSystemWindowLayoutView)
                         }
 
-                        override fun onChildViewRemoved(parent: View?, child: View?) {}
-                    })
-                }
-            })
+                        if (fitSystemWindowLayoutView.childCount != fitWindowChildCount) return
+                        if (fitSystemWindowLayoutView.getChildAt(0) !is LinearLayout) return
+                        chattingView = fitSystemWindowLayoutView.getChildAt(chattingViewPosition)
+                        if (chattingView.javaClass.simpleName != "TestTimeForChatting") return
 
-            var s = "com.tencent.mm.ui.LauncherUI"
-            findAndHookMethod(s, PluginEntry.classloader,
-                    "dispatchKeyEvent", KeyEvent::class.java, object : XC_MethodHook() {
-                @Throws(Throwable::class)
-                override fun beforeHookedMethod(param: XC_MethodHook.MethodHookParam) {
-                    hookDispatchKeyEvent(param)
-                }
-            })
+                        onFitSystemWindowLayoutViewReady(chatRoomViewPosition, officialViewPosition, fitSystemWindowLayoutView)
+                    }
 
-
-            findAndHookMethod(s, PluginEntry.classloader,
-                    "startChatting", String::class.java, Bundle::class.java, Boolean::class.java,
-                    object : XC_MethodHook() {
-                        @Throws(Throwable::class)
-                        override fun beforeHookedMethod(param: XC_MethodHook.MethodHookParam) {
-                            LogUtils.log("MainLauncherUI, startChatting")
-                            if (RuntimeInfo.currentPage == PageType.OFFICIAL) RuntimeInfo.currentPage = PageType.CHATTING_WITH_OFFICIAL
-                            else if (RuntimeInfo.currentPage == PageType.CHAT_ROOMS) RuntimeInfo.currentPage = PageType.CHATTING_WITH_CHAT_ROOMS
-                        }
-                    })
+                    override fun onChildViewRemoved(parent: View?, child: View?) {}
+                })
+            }
+        })
 
 
-            findAndHookMethod(s, PluginEntry.classloader,
-                    "closeChatting", Boolean::class.java,
-                    object : XC_MethodHook() {
-                        @Throws(Throwable::class)
-                        override fun beforeHookedMethod(param: XC_MethodHook.MethodHookParam) {
-                            LogUtils.log("MainLauncherUI, closeChatting")
-                            if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_OFFICIAL) RuntimeInfo.currentPage = PageType.OFFICIAL
-                            else if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_CHAT_ROOMS) RuntimeInfo.currentPage = PageType.CHAT_ROOMS
-                        }
-                    })
+        findAndHookMethod(WXObject.LauncherUI, PluginEntry.classloader,
+                "dispatchKeyEvent", KeyEvent::class.java, object : XC_MethodHook() {
+            @Throws(Throwable::class)
+            override fun beforeHookedMethod(param: XC_MethodHook.MethodHookParam) {
+                hookDispatchKeyEvent(param)
+            }
+        })
+
+        findAndHookMethod(Activity::class.java, "onCreate", Bundle::class.java, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                launcherUI = param.thisObject as Activity
+
+                PluginEntry.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
+                PluginEntry.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
+            }
+        })
 
 
-        }
-        return listOf(Hooker(hook))
+        findAndHookMethod(WXObject.LauncherUI, PluginEntry.classloader,
+                "startChatting", String::class.java, Bundle::class.java, Boolean::class.java,
+                object : XC_MethodHook() {
+                    @Throws(Throwable::class)
+                    override fun beforeHookedMethod(param: XC_MethodHook.MethodHookParam) {
+                        LogUtils.log("MainLauncherUI, startChatting")
+                        if (RuntimeInfo.currentPage == PageType.OFFICIAL) RuntimeInfo.currentPage = PageType.CHATTING_WITH_OFFICIAL
+                        else if (RuntimeInfo.currentPage == PageType.CHAT_ROOMS) RuntimeInfo.currentPage = PageType.CHATTING_WITH_CHAT_ROOMS
+                    }
+                })
+
+
+        findAndHookMethod(WXObject.LauncherUI, PluginEntry.classloader,
+                "closeChatting", Boolean::class.java,
+                object : XC_MethodHook() {
+                    @Throws(Throwable::class)
+                    override fun beforeHookedMethod(param: XC_MethodHook.MethodHookParam) {
+                        LogUtils.log("MainLauncherUI, closeChatting")
+                        if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_OFFICIAL) RuntimeInfo.currentPage = PageType.OFFICIAL
+                        else if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_CHAT_ROOMS) RuntimeInfo.currentPage = PageType.CHAT_ROOMS
+                    }
+                })
+
+
     }
+
     /**
      * 微信自1140之後，fitSystemWindowLayoutView 的 child 數量有所變化
      */
@@ -144,15 +152,6 @@ object MainLauncherUI : IActivityHook, HookerProvider {
                 param.result = true
             }
         }
-    }
-
-    override fun onActivityCreating(activity: Activity, savedInstanceState: Bundle?) {
-        if (activity::class.java.simpleName != "LauncherUI") return
-
-        launcherUI = activity
-
-        PluginEntry.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
-        PluginEntry.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
     }
 
 

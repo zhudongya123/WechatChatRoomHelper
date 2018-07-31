@@ -2,7 +2,7 @@ package com.zdy.project.wechat_chatroom_helper.plugins.log
 
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
-import com.zdy.project.wechat_chatroom_helper.wechat.WCRHClasses
+import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
@@ -12,7 +12,7 @@ object LogRecord  {
 
     fun executeHook(){
 
-        val logcatClass = XposedHelpers.findClass(WCRHClasses.Logcat, PluginEntry.classloader)
+        val logcatClass = XposedHelpers.findClass(WXObject.Logcat, PluginEntry.classloader)
         val logcatLogMethods = findMethodsByExactParameters(logcatClass, null, String::class.java, String::class.java, Array<Any>::class.java)
 
 

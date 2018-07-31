@@ -12,7 +12,7 @@ import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.MessageEventNotifyListener
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageFactory
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHandler
-import com.zdy.project.wechat_chatroom_helper.wechat.WCRHClasses
+import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
@@ -38,9 +38,9 @@ object MainAdapter {
 
     fun executeHook() {
 
-        val conversationWithCacheAdapter = XposedHelpers.findClass(WCRHClasses.ConversationWithCacheAdapter, PluginEntry.classloader)
-        val conversationWithAppBrandListView = XposedHelpers.findClass(WCRHClasses.ConversationWithAppBrandListView, PluginEntry.classloader)
-        val conversationClickListener =XposedHelpers.findClass(WCRHClasses.ConversationClickListener,PluginEntry.classloader)
+        val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.ConversationWithCacheAdapter, PluginEntry.classloader)
+        val conversationWithAppBrandListView = XposedHelpers.findClass(WXObject.ConversationWithAppBrandListView, PluginEntry.classloader)
+        val conversationClickListener =XposedHelpers.findClass(WXObject.ConversationClickListener,PluginEntry.classloader)
 
         XposedBridge.hookAllConstructors(ConversationWithCacheAdapter, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
