@@ -36,7 +36,7 @@ object MainLauncherUI : IActivityHook {
 
     fun executeHook() {
 
-        hookAllConstructors(PluginEntry.classloader.loadClass(Constants.FitSystemWindowLayoutView), object : XC_MethodHook() {
+        hookAllConstructors(PluginEntry.classloader.loadClass(WXObject.FitSystemWindowLayoutView), object : XC_MethodHook() {
 
             override fun afterHookedMethod(param: MethodHookParam) {
                 val fitSystemWindowLayoutView = param.thisObject as ViewGroup

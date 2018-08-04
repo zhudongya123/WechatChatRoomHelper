@@ -20,7 +20,7 @@ object Constants {
     val WRITE_EXTERNAL_STORAGE_RESULT_CODE = 124
     val FILE_INIT_SUCCESS = "file_init_success"
 
-    const val FitSystemWindowLayoutView = "com.tencent.mm.ui.HomeUI\$FitSystemWindowLayoutView"
+
 
 
 }

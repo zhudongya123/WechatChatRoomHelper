@@ -9,7 +9,7 @@ import java.lang.reflect.Method
 object WXClassParser {
 
 
-    class Platformtool {
+    object Platformtool {
 
         fun getLogcat(classes: MutableList<Class<*>>): Class<*>? {
 
@@ -26,7 +26,7 @@ object WXClassParser {
     }
 
 
-    class Adapter {
+    object Adapter {
 
         fun getConversationWithCacheAdapter(classes: MutableList<Class<*>>): Class<*>? {
             return classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }
