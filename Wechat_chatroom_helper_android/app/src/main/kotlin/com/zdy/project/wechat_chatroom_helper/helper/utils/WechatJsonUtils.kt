@@ -102,9 +102,11 @@ object WechatJsonUtils {
         val length = fis.available()
         val buffer = ByteArray(length)
         fis.read(buffer)
-        val res = String(buffer, Charset.forName("UTF-8"))
+        var res = String(buffer, Charset.forName("UTF-8"))
         fis.close()
         Log.v("WechatJsonUtils", "getFileString = $res")
+
+        if (res.isEmpty()) res = "{}"
 
         currentString = res
         currentJson = parser.parse(currentString).asJsonObject

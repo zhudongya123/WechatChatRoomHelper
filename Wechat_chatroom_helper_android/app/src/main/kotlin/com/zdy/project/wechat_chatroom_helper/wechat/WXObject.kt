@@ -12,6 +12,6 @@ object WXObject {
     var ConversationClickListener = ""
     var ConversationAvatar = ""
     var ConversationAvatarMethod = ""
-    var ConversationContentMethod = ""
+    var ConversationTimeStringMethod = ""
 
 }

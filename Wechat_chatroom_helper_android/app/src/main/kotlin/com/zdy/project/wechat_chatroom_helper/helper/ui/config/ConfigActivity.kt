@@ -5,6 +5,8 @@ import android.os.Handler
 import android.os.Message
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import android.widget.TextView
+import com.gh0u1l5.wechatmagician.spellbook.WechatGlobal
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.R
@@ -15,11 +17,11 @@ import net.dongliu.apk.parser.ApkFile
 import java.io.File
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
-import java.util.*
 import kotlin.concurrent.thread
 
 class ConfigActivity : AppCompatActivity() {
 
+    private lateinit var text1: TextView
 
     private var parseThread: Thread? = null
 
@@ -29,8 +31,8 @@ class ConfigActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_config)
 
-
         textHandler = TextHandler()
+        text1 = findViewById(R.id.text1)
 
         findViewById<View>(R.id.button1).setOnClickListener {
             parseThread?.start()
@@ -68,25 +70,30 @@ class ConfigActivity : AppCompatActivity() {
                 val classLoader = DexClassLoader(publicSourceDir, optimizedDirectory, null, classLoader)
 
 
-                dexClasses.forEach {
-                    val classType = it.classType
-                    val className = classType.substring(1, classType.length - 1).replace("/", ".")
+                dexClasses.map { it.classType.substring(1, it.classType.length - 1).replace("/", ".") }
+                        .filter { it.contains(Constants.WECHAT_PACKAGE_NAME) }
+                        .forEachIndexed { index, className ->
 
-                    try {
-                        val clazz = classLoader.loadClass(className)
-                        classes.add(clazz)
+                            try {
+                                val clazz = classLoader.loadClass(className)
+                                classes.add(clazz)
 
-                    } catch (e: Throwable) {
-                        e.printStackTrace()
-                    }
-                }
+                            } catch (e: Throwable) {
+                                e.printStackTrace()
+                            }
+
+                            textHandler.sendMessage(Message.obtain(textHandler, 0, "遍历了${index + 1}个类，已经加载了 ${classes.size}个类"))
+                        }
 
                 WXObject.ConversationAvatar = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
                 WXObject.ConversationAvatarMethod = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatarMethod(classes))
-                WXObject.ConversationClickListener = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
                 WXObject.ConversationWithAppBrandListView = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithAppBrandListView(classes))
                 WXObject.ConversationWithCacheAdapter = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
-                WXObject.ConversationContentMethod = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationContentMethod(classes))
+                WXObject.ConversationClickListener = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
+                WXObject.ConversationTimeStringMethod = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationTimeMethod(classes))
+
+                WXObject.Logcat = parseAnnotatedElementToName(WXClassParser.Platformtool.getLogcat(classes))
+
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -97,7 +104,7 @@ class ConfigActivity : AppCompatActivity() {
     }
 
 
-    private fun parseAnnotatedElementToName( element: AnnotatedElement?): String {
+    private fun parseAnnotatedElementToName(element: AnnotatedElement?): String {
         return if (element == null) ""
         else {
             LogUtils.log("parseAnnotatedElementToName, element = $element")
@@ -113,8 +120,9 @@ class ConfigActivity : AppCompatActivity() {
     }
 
     inner class TextHandler : Handler() {
-        override fun handleMessage(msg: Message?) {
-            super.handleMessage(msg)
+        override fun handleMessage(msg: Message) {
+            text1.setText(msg.obj as String)
+
         }
     }
 

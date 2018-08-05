@@ -14,12 +14,12 @@ object ConversationItemHandler {
     private val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.ConversationWithCacheAdapter, PluginEntry.classloader)
     private val conversationAvatar = XposedHelpers.findClass(WXObject.ConversationAvatar, PluginEntry.classloader)
 
-    private val conversationContentMethod = conversationWithCacheAdapter.declaredMethods.first { it.name == WXObject.ConversationContentMethod }
+    private val conversationTimeStringMethod = conversationWithCacheAdapter.declaredMethods.first { it.name == WXObject.ConversationTimeStringMethod }
     private val conversationAvatarMethod = conversationAvatar.methods.first { it.name == WXObject.ConversationAvatarMethod }
 
     fun getConversationTimeString(adapter: Any, conversationTime: Long): CharSequence {
 
-        conversationContentMethod.let {
+        conversationTimeStringMethod.let {
 
             val aeClass = XposedHelpers.findClass(it.parameterTypes[0].name, PluginEntry.classloader)
             val constructor = aeClass.constructors.filter { it.parameterTypes.size == 1 }.firstOrNull { it.parameterTypes[0] == String::class.java }
@@ -30,7 +30,7 @@ object ConversationItemHandler {
                 aeClass.getField("field_status").set(obj, 0)
                 aeClass.getField("field_conversationTime").set(obj, conversationTime)
 
-                return XposedHelpers.callMethod(adapter, conversationContentMethod.name, obj) as CharSequence
+                return XposedHelpers.callMethod(adapter, conversationTimeStringMethod.name, obj) as CharSequence
             }
         }
         return ""
