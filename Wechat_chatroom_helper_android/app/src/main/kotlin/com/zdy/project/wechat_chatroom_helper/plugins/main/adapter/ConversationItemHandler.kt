@@ -1,7 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.plugins.main.adapter
 
 import android.widget.ImageView
-import com.gh0u1l5.wechatmagician.spellbook.mirror.com.tencent.mm.ui.conversation.Classes.ConversationWithCacheAdapter
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
@@ -42,12 +41,16 @@ object ConversationItemHandler {
 
     fun getConversationContent(adapter: Any, chatInfoModel: ChatInfoModel, position: Int): CharSequence? {
 
-        val parameterizedType = ConversationWithCacheAdapter.genericSuperclass as ParameterizedType
+
+        val conversationWithCacheAdapter1 =
+                XposedHelpers.findClass(WXObject.ConversationWithCacheAdapter, PluginEntry.classloader)
+        val parameterizedType =
+                conversationWithCacheAdapter1.genericSuperclass as ParameterizedType
         val typeArguments = parameterizedType.actualTypeArguments
 
         val aeClass = (typeArguments[1] as Class<*>)
 
-        val getContentMethod = ConversationWithCacheAdapter.declaredMethods
+        val getContentMethod = conversationWithCacheAdapter1.declaredMethods
                 .filter { it.parameterTypes.size == 3 }
                 .single {
                     it.parameterTypes[0].simpleName == aeClass.simpleName &&

@@ -18,9 +18,11 @@ import java.nio.charset.Charset
  */
 object WechatJsonUtils {
 
+
+
     private val folderPath = Environment.getExternalStorageDirectory().absolutePath + "/WechatChatroomHelper"
     private val configPath = Environment.getExternalStorageDirectory().absolutePath + "/WechatChatroomHelper/config.xml"
-    private val parser = JsonParser()
+    val parser = JsonParser()
 
     private lateinit var currentString: String
     private lateinit var currentJson: JsonObject
@@ -97,7 +99,7 @@ object WechatJsonUtils {
     }
 
 
-    private fun getFileString(): String {
+     fun getFileString(): String {
         val fis = FileInputStream(File(configPath))
         val length = fis.available()
         val buffer = ByteArray(length)
@@ -114,15 +116,16 @@ object WechatJsonUtils {
         return res
     }
 
-    private fun putFileString(string: String) {
-        Log.v("WechatJsonUtils", "putFileString = $string")
+    private fun putFileString(result: String) {
+        Log.v("WechatJsonUtils", "putFileString = $result")
         try {
             val fos = FileOutputStream(File(configPath))
-            fos.write(string.toByteArray())
+            fos.write(result.toByteArray())
             fos.close()
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        getFileString()
+        currentString = result
+        currentJson = parser.parse(currentString).asJsonObject
     }
 }

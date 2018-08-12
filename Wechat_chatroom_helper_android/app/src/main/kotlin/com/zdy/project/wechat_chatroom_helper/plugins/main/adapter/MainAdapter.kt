@@ -4,9 +4,6 @@ import android.annotation.SuppressLint
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.gh0u1l5.wechatmagician.spellbook.C
-import com.gh0u1l5.wechatmagician.spellbook.mirror.com.tencent.mm.ui.Methods.MMBaseAdapter_getItemInternal
-import com.gh0u1l5.wechatmagician.spellbook.mirror.com.tencent.mm.ui.conversation.Classes.ConversationWithCacheAdapter
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.MessageEventNotifyListener
@@ -40,9 +37,17 @@ object MainAdapter {
 
         val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.ConversationWithCacheAdapter, PluginEntry.classloader)
         val conversationWithAppBrandListView = XposedHelpers.findClass(WXObject.ConversationWithAppBrandListView, PluginEntry.classloader)
-        val conversationClickListener =XposedHelpers.findClass(WXObject.ConversationClickListener,PluginEntry.classloader)
+        val conversationClickListener = XposedHelpers.findClass(WXObject.ConversationClickListener, PluginEntry.classloader)
 
-        XposedBridge.hookAllConstructors(ConversationWithCacheAdapter, object : XC_MethodHook() {
+        val conversationWithCacheAdapter_getItem = conversationWithCacheAdapter
+                .superclass
+                .declaredMethods.filter {
+            it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java
+        }.firstOrNull { it.name != "getItem" && it.name != "getItemId" }?.name
+
+
+
+        XposedBridge.hookAllConstructors(conversationWithCacheAdapter, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 val adapter = param.thisObject as? BaseAdapter ?: return
                 originAdapter = adapter
@@ -69,35 +74,37 @@ object MainAdapter {
             }
         })
 
-        findAndHookMethod(conversationClickListener, "onItemClick", C.AdapterView, C.View, C.Int, C.Long, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                val position = (param.args[2] as Int) - listView.headerViewsCount
+        findAndHookMethod(conversationClickListener, "onItemClick",
+                AdapterView::class.java, View::class.java, Int::class.java, Long::class.java,
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        val position = (param.args[2] as Int) - listView.headerViewsCount
 
-                val field_username = XposedHelpers.getObjectField(XposedHelpers.callMethod(originAdapter, MMBaseAdapter_getItemInternal, position), "field_username") as String
+                        val field_username = XposedHelpers.getObjectField(XposedHelpers.callMethod(originAdapter, conversationWithCacheAdapter_getItem, position), "field_username") as String
 
-                XposedBridge.log("MessageHooker2.6,position = $position, field_username = $field_username, " +
-                        "firstChatroomUserName = $firstChatroomUserName ,firstOfficialUserName = $firstOfficialUserName \n")
+                        XposedBridge.log("MessageHooker2.6,position = $position, field_username = $field_username, " +
+                                "firstChatroomUserName = $firstChatroomUserName ,firstOfficialUserName = $firstOfficialUserName \n")
 
-                if (position == firstChatroomPosition) {
+                        if (position == firstChatroomPosition) {
 
-                    XposedBridge.log("MessageHooker2.6,position = $position, firstChatroomUserName equal")
+                            XposedBridge.log("MessageHooker2.6,position = $position, firstChatroomUserName equal")
 
-                    PluginEntry.chatRoomViewPresenter.show()
+                            PluginEntry.chatRoomViewPresenter.show()
 
-                    param.result = null
-                }
-                if (position == firstOfficialPosition) {
+                            param.result = null
+                        }
+                        if (position == firstOfficialPosition) {
 
-                    XposedBridge.log("MessageHooker2.6,position = $position, firstOfficialUserName equal")
+                            XposedBridge.log("MessageHooker2.6,position = $position, firstOfficialUserName equal")
 
-                    PluginEntry.officialViewPresenter.show()
+                            PluginEntry.officialViewPresenter.show()
 
-                    param.result = null
-                }
+                            param.result = null
+                        }
 
 
-            }
-        })
+                    }
+                })
 
         findAndHookMethod(conversationWithCacheAdapter, "getView",
                 Int::class.java, View::class.java, ViewGroup::class.java,
@@ -170,7 +177,7 @@ object MainAdapter {
                 })
 
 
-        findAndHookMethod(conversationWithCacheAdapter.superclass, MMBaseAdapter_getItemInternal,
+        findAndHookMethod(conversationWithCacheAdapter.superclass, conversationWithCacheAdapter_getItem,
                 Int::class.java, object : XC_MethodHook() {
 
             override fun beforeHookedMethod(param: MethodHookParam) {

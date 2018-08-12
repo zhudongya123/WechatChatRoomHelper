@@ -1,5 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.plugins.log
 
+import android.util.Log
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
@@ -8,16 +9,18 @@ import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
 import de.robv.android.xposed.XposedHelpers.findMethodsByExactParameters
 
-object LogRecord  {
+object LogRecord {
 
-    fun executeHook(){
+    fun executeHook() {
 
         val logcatClass = XposedHelpers.findClass(WXObject.Logcat, PluginEntry.classloader)
         val logcatLogMethods = findMethodsByExactParameters(logcatClass, null, String::class.java, String::class.java, Array<Any>::class.java)
 
 
         logcatLogMethods.forEach { method ->
-            findAndHookMethod(logcatClass,method.name,method.parameterTypes,object : XC_MethodHook(){
+            val parameterTypes = method.parameterTypes
+            Log.e("parameterTypes", parameterTypes.joinToString { it.toString() })
+            findAndHookMethod(logcatClass, method.name, parameterTypes, object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
 
                     //    if (!PluginEntry.runtimeInfo.isOpenLog) return
@@ -50,7 +53,6 @@ object LogRecord  {
 
 
     }
-
 
 
 }

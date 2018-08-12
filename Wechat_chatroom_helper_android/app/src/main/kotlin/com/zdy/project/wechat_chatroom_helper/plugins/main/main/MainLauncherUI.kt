@@ -10,9 +10,6 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import com.gh0u1l5.wechatmagician.spellbook.base.Hooker
-import com.gh0u1l5.wechatmagician.spellbook.base.HookerProvider
-import com.gh0u1l5.wechatmagician.spellbook.interfaces.IActivityHook
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
@@ -30,7 +27,7 @@ import de.robv.android.xposed.XposedHelpers.findAndHookMethod
 /**
  * Created by Mr.Zdy on 2018/4/1.
  */
-object MainLauncherUI : IActivityHook {
+object MainLauncherUI {
 
     lateinit var launcherUI: Activity
 

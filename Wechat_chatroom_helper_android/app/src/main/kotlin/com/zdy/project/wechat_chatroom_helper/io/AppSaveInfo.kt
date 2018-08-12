@@ -11,10 +11,13 @@ import utils.WechatJsonUtils
  */
 object AppSaveInfo {
 
-    private const val OPEN = "open"
-    private const val IS_CIRCLE_AVATAR = "is_circle_avatar"
-    private const val SHOW_INFO = "show_info"
-    private const val AUTO_CLOSE = "auto_close"
+    private const val OPEN = "open"//总开关
+    private const val IS_CIRCLE_AVATAR = "is_circle_avatar"//是否圆头像，默认否
+    private const val IS_AUTO_CLOSE = "is_auto_close"//返回自动关闭群助手，默认否
+    private const val IS_OPEN_LOG = "is_open_log"//日志开关
+    private const val IS_LAUNCHER_ENTRY = "is_hide_launcher_entry"//launcher 入口开关，默认为否
+
+    private const val SHOW_INFO = "show_info"//适配信息
 
     private const val TOOLBAR_COLOR = "toolbar_color"
     private const val HELPER_COLOR = "helper_color"
@@ -23,8 +26,9 @@ object AppSaveInfo {
     private const val TIME_COLOR = "time_color"
     private const val DIVIDER_COLOR = "divider_color"
 
-    private const val HAS_SUIT_WECHAT_DATA = "has_suit_wechat_data"
-    private const val IS_PLAY_VERSION = "is_play_version"
+
+    private const val HAS_SUIT_WECHAT_DATA = "has_suit_wechat_data"//
+    private const val IS_PLAY_VERSION = "is_play_version"//
     private const val HELPER_VERSIONCODE = "helper_versionCode"
     private const val WECHAT_VERSION = "wechat_version"
     private const val JSON = "json"
@@ -33,10 +37,7 @@ object AppSaveInfo {
     const val WHITE_LIST_CHAT_ROOM = "white_list_chat_room"
     const val WHITE_LIST_OFFICIAL = "white_list_official"
 
-    private const val OPEN_LOG = "open_log"
-    private const val LAUNCHER_ENTRY = "launcher_entry"
-
-    private const val API_RECORD_TIME = "api_record_time"
+    private const val API_RECORD_TIME = "api_record_time"//上次请求的时间
 
     fun apiRecordTimeInfo(): Int {
         return WechatJsonUtils.getJsonValue(API_RECORD_TIME, (System.currentTimeMillis() / 1000).toInt())
@@ -47,24 +48,24 @@ object AppSaveInfo {
     }
 
     fun launcherEntryInfo(): Boolean {
-        return WechatJsonUtils.getJsonValue(LAUNCHER_ENTRY, false)
+        return WechatJsonUtils.getJsonValue(IS_LAUNCHER_ENTRY, false)
     }
 
     fun setLauncherEntry(checked: Boolean) {
-        WechatJsonUtils.putJsonValue(LAUNCHER_ENTRY, checked)
+        WechatJsonUtils.putJsonValue(IS_LAUNCHER_ENTRY, checked)
     }
 
     fun openLogInfo(): Boolean {
-        return WechatJsonUtils.getJsonValue(OPEN_LOG, true)
+        return WechatJsonUtils.getJsonValue(IS_OPEN_LOG, true)
     }
 
     fun setOpenLog(value: Boolean) {
-        WechatJsonUtils.putJsonValue(OPEN_LOG, value)
+        WechatJsonUtils.putJsonValue(IS_OPEN_LOG, value)
     }
 
     fun openInfo(): Boolean {
 //        return WechatJsonUtils.getJsonValue(OPEN, true)
-    return false
+        return false
     }
 
     fun setOpen(value: Boolean) {
@@ -96,11 +97,11 @@ object AppSaveInfo {
     }
 
     fun autoCloseInfo(): Boolean {
-        return WechatJsonUtils.getJsonValue(AUTO_CLOSE, false)
+        return WechatJsonUtils.getJsonValue(IS_AUTO_CLOSE, false)
     }
 
     fun setAutoCloseInfo(value: Boolean) {
-        WechatJsonUtils.putJsonValue(AUTO_CLOSE, value)
+        WechatJsonUtils.putJsonValue(IS_AUTO_CLOSE, value)
     }
 
     fun toolbarColorInfo(): String {
@@ -194,7 +195,7 @@ object AppSaveInfo {
 
     fun getWhiteList(key: String): ArrayList<String> {
         val value = WechatJsonUtils.getJsonValue(key, "[]")
-        val jsonArray = JsonParser().parse(value).asJsonArray
+        val jsonArray = WechatJsonUtils.parser.parse(value).asJsonArray
         val arrayList = ArrayList<String>()
         jsonArray.mapTo(arrayList) { it.asString }
         return arrayList
@@ -202,7 +203,7 @@ object AppSaveInfo {
 
     fun removeWhitList(key: String, item: String) {
         val value = WechatJsonUtils.getJsonValue(key, "[]")
-        val jsonArray = JsonParser().parse(value).asJsonArray
+        val jsonArray = WechatJsonUtils.parser.parse(value).asJsonArray
 
         jsonArray.remove(JsonPrimitive(item))
         WechatJsonUtils.putJsonValue(key, jsonArray.toString())
@@ -210,7 +211,7 @@ object AppSaveInfo {
 
     fun setWhiteList(key: String, item: String) {
         val value = WechatJsonUtils.getJsonValue(key, "[]")
-        val jsonArray = JsonParser().parse(value).asJsonArray
+        val jsonArray = WechatJsonUtils.parser.parse(value).asJsonArray
 
         for (i in 0 until jsonArray.size()) {
             val string = jsonArray[i].asString
@@ -225,5 +226,24 @@ object AppSaveInfo {
     fun clearWhiteList(key: String) {
         WechatJsonUtils.putJsonValue(key, "[]")
     }
+
+    fun addConfigItem(key: String, value: String) {
+        val jsonObject = WechatJsonUtils.parser
+                .parse(WechatJsonUtils.getJsonValue("current_config", "{}"))
+                .asJsonObject
+        jsonObject.addProperty(key, value)
+        WechatJsonUtils.putJsonValue("current_config", jsonObject.toString())
+
+    }
+
+    fun clearAddConfig() {
+        WechatJsonUtils.putJsonValue("current_config", "{}")
+    }
+
+
+    fun getConfigJson() = WechatJsonUtils
+            .parser
+            .parse(WechatJsonUtils.getJsonValue("current_config", "{}"))
+            .asJsonObject
 
 }

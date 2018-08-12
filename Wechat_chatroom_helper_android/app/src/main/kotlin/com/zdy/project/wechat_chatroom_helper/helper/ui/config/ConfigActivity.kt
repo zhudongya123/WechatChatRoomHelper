@@ -6,10 +6,10 @@ import android.os.Message
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.TextView
-import com.gh0u1l5.wechatmagician.spellbook.WechatGlobal
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.R
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.WXClassParser
 import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import dalvik.system.DexClassLoader
@@ -91,21 +91,19 @@ class ConfigActivity : AppCompatActivity() {
                 WXObject.ConversationWithCacheAdapter = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
                 WXObject.ConversationClickListener = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
                 WXObject.ConversationTimeStringMethod = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationTimeMethod(classes))
-
                 WXObject.Logcat = parseAnnotatedElementToName(WXClassParser.Platformtool.getLogcat(classes))
 
+                writeNewConfig()
 
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 e.printStackTrace()
             }
-
         }
-
     }
 
-
+    @Throws(Exception::class)
     private fun parseAnnotatedElementToName(element: AnnotatedElement?): String {
-        return if (element == null) ""
+        return if (element == null) throw ClassNotFoundException()
         else {
             LogUtils.log("parseAnnotatedElementToName, element = $element")
 
@@ -116,6 +114,16 @@ class ConfigActivity : AppCompatActivity() {
             }
 
         }
+    }
+
+    private fun writeNewConfig() {
+        AppSaveInfo.addConfigItem("conversationAvatar", WXObject.ConversationAvatar)
+        AppSaveInfo.addConfigItem("conversationAvatarMethod", WXObject.ConversationAvatarMethod)
+        AppSaveInfo.addConfigItem("conversationWithAppBrandListView", WXObject.ConversationWithAppBrandListView)
+        AppSaveInfo.addConfigItem("conversationWithCacheAdapter", WXObject.ConversationWithCacheAdapter)
+        AppSaveInfo.addConfigItem("conversationClickListener", WXObject.ConversationClickListener)
+        AppSaveInfo.addConfigItem("conversationTimeStringMethod", WXObject.ConversationTimeStringMethod)
+        AppSaveInfo.addConfigItem("logcat", WXObject.Logcat)
 
     }
 

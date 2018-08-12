@@ -1,7 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.plugins.message
 
 import android.database.Cursor
-import com.gh0u1l5.wechatmagician.spellbook.WechatGlobal
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import de.robv.android.xposed.XposedHelpers
 
@@ -32,7 +31,7 @@ object MessageFactory {
 
     fun getAllChatroom(): ArrayList<ChatInfoModel> {
 
-        val cursor = XposedHelpers.callMethod(WechatGlobal.MainDatabaseObject, "rawQuery", SqlForGetAllChatroom, null) as Cursor
+        val cursor = XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, "rawQuery", SqlForGetAllChatroom, null) as Cursor
 
         val list = arrayListOf<ChatInfoModel>()
 
@@ -43,12 +42,12 @@ object MessageFactory {
     }
 
     fun getSingle(field_username: String) =
-            buildChatInfoModelByCursor((XposedHelpers.callMethod(WechatGlobal.MainDatabaseObject, "rawQueryWithFactory",
-                    getDataBaseFactory(WechatGlobal.MainDatabaseObject!!), SqlForByUsername(field_username), null, null) as Cursor).apply { moveToNext() })
+            buildChatInfoModelByCursor((XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, "rawQueryWithFactory",
+                    getDataBaseFactory(MessageHandler.MessageDatabaseObject!!), SqlForByUsername(field_username), null, null) as Cursor).apply { moveToNext() })
 
 
     fun getAllOfficial(): ArrayList<ChatInfoModel> {
-        val cursor = XposedHelpers.callMethod(WechatGlobal.MainDatabaseObject, "rawQuery", SqlForGetAllOfficial, null) as Cursor
+        val cursor = XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, "rawQuery", SqlForGetAllOfficial, null) as Cursor
 
         val list = arrayListOf<ChatInfoModel>()
 
