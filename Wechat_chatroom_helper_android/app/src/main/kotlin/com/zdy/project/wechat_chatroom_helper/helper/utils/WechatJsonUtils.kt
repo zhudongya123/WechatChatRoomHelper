@@ -18,8 +18,6 @@ import java.nio.charset.Charset
  */
 object WechatJsonUtils {
 
-
-
     private val folderPath = Environment.getExternalStorageDirectory().absolutePath + "/WechatChatroomHelper"
     private val configPath = Environment.getExternalStorageDirectory().absolutePath + "/WechatChatroomHelper/config.xml"
     val parser = JsonParser()

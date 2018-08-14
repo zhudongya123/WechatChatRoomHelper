@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import android.widget.LinearLayout
-import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
@@ -33,7 +32,7 @@ object MainLauncherUI {
 
     fun executeHook() {
 
-        hookAllConstructors(PluginEntry.classloader.loadClass(WXObject.FitSystemWindowLayoutView), object : XC_MethodHook() {
+        hookAllConstructors(PluginEntry.classloader.loadClass(WXObject.MainUI.C.FitSystemWindowLayoutView), object : XC_MethodHook() {
 
             override fun afterHookedMethod(param: MethodHookParam) {
                 val fitSystemWindowLayoutView = param.thisObject as ViewGroup
@@ -79,15 +78,15 @@ object MainLauncherUI {
         })
 
 
-        findAndHookMethod(WXObject.LauncherUI, PluginEntry.classloader,
-                "dispatchKeyEvent", KeyEvent::class.java, object : XC_MethodHook() {
+        findAndHookMethod(WXObject.MainUI.C.LauncherUI, PluginEntry.classloader,
+                WXObject.MainUI.M.DispatchKeyEventOfLauncherUI, KeyEvent::class.java, object : XC_MethodHook() {
             @Throws(Throwable::class)
             override fun beforeHookedMethod(param: XC_MethodHook.MethodHookParam) {
                 hookDispatchKeyEvent(param)
             }
         })
 
-        findAndHookMethod(Activity::class.java, "onCreate", Bundle::class.java, object : XC_MethodHook() {
+        findAndHookMethod(Activity::class.java, WXObject.MainUI.M.OnCreate, Bundle::class.java, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 launcherUI = param.thisObject as Activity
 
@@ -96,9 +95,8 @@ object MainLauncherUI {
             }
         })
 
-
-        findAndHookMethod(WXObject.LauncherUI, PluginEntry.classloader,
-                "startChatting", String::class.java, Bundle::class.java, Boolean::class.java,
+        findAndHookMethod(WXObject.MainUI.C.LauncherUI, PluginEntry.classloader,
+                WXObject.MainUI.M.StartChattingOfLauncherUI, String::class.java, Bundle::class.java, Boolean::class.java,
                 object : XC_MethodHook() {
                     @Throws(Throwable::class)
                     override fun beforeHookedMethod(param: XC_MethodHook.MethodHookParam) {
@@ -109,8 +107,8 @@ object MainLauncherUI {
                 })
 
 
-        findAndHookMethod(WXObject.LauncherUI, PluginEntry.classloader,
-                "closeChatting", Boolean::class.java,
+        findAndHookMethod(WXObject.MainUI.C.LauncherUI, PluginEntry.classloader,
+                WXObject.MainUI.M.CloseChattingOfLauncherUI, Boolean::class.java,
                 object : XC_MethodHook() {
                     @Throws(Throwable::class)
                     override fun beforeHookedMethod(param: XC_MethodHook.MethodHookParam) {
@@ -119,8 +117,6 @@ object MainLauncherUI {
                         else if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_CHAT_ROOMS) RuntimeInfo.currentPage = PageType.CHAT_ROOMS
                     }
                 })
-
-
     }
 
     /**

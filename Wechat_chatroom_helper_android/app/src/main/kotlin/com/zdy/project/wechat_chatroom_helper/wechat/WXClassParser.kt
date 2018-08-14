@@ -9,8 +9,7 @@ import java.lang.reflect.Method
 
 object WXClassParser {
 
-
-    object Platformtool {
+    object PlatformTool {
 
         fun getLogcat(classes: MutableList<Class<*>>): Class<*>? {
 
@@ -38,8 +37,6 @@ object WXClassParser {
                             return@firstOrNull false
                         }
                     }
-
-            // .firstOrNull { it.methods.any { it.returnType == null && it.name == "clearCache" } }
         }
 
         fun getConversationWithAppBrandListView(classes: MutableList<Class<*>>): Class<*>? {
@@ -62,9 +59,9 @@ object WXClassParser {
         fun getConversationAvatar(classes: MutableList<Class<*>>): Class<*>? {
             return classes.filter { it.name.contains("com.tencent.mm.pluginsdk.ui") }
                     .filter { it.declaredClasses.isNotEmpty() }
-                    .firstOrNull { it.declaredClasses.any { it.methods.map { it.name }.contains("doInvalidate") } }
-                    ?.declaredClasses
-                    ?.firstOrNull {
+                    .firstOrNull { it.declaredClasses.any { it.methods.map { it.name }.contains("doInvalidate") } }!!
+                    .declaredClasses!!
+                    .firstOrNull {
                         it.methods.any {
                             it.parameterTypes.isNotEmpty() &&
                                     it.parameterTypes[0].name == ImageView::class.java.name
@@ -72,17 +69,6 @@ object WXClassParser {
                     }
         }
 
-        fun getConversationAvatarMethod(classes: MutableList<Class<*>>): Method? {
-            return getConversationAvatar(classes)?.methods?.firstOrNull {
-                it.parameterTypes.isNotEmpty() && it.parameterTypes[0].name == ImageView::class.java.name
-            }
-        }
-
-        fun getConversationTimeMethod(classes: MutableList<Class<*>>): Method? {
-            return getConversationWithCacheAdapter(classes)?.declaredMethods?.filter { !it.isAccessible }!!
-                    .filter { it.returnType == CharSequence::class.java }
-                    .firstOrNull { it.parameterTypes.size == 1 }
-        }
 
     }
 }

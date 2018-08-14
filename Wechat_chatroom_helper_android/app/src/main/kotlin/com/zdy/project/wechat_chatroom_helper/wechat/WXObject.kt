@@ -2,23 +2,57 @@ package com.zdy.project.wechat_chatroom_helper.wechat
 
 object WXObject {
 
-    val LauncherUI = "com.tencent.mm.ui.LauncherUI"
-    val FitSystemWindowLayoutView = "com.tencent.mm.ui.HomeUI\$FitSystemWindowLayoutView"
+
+    object Message {
+
+        object C {
+            const val SQLiteDatabase = "com.tencent.wcdb.database.SQLiteDatabase"
+            const val SQLiteDatabaseCursorFactory = "com.tencent.wcdb.database.SQLiteDatabase\$CursorFactory"
+            const val SQLiteErrorHandler = "com.tencent.wcdb.DatabaseErrorHandler"
+            const val SQLiteCancellationSignal = "com.tencent.wcdb.support.CancellationSignal"
+        }
+    }
 
 
-    val SQLiteDatabase = "com.tencent.wcdb.database.SQLiteDatabase"
-    val SQLiteDatabaseCursorFactory = "com.tencent.wcdb.database.SQLiteDatabase\$CursorFactory"
-    val SQLiteErrorHandler = "com.tencent.wcdb.DatabaseErrorHandler"
-    val SQLiteCancellationSignal = "com.tencent.wcdb.support.CancellationSignal"
+    object MainUI {
+
+        object M {
+            const val DispatchKeyEventOfLauncherUI = "dispatchKeyEvent"
+            const val OnCreate = "onCreate"
+            const val StartChattingOfLauncherUI = "startChatting"
+            const val CloseChattingOfLauncherUI = "closeChatting"
+        }
+
+        object C {
+            const val LauncherUI = "com.tencent.mm.ui.LauncherUI"
+            const val FitSystemWindowLayoutView = "com.tencent.mm.ui.HomeUI\$FitSystemWindowLayoutView"
+        }
+
+    }
 
 
-    var ConversationWithCacheAdapter = ""
-    var ConversationWithAppBrandListView = ""
-    var ConversationClickListener = ""
-    var ConversationAvatar = ""
-    var ConversationAvatarMethod = ""
-    var ConversationTimeStringMethod = ""
+    object Adapter {
 
-    var Logcat = ""
+        object C {
+            var ConversationWithCacheAdapter = ""
+            var ConversationWithAppBrandListView = ""
+            var ConversationAvatar = ""
+            var ConversationClickListener = ""
+        }
+
+    }
+
+
+    object Tool{
+
+        object C {
+
+            var Logcat = ""
+        }
+
+    }
+
+
+
 
 }

@@ -13,6 +13,7 @@ import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
+import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
 
@@ -35,25 +36,20 @@ object MainAdapter {
 
     fun executeHook() {
 
-        val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.ConversationWithCacheAdapter, PluginEntry.classloader)
-        val conversationWithAppBrandListView = XposedHelpers.findClass(WXObject.ConversationWithAppBrandListView, PluginEntry.classloader)
-        val conversationClickListener = XposedHelpers.findClass(WXObject.ConversationClickListener, PluginEntry.classloader)
-
-        val conversationWithCacheAdapter_getItem = conversationWithCacheAdapter
-                .superclass
-                .declaredMethods.filter {
-            it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java
-        }.firstOrNull { it.name != "getItem" && it.name != "getItemId" }?.name
+        val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithCacheAdapter, PluginEntry.classloader)
+        val conversationWithAppBrandListView = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithAppBrandListView, PluginEntry.classloader)
+        val conversationClickListener = XposedHelpers.findClass(WXObject.Adapter.C.ConversationClickListener, PluginEntry.classloader)
+        val conversationWithCacheAdapter_getItem = conversationWithCacheAdapter.superclass.declaredMethods
+                .filter { it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java }
+                .firstOrNull { it.name != "getItem" && it.name != "getItemId" }?.name
 
 
-
-        XposedBridge.hookAllConstructors(conversationWithCacheAdapter, object : XC_MethodHook() {
+        hookAllConstructors(conversationWithCacheAdapter, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 val adapter = param.thisObject as? BaseAdapter ?: return
                 originAdapter = adapter
             }
         })
-
 
         findAndHookMethod(conversationWithAppBrandListView, "setAdapter", ListAdapter::class.java, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {

@@ -10,17 +10,22 @@ import java.lang.reflect.ParameterizedType
 
 object ConversationItemHandler {
 
-    private val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.ConversationWithCacheAdapter, PluginEntry.classloader)
-    private val conversationAvatar = XposedHelpers.findClass(WXObject.ConversationAvatar, PluginEntry.classloader)
+    private val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithCacheAdapter, PluginEntry.classloader)
+    private val conversationAvatar = XposedHelpers.findClass(WXObject.Adapter.C.ConversationAvatar, PluginEntry.classloader)
 
-    private val conversationTimeStringMethod = conversationWithCacheAdapter.declaredMethods.first { it.name == WXObject.ConversationTimeStringMethod }
-    private val conversationAvatarMethod = conversationAvatar.methods.first { it.name == WXObject.ConversationAvatarMethod }
+    private val conversationTimeStringMethod = conversationWithCacheAdapter.declaredMethods
+            .filter { !it.isAccessible }.filter { it.returnType == CharSequence::class.java }
+            .first { it.parameterTypes.size == 1 }
+
+    private val conversationAvatarMethod = conversationAvatar.methods
+            .first { it.parameterTypes.isNotEmpty() && it.parameterTypes[0].name == ImageView::class.java.name }
+
+    private val aeClass = ((conversationWithCacheAdapter.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>)
 
     fun getConversationTimeString(adapter: Any, conversationTime: Long): CharSequence {
 
         conversationTimeStringMethod.let {
 
-            val aeClass = XposedHelpers.findClass(it.parameterTypes[0].name, PluginEntry.classloader)
             val constructor = aeClass.constructors.filter { it.parameterTypes.size == 1 }.firstOrNull { it.parameterTypes[0] == String::class.java }
 
             constructor?.let {
@@ -41,16 +46,7 @@ object ConversationItemHandler {
 
     fun getConversationContent(adapter: Any, chatInfoModel: ChatInfoModel, position: Int): CharSequence? {
 
-
-        val conversationWithCacheAdapter1 =
-                XposedHelpers.findClass(WXObject.ConversationWithCacheAdapter, PluginEntry.classloader)
-        val parameterizedType =
-                conversationWithCacheAdapter1.genericSuperclass as ParameterizedType
-        val typeArguments = parameterizedType.actualTypeArguments
-
-        val aeClass = (typeArguments[1] as Class<*>)
-
-        val getContentMethod = conversationWithCacheAdapter1.declaredMethods
+        val getContentMethod = conversationWithCacheAdapter.declaredMethods
                 .filter { it.parameterTypes.size == 3 }
                 .single {
                     it.parameterTypes[0].simpleName == aeClass.simpleName &&
@@ -75,7 +71,6 @@ object ConversationItemHandler {
         aeClass.getField("field_atCount").set(ae, chatInfoModel.atCount)
 
         val content = XposedHelpers.callMethod(adapter, getContentMethod.name, ae, position, true) as CharSequence
-
 
         LogUtils.log("getConversationContent,  content =  $content")
 

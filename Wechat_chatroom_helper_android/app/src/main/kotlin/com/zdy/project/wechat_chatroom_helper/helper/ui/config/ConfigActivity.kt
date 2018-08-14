@@ -11,7 +11,6 @@ import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.WXClassParser
-import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import dalvik.system.DexClassLoader
 import net.dongliu.apk.parser.ApkFile
 import java.io.File
@@ -26,6 +25,8 @@ class ConfigActivity : AppCompatActivity() {
     private var parseThread: Thread? = null
 
     private lateinit var textHandler: TextHandler
+
+    private var configHashMap = hashMapOf<String, String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,13 +86,11 @@ class ConfigActivity : AppCompatActivity() {
                             textHandler.sendMessage(Message.obtain(textHandler, 0, "遍历了${index + 1}个类，已经加载了 ${classes.size}个类"))
                         }
 
-                WXObject.ConversationAvatar = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
-                WXObject.ConversationAvatarMethod = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatarMethod(classes))
-                WXObject.ConversationWithAppBrandListView = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithAppBrandListView(classes))
-                WXObject.ConversationWithCacheAdapter = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
-                WXObject.ConversationClickListener = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
-                WXObject.ConversationTimeStringMethod = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationTimeMethod(classes))
-                WXObject.Logcat = parseAnnotatedElementToName(WXClassParser.Platformtool.getLogcat(classes))
+                configHashMap["conversationWithCacheAdapter"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
+                configHashMap["conversationWithAppBrandListView"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithAppBrandListView(classes))
+                configHashMap["conversationAvatar"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
+                configHashMap["conversationClickListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
+                configHashMap["logcat"] = parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
 
                 writeNewConfig()
 
@@ -112,26 +111,16 @@ class ConfigActivity : AppCompatActivity() {
                 is Class<*> -> element.name
                 else -> ""
             }
-
         }
     }
 
     private fun writeNewConfig() {
-        AppSaveInfo.addConfigItem("conversationAvatar", WXObject.ConversationAvatar)
-        AppSaveInfo.addConfigItem("conversationAvatarMethod", WXObject.ConversationAvatarMethod)
-        AppSaveInfo.addConfigItem("conversationWithAppBrandListView", WXObject.ConversationWithAppBrandListView)
-        AppSaveInfo.addConfigItem("conversationWithCacheAdapter", WXObject.ConversationWithCacheAdapter)
-        AppSaveInfo.addConfigItem("conversationClickListener", WXObject.ConversationClickListener)
-        AppSaveInfo.addConfigItem("conversationTimeStringMethod", WXObject.ConversationTimeStringMethod)
-        AppSaveInfo.addConfigItem("logcat", WXObject.Logcat)
-
+        configHashMap.forEach { k, v -> AppSaveInfo.addConfigItem(k, v) }
     }
 
     inner class TextHandler : Handler() {
         override fun handleMessage(msg: Message) {
-            text1.setText(msg.obj as String)
-
+            text1.text = msg.obj as String
         }
     }
-
 }

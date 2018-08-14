@@ -38,13 +38,12 @@ class PluginEntry : IXposedHookLoadPackage {
             WechatJsonUtils.getFileString()
             val configJson = AppSaveInfo.getConfigJson()
 
-            WXObject.ConversationAvatar = configJson.get("conversationAvatar").asString
-            WXObject.ConversationAvatarMethod = configJson.get("conversationAvatarMethod").asString
-            WXObject.ConversationWithAppBrandListView = configJson.get("conversationWithAppBrandListView").asString
-            WXObject.ConversationWithCacheAdapter = configJson.get("conversationWithCacheAdapter").asString
-            WXObject.ConversationClickListener = configJson.get("conversationClickListener").asString
-            WXObject.ConversationTimeStringMethod = configJson.get("conversationTimeStringMethod").asString
-            WXObject.Logcat = configJson.get("logcat").asString
+            WXObject.Adapter.C.ConversationWithAppBrandListView = configJson.get("conversationWithAppBrandListView").asString
+            WXObject.Adapter.C.ConversationWithCacheAdapter = configJson.get("conversationWithCacheAdapter").asString
+            WXObject.Adapter.C.ConversationAvatar = configJson.get("conversationAvatar").asString
+            WXObject.Adapter.C.ConversationClickListener = configJson.get("conversationClickListener").asString
+
+            WXObject.Tool.C.Logcat = configJson.get("logcat").asString
 
 
             MessageHandler.executeHook()

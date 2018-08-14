@@ -57,11 +57,11 @@ object MessageHandler {
     fun executeHook() {
 
         val database =
-                XposedHelpers.findClass(WXObject.SQLiteDatabase, PluginEntry.classloader)
+                XposedHelpers.findClass(WXObject.Message.C.SQLiteDatabase, PluginEntry.classloader)
         val databaseFactory =
-                XposedHelpers.findClass(WXObject.SQLiteDatabaseCursorFactory, PluginEntry.classloader)
+                XposedHelpers.findClass(WXObject.Message.C.SQLiteDatabaseCursorFactory, PluginEntry.classloader)
         val databaseCancellationSignal =
-                XposedHelpers.findClass(WXObject.SQLiteCancellationSignal, PluginEntry.classloader)
+                XposedHelpers.findClass(WXObject.Message.C.SQLiteCancellationSignal, PluginEntry.classloader)
 
         val queryHook = object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -115,8 +115,8 @@ object MessageHandler {
 //                        ") " +
                                 "order by flag desc"
 
-                        PluginEntry.chatRoomViewPresenter?.run { presenterView.post { setListInAdapterPositions(arrayListOf()) } }
-                        PluginEntry.officialViewPresenter?.run { presenterView.post { setListInAdapterPositions(arrayListOf()) } }
+                        PluginEntry.chatRoomViewPresenter.run { presenterView.post { setListInAdapterPositions(arrayListOf()) } }
+                        PluginEntry.officialViewPresenter.run { presenterView.post { setListInAdapterPositions(arrayListOf()) } }
 
                         val result = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, sqlForAllConversationAndEntry, selectionArgs, editTable, cancellation)
 

@@ -13,13 +13,19 @@ object LogRecord {
 
     fun executeHook() {
 
-        val logcatClass = XposedHelpers.findClass(WXObject.Logcat, PluginEntry.classloader)
+        val logcatClass = XposedHelpers.findClass(WXObject.Tool.C.Logcat, PluginEntry.classloader)
         val logcatLogMethods = findMethodsByExactParameters(logcatClass, null, String::class.java, String::class.java, Array<Any>::class.java)
 
 
         logcatLogMethods.forEach { method ->
-            val parameterTypes = method.parameterTypes
+            val parameterTypes = method.parameterTypes.toMutableList().also { list ->
+                if (list.size == 3) {
+                    list.removeAt(2)
+                    list.add(Array<Any>::class.java)
+                }
+            }
             Log.e("parameterTypes", parameterTypes.joinToString { it.toString() })
+
             findAndHookMethod(logcatClass, method.name, parameterTypes, object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
 
