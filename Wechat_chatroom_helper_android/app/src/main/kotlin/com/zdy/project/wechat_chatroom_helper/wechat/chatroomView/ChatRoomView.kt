@@ -163,7 +163,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         //  mAdapter.muteListInAdapterPositions = muteListInAdapterPositions
         //  mAdapter.data = data
 
-        val newDatas = if (pageType == PageType.CHAT_ROOMS) MessageFactory.getAllChatroom() else MessageFactory.getAllOfficial()
+        val newDatas = if (pageType == PageType.CHAT_ROOMS) MessageFactory.getAllChatRoom() else MessageFactory.getAllOfficial()
         val oldDatas = mAdapter.data
 
         val diffResult = DiffUtil.calculateDiff(DiffCallBack(newDatas, oldDatas), true)

@@ -19,14 +19,22 @@ import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 @SuppressWarnings("ResourceType")
 object ChatRoomViewHelper {
 
-    @IdRes  val id_avatar_container = 7
-    @IdRes  val id_avatar = 1
-    @IdRes  val id_nickname = 2
-    @IdRes  val id_time = 3
-    @IdRes  val id_msg_state = 4
-    @IdRes  val id_content = 5
-    @IdRes  val id_unread = 6
-    @IdRes  val id_divider = 8
+    @IdRes
+    val id_avatar_container = 7
+    @IdRes
+    val id_avatar = 1
+    @IdRes
+    val id_nickname = 2
+    @IdRes
+    val id_time = 3
+    @IdRes
+    val id_msg_state = 4
+    @IdRes
+    val id_content = 5
+    @IdRes
+    val id_unread = 6
+    @IdRes
+    val id_divider = 8
 
 
     fun getItemView(mContext: Context): View {
@@ -103,7 +111,7 @@ object ChatRoomViewHelper {
         content.setSingleLine()
 
         contentContainer.addView(msgState, msgStateParams)
-        contentContainer.addView(content)
+        contentContainer.addView(content, RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ScreenUtils.dip2px(mContext, 14f)))
 
         val unReadParams = RelativeLayout.LayoutParams(ScreenUtils.dip2px(mContext, 10f), ScreenUtils.dip2px(mContext, 10f))
         unReadParams.addRule(RelativeLayout.ALIGN_RIGHT, avatarContainer.id)

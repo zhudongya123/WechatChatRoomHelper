@@ -2,7 +2,6 @@ package com.zdy.project.wechat_chatroom_helper.plugins.message
 
 import android.content.ContentValues
 import android.database.Cursor
-import android.util.Log
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.MessageEventNotifyListener
 import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
@@ -16,29 +15,44 @@ import de.robv.android.xposed.XposedHelpers
 object MessageHandler {
 
     //查询当前第一个服务号会话信息
-    private const val SqlForGetFirstOfficial = "select rconversation.username, flag from rconversation,rcontact where ( rcontact.username = rconversation.username and rcontact.verifyFlag = 24) and ( parentRef is null  or parentRef = '' )  and ( 1 !=1 or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  and rconversation.username != 'qmessage' order by flag desc limit 1"
+    private const val SqlForGetFirstOfficial = "select rconversation.username, flag from rconversation,rcontact " +
+            "where ( rcontact.username = rconversation.username and rcontact.verifyFlag = 24) and ( parentRef is null  or parentRef = '' )  " +
+            "and ( 1 !=1 or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  " +
+            "and rconversation.username != 'qmessage' order by flag desc limit 1"
 
     //查询当前第一个群聊会话信息
     private const val SqlForGetFirstChatroom = "select username, flag from rconversation where  username like '%@chatroom' order by flag desc limit 1"
+
+
+    private const val KeyWordFilterAllConversation1 = "UnReadInvite"
+    private const val KeyWordFilterAllConversation2 = "by flag desc"
+
+    private var sqlForAllContactConversation = "select unReadCount, status, isSend, conversationTime, rconversation.username, " +
+            "content, msgType, flag, digest, digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite " +
+            "from rconversation, rcontact where  ( parentRef is null  or parentRef = ''  ) " +
+            "and ( rconversation.username = rcontact.username and rcontact.verifyFlag = 0 ) " +
+            "and ( 1 != 1 or rconversation.username like '%@openim' or rconversation.username not like '%@%'  ) " +
+            "and rconversation.username != 'qmessage' " +
+            "order by flag desc"
+
+    private const val MessageDBName = "EnMicroMsg.db"
 
     //查询所有会话信息的筛选关键字
     private val SqlForAllConversationList =
             arrayOf("select unReadCount, status, isSend, conversationTime, username, content, msgType",
                     "digest, digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite",
                     "( parentRef is null  or parentRef = '' )",
-                    "( 1 != 1  or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )",
+                    "( 1 != 1  or rconversation.username like '%@chatroom' or rconversation.username " +
+                            "like '%@openim' or rconversation.username not like '%@%' )",
                     "and rconversation.username != 'qmessage'",
                     "order by flag desc")
 
-    private const val KeyWordFilterAllConversation1 = "UnReadInvite"
-    private const val KeyWordFilterAllConversation2 = "by flag desc"
 
-    private const val MessageDBName = "EnMicroMsg.db"
+    private fun isQueryAllConversation(sql: String) = SqlForAllConversationList.all { sql.contains(it) }
 
 
     var MessageDatabaseObject: Any? = null
 
-    var sqlForAllConversationAndEntry = ""
 
     private var iMainAdapterRefreshes = ArrayList<MessageEventNotifyListener>()
 
@@ -51,14 +65,16 @@ object MessageHandler {
      */
     private fun refreshEntryUsername(thisObject: Any): Pair<String, String> {
 
-        val cursorForOfficial = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", MessageFactory.getDataBaseFactory(thisObject), SqlForGetFirstOfficial, null, null) as Cursor
-        val cursorForChatroom = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", MessageFactory.getDataBaseFactory(thisObject), SqlForGetFirstChatroom, null, null) as Cursor
+        val cursorForOfficial = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY,
+                MessageFactory.getDataBaseFactory(thisObject), SqlForGetFirstOfficial, null, null) as Cursor
+        val cursorForChatRoom = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY,
+                MessageFactory.getDataBaseFactory(thisObject), SqlForGetFirstChatroom, null, null) as Cursor
 
         cursorForOfficial.moveToNext()
         val firstOfficialUsername = cursorForOfficial.getString(0)
 
-        cursorForChatroom.moveToNext()
-        val firstChatRoomUsername = cursorForChatroom.getString(0)
+        cursorForChatRoom.moveToNext()
+        val firstChatRoomUsername = cursorForChatRoom.getString(0)
 
         return Pair(firstOfficialUsername, firstChatRoomUsername)
     }
@@ -93,7 +109,8 @@ object MessageHandler {
                 if (!sql.contains(KeyWordFilterAllConversation1)) return
                 if (!sql.contains(KeyWordFilterAllConversation2)) return
 
-                if (SqlForAllConversationList.all { sql.contains(it) }) {
+                //如果本次查询是查询全部回话时，修改返回结果为全部联系人回话（不包括服务号和群聊）
+                if (isQueryAllConversation(sql)) {
 
                     try {
                         XposedBridge.log("MessageHooker2.10, QUERY ALL CONVERSATION")
@@ -101,44 +118,25 @@ object MessageHandler {
                         val (firstOfficialUsername, firstChatRoomUsername) = refreshEntryUsername(thisObject)
                         iMainAdapterRefreshes.forEach { it.onEntryInit(firstChatRoomUsername, firstOfficialUsername) }
 
-                        sqlForAllConversationAndEntry = "select unReadCount, status, isSend, conversationTime, rconversation.username, " +
-                                "content, msgType, flag, digest, digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite " +
-                                "from rconversation, rcontact where  ( parentRef is null  or parentRef = ''  ) " +
-                                "and " +
-//                        "(" +
-                                "(" +
-                                "rconversation.username = rcontact.username and rcontact.verifyFlag = 0" +
-                                ") " +
-//                        "or ( " +
-//                        "rconversation.username = rcontact.username and rcontact.username = '" + firstOfficialUsername + "'" +
-//                        ")" +
-//                        ") " +
-                                "and ( " +
-                                "1 != 1 or rconversation.username like '%@openim' or rconversation.username not like '%@%' " +
-                                ") and " +
-                                "rconversation.username != 'qmessage' " +
-//                        "or (" +
-//                        "rconversation.username = rcontact.username " +
-//                        "and  " +
-//                        "rcontact.username = '" + firstChatRoomUsername + "'" +
-//                        ") " +
-                                "order by flag desc"
-
                         PluginEntry.chatRoomViewPresenter.run { presenterView.post { setListInAdapterPositions(arrayListOf()) } }
                         PluginEntry.officialViewPresenter.run { presenterView.post { setListInAdapterPositions(arrayListOf()) } }
 
-                        val result = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, sqlForAllConversationAndEntry, selectionArgs, editTable, cancellation)
+                        val result = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, sqlForAllContactConversation, selectionArgs, editTable, cancellation)
 
                         param.result = result
 
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
-                } else if (sql == sqlForAllConversationAndEntry) {
+                }
+                //当请求全部联系人回话时
+                //确定服务号和群聊的入口位置
+                else if (sql == sqlForAllContactConversation) {
 
-                    val cursorForOfficial = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, SqlForGetFirstOfficial, null, null) as Cursor
-                    val cursorForChatroom = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", factory, SqlForGetFirstChatroom, null, null) as Cursor
 
+                    //额外查询两次，找到当前最新的服务号和群聊的最近消息时间
+                    val cursorForOfficial = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, SqlForGetFirstOfficial, null, null) as Cursor
+                    val cursorForChatRoom = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, SqlForGetFirstChatroom, null, null) as Cursor
 
                     var firstOfficialFlag: Long = 0
                     var firstChatRoomFlag: Long = 0
@@ -146,16 +144,11 @@ object MessageHandler {
                     try {
                         cursorForOfficial.moveToNext()
                         firstOfficialFlag = cursorForOfficial.getLong(cursorForOfficial.getColumnIndex("flag"))
+
+                        cursorForChatRoom.moveToNext()
+                        firstChatRoomFlag = cursorForChatRoom.getLong(cursorForChatRoom.getColumnIndex("flag"))
                     } catch (e: Exception) {
                         e.printStackTrace()
-                    }
-
-                    try {
-                        cursorForChatroom.moveToNext()
-                        firstChatRoomFlag = cursorForChatroom.getLong(cursorForChatroom.getColumnIndex("flag"))
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-
                     }
 
                     val cursor = param.result as Cursor
@@ -163,48 +156,21 @@ object MessageHandler {
                     var officialPosition = -1
                     var chatRoomPosition = -1
 
+                    //根据时间先后排序，确定入口的位置
                     while (cursor.moveToNext()) {
 
-                        //   val nickname = cursor.getString(cursor.columnNames.indexOf("username"))
-
-//                val chatInfoModel = ChatInfoModel().also {
-//                    it.nickname = nickname
-//                    it.time = cursor.getString(cursor.columnNames.indexOf("conversationTime"))
-//                    it.unReadCount = cursor.getInt(cursor.columnNames.indexOf("unReadCount"))
-//                    it.content = cursor.getString(cursor.columnNames.indexOf("digest"))
-//                    it.avatarString = cursor.getString(cursor.columnNames.indexOf("unReadMuteCount"))
-//                }
-//                XposedBridge.log("MessageHooker2.5,nickname = $nickname, cursor.position = ${cursor.position}, $firstOfficialNickname, $firstChatRoomNickname")
-
                         val flag = cursor.getLong(cursor.columnNames.indexOf("flag"))
-
 
                         if (flag < firstOfficialFlag && officialPosition == -1) {
                             officialPosition = cursor.position
                         }
 
-
                         if (flag < firstChatRoomFlag && chatRoomPosition == -1) {
                             chatRoomPosition = cursor.position
                         }
-
-
-//                if (nickname == firstOfficialNickname) {
-//                    //    officialChatInfoModel = chatInfoModel
-//                    officialPosition = cursor.position
-//
-//                    XposedBridge.log("MessageHooker2.5,找到了第一个公众号 firstOfficialInfoModel = $nickname, cursor.position = ${cursor.position}")
-//
-//                }
-//
-//                if (nickname == firstChatRoomNickname) {
-//                    //   chatRoomChatInfoModel = chatInfoModel
-//                    chatRoomPosition = cursor.position
-//
-//                    XposedBridge.log("MessageHooker2.5,找到了第一个聊天 firstChatRoomNickname = $nickname, cursor.position = ${cursor.position}")
-//                }
                     }
 
+                    //根据入口先后调整插入的位置
                     if (officialPosition != -1 && chatRoomPosition != -1) {
                         if (officialPosition > chatRoomPosition) {
                             officialPosition += 1
@@ -217,23 +183,17 @@ object MessageHandler {
 
                     iMainAdapterRefreshes.forEach { it.onEntryPositionChanged(chatRoomPosition, officialPosition) }
 
-
-//            XposedBridge.log("MessageHooker2, firstChatroomPosition = $chatRoomPosition, firstChatRoomNickname = $firstChatRoomNickname \n")
-//            XposedBridge.log("MessageHooker2, firstOfficialPosition = $officialPosition, firstOfficialNickname = $firstOfficialNickname \n")
-
-//            iMainAdapterRefreshes.forEach { it.onEntryRefresh(chatRoomPosition, chatRoomChatInfoModel, officialPosition, officialChatInfoModel) }
-
+                    //恢复数据库游标为起始位置
                     cursor.move(0)
-
                 }
 
             }
         }
-        XposedHelpers.findAndHookMethod(database, "rawQueryWithFactory", databaseFactory,
+        XposedHelpers.findAndHookMethod(database, WXObject.Message.M.QUERY, databaseFactory,
                 String::class.java, Array<String>::class.java, String::class.java,
                 databaseCancellationSignal, queryHook)
 
-        XposedHelpers.findAndHookMethod(database, "insertWithOnConflict",
+        XposedHelpers.findAndHookMethod(database, WXObject.Message.M.INSERT,
                 String::class.java, String::class.java, ContentValues::class.java, Int::class.java,
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
@@ -267,7 +227,7 @@ object MessageHandler {
                         }
                     }
                 })
-        XposedHelpers.findAndHookMethod(database, "updateWithOnConflict",
+        XposedHelpers.findAndHookMethod(database, WXObject.Message.M.UPDATE,
                 String::class.java, ContentValues::class.java, String::class.java,
                 Array<String>::class.java, Int::class.java,
                 object : XC_MethodHook() {

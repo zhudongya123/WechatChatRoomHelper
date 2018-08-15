@@ -11,6 +11,12 @@ object WXObject {
             const val SQLiteErrorHandler = "com.tencent.wcdb.DatabaseErrorHandler"
             const val SQLiteCancellationSignal = "com.tencent.wcdb.support.CancellationSignal"
         }
+
+        object M{
+            const val QUERY = "rawQueryWithFactory"
+            const val INSERT = "insertWithOnConflict"
+            const val UPDATE = "updateWithOnConflict"
+        }
     }
 
 

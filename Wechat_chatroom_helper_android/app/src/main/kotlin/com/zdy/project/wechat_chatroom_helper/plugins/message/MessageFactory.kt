@@ -2,6 +2,8 @@ package com.zdy.project.wechat_chatroom_helper.plugins.message
 
 import android.database.Cursor
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.LogUtils
+import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import de.robv.android.xposed.XposedHelpers
 
 object MessageFactory {
@@ -13,7 +15,7 @@ object MessageFactory {
             "and ( 1 !=1 or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  " +
             "and rconversation.username != 'qmessage' order by flag desc"
 
-    private const val SqlForGetAllChatroom = "select unReadCount, status, isSend, conversationTime, " +
+    private const val SqlForGetAllChatRoom = "select unReadCount, status, isSend, conversationTime, " +
             "rconversation.username, rcontact.nickname, content, msgType, digest, digestUser, attrflag, editingMsg, " +
             "atCount, unReadMuteCount, UnReadInvite from rconversation, rcontact " +
             "where  rcontact.username = rconversation.username and  rconversation.username like '%@chatroom' order by flag desc"
@@ -29,20 +31,23 @@ object MessageFactory {
     fun getDataBaseFactory(any: Any) = XposedHelpers.findField(any::class.java, "mCursorFactory").apply { isAccessible = true }.get(any)
 
 
-    fun getAllChatroom(): ArrayList<ChatInfoModel> {
+    fun getAllChatRoom(): ArrayList<ChatInfoModel> {
 
-        val cursor = XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, "rawQuery", SqlForGetAllChatroom, null) as Cursor
+        val cursor = XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, "rawQuery", SqlForGetAllChatRoom, null) as Cursor
 
         val list = arrayListOf<ChatInfoModel>()
 
         while (cursor.moveToNext()) {
             list.add(buildChatInfoModelByCursor(cursor))
         }
+
+        LogUtils.log("getAllChatRoom" + list.joinToString { "unReadCount = " + it.unReadCount + " ,unReadMuteCount = " + it.unReadMuteCount })
+
         return list
     }
 
     fun getSingle(field_username: String) =
-            buildChatInfoModelByCursor((XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, "rawQueryWithFactory",
+            buildChatInfoModelByCursor((XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, WXObject.Message.M.QUERY,
                     getDataBaseFactory(MessageHandler.MessageDatabaseObject!!), SqlForByUsername(field_username), null, null) as Cursor).apply { moveToNext() })
 
 
@@ -54,6 +59,8 @@ object MessageFactory {
         while (cursor.moveToNext()) {
             list.add(buildChatInfoModelByCursor(cursor))
         }
+
+        LogUtils.log("getAllOfficial" + list.joinToString { "unReadCount = " + it.unReadCount + " ,unReadMuteCount = " + it.unReadMuteCount })
         return list
     }
 
