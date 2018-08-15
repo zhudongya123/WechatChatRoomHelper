@@ -41,7 +41,7 @@ object MessageFactory {
             list.add(buildChatInfoModelByCursor(cursor))
         }
 
-        LogUtils.log("getAllChatRoom" + list.joinToString { "unReadCount = " + it.unReadCount + " ,unReadMuteCount = " + it.unReadMuteCount })
+        LogUtils.log("getAllChatRoom " + list.joinToString { it.toString() + "\n" })
 
         return list
     }
@@ -60,7 +60,7 @@ object MessageFactory {
             list.add(buildChatInfoModelByCursor(cursor))
         }
 
-        LogUtils.log("getAllOfficial" + list.joinToString { "unReadCount = " + it.unReadCount + " ,unReadMuteCount = " + it.unReadMuteCount })
+        LogUtils.log("getAllOfficial " + list.joinToString { it.toString() + "\n" })
         return list
     }
 
