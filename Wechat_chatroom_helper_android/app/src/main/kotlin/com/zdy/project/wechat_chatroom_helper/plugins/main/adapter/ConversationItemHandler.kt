@@ -20,19 +20,19 @@ object ConversationItemHandler {
     private val conversationAvatarMethod = conversationAvatar.methods
             .first { it.parameterTypes.isNotEmpty() && it.parameterTypes[0].name == ImageView::class.java.name }
 
-    private val aeClass = ((conversationWithCacheAdapter.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>)
+    private val beanClass = ((conversationWithCacheAdapter.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>)
 
     fun getConversationTimeString(adapter: Any, conversationTime: Long): CharSequence {
 
         conversationTimeStringMethod.let {
 
-            val constructor = aeClass.constructors.filter { it.parameterTypes.size == 1 }.firstOrNull { it.parameterTypes[0] == String::class.java }
+            val constructor = beanClass.constructors.filter { it.parameterTypes.size == 1 }.firstOrNull { it.parameterTypes[0] == String::class.java }
 
             constructor?.let {
                 val obj = constructor.newInstance("")
 
-                aeClass.getField("field_status").set(obj, 0)
-                aeClass.getField("field_conversationTime").set(obj, conversationTime)
+                beanClass.getField("field_status").set(obj, 0)
+                beanClass.getField("field_conversationTime").set(obj, conversationTime)
 
                 return XposedHelpers.callMethod(adapter, conversationTimeStringMethod.name, obj) as CharSequence
             }
@@ -49,26 +49,26 @@ object ConversationItemHandler {
         val getContentMethod = conversationWithCacheAdapter.declaredMethods
                 .filter { it.parameterTypes.size == 3 }
                 .single {
-                    it.parameterTypes[0].simpleName == aeClass.simpleName &&
+                    it.parameterTypes[0].simpleName == beanClass.simpleName &&
                             it.parameterTypes[1].simpleName == Int::class.java.simpleName &&
                             it.parameterTypes[2].simpleName == Boolean::class.java.simpleName
                 }
 
-        val aeConstructor = aeClass.constructors.filter { it.parameterTypes.size == 1 }.firstOrNull { it.parameterTypes[0] == String::class.java }!!
+        val aeConstructor = beanClass.constructors.filter { it.parameterTypes.size == 1 }.firstOrNull { it.parameterTypes[0] == String::class.java }!!
         val ae = aeConstructor.newInstance(chatInfoModel.username)
 
-        aeClass.getField("field_editingMsg").set(ae, chatInfoModel.editingMsg)
-        aeClass.getField("field_atCount").set(ae, chatInfoModel.atCount)
-        aeClass.getField("field_unReadCount").set(ae, chatInfoModel.unReadCount)
-        aeClass.getField("field_unReadMuteCount").set(ae, chatInfoModel.unReadMuteCount)
-        aeClass.getField("field_msgType").set(ae, chatInfoModel.msgType)
-        aeClass.getField("field_username").set(ae, chatInfoModel.username)
-        aeClass.getField("field_content").set(ae, chatInfoModel.content)
-        aeClass.getField("field_digest").set(ae, chatInfoModel.digest)
-        aeClass.getField("field_digestUser").set(ae, chatInfoModel.digestUser)
-        aeClass.getField("field_isSend").set(ae, chatInfoModel.isSend)
-        aeClass.getField("field_UnReadInvite").set(ae, chatInfoModel.UnReadInvite)
-        aeClass.getField("field_atCount").set(ae, chatInfoModel.atCount)
+        beanClass.getField("field_editingMsg").set(ae, chatInfoModel.editingMsg)
+        beanClass.getField("field_atCount").set(ae, chatInfoModel.atCount)
+        beanClass.getField("field_unReadCount").set(ae, chatInfoModel.unReadCount)
+        beanClass.getField("field_unReadMuteCount").set(ae, chatInfoModel.unReadMuteCount)
+        beanClass.getField("field_msgType").set(ae, chatInfoModel.msgType)
+        beanClass.getField("field_username").set(ae, chatInfoModel.username)
+        beanClass.getField("field_content").set(ae, chatInfoModel.content)
+        beanClass.getField("field_digest").set(ae, chatInfoModel.digest)
+        beanClass.getField("field_digestUser").set(ae, chatInfoModel.digestUser)
+        beanClass.getField("field_isSend").set(ae, chatInfoModel.isSend)
+        beanClass.getField("field_UnReadInvite").set(ae, chatInfoModel.UnReadInvite)
+        beanClass.getField("field_atCount").set(ae, chatInfoModel.atCount)
 
         val content = XposedHelpers.callMethod(adapter, getContentMethod.name, ae, position, true) as CharSequence
 

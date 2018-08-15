@@ -131,10 +131,10 @@ object MainAdapter {
                         val position = param.args[0] as Int
 
                         if (param.result != null)
-                            refreshEntryView(param.result as View, position)
+                            refreshEntryView(param.result as View, position, param)
                     }
 
-                    private fun refreshEntryView(view: View?, position: Int) {
+                    private fun refreshEntryView(view: View?, position: Int, param: MethodHookParam) {
                         val itemView = view as ViewGroup
 
                         val avatarContainer = itemView.getChildAt(0) as ViewGroup
@@ -159,6 +159,7 @@ object MainAdapter {
                             setTextForNoMeasuredTextView(content, "")
                             avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.CHAT_ROOMS)) }
                             setTextForNoMeasuredTextView(time, ConversationItemHandler.getConversationTimeString(originAdapter, MessageFactory.getSingle(firstChatroomUserName).conversationTime))
+                            param.result = view
 
                         }
                         if (position == firstOfficialPosition) {
@@ -166,10 +167,11 @@ object MainAdapter {
                             setTextForNoMeasuredTextView(content, "")
                             avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.OFFICIAL)) }
                             setTextForNoMeasuredTextView(time, ConversationItemHandler.getConversationTimeString(originAdapter, MessageFactory.getSingle(firstOfficialUserName).conversationTime))
+
+                            param.result = view
+
                         }
-
                     }
-
                 })
 
 

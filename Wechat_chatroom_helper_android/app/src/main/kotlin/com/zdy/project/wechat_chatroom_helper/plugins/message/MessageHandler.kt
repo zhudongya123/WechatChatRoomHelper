@@ -15,9 +15,13 @@ import de.robv.android.xposed.XposedHelpers
  */
 object MessageHandler {
 
+    //查询当前第一个服务号会话信息
     private const val SqlForGetFirstOfficial = "select rconversation.username, flag from rconversation,rcontact where ( rcontact.username = rconversation.username and rcontact.verifyFlag = 24) and ( parentRef is null  or parentRef = '' )  and ( 1 !=1 or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  and rconversation.username != 'qmessage' order by flag desc limit 1"
+
+    //查询当前第一个群聊会话信息
     private const val SqlForGetFirstChatroom = "select username, flag from rconversation where  username like '%@chatroom' order by flag desc limit 1"
 
+    //查询所有会话信息的筛选关键字
     private val SqlForAllConversationList =
             arrayOf("select unReadCount, status, isSend, conversationTime, username, content, msgType",
                     "digest, digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite",
@@ -28,6 +32,8 @@ object MessageHandler {
 
     private const val KeyWordFilterAllConversation1 = "UnReadInvite"
     private const val KeyWordFilterAllConversation2 = "by flag desc"
+
+    private const val MessageDBName = "EnMicroMsg.db"
 
 
     var MessageDatabaseObject: Any? = null
@@ -40,6 +46,9 @@ object MessageHandler {
         iMainAdapterRefreshes.add(messageEventNotifyListener)
     }
 
+    /**
+     * 查询并保存服务号和群聊的入口
+     */
     private fun refreshEntryUsername(thisObject: Any): Pair<String, String> {
 
         val cursorForOfficial = XposedHelpers.callMethod(thisObject, "rawQueryWithFactory", MessageFactory.getDataBaseFactory(thisObject), SqlForGetFirstOfficial, null, null) as Cursor
@@ -75,7 +84,7 @@ object MessageHandler {
 
                 val path = thisObject.toString()
 
-                if (path.endsWith("EnMicroMsg.db")) {
+                if (path.endsWith(MessageDBName)) {
                     if (MessageDatabaseObject !== thisObject) {
                         MessageDatabaseObject = thisObject
                     }
@@ -256,9 +265,6 @@ object MessageHandler {
                             iMainAdapterRefreshes.forEach { it.onNewMessageCreate(talker, createTime, content) }
 
                         }
-
-                        Log.v("MessageHandler", "onDatabaseInserted, thisObject = $thisObject, table = $table ,nullColumnHack = $nullColumnHack ,initialValues = $initialValues, conflictAlgorithm = $conflictAlgorithm, result = $result")
-
                     }
                 })
         XposedHelpers.findAndHookMethod(database, "updateWithOnConflict",
@@ -270,7 +276,7 @@ object MessageHandler {
                         val thisObject = param.thisObject
 
                         val path = thisObject.toString()
-                        if (path.endsWith("EnMicroMsg.db")) {
+                        if (path.endsWith(MessageDBName)) {
                             if (MessageDatabaseObject !== thisObject) {
                                 MessageDatabaseObject = thisObject
                             }

@@ -1,11 +1,9 @@
 package com.zdy.project.wechat_chatroom_helper.wechat
 
-import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ImageView
 import com.zdy.project.wechat_chatroom_helper.Constants
-import java.lang.reflect.Method
 
 object WXClassParser {
 
@@ -24,7 +22,6 @@ object WXClassParser {
                     }
         }
     }
-
 
     object Adapter {
 
