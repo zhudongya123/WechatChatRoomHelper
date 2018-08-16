@@ -46,9 +46,12 @@ object MessageFactory {
         return list
     }
 
+    fun getUnReadCountItem(list: ArrayList<ChatInfoModel>) = list.count { it.unReadCount > 0 }
+
     fun getSingle(field_username: String) =
-            buildChatInfoModelByCursor((XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, WXObject.Message.M.QUERY,
-                    getDataBaseFactory(MessageHandler.MessageDatabaseObject!!), SqlForByUsername(field_username), null, null) as Cursor).apply { moveToNext() })
+            buildChatInfoModelByCursor((XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject,
+                    WXObject.Message.M.QUERY, getDataBaseFactory(MessageHandler.MessageDatabaseObject!!),
+                    SqlForByUsername(field_username), null, null) as Cursor).apply { moveToNext() })
 
 
     fun getAllOfficial(): ArrayList<ChatInfoModel> {

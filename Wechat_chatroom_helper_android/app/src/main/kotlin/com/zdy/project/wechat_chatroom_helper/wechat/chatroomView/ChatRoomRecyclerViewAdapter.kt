@@ -2,6 +2,7 @@ package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ShapeDrawable
@@ -9,9 +10,11 @@ import android.graphics.drawable.shapes.Shape
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.plugins.main.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.ConversationItemHandler
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
+import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import de.robv.android.xposed.XposedHelpers
 import java.util.*
 
@@ -32,7 +35,7 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatRoomViewHolder {
-        return ChatRoomViewHolder(ChatRoomViewHelper.getItemView(mContext))
+        return ChatRoomViewHolder(ChatRoomViewFactory.getItemView(mContext))
     }
 
     private fun getObject(position: Int): ChatInfoModel {
@@ -43,7 +46,7 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
 
         val item = getObject(position)
 
-        holder.nickname.text = item.nickname
+        holder.nickname.text = if (item.nickname.isEmpty()) "群聊" else item.nickname
         holder.content.text = ConversationItemHandler.getConversationContent(MainAdapter.originAdapter, item, position) ?: (item.content)
         holder.time.text = ConversationItemHandler.getConversationTimeString(MainAdapter.originAdapter, item.conversationTime)
 
@@ -63,18 +66,18 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
         else
             holder.unread.background = BitmapDrawable(mContext.resources)
 
-        holder.itemView.background = ChatRoomViewHelper.getItemViewBackground(mContext)
+        holder.itemView.background = ChatRoomViewFactory.getItemViewBackground(mContext)
         holder.itemView.setOnClickListener {
-            XposedHelpers.callMethod(MainLauncherUI.launcherUI, "startChatting", item.username, null, true)
+            XposedHelpers.callMethod(MainLauncherUI.launcherUI, WXObject.MainUI.M.StartChattingOfLauncherUI, item.username, null, true)
         }
         holder.itemView.setOnLongClickListener {
             return@setOnLongClickListener true
         }
 
-//        holder.nickname.setTextColor(Color.parseColor("#" + AppSaveInfo.nicknameColorInfo()))
-//        holder.content.setTextColor(Color.parseColor("#" + AppSaveInfo.contentColorInfo()))
-//        holder.time.setTextColor(Color.parseColor("#" + AppSaveInfo.timeColorInfo()))
-//        holder.divider.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.dividerColorInfo()))
+        holder.nickname.setTextColor(Color.parseColor("#" + AppSaveInfo.nicknameColorInfo()))
+        holder.content.setTextColor(Color.parseColor("#" + AppSaveInfo.contentColorInfo()))
+        holder.time.setTextColor(Color.parseColor("#" + AppSaveInfo.timeColorInfo()))
+        holder.divider.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.dividerColorInfo()))
     }
 
     override fun getItemCount(): Int {

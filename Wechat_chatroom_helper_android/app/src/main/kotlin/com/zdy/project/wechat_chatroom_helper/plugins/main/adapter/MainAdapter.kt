@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.MessageEventNotifyListener
@@ -150,19 +151,44 @@ object MainAdapter {
                                 "firstChatRoomPosition = $firstChatRoomPosition ,firstOfficialPosition = $firstOfficialPosition \n")
 
                         if (position == firstChatRoomPosition) {
+                            val allChatRoom = MessageFactory.getAllChatRoom()
+
                             setTextForNoMeasuredTextView(nickname, "群消息")
-                            setTextForNoMeasuredTextView(content, "")
                             avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.CHAT_ROOMS)) }
-                            setTextForNoMeasuredTextView(time, ConversationItemHandler.getConversationTimeString(originAdapter, MessageFactory.getAllChatRoom().first().conversationTime))
+
+                            setTextForNoMeasuredTextView(time, ConversationItemHandler.getConversationTimeString(originAdapter, allChatRoom.first().conversationTime))
+
+                            val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
+
+                            LogUtils.log("getUnReadCountItemChatRoom " + allChatRoom.joinToString { "unReadCount = ${it.unReadCount}" })
+
+                            if (unReadCountItem > 0) {
+                                setTextForNoMeasuredTextView(content, "有${unReadCountItem}个群聊收到新消息")
+                            } else {
+
+                            }
+
                             param.result = view
                         }
                         if (position == firstOfficialPosition) {
+                            val allOfficial = MessageFactory.getAllOfficial()
+
                             setTextForNoMeasuredTextView(nickname, "服务号")
-                            setTextForNoMeasuredTextView(content, "")
                             avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.OFFICIAL)) }
-                            setTextForNoMeasuredTextView(time, ConversationItemHandler.getConversationTimeString(originAdapter, MessageFactory.getAllOfficial().first().conversationTime))
+
+                            setTextForNoMeasuredTextView(time, ConversationItemHandler.getConversationTimeString(originAdapter, allOfficial.first().conversationTime))
                             param.result = view
 
+                            val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)
+
+                            LogUtils.log("getUnReadCountItemChatRoom " + allOfficial.joinToString { "unReadCount = ${it.unReadCount}" })
+
+
+                            if (unReadCountItem > 0) {
+                                setTextForNoMeasuredTextView(content, "有${unReadCountItem}个服务号收到新消息")
+                            } else {
+
+                            }
                         }
                     }
                 })

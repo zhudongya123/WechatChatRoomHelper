@@ -11,12 +11,12 @@ import android.widget.TextView
 
 class ChatRoomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-    var avatar: ImageView = itemView.findViewById(ChatRoomViewHelper.id_avatar)
-    var nickname: TextView = itemView.findViewById(ChatRoomViewHelper.id_nickname)
-    var time: TextView = itemView.findViewById(ChatRoomViewHelper.id_time)
-    var msgState: ImageView = itemView.findViewById(ChatRoomViewHelper.id_msg_state)
-    var content: TextView = itemView.findViewById(ChatRoomViewHelper.id_content)
-    var unread: TextView = itemView.findViewById(ChatRoomViewHelper.id_unread)
-    var divider: View = itemView.findViewById(ChatRoomViewHelper.id_divider)
+    var avatar: ImageView = itemView.findViewById(ChatRoomViewFactory.id_avatar)
+    var nickname: TextView = itemView.findViewById(ChatRoomViewFactory.id_nickname)
+    var time: TextView = itemView.findViewById(ChatRoomViewFactory.id_time)
+    var msgState: ImageView = itemView.findViewById(ChatRoomViewFactory.id_msg_state)
+    var content: TextView = itemView.findViewById(ChatRoomViewFactory.id_content)
+    var unread: TextView = itemView.findViewById(ChatRoomViewFactory.id_unread)
+    var divider: View = itemView.findViewById(ChatRoomViewFactory.id_divider)
 
 }

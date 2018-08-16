@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable
 import android.support.annotation.IdRes
 import android.text.TextUtils
 import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -17,7 +18,7 @@ import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
  * Created by Mr.Zdy on 2017/8/27.
  */
 @SuppressWarnings("ResourceType")
-object ChatRoomViewHelper {
+object ChatRoomViewFactory {
 
     @IdRes
     val id_avatar_container = 7
@@ -109,9 +110,10 @@ object ChatRoomViewHelper {
 
         content.ellipsize = TextUtils.TruncateAt.END
         content.setSingleLine()
+        content.gravity = Gravity.CENTER_VERTICAL
 
         contentContainer.addView(msgState, msgStateParams)
-        contentContainer.addView(content, RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ScreenUtils.dip2px(mContext, 14f)))
+        contentContainer.addView(content, RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ScreenUtils.dip2px(mContext, 18f)))
 
         val unReadParams = RelativeLayout.LayoutParams(ScreenUtils.dip2px(mContext, 10f), ScreenUtils.dip2px(mContext, 10f))
         unReadParams.addRule(RelativeLayout.ALIGN_RIGHT, avatarContainer.id)

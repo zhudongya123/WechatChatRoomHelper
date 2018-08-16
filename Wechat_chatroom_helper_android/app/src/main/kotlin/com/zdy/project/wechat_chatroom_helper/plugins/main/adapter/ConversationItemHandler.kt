@@ -70,7 +70,7 @@ object ConversationItemHandler {
         beanClass.getField("field_UnReadInvite").set(ae, chatInfoModel.UnReadInvite)
         beanClass.getField("field_atCount").set(ae, chatInfoModel.atCount)
 
-        val content = XposedHelpers.callMethod(adapter, getContentMethod.name, ae, position, true) as CharSequence
+        val content = XposedHelpers.callMethod(adapter, getContentMethod.name, ae, position, false) as CharSequence
 
         LogUtils.log("getConversationContent,  content =  $content")
 
