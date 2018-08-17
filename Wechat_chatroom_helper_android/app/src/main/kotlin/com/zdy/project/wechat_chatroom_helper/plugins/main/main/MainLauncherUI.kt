@@ -88,10 +88,14 @@ object MainLauncherUI {
 
         findAndHookMethod(Activity::class.java, WXObject.MainUI.M.OnCreate, Bundle::class.java, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
-                launcherUI = param.thisObject as Activity
 
-                PluginEntry.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
-                PluginEntry.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
+                if (param.thisObject::class.java.name == WXObject.MainUI.C.LauncherUI) {
+
+                    launcherUI = param.thisObject as Activity
+
+                    PluginEntry.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
+                    PluginEntry.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
+                }
             }
         })
 

@@ -8,12 +8,13 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.Shape
 import android.support.v7.widget.RecyclerView
+import android.text.Html
 import android.view.ViewGroup
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
-import com.zdy.project.wechat_chatroom_helper.plugins.main.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.ConversationItemHandler
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
+import com.zdy.project.wechat_chatroom_helper.plugins.main.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import de.robv.android.xposed.XposedHelpers
 import java.util.*
@@ -47,7 +48,8 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
         val item = getObject(position)
 
         holder.nickname.text = if (item.nickname.isEmpty()) "群聊" else item.nickname
-        holder.content.text = ConversationItemHandler.getConversationContent(MainAdapter.originAdapter, item, position) ?: (item.content)
+        holder.content.text = Html.fromHtml((ConversationItemHandler.getConversationContent(MainAdapter.originAdapter, item, position)
+                ?: (item.content)).toString())
         holder.time.text = ConversationItemHandler.getConversationTimeString(MainAdapter.originAdapter, item.conversationTime)
 
         ConversationItemHandler.getConversationAvatar(item.username.toString(), holder.avatar)
