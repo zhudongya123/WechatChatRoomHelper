@@ -1,10 +1,12 @@
 package com.zdy.project.wechat_chatroom_helper.helper.ui.config
 
-import android.os.Bundle
 import android.os.Handler
 import android.os.Message
-import android.support.v7.app.AppCompatActivity
+import android.support.annotation.LayoutRes
+import android.support.annotation.StringRes
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.LogUtils
@@ -12,13 +14,52 @@ import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.WXClassParser
 import dalvik.system.DexClassLoader
+import me.omico.base.activity.SetupWizardBaseActivity
 import net.dongliu.apk.parser.ApkFile
 import java.io.File
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import kotlin.concurrent.thread
 
-class ConfigActivity : AppCompatActivity() {
+class ConfigActivity : SetupWizardBaseActivity() {
+
+
+    private val PAGE_WELCOME = 0
+    private val PAGE_WRITE_AND_READ_FILE = 1
+    private val PAGE_GETTING_MODE_PERMISSION = 2
+    private val PAGE_GETTING_OVERLAY_PERMISSION = 3
+
+
+    private var setupStep: Int = 0
+
+    override fun initLayout(viewGroup: ViewGroup) {
+        when (setupStep) {
+
+            PAGE_WELCOME -> {
+                navigationBar.backButton.visibility = View.GONE
+                initLayout(viewGroup, R.layout.config_layout_step_1, R.string.config_string_step1_text1, true)
+            }
+            PAGE_WRITE_AND_READ_FILE -> {
+                initLayout(viewGroup, R.layout.config_layout_step_1, R.string.config_string_step1_text1, true)
+            }
+        }
+    }
+
+
+    override fun onNavigateBack() {
+    }
+
+    override fun onNavigateNext() {
+    }
+
+
+    private fun initLayout(viewGroup: ViewGroup, @LayoutRes layout: Int, @StringRes title: Int, nextButtonEnable: Boolean) {
+        val inflate = LayoutInflater.from(this).inflate(layout, viewGroup, false)
+        viewGroup.addView(inflate)
+        setupWizardLayout.setHeaderText(title)
+        setupWizardLayout.headerTextView.setTextColor(viewGroup.context.getColor(R.color.colorAccent))
+        setNavigationBarNextButtonEnabled(nextButtonEnable)
+    }
 
     private lateinit var text1: TextView
 
@@ -28,23 +69,9 @@ class ConfigActivity : AppCompatActivity() {
 
     private var configHashMap = hashMapOf<String, String>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_config)
 
-        textHandler = TextHandler()
-        text1 = findViewById(R.id.text1)
-
-        findViewById<View>(R.id.button1).setOnClickListener {
-            parseThread?.start()
-        }
-    }
-
-
-    override fun onResume() {
-        super.onResume()
-
-        parseApkClasses()
+    override fun setContentView(layoutResID: Int) {
+        super.setContentView(R.layout.activity_guide)
     }
 
     private fun parseApkClasses() {

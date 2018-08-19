@@ -20,6 +20,7 @@ allprojects {
     repositories {
         jcenter()
         google()
+        maven { url 'https://dl.bintray.com/omico/OmicoLibrary' }
     }
 }
 
@@ -27,9 +28,9 @@ ext {
 
     buildToolVersion = '27.0.3'
     sdkVersion = 27
-    minSdkVersion = 21
+    minSdkVersion = 23
     supportLibVersion = '27.1.1'
-    archLifecycleVersion = '1.1.1'
+    constraintLayoutVersion = '1.1.2'
 }
 repositories {
     mavenCentral()
