@@ -29,6 +29,7 @@ import java.io.File
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import java.security.Permission
+import java.util.*
 import kotlin.concurrent.thread
 
 class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
@@ -73,7 +74,6 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
                 }
             }
         }
-
     }
 
 
@@ -172,6 +172,7 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
 
         parseThread = thread {
 
+            val random = Random()
             val classes = mutableListOf<Class<*>>()
 
             try {
@@ -181,8 +182,7 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
 
                 textHandler.sendMessage(Message.obtain(textHandler, 2, "确定微信安装包位置：$publicSourceDir"))
                 textHandler.sendMessage(Message.obtain(textHandler, 2, "微信版本：${apkFile.apkMeta.versionName} (${apkFile.apkMeta.versionCode})"))
-
-                textHandler.sendMessage(Message.obtain(textHandler, 2, "正在准备解析类，请等待……"))
+                textHandler.sendMessage(Message.obtain(textHandler, 2, "正在准备解析类，可能需要数分钟准备，请耐心等待……"))
 
                 val dexClasses = apkFile.dexClasses
 
@@ -201,8 +201,7 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
                                 e.printStackTrace()
                             }
 
-                            if (index % 1000 == 0)
-                                textHandler.sendMessage(Message.obtain(textHandler, 2, "遍历了${index + 1}个类，已经加载了 ${classes.size}个类"))
+                            textHandler.sendMessage(Message.obtain(textHandler, 1, index + 1, classes.size))
                         }
 
                 configHashMap["conversationWithCacheAdapter"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
@@ -212,6 +211,7 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
                 configHashMap["logcat"] = parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
 
                 writeNewConfig()
+
                 textHandler.sendMessage(Message.obtain(textHandler, 2, "获取配置完成"))
 
 
@@ -247,15 +247,22 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
     }
 
     class TextHandler(private var configTextView: TextView) : Handler() {
+
+
         override fun handleMessage(msg: Message) {
 
             when (msg.what) {
                 1 -> {
-                    configTextView.text = msg.obj as String
+                    if (configTextView.tag == null) {
+                        configTextView.tag = configTextView.text
+                    }
+                    configTextView.text =
+                            String.format(Locale.CHINESE, "%s\n遍历了%d个类，已经加载了%d个类",
+                                    configTextView.tag, msg.arg1, msg.arg2)
                 }
 
                 2 -> {
-                    configTextView.text = configTextView.text.toString() + "\n" + msg.obj as String
+                    configTextView.text = String.format(Locale.CHINESE, "%s\n%s", configTextView.text.toString(), msg.obj as String)
                 }
             }
 
