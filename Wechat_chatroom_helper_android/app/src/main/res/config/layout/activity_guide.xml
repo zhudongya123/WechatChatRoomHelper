@@ -4,13 +4,14 @@
     android:id="@+id/setup_wizard_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    app:suwBackground="@color/colorPrimary">
 
     <FrameLayout
         android:id="@+id/fragment_container"
+        style="@style/SuwContentFrame"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingBottom="@dimen/suw_description_margin_bottom"
-        android:paddingTop="@dimen/suw_description_margin_top"/>
+        android:paddingTop="@dimen/suw_description_margin_top" />
 </com.android.setupwizardlib.SetupWizardLayout>

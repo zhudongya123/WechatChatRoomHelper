@@ -49,7 +49,7 @@ class PluginEntry : IXposedHookLoadPackage {
             MessageHandler.executeHook()
             MainAdapter.executeHook()
             MainLauncherUI.executeHook()
-            LogRecord.executeHook()
+          //  LogRecord.executeHook()
         }
 
     }

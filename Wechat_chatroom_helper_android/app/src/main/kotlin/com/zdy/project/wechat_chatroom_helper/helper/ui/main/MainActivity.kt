@@ -49,11 +49,11 @@ class MainActivity : AppCompatActivity() {
         thisActivity = this@MainActivity
 
         //权限检查广播
-        receiver = PermissionBroadCastReceiver()
-        registerReceiver(receiver, IntentFilter(Constants.FILE_INIT_SUCCESS))
+        // receiver = PermissionBroadCastReceiver()
+        //   registerReceiver(receiver, IntentFilter(Constants.FILE_INIT_SUCCESS))
 
         //检查权限
-        permissionHelper = PermissionHelper.check(thisActivity)
+        //permissionHelper = PermissionHelper.checkFile(thisActivity)
 
         //加載佈局
         setContentView(R.layout.activity_main)
@@ -63,6 +63,8 @@ class MainActivity : AppCompatActivity() {
         detail = findViewById<TextView>(R.id.detail)
         listContent = findViewById<LinearLayout>(R.id.list_content)
 
+
+        bindView()
     }
 
     private fun initSetting() {
@@ -262,9 +264,9 @@ class MainActivity : AppCompatActivity() {
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
 
-        if (hasFocus) {
-            permissionHelper = PermissionHelper.check(thisActivity)
-        }
+        // if (hasFocus) {
+        //      permissionHelper = PermissionHelper.checkFile(thisActivity)
+        //  }
     }
 
 }

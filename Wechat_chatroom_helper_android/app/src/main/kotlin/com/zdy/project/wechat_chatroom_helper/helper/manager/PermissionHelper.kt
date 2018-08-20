@@ -18,8 +18,19 @@ import utils.WechatJsonUtils
 class PermissionHelper(private var activity: Activity) {
 
     companion object {
+
         @JvmStatic
-        fun check(activity: Activity): PermissionHelper {
+        val ALLOW = 0
+
+        @JvmStatic
+        val DENY = 2
+
+        @JvmStatic
+        val ASK = 1
+
+
+        @JvmStatic
+        fun checkFile(activity: Activity): PermissionHelper {
 
             val permissionHelper = PermissionHelper(activity)
 
@@ -41,6 +52,33 @@ class PermissionHelper(private var activity: Activity) {
                 WechatJsonUtils.init(activity)
             }
             return permissionHelper
+        }
+
+
+        @JvmStatic
+        fun check(activity: Activity): Int {
+            //没有权限
+            if (ContextCompat.checkSelfPermission(activity,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                //拒絕過權限授予
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    return DENY
+                }
+                //請求權限授予
+                else {
+                    return ASK
+                }
+
+            }
+            //有权限，初始化文件
+            else return ALLOW
+        }
+
+        @JvmStatic
+        fun requestPermission(activity: Activity) {
+            ActivityCompat.requestPermissions(activity,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    Constants.WRITE_EXTERNAL_STORAGE_RESULT_CODE)
         }
     }
 

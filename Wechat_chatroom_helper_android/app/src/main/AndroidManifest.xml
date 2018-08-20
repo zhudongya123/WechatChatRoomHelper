@@ -40,7 +40,8 @@
 
 
         <activity android:name="com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActivity" />
-        <activity android:name=".helper.ui.config.ConfigActivity" />
+        <activity android:name=".helper.ui.config.ConfigActivity"
+            android:theme="@style/SuwThemeMaterial.Light"/>
 
         <meta-data
             android:name="xposedmodule"
