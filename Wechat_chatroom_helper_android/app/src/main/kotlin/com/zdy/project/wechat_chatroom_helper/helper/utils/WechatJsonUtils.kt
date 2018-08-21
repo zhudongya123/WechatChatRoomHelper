@@ -19,7 +19,7 @@ import java.nio.charset.Charset
 object WechatJsonUtils {
 
     private val folderPath = Environment.getExternalStorageDirectory().absolutePath + "/WechatChatroomHelper"
-    private val configPath = Environment.getExternalStorageDirectory().absolutePath + "/WechatChatroomHelper/config.xml"
+    val configPath = Environment.getExternalStorageDirectory().absolutePath + "/WechatChatroomHelper/config.xml"
     val parser = JsonParser()
 
     private lateinit var currentString: String
@@ -97,7 +97,7 @@ object WechatJsonUtils {
     }
 
 
-     fun getFileString(): String {
+    fun getFileString(): String {
         val fis = FileInputStream(File(configPath))
         val length = fis.available()
         val buffer = ByteArray(length)

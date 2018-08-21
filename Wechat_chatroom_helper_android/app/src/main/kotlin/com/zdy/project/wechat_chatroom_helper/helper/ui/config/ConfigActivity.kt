@@ -121,6 +121,9 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
             PAGE_WELCOME, PAGE_WRITE_AND_READ_FILE -> {
                 intentNextStep()
             }
+            PAGE_WRITE_CONFIG -> {
+
+            }
         }
     }
 
@@ -173,6 +176,7 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
         parseThread = thread {
 
             val random = Random()
+            var currentRandomInt = 1
             val classes = mutableListOf<Class<*>>()
 
             try {
@@ -180,8 +184,8 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
                 val apkFile = ApkFile(File(publicSourceDir))
 
 
-                textHandler.sendMessage(Message.obtain(textHandler, 2, "确定微信安装包位置：$publicSourceDir"))
-                textHandler.sendMessage(Message.obtain(textHandler, 2, "微信版本：${apkFile.apkMeta.versionName} (${apkFile.apkMeta.versionCode})"))
+                textHandler.sendMessage(Message.obtain(textHandler, 2, "确定微信安装包位置：$publicSourceDir。"))
+                textHandler.sendMessage(Message.obtain(textHandler, 2, "微信版本：${apkFile.apkMeta.versionName} (${apkFile.apkMeta.versionCode})。"))
                 textHandler.sendMessage(Message.obtain(textHandler, 2, "正在准备解析类，可能需要数分钟准备，请耐心等待……"))
 
                 val dexClasses = apkFile.dexClasses
@@ -201,7 +205,11 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
                                 e.printStackTrace()
                             }
 
-                            textHandler.sendMessage(Message.obtain(textHandler, 1, index + 1, classes.size))
+                            if (index == currentRandomInt) {
+                                currentRandomInt += random.nextInt(1000)
+                                textHandler.sendMessage(Message.obtain(textHandler, 1, index + 1, classes.size))
+
+                            }
                         }
 
                 configHashMap["conversationWithCacheAdapter"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
@@ -212,8 +220,11 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
 
                 writeNewConfig()
 
-                textHandler.sendMessage(Message.obtain(textHandler, 2, "获取配置完成"))
-
+                textHandler.sendMessage(Message.obtain(textHandler, 2, "获取配置完成。"))
+                textHandler.sendMessage(Message.obtain(textHandler, 2, "配置文件路径：${WechatJsonUtils.configPath}"))
+                textHandler.sendMessage(Message.obtain(textHandler, 2, "配置文件已经写入本地， 适用于 ${apkFile.apkMeta.versionName} (${apkFile.apkMeta.versionCode}) 版本。"))
+                textHandler.sendMessage(Message.obtain(textHandler, 2, "点击下一步完成。"))
+                setNavigationBarNextButtonEnabled(true)
 
             } catch (e: Throwable) {
                 e.printStackTrace()
