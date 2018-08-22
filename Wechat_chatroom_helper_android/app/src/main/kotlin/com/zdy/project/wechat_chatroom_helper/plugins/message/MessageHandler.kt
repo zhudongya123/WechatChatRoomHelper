@@ -43,8 +43,9 @@ object MessageHandler {
             arrayOf("select unReadCount, status, isSend, conversationTime, username, content, msgType",
                     "digest, digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite",
                     "( parentRef is null  or parentRef = '' )",
-                    "( 1 != 1  or rconversation.username like '%@chatroom' or rconversation.username " +
-                            "like '%@openim' or rconversation.username not like '%@%' )",
+                    "( 1 != 1  or rconversation.username like",
+                    "'%@chatroom' or rconversation.username like '%@openim'",
+                    "or rconversation.username not like '%@%' )",
                     "and rconversation.username != 'qmessage'",
                     "order by flag desc")
 
@@ -106,6 +107,9 @@ object MessageHandler {
                         MessageDatabaseObject = thisObject
                     }
                 }
+
+                XposedBridge.log("MessageHooker2.10, sql = $sql")
+
 
                 if (!sql.contains(KeyWordFilterAllConversation1)) return
                 if (!sql.contains(KeyWordFilterAllConversation2)) return
