@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.database.Cursor
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.MessageEventNotifyListener
+import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
@@ -133,6 +134,8 @@ object MessageHandler {
                 //确定服务号和群聊的入口位置
                 else if (sql == sqlForAllContactConversation) {
 
+                    XposedBridge.log("MessageHooker2.17,size = $sqlForAllContactConversation")
+
 
                     //额外查询两次，找到当前最新的服务号和群聊的最近消息时间
                     val cursorForOfficial = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, SqlForGetFirstOfficial, null, null) as Cursor
@@ -152,6 +155,7 @@ object MessageHandler {
                     }
 
                     val cursor = param.result as Cursor
+
 
                     var officialPosition = -1
                     var chatRoomPosition = -1
@@ -180,6 +184,9 @@ object MessageHandler {
                             if (firstOfficialFlag > firstChatRoomFlag) chatRoomPosition += 1 else officialPosition += 1
                         }
                     }
+
+                    XposedBridge.log("MessageHooker2.17, chatRoomPosition = $chatRoomPosition, officialPosition = $officialPosition")
+
 
                     iMainAdapterRefreshes.forEach { it.onEntryPositionChanged(chatRoomPosition, officialPosition) }
 
