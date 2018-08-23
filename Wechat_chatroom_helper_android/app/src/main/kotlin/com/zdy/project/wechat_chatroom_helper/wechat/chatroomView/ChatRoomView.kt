@@ -121,7 +121,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
     override fun init() {
         mAdapter = ChatRoomRecyclerViewAdapter(mContext)
         LogUtils.log("mRecyclerView = $mRecyclerView, mAdapter = $mAdapter")
-        mRecyclerView.setAdapter(mAdapter)
+        mRecyclerView.adapter = mAdapter
     }
 
     override fun showMessageRefresh(targetUserName: String) {
@@ -148,28 +148,16 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
 
     override fun showMessageRefresh(muteListInAdapterPositions: ArrayList<Int>) {
-//        val currentPage = 0//ConfigInfo.currentPage
-
-
-//        when (currentPage) {
-//            PageType.CHAT_ROOMS, PageType.CHATTING_WITH_CHAT_ROOMS -> if (pageType == PageType.OFFICIAL) return
-//            PageType.OFFICIAL, PageType.CHATTING_WITH_OFFICIAL -> if (pageType == PageType.CHAT_ROOMS) return
-//        }
-
-//        val data = muteListInAdapterPositions
-//                .map { HookLogic.getMessageBeanForOriginIndex(mPresenter.originAdapter, it) }
-//                .mapTo(ArrayList()) { ChatInfoModel.convertFromObject(it, mPresenter.originAdapter, mContext) }
-
-        //  mAdapter.muteListInAdapterPositions = muteListInAdapterPositions
-        //  mAdapter.data = data
 
         val newDatas = if (pageType == PageType.CHAT_ROOMS) MessageFactory.getAllChatRoom() else MessageFactory.getAllOfficial()
         val oldDatas = mAdapter.data
 
-        val diffResult = DiffUtil.calculateDiff(DiffCallBack(newDatas, oldDatas), true)
-        diffResult.dispatchUpdatesTo(mAdapter)
+//        val diffResult = DiffUtil.calculateDiff(DiffCallBack(newDatas, oldDatas), true)
+//        diffResult.dispatchUpdatesTo(mAdapter)
+//
+//        mAdapter.data = newDatas
+//      todo
 
-        mAdapter.data = newDatas
 
         LogUtils.log("showMessageRefresh for all recycler view , pageType = " + PageType.printPageType(pageType))
     }
