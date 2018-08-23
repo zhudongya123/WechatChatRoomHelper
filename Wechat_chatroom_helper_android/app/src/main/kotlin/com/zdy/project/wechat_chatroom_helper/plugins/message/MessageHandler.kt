@@ -90,6 +90,9 @@ object MessageHandler {
         val databaseCancellationSignal =
                 XposedHelpers.findClass(WXObject.Message.C.SQLiteCancellationSignal, PluginEntry.classloader)
 
+        XposedBridge.log("MessageHooker2.11, database = $database, databaseFactory = $databaseFactory, databaseCancellationSignal = $databaseCancellationSignal")
+
+
         val queryHook = object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
 
@@ -107,8 +110,6 @@ object MessageHandler {
                         MessageDatabaseObject = thisObject
                     }
                 }
-
-
 
                 if (!sql.contains(KeyWordFilterAllConversation1)) return
                 if (!sql.contains(KeyWordFilterAllConversation2)) return
