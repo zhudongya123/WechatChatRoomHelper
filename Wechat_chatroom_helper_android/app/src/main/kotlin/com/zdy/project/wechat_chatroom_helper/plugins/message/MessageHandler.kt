@@ -108,7 +108,6 @@ object MessageHandler {
                     }
                 }
 
-                XposedBridge.log("MessageHooker2.10, sql = $sql")
 
 
                 if (!sql.contains(KeyWordFilterAllConversation1)) return

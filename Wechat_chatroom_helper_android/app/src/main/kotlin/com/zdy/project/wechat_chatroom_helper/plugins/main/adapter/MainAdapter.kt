@@ -145,8 +145,6 @@ object MainAdapter {
 
                         val content = ((contentContainer.getChildAt(1) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(1)
 
-//                        val field_username = XposedHelpers.getObjectField(XposedHelpers.callMethod(param.thisObject, MMBaseAdapter_getItemInternal, position), "field_username") as String
-
                         XposedBridge.log("MessageHooker2.6,position = $position, position = $position, " +
                                 "firstChatRoomPosition = $firstChatRoomPosition ,firstOfficialPosition = $firstOfficialPosition \n")
 
@@ -156,7 +154,7 @@ object MainAdapter {
                             setTextForNoMeasuredTextView(nickname, "群消息")
                             avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.CHAT_ROOMS)) }
 
-                            setTextForNoMeasuredTextView(time, ConversationItemHandler.getConversationTimeString(originAdapter, allChatRoom.first().conversationTime))
+//                            setTextForNoMeasuredTextView(time, ConversationItemHandler.getConversationTimeString(originAdapter, allChatRoom.first().conversationTime))
 
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
 
@@ -176,7 +174,7 @@ object MainAdapter {
                             setTextForNoMeasuredTextView(nickname, "服务号")
                             avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.OFFICIAL)) }
 
-                            setTextForNoMeasuredTextView(time, ConversationItemHandler.getConversationTimeString(originAdapter, allOfficial.first().conversationTime))
+                        //    setTextForNoMeasuredTextView(time, ConversationItemHandler.getConversationTimeString(originAdapter, allOfficial.first().conversationTime))
                             param.result = view
 
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)
@@ -203,7 +201,6 @@ object MainAdapter {
 
                 val index = param.args[0] as Int
 
-                XposedBridge.log("MMBaseAdapter_getItemInternal, index = $index, firstChatRoomPosition = $firstChatRoomPosition ,firstOfficialPosition = $firstOfficialPosition")
 
                 if (firstChatRoomPosition == -1 || firstOfficialPosition == -1) return
 

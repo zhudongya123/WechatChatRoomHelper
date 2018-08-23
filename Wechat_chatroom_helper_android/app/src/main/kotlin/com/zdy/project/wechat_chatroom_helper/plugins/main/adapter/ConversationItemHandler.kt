@@ -21,20 +21,20 @@ object ConversationItemHandler {
             .first { it.parameterTypes.isNotEmpty() && it.parameterTypes[0].name == ImageView::class.java.name }
 
     private val beanClass = ((conversationWithCacheAdapter.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>)
+    private val beanConstructor = beanClass.constructors.filter { it.parameterTypes.size == 1 }.firstOrNull { it.parameterTypes[0] == String::class.java }
+
 
     fun getConversationTimeString(adapter: Any, conversationTime: Long): CharSequence {
 
         conversationTimeStringMethod.let {
 
-            val constructor = beanClass.constructors.filter { it.parameterTypes.size == 1 }.firstOrNull { it.parameterTypes[0] == String::class.java }
-
-            constructor?.let {
-                val obj = constructor.newInstance("")
+            beanConstructor?.let {
+                val obj = beanConstructor.newInstance("")
 
                 beanClass.getField("field_status").set(obj, 0)
                 beanClass.getField("field_conversationTime").set(obj, conversationTime)
 
-                return XposedHelpers.callMethod(adapter, conversationTimeStringMethod.name, obj) as CharSequence
+                //return XposedHelpers.callMethod(adapter, conversationTimeStringMethod.name, obj) as CharSequence
             }
         }
         return ""
