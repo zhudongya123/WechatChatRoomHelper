@@ -41,7 +41,7 @@ object MessageFactory {
             list.add(buildChatInfoModelByCursor(cursor))
         }
 
-        LogUtils.log("getAllChatRoom " + list.joinToString { it.toString() + "\n" })
+       // LogUtils.log("getAllChatRoom " + list.joinToString { it.toString() + "\n" })
 
         return list
     }
@@ -63,7 +63,7 @@ object MessageFactory {
             list.add(buildChatInfoModelByCursor(cursor))
         }
 
-        LogUtils.log("getAllOfficial " + list.joinToString { it.toString() + "\n" })
+  //      LogUtils.log("getAllOfficial " + list.joinToString { it.toString() + "\n" })
         return list
     }
 

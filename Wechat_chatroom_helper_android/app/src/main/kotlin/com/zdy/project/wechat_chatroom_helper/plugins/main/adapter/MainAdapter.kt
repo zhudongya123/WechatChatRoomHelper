@@ -79,7 +79,7 @@ object MainAdapter {
 
                         if (position == firstChatRoomPosition) {
 
-                            XposedBridge.log("MessageHooker2.6,position = $position, firstChatRoomUserName equal")
+                            //    XposedBridge.log("MessageHooker2.6,position = $position, firstChatRoomUserName equal")
 
                             PluginEntry.chatRoomViewPresenter.show()
 
@@ -87,7 +87,7 @@ object MainAdapter {
                         }
                         if (position == firstOfficialPosition) {
 
-                            XposedBridge.log("MessageHooker2.6,position = $position, firstOfficialUserName equal")
+                            //      XposedBridge.log("MessageHooker2.6,position = $position, firstOfficialUserName equal")
 
                             PluginEntry.officialViewPresenter.show()
 
@@ -122,13 +122,13 @@ object MainAdapter {
                         }
                     }
 
-//                    override fun afterHookedMethod(param: MethodHookParam) {
-//
-//                        val position = param.args[0] as Int
-//
-//                        if (param.result != null)
-//                            refreshEntryView(param.result as View, position, param)
-//                    }
+                    override fun afterHookedMethod(param: MethodHookParam) {
+
+                        val position = param.args[0] as Int
+
+                        if (param.result != null)
+                            refreshEntryView(param.result as View, position, param)
+                    }
 
                     private fun refreshEntryView(view: View?, position: Int, param: MethodHookParam) {
                         val itemView = view as ViewGroup
@@ -145,8 +145,8 @@ object MainAdapter {
 
                         val content = ((contentContainer.getChildAt(1) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(1)
 
-                        XposedBridge.log("MessageHooker2.6,position = $position, position = $position, " +
-                                "firstChatRoomPosition = $firstChatRoomPosition ,firstOfficialPosition = $firstOfficialPosition \n")
+                        //       XposedBridge.log("MessageHooker2.6,position = $position, position = $position, " +
+                        //               "firstChatRoomPosition = $firstChatRoomPosition ,firstOfficialPosition = $firstOfficialPosition \n")
 
                         if (position == firstChatRoomPosition) {
                             val allChatRoom = MessageFactory.getAllChatRoom()
@@ -154,7 +154,7 @@ object MainAdapter {
                             setTextForNoMeasuredTextView(nickname, "群消息")
                             avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.CHAT_ROOMS)) }
 
-//                            setTextForNoMeasuredTextView(time, ConversationItemHandler.getConversationTimeString(originAdapter, allChatRoom.first().conversationTime))
+                            setTextForNoMeasuredTextView(time, ConversationItemHandler.getConversationTimeString(originAdapter, allChatRoom.first().conversationTime))
 
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
 
@@ -174,7 +174,7 @@ object MainAdapter {
                             setTextForNoMeasuredTextView(nickname, "服务号")
                             avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.OFFICIAL)) }
 
-                        //    setTextForNoMeasuredTextView(time, ConversationItemHandler.getConversationTimeString(originAdapter, allOfficial.first().conversationTime))
+                            setTextForNoMeasuredTextView(time, ConversationItemHandler.getConversationTimeString(originAdapter, allOfficial.first().conversationTime))
                             param.result = view
 
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)
@@ -216,7 +216,7 @@ object MainAdapter {
                     else -> index
                 }
 
-                XposedBridge.log("MessageHooker2.7,size = ${originAdapter.count}, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
+                //      XposedBridge.log("MessageHooker2.7,size = ${originAdapter.count}, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
 
                 param.args[0] = newIndex
             }
