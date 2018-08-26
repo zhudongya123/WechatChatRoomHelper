@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView
 import android.text.Html
 import android.view.ViewGroup
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.ConversationItemHandler
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
@@ -46,6 +47,8 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
     override fun onBindViewHolder(holder: ChatRoomViewHolder, position: Int) {
 
         val item = getObject(position)
+
+        LogUtils.log("onBindViewHolder, position = $position, " + item.toString())
 
         holder.nickname.text = if (item.nickname.isEmpty()) "群聊" else item.nickname
         holder.content.text = Html.fromHtml((ConversationItemHandler.getConversationContent(MainAdapter.originAdapter, item, position)

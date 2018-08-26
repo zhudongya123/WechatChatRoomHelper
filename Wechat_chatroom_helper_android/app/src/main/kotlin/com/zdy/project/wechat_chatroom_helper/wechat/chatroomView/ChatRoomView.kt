@@ -152,10 +152,10 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         val newDatas = if (pageType == PageType.CHAT_ROOMS) MessageFactory.getAllChatRoom() else MessageFactory.getAllOfficial()
         val oldDatas = mAdapter.data
 
-//        val diffResult = DiffUtil.calculateDiff(DiffCallBack(newDatas, oldDatas), true)
-//        diffResult.dispatchUpdatesTo(mAdapter)
-//
-//        mAdapter.data = newDatas
+        val diffResult = DiffUtil.calculateDiff(DiffCallBack(newDatas, oldDatas), true)
+        diffResult.dispatchUpdatesTo(mAdapter)
+
+        mAdapter.data = newDatas
 //      todo
 
 

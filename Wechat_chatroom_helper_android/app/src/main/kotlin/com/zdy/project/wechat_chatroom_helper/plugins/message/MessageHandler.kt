@@ -90,7 +90,7 @@ object MessageHandler {
         val databaseCancellationSignal =
                 XposedHelpers.findClass(WXObject.Message.C.SQLiteCancellationSignal, PluginEntry.classloader)
 
-        XposedBridge.log("MessageHooker2.11, database = $database, databaseFactory = $databaseFactory, databaseCancellationSignal = $databaseCancellationSignal")
+    //    XposedBridge.log("MessageHooker2.11, database = $database, databaseFactory = $databaseFactory, databaseCancellationSignal = $databaseCancellationSignal")
 
 
         val queryHook = object : XC_MethodHook() {
@@ -118,7 +118,7 @@ object MessageHandler {
                 if (isQueryAllConversation(sql)) {
 
                     try {
-                        XposedBridge.log("MessageHooker2.10, QUERY ALL CONVERSATION")
+                 //       XposedBridge.log("MessageHooker2.10, QUERY ALL CONVERSATION")
 
                         val (firstOfficialUsername, firstChatRoomUsername) = refreshEntryUsername(thisObject)
                         iMainAdapterRefreshes.forEach { it.onEntryInit(firstChatRoomUsername, firstOfficialUsername) }
@@ -138,7 +138,7 @@ object MessageHandler {
                 //确定服务号和群聊的入口位置
                 else if (sql == sqlForAllContactConversation) {
 
-                    XposedBridge.log("MessageHooker2.17,size = $sqlForAllContactConversation")
+              //      XposedBridge.log("MessageHooker2.17,size = $sqlForAllContactConversation")
 
 
                     //额外查询两次，找到当前最新的服务号和群聊的最近消息时间
@@ -189,7 +189,7 @@ object MessageHandler {
                         }
                     }
 
-                    XposedBridge.log("MessageHooker2.17, chatRoomPosition = $chatRoomPosition, officialPosition = $officialPosition")
+                 //   XposedBridge.log("MessageHooker2.17, chatRoomPosition = $chatRoomPosition, officialPosition = $officialPosition")
 
 
                     iMainAdapterRefreshes.forEach { it.onEntryPositionChanged(chatRoomPosition, officialPosition) }

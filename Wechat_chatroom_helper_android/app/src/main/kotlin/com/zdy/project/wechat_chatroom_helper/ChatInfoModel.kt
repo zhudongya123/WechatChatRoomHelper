@@ -51,7 +51,7 @@ class ChatInfoModel {
     }
 
     override fun toString(): String {
-        return "ChatInfoModel(username=$username, nickname=$nickname,  digest=$digest, digestUser=$digestUser, editingMsg=$editingMsg, msgType=$msgType, conversationTime=$conversationTime, isSend=$isSend, status=$status, attrflag=$attrflag, atCount=$atCount, unReadMuteCount=$unReadMuteCount, UnReadInvite=$UnReadInvite, unReadCount=$unReadCount)"
+        return "ChatInfoModel(username=$username, nickname=$nickname, content = ${content.substring(0, if (content.length > 10) 10 else content.length)})}  digest=$digest, digestUser=$digestUser, editingMsg=$editingMsg, msgType=$msgType, conversationTime=$conversationTime, isSend=$isSend, status=$status, attrflag=$attrflag, atCount=$atCount, unReadMuteCount=$unReadMuteCount, UnReadInvite=$UnReadInvite, unReadCount=$unReadCount)"
     }
 
     override fun equals(other: Any?): Boolean {

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.plugins.log.LogRecord
+import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.ConversationItemHandler
 import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.plugins.main.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageHandler
@@ -46,10 +47,11 @@ class PluginEntry : IXposedHookLoadPackage {
             WXObject.Tool.C.Logcat = configJson.get("logcat").asString
 
 
+            ConversationItemHandler
             MessageHandler.executeHook()
             MainAdapter.executeHook()
             MainLauncherUI.executeHook()
-          //  LogRecord.executeHook()
+            LogRecord.executeHook()
         }
 
     }
