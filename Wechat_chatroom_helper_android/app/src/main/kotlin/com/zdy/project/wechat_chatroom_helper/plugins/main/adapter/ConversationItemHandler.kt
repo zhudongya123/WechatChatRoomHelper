@@ -34,7 +34,7 @@ object ConversationItemHandler {
                 beanClass.getField("field_status").set(obj, 0)
                 beanClass.getField("field_conversationTime").set(obj, conversationTime)
 
-                //return XposedHelpers.callMethod(adapter, conversationTimeStringMethod.name, obj) as CharSequence
+                return XposedHelpers.callMethod(adapter, conversationTimeStringMethod.name, obj) as CharSequence
             }
         }
         return ""

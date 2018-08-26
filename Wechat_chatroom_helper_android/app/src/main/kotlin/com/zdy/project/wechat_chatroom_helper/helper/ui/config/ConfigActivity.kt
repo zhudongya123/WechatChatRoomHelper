@@ -259,7 +259,6 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
 
     class TextHandler(private var configTextView: TextView) : Handler() {
 
-
         override fun handleMessage(msg: Message) {
 
             when (msg.what) {
@@ -268,12 +267,12 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
                         configTextView.tag = configTextView.text
                     }
                     configTextView.text =
-                            String.format(Locale.CHINESE, "%s\n遍历了%d个类，已经加载了%d个类",
-                                    configTextView.tag, msg.arg1, msg.arg2)
+                            String.format(Locale.CHINESE, "%s\n遍历了%d个类，已经加载了%d个类", configTextView.tag, msg.arg1, msg.arg2)
                 }
 
                 2 -> {
-                    configTextView.text = String.format(Locale.CHINESE, "%s\n%s", configTextView.text.toString(), msg.obj as String)
+                    configTextView.text =
+                            String.format(Locale.CHINESE, "%s\n%s", configTextView.text.toString(), msg.obj as String)
                 }
             }
 
