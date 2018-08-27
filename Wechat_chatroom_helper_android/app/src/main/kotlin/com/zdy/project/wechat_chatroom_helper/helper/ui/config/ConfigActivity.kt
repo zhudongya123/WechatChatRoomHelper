@@ -1,7 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.helper.ui.config
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
@@ -24,11 +23,10 @@ import dalvik.system.DexClassLoader
 import manager.PermissionHelper
 import me.omico.base.activity.SetupWizardBaseActivity
 import net.dongliu.apk.parser.ApkFile
-import utils.WechatJsonUtils
+import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
 import java.io.File
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
-import java.security.Permission
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -184,9 +182,9 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
                 val apkFile = ApkFile(File(publicSourceDir))
 
 
-                textHandler.sendMessage(Message.obtain(textHandler, 2, "确定微信安装包位置：$publicSourceDir。"))
-                textHandler.sendMessage(Message.obtain(textHandler, 2, "微信版本：${apkFile.apkMeta.versionName} (${apkFile.apkMeta.versionCode})。"))
-                textHandler.sendMessage(Message.obtain(textHandler, 2, "正在准备解析类，可能需要数分钟准备，请耐心等待……"))
+                writeScrollText(2, getString(R.string.config_step3_text1),
+                        publicSourceDir, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
+                writeScrollText(2, getString(R.string.config_step3_text2))
 
                 val dexClasses = apkFile.dexClasses
 
@@ -256,6 +254,13 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
             textHandler.sendMessage(Message.obtain(textHandler, 2, "写入可配置项：key -> $k, value = $v"))
         }
     }
+
+
+    private fun writeScrollText(type: Int, text: String, vararg args: Any) {
+        textHandler.sendMessage(Message.obtain(textHandler, type,
+                String.format(Locale.CHINESE, text, *args)))
+    }
+
 
     class TextHandler(private var configTextView: TextView) : Handler() {
 

@@ -10,6 +10,10 @@
     <string name="config_step2_button1">检查</string>
 
 
+    <string name="config_step3_text1">确定微信安装包位置：%s。\n微信版本：%s (%s)。</string>
+    <string name="config_step3_text2">正在准备解析类，可能需要数分钟准备，请耐心等待……</string>
+
+
 
     <string name="config_permission_success">检查成功，已经获得了权限。</string>
     <string name="config_permission_fail">无法获得权限，您可能已经拒绝了我们的权限申请，请到设置页手动授予权限。</string>

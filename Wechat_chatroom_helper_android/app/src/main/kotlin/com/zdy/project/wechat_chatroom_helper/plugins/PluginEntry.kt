@@ -12,7 +12,7 @@ import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.callbacks.XC_LoadPackage
-import utils.WechatJsonUtils
+import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
 
 /**
  * Created by Mr.Zdy on 2018/3/31.

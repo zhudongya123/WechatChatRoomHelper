@@ -10,7 +10,7 @@ import android.provider.Settings
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import com.zdy.project.wechat_chatroom_helper.Constants
-import utils.WechatJsonUtils
+import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
 
 /**
  * Created by Mr.Zdy on 2017/11/3.
