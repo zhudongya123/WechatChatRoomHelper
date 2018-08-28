@@ -79,6 +79,9 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
     private val PAGE_WRITE_AND_READ_FILE = 1
     private val PAGE_WRITE_CONFIG = 2
 
+    private val TEXT_CHANGE_LINE = 1
+    private val TEXT_ADDITION = 2
+
 
     private var setupStep: Int = 0
 
@@ -182,9 +185,9 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
                 val apkFile = ApkFile(File(publicSourceDir))
 
 
-                writeScrollText(2, getString(R.string.config_step3_text1),
+                writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text1),
                         publicSourceDir, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
-                writeScrollText(2, getString(R.string.config_step3_text2))
+                writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text2))
 
                 val dexClasses = apkFile.dexClasses
 
@@ -218,10 +221,7 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
 
                 writeNewConfig()
 
-                textHandler.sendMessage(Message.obtain(textHandler, 2, "获取配置完成。"))
-                textHandler.sendMessage(Message.obtain(textHandler, 2, "配置文件路径：${WechatJsonUtils.configPath}"))
-                textHandler.sendMessage(Message.obtain(textHandler, 2, "配置文件已经写入本地， 适用于 ${apkFile.apkMeta.versionName} (${apkFile.apkMeta.versionCode}) 版本。"))
-                textHandler.sendMessage(Message.obtain(textHandler, 2, "点击下一步完成。"))
+                writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text3), WechatJsonUtils.configPath, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
                 setNavigationBarNextButtonEnabled(true)
 
             } catch (e: Throwable) {
@@ -235,7 +235,7 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
     private fun parseAnnotatedElementToName(element: AnnotatedElement?): String {
         return if (element == null) throw ClassNotFoundException()
         else {
-            textHandler.sendMessage(Message.obtain(textHandler, 2, "找到可配置项：$element"))
+            textHandler.sendMessage(Message.obtain(textHandler, TEXT_ADDITION, "找到可配置项：$element"))
 
             LogUtils.log("parseAnnotatedElementToName, element = $element")
 
