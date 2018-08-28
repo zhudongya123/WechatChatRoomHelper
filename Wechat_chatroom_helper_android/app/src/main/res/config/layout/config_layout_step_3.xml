@@ -4,24 +4,12 @@
     android:layout_height="match_parent">
 
 
-    <ScrollView
+    <TextView
+        android:id="@+id/config_step3_text1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:scrollbars = "vertical"
+        android:textSize="12sp" />
 
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-
-            <TextView
-                android:textSize="10sp"
-                android:id="@+id/config_step3_text1"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-        </LinearLayout>
-    </ScrollView>
 
 </RelativeLayout>

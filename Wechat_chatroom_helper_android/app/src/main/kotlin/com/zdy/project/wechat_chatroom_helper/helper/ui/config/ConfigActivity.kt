@@ -9,6 +9,7 @@ import android.support.annotation.IdRes
 import android.support.annotation.LayoutRes
 import android.support.annotation.StringRes
 import android.support.v4.content.ContextCompat
+import android.text.method.ScrollingMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,9 +25,11 @@ import manager.PermissionHelper
 import me.omico.base.activity.SetupWizardBaseActivity
 import net.dongliu.apk.parser.ApkFile
 import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
+import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import java.io.File
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -45,7 +48,6 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
                         initColorTextView(R.id.config_step2_text1, R.string.config_permission_fail, R.color.error_color_material)
                         setNavigationBarNextButtonEnabled(false)
                     }
-
                 }
             }
             else -> {
@@ -82,7 +84,6 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
     private val TEXT_CHANGE_LINE = 1
     private val TEXT_ADDITION = 2
 
-
     private var setupStep: Int = 0
 
 
@@ -103,7 +104,6 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
                 initLayout(viewGroup, R.layout.config_layout_step_2, R.string.config_step2_title, false)
                 findViewById<View>(R.id.config_step2_button1).setOnClickListener(this)
             }
-
             PAGE_WRITE_CONFIG -> {
                 initLayout(viewGroup, R.layout.config_layout_step_3, R.string.config_step3_title, false)
                 parseApkClasses()
@@ -165,7 +165,10 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
 
     private fun parseApkClasses() {
 
-        textHandler = TextHandler(findViewById(R.id.config_step3_text1))
+        val configTextView = findViewById<TextView>(R.id.config_step3_text1)
+
+
+        textHandler = TextHandler(configTextView)
 
         if (parseThread != null) {
             if (parseThread!!.isAlive) {
@@ -221,7 +224,8 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
 
                 writeNewConfig()
 
-                writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text3), WechatJsonUtils.configPath, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
+                writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text3),
+                        WechatJsonUtils.configPath, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
                 setNavigationBarNextButtonEnabled(true)
 
             } catch (e: Throwable) {
@@ -235,9 +239,7 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
     private fun parseAnnotatedElementToName(element: AnnotatedElement?): String {
         return if (element == null) throw ClassNotFoundException()
         else {
-            textHandler.sendMessage(Message.obtain(textHandler, TEXT_ADDITION, "找到可配置项：$element"))
-
-            LogUtils.log("parseAnnotatedElementToName, element = $element")
+            writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text4), element)
 
             when (element) {
                 is Method -> element.name
@@ -251,7 +253,7 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
         WechatJsonUtils.getFileString()
         configHashMap.forEach { k, v ->
             AppSaveInfo.addConfigItem(k, v)
-            textHandler.sendMessage(Message.obtain(textHandler, 2, "写入可配置项：key -> $k, value = $v"))
+            writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text5), k, v)
         }
     }
 
@@ -266,23 +268,26 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
 
         override fun handleMessage(msg: Message) {
 
+            val context = configTextView.context
+
+            val time = SimpleDateFormat("HH:mm:ss", Locale.CHINESE).format(Calendar.getInstance().time)
+
             when (msg.what) {
                 1 -> {
                     if (configTextView.tag == null) {
                         configTextView.tag = configTextView.text
                     }
                     configTextView.text =
-                            String.format(Locale.CHINESE, "%s\n遍历了%d个类，已经加载了%d个类", configTextView.tag, msg.arg1, msg.arg2)
+                            String.format(Locale.CHINESE, context.getString(R.string.config_step3_text_ex1), time, msg.arg1, msg.arg2, configTextView.tag)
                 }
 
                 2 -> {
                     configTextView.text =
-                            String.format(Locale.CHINESE, "%s\n%s", configTextView.text.toString(), msg.obj as String)
+                            String.format(Locale.CHINESE, context.getString(R.string.config_step3_text_ex2), time, msg.obj as String, configTextView.text.toString())
                 }
             }
 
-            val scrollView = configTextView.parent.parent as ScrollView
-            scrollView.smoothScrollBy(0, 200)
+
         }
     }
 }
