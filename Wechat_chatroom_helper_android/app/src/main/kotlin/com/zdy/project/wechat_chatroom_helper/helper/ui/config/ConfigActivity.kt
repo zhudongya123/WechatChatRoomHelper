@@ -1,6 +1,7 @@
 package com.zdy.project.wechat_chatroom_helper.helper.ui.config
 
 import android.content.Intent
+import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
@@ -163,10 +164,68 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
         super.setContentView(R.layout.activity_guide)
     }
 
+    class ClassParseSyncTask : AsyncTask<String, Unit, Unit>() {
+
+        val random = Random()
+        var currentRandomInt = 1
+        val classes = mutableListOf<Class<*>>()
+
+        override fun doInBackground(vararg params: String) {
+            val apkFile = ApkFile(File(params[0]))
+
+//            writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text1),
+//                    publicSourceDir, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
+//            writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text2))
+//
+//            val dexClasses = apkFile.dexClasses
+//
+//            val optimizedDirectory = getDir("dex", 0).absolutePath
+//            val classLoader = DexClassLoader(publicSourceDir, optimizedDirectory, null, classLoader)
+//
+//            dexClasses.map { it.classType.substring(1, it.classType.length - 1).replace("/", ".") }
+//                    .filter { it.contains(Constants.WECHAT_PACKAGE_NAME) }
+//                    .forEachIndexed { index, className ->
+//
+//                        try {
+//                            val clazz = classLoader.loadClass(className)
+//                            classes.add(clazz)
+//
+//                        } catch (e: Throwable) {
+//                            e.printStackTrace()
+//                        }
+//
+//                        if (index == currentRandomInt) {
+//                            currentRandomInt += random.nextInt(1000)
+//
+//                            textHandler.sendMessage(Message.obtain(textHandler, 1, index + 1, classes.size))
+//                        }
+//                    }
+//
+//            configHashMap["conversationWithCacheAdapter"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
+//            configHashMap["conversationWithAppBrandListView"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithAppBrandListView(classes))
+//            configHashMap["conversationAvatar"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
+//            configHashMap["conversationClickListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
+//            configHashMap["logcat"] = parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
+//
+//            writeNewConfig()
+//
+//            writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text3),
+//                    WechatJsonUtils.configPath, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
+//            setNavigationBarNextButtonEnabled(true)
+        }
+
+        override fun onProgressUpdate(vararg values: Unit) {
+            super.onProgressUpdate(*values)
+        }
+    }
+
     private fun parseApkClasses() {
 
         val configTextView = findViewById<TextView>(R.id.config_step3_text1)
+        val publicSourceDir = this.packageManager.getApplicationInfo(Constants.WECHAT_PACKAGE_NAME, 0).publicSourceDir
 
+        val task = ClassParseSyncTask()
+        task.execute(publicSourceDir)
 
         textHandler = TextHandler(configTextView)
 
@@ -179,54 +238,12 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
 
         parseThread = thread {
 
-            val random = Random()
-            var currentRandomInt = 1
-            val classes = mutableListOf<Class<*>>()
-
             try {
                 val publicSourceDir = this.packageManager.getApplicationInfo(Constants.WECHAT_PACKAGE_NAME, 0).publicSourceDir
                 val apkFile = ApkFile(File(publicSourceDir))
 
 
-                writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text1),
-                        publicSourceDir, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
-                writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text2))
 
-                val dexClasses = apkFile.dexClasses
-
-                val optimizedDirectory = getDir("dex", 0).absolutePath
-                val classLoader = DexClassLoader(publicSourceDir, optimizedDirectory, null, classLoader)
-
-                dexClasses.map { it.classType.substring(1, it.classType.length - 1).replace("/", ".") }
-                        .filter { it.contains(Constants.WECHAT_PACKAGE_NAME) }
-                        .forEachIndexed { index, className ->
-
-                            try {
-                                val clazz = classLoader.loadClass(className)
-                                classes.add(clazz)
-
-                            } catch (e: Throwable) {
-                                e.printStackTrace()
-                            }
-
-                            if (index == currentRandomInt) {
-                                currentRandomInt += random.nextInt(1000)
-                                textHandler.sendMessage(Message.obtain(textHandler, 1, index + 1, classes.size))
-
-                            }
-                        }
-
-                configHashMap["conversationWithCacheAdapter"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
-                configHashMap["conversationWithAppBrandListView"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithAppBrandListView(classes))
-                configHashMap["conversationAvatar"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
-                configHashMap["conversationClickListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
-                configHashMap["logcat"] = parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
-
-                writeNewConfig()
-
-                writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text3),
-                        WechatJsonUtils.configPath, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
-                setNavigationBarNextButtonEnabled(true)
 
             } catch (e: Throwable) {
                 e.printStackTrace()
@@ -251,9 +268,9 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
 
     private fun writeNewConfig() {
         WechatJsonUtils.getFileString()
-        configHashMap.forEach { k, v ->
-            AppSaveInfo.addConfigItem(k, v)
-            writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text5), k, v)
+        configHashMap.forEach { key, value ->
+            AppSaveInfo.addConfigItem(key, value)
+            writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text5), key, value)
         }
     }
 
@@ -261,6 +278,8 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
     private fun writeScrollText(type: Int, text: String, vararg args: Any) {
         textHandler.sendMessage(Message.obtain(textHandler, type,
                 String.format(Locale.CHINESE, text, *args)))
+
+
     }
 
 
