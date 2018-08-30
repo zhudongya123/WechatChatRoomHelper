@@ -1,24 +1,20 @@
 package com.zdy.project.wechat_chatroom_helper.helper.ui.config
 
+import android.app.Activity
 import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
-import android.support.annotation.ColorRes
-import android.support.annotation.IdRes
-import android.support.annotation.LayoutRes
-import android.support.annotation.StringRes
+import android.support.annotation.*
 import android.support.v4.content.ContextCompat
-import android.text.method.ScrollingMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ScrollView
 import android.widget.TextView
 import com.zdy.project.wechat_chatroom_helper.Constants
-import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.R
+import com.zdy.project.wechat_chatroom_helper.helper.ui.config.ConfigActivity.SyncHandler.Companion.HANDLER_TEXT_ADDITION
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.WXClassParser
 import dalvik.system.DexClassLoader
@@ -26,15 +22,24 @@ import manager.PermissionHelper
 import me.omico.base.activity.SetupWizardBaseActivity
 import net.dongliu.apk.parser.ApkFile
 import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
-import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import java.io.File
+import java.lang.ref.WeakReference
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.concurrent.thread
 
 class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
+
+    private val PAGE_WELCOME = 0
+    private val PAGE_WRITE_AND_READ_FILE = 1
+    private val PAGE_WRITE_CONFIG = 2
+
+
+    private var setupStep: Int = 0
+
+    private lateinit var syncHandler: SyncHandler
+
     override fun onClick(v: View) {
         when (v.id) {
             R.id.config_step2_button1 -> {
@@ -78,16 +83,6 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
     }
 
 
-    private val PAGE_WELCOME = 0
-    private val PAGE_WRITE_AND_READ_FILE = 1
-    private val PAGE_WRITE_CONFIG = 2
-
-    private val TEXT_CHANGE_LINE = 1
-    private val TEXT_ADDITION = 2
-
-    private var setupStep: Int = 0
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -129,7 +124,6 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
         }
     }
 
-
     private fun intentNextStep() {
         val intent = Intent(this, ConfigActivity::class.java)
         intent.putExtra("EXTRA_SETUP_STEP", setupStep + 1)
@@ -153,156 +147,159 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
     }
 
 
-    private var parseThread: Thread? = null
-
-    private lateinit var textHandler: TextHandler
-
-    private var configHashMap = hashMapOf<String, String>()
-
-
     override fun setContentView(layoutResID: Int) {
         super.setContentView(R.layout.activity_guide)
     }
 
-    class ClassParseSyncTask : AsyncTask<String, Unit, Unit>() {
-
-        val random = Random()
-        var currentRandomInt = 1
-        val classes = mutableListOf<Class<*>>()
-
-        override fun doInBackground(vararg params: String) {
-            val apkFile = ApkFile(File(params[0]))
-
-//            writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text1),
-//                    publicSourceDir, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
-//            writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text2))
-//
-//            val dexClasses = apkFile.dexClasses
-//
-//            val optimizedDirectory = getDir("dex", 0).absolutePath
-//            val classLoader = DexClassLoader(publicSourceDir, optimizedDirectory, null, classLoader)
-//
-//            dexClasses.map { it.classType.substring(1, it.classType.length - 1).replace("/", ".") }
-//                    .filter { it.contains(Constants.WECHAT_PACKAGE_NAME) }
-//                    .forEachIndexed { index, className ->
-//
-//                        try {
-//                            val clazz = classLoader.loadClass(className)
-//                            classes.add(clazz)
-//
-//                        } catch (e: Throwable) {
-//                            e.printStackTrace()
-//                        }
-//
-//                        if (index == currentRandomInt) {
-//                            currentRandomInt += random.nextInt(1000)
-//
-//                            textHandler.sendMessage(Message.obtain(textHandler, 1, index + 1, classes.size))
-//                        }
-//                    }
-//
-//            configHashMap["conversationWithCacheAdapter"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
-//            configHashMap["conversationWithAppBrandListView"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithAppBrandListView(classes))
-//            configHashMap["conversationAvatar"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
-//            configHashMap["conversationClickListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
-//            configHashMap["logcat"] = parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
-//
-//            writeNewConfig()
-//
-//            writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text3),
-//                    WechatJsonUtils.configPath, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
-//            setNavigationBarNextButtonEnabled(true)
-        }
-
-        override fun onProgressUpdate(vararg values: Unit) {
-            super.onProgressUpdate(*values)
-        }
-    }
-
     private fun parseApkClasses() {
 
-        val configTextView = findViewById<TextView>(R.id.config_step3_text1)
         val publicSourceDir = this.packageManager.getApplicationInfo(Constants.WECHAT_PACKAGE_NAME, 0).publicSourceDir
+        val optimizedDirectory = getDir("dex", 0).absolutePath
 
-        val task = ClassParseSyncTask()
-        task.execute(publicSourceDir)
+        syncHandler = SyncHandler(this)
+        val task = ClassParseSyncTask(syncHandler, this)
+        task.execute(publicSourceDir, optimizedDirectory)
 
-        textHandler = TextHandler(configTextView)
+    }
 
-        if (parseThread != null) {
-            if (parseThread!!.isAlive) {
-                parseThread!!.interrupt()
+    class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTask<String, Unit, Unit>() {
+
+        private val weakH = WeakReference<SyncHandler>(syncHandler)
+        private val weakA = WeakReference<Activity>(activity)
+
+        private val random = Random()
+
+        private val RANDOM_CHANGE_CLASS_NUMBER = 1000
+        private var CURRENT_RANDOM_CURSOR = 1
+
+        private var configData = hashMapOf<String, String>()
+
+
+        override fun doInBackground(vararg params: String) {
+            val srcPath = params[0]
+            val optimizedDirectory = params[1]
+
+            val classes = mutableListOf<Class<*>>()
+
+            val apkFile = ApkFile(File(srcPath))
+            val dexClasses = apkFile.dexClasses
+            val classLoader = DexClassLoader(srcPath, optimizedDirectory, null, weakA.get()?.classLoader)
+
+
+            sendMessageToHandler(HANDLER_TEXT_ADDITION, weakA.get()!!.getString(R.string.config_step3_text1),
+                    srcPath, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
+            sendMessageToHandler(HANDLER_TEXT_ADDITION, weakA.get()!!.getString(R.string.config_step3_text2))
+
+
+            dexClasses.map { it.classType.substring(1, it.classType.length - 1).replace("/", ".") }
+                    .filter { it.contains(Constants.WECHAT_PACKAGE_NAME) }
+                    .forEachIndexed { index, className ->
+
+                        try {
+                            val clazz = classLoader.loadClass(className)
+                            classes.add(clazz)
+
+                        } catch (e: Throwable) {
+                            e.printStackTrace()
+                        }
+
+                        if (index == CURRENT_RANDOM_CURSOR) {
+
+                            CURRENT_RANDOM_CURSOR += random.nextInt(RANDOM_CHANGE_CLASS_NUMBER)
+
+
+                            sendMessageToHandler(SyncHandler.HANDLER_TEXT_CHANGE_LINE,
+                                    weakA.get()!!.getString(R.string.config_step3_text6), index + 1, classes.size)
+                        }
+                    }
+
+            configData["conversationWithCacheAdapter"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
+            configData["conversationWithAppBrandListView"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithAppBrandListView(classes))
+            configData["conversationAvatar"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
+            configData["conversationClickListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
+            configData["logcat"] = parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
+
+            writeNewConfig()
+
+            sendMessageToHandler(HANDLER_TEXT_ADDITION, weakA.get()!!.getString(R.string.config_step3_text3),
+                    WechatJsonUtils.configPath, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
+        }
+
+
+        override fun onPostExecute(result: Unit?) {
+            sendMessageToHandler(SyncHandler.HANDLER_SHOW_NEXT_BUTTON, String())
+        }
+
+        @Throws(Exception::class)
+        private fun parseAnnotatedElementToName(element: AnnotatedElement?): String {
+            return if (element == null) throw ClassNotFoundException()
+            else {
+                sendMessageToHandler(HANDLER_TEXT_ADDITION, weakA.get()!!.getString(R.string.config_step3_text4), element)
+                when (element) {
+                    is Method -> element.name
+                    is Class<*> -> element.name
+                    else -> ""
+                }
             }
-            parseThread = null
         }
 
-        parseThread = thread {
+        private fun writeNewConfig() {
+            WechatJsonUtils.getFileString()
+            configData.forEach { key, value ->
+                AppSaveInfo.addConfigItem(key, value)
+                sendMessageToHandler(HANDLER_TEXT_ADDITION, weakA.get()!!.getString(R.string.config_step3_text5), key, value)
+            }
+        }
 
-            try {
-                val publicSourceDir = this.packageManager.getApplicationInfo(Constants.WECHAT_PACKAGE_NAME, 0).publicSourceDir
-                val apkFile = ApkFile(File(publicSourceDir))
-
-
-
-
-            } catch (e: Throwable) {
-                e.printStackTrace()
+        private fun sendMessageToHandler(type: Int, text: String, vararg args: Any) {
+            when (type) {
+                SyncHandler.HANDLER_TEXT_ADDITION,
+                SyncHandler.HANDLER_TEXT_CHANGE_LINE -> {
+                    weakH.get()?.sendMessage(Message.obtain(weakH.get(), type,
+                            String.format(Locale.CHINESE, text, *args)))
+                }
+                SyncHandler.HANDLER_SHOW_NEXT_BUTTON -> {
+                    weakH.get()?.sendMessage(Message.obtain(weakH.get(), type))
+                }
             }
         }
 
     }
 
-    @Throws(Exception::class)
-    private fun parseAnnotatedElementToName(element: AnnotatedElement?): String {
-        return if (element == null) throw ClassNotFoundException()
-        else {
-            writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text4), element)
 
-            when (element) {
-                is Method -> element.name
-                is Class<*> -> element.name
-                else -> ""
-            }
+    class SyncHandler(val activity: ConfigActivity) : Handler() {
+
+        companion object {
+
+
+            const val HANDLER_TEXT_CHANGE_LINE = 1
+            const val HANDLER_TEXT_ADDITION = 2
+            const val HANDLER_SHOW_NEXT_BUTTON = 3
+
         }
-    }
 
-    private fun writeNewConfig() {
-        WechatJsonUtils.getFileString()
-        configHashMap.forEach { key, value ->
-            AppSaveInfo.addConfigItem(key, value)
-            writeScrollText(TEXT_ADDITION, getString(R.string.config_step3_text5), key, value)
-        }
-    }
-
-
-    private fun writeScrollText(type: Int, text: String, vararg args: Any) {
-        textHandler.sendMessage(Message.obtain(textHandler, type,
-                String.format(Locale.CHINESE, text, *args)))
-
-
-    }
-
-
-    class TextHandler(private var configTextView: TextView) : Handler() {
+        private val configTextView = activity.findViewById<TextView>(R.id.config_step3_text1)
 
         override fun handleMessage(msg: Message) {
-
-            val context = configTextView.context
 
             val time = SimpleDateFormat("HH:mm:ss", Locale.CHINESE).format(Calendar.getInstance().time)
 
             when (msg.what) {
-                1 -> {
+                HANDLER_TEXT_CHANGE_LINE -> {
                     if (configTextView.tag == null) {
                         configTextView.tag = configTextView.text
                     }
                     configTextView.text =
-                            String.format(Locale.CHINESE, context.getString(R.string.config_step3_text_ex1), time, msg.arg1, msg.arg2, configTextView.tag)
+                            String.format(Locale.CHINESE, activity.getString(R.string.config_step3_text_ex), time, msg.obj as String, configTextView.tag)
                 }
 
-                2 -> {
+                HANDLER_TEXT_ADDITION -> {
                     configTextView.text =
-                            String.format(Locale.CHINESE, context.getString(R.string.config_step3_text_ex2), time, msg.obj as String, configTextView.text.toString())
+                            String.format(Locale.CHINESE, activity.getString(R.string.config_step3_text_ex), time, msg.obj as String, configTextView.text.toString())
+                }
+
+                HANDLER_SHOW_NEXT_BUTTON -> {
+                    activity.setNavigationBarNextButtonEnabled(true)
                 }
             }
 

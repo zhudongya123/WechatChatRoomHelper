@@ -15,10 +15,10 @@
     <string name="config_step3_text3">点击下一步完成。\n获取配置完成。\n配置文件路径：%s。\n配置文件已经写入本地， 适用于 %s (%s) 版本。</string>
     <string name="config_step3_text4">找到可配置项：%s。</string>
     <string name="config_step3_text5">写入可配置项：key -> %s, value = %s。</string>
+    <string name="config_step3_text6">遍历了%d个类，已经加载了%d个类。</string>
 
 
-    <string name="config_step3_text_ex1">%s : 遍历了%d个类，已经加载了%d个类\n%s。</string>
-    <string name="config_step3_text_ex2">%s : %s\n%s</string>
+    <string name="config_step3_text_ex">%s : %s\n%s</string>
 
 
     <string name="config_permission_success">检查成功，已经获得了权限。</string>
