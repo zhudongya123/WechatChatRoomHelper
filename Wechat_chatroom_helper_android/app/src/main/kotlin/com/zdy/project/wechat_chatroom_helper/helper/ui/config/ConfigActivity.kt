@@ -2,12 +2,18 @@ package com.zdy.project.wechat_chatroom_helper.helper.ui.config
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Color
 import android.os.AsyncTask
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.support.annotation.*
 import android.support.v4.content.ContextCompat
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
+import android.text.SpannedString
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,6 +28,7 @@ import manager.PermissionHelper
 import me.omico.base.activity.SetupWizardBaseActivity
 import net.dongliu.apk.parser.ApkFile
 import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
+import ui.MainActivity
 import java.io.File
 import java.lang.ref.WeakReference
 import java.lang.reflect.AnnotatedElement
@@ -119,7 +126,7 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
                 intentNextStep()
             }
             PAGE_WRITE_CONFIG -> {
-
+                startActivity(Intent(this, MainActivity::class.java))
             }
         }
     }
@@ -271,7 +278,6 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
 
         companion object {
 
-
             const val HANDLER_TEXT_CHANGE_LINE = 1
             const val HANDLER_TEXT_ADDITION = 2
             const val HANDLER_SHOW_NEXT_BUTTON = 3
@@ -285,18 +291,37 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
             val time = SimpleDateFormat("HH:mm:ss", Locale.CHINESE).format(Calendar.getInstance().time)
 
             when (msg.what) {
+                HANDLER_TEXT_ADDITION,
                 HANDLER_TEXT_CHANGE_LINE -> {
-                    if (configTextView.tag == null) {
-                        configTextView.tag = configTextView.text
+
+                    val spannableStringBuilder =
+                            if (configTextView.text == "") {
+                                val spannableStringBuilder = SpannableStringBuilder()
+                                configTextView.text = spannableStringBuilder
+                                spannableStringBuilder
+                            } else SpannableStringBuilder(configTextView.text as SpannedString)
+
+                    val format = activity.getString(R.string.config_step3_text_ex)
+                    val part1 = time
+                    val part2 = msg.obj as String
+
+
+                    val singleString = String.format(Locale.CHINESE, format, part1, part2)
+
+                    if (msg.what == HANDLER_TEXT_CHANGE_LINE) {
+                        spannableStringBuilder.delete(0, spannableStringBuilder.toString().indexOfFirst { it == '\n' } + 1)
                     }
-                    configTextView.text =
-                            String.format(Locale.CHINESE, activity.getString(R.string.config_step3_text_ex), time, msg.obj as String, configTextView.tag)
+
+                    spannableStringBuilder.insert(0, singleString)
+
+                    val startLength = 0
+                    val endLength = singleString.length
+
+                    spannableStringBuilder.setSpan(ForegroundColorSpan(Color.GRAY), startLength, endLength, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                    configTextView.text = spannableStringBuilder
                 }
 
-                HANDLER_TEXT_ADDITION -> {
-                    configTextView.text =
-                            String.format(Locale.CHINESE, activity.getString(R.string.config_step3_text_ex), time, msg.obj as String, configTextView.text.toString())
-                }
 
                 HANDLER_SHOW_NEXT_BUTTON -> {
                     activity.setNavigationBarNextButtonEnabled(true)

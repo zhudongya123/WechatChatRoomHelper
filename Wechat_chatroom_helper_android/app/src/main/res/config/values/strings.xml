@@ -18,7 +18,7 @@
     <string name="config_step3_text6">遍历了%d个类，已经加载了%d个类。</string>
 
 
-    <string name="config_step3_text_ex">%s : %s\n%s</string>
+    <string name="config_step3_text_ex">%s : %s\n</string>
 
 
     <string name="config_permission_success">检查成功，已经获得了权限。</string>
