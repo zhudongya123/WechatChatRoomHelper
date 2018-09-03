@@ -261,12 +261,6 @@ class MainActivity : AppCompatActivity() {
         permissionHelper.onRequestPermissionsResult(requestCode, grantResults)
     }
 
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
 
-        // if (hasFocus) {
-        //      permissionHelper = PermissionHelper.checkFile(thisActivity)
-        //  }
-    }
 
 }

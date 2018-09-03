@@ -8,7 +8,6 @@
         android:id="@+id/config_step3_text1"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scrollbars = "vertical"
         android:textSize="12sp" />
 
 
