@@ -36,7 +36,7 @@ class PluginEntry : IXposedHookLoadPackage {
         if (p0.processName == Constants.WECHAT_PACKAGE_NAME) {
             classloader = p0.classLoader
 
-            WechatJsonUtils.getFileString()
+            WechatJsonUtils.init(null)
             val configJson = AppSaveInfo.getConfigJson()
 
             WXObject.Adapter.C.ConversationWithAppBrandListView = configJson.get("conversationWithAppBrandListView").asString

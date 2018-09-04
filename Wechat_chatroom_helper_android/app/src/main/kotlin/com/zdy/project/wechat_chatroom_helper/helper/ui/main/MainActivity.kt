@@ -31,18 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var detail: TextView
     private lateinit var listContent: LinearLayout
 
-    private lateinit var receiver: PermissionBroadCastReceiver
-    private lateinit var permissionHelper: PermissionHelper
 
-
-    inner class PermissionBroadCastReceiver : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-
-            bindView()
-            //加載可配置項的佈局
-            initSetting()
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,8 +52,10 @@ class MainActivity : AppCompatActivity() {
         detail = findViewById<TextView>(R.id.detail)
         listContent = findViewById<LinearLayout>(R.id.list_content)
 
-
         bindView()
+
+        //加載可配置項的佈局
+        initSetting()
     }
 
     private fun initSetting() {
@@ -126,10 +117,6 @@ class MainActivity : AppCompatActivity() {
         title = "微信群消息助手"
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(receiver)
-    }
 
     private fun bindView() {
 
@@ -256,10 +243,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        permissionHelper.onRequestPermissionsResult(requestCode, grantResults)
-    }
+
 
 
 

@@ -26,7 +26,7 @@ object WechatJsonUtils {
     private lateinit var currentJson: JsonObject
 
 
-    fun init(activity: Activity?) {
+    fun init(activity: Activity?): String {
 
         val folder = File(folderPath)
         val config = File(folderPath, "config.xml")
@@ -41,7 +41,7 @@ object WechatJsonUtils {
         }
         activity?.sendBroadcast(Intent(Constants.FILE_INIT_SUCCESS))
 
-        getFileString()
+        return getFileString()
     }
 
     fun getJsonValue(key: String, defaultValue: String): String {
@@ -97,14 +97,13 @@ object WechatJsonUtils {
     }
 
 
-    fun getFileString(): String {
+    private fun getFileString(): String {
         val fis: FileInputStream
         try {
             fis = FileInputStream(File(configPath))
         } catch (e: Exception) {
             e.printStackTrace()
-            init(null)
-            return getFileString()
+            return init(null)
         }
         val length = fis.available()
         val buffer = ByteArray(length)

@@ -117,7 +117,6 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
     }
 
     private fun writeNewConfig() {
-        WechatJsonUtils.getFileString()
         configData.forEach { key, value ->
             AppSaveInfo.addConfigItem(key, value)
             sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_NORMAL), weakA.get()!!.getString(R.string.config_step3_text5), key, value)
