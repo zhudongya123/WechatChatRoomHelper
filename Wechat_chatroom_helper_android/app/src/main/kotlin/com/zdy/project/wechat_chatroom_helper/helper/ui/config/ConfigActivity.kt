@@ -143,7 +143,6 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
         syncHandler = SyncHandler(this)
         val task = ClassParseSyncTask(syncHandler, this)
         task.execute(publicSourceDir, optimizedDirectory)
-
     }
 
      fun setNavigationBarNextButtonEnabled2(result: Boolean) {

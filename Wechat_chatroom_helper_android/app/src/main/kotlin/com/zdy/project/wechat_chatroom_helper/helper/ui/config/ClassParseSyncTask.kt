@@ -47,9 +47,11 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
         val classLoader = DexClassLoader(srcPath, optimizedDirectory, null, weakA.get()?.classLoader)
 
 
-        sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_NORMAL), weakA.get()!!.getString(R.string.config_step3_text1),
+        sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_NORMAL),
+                weakA.get()!!.getString(R.string.config_step3_text1),
                 srcPath, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
-        sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_NORMAL), weakA.get()!!.getString(R.string.config_step3_text2))
+        sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_NORMAL),
+                weakA.get()!!.getString(R.string.config_step3_text2))
 
 
         dexClasses.map { it.classType.substring(1, it.classType.length - 1).replace("/", ".") }
@@ -70,21 +72,32 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                 }
 
         try {
-            configData["conversationWithCacheAdapter"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
-            configData["conversationWithAppBrandListView"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithAppBrandListView(classes))
-            configData["conversationAvatar"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
-            configData["conversationClickListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
-            configData["logcat"] = parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
+            configData["conversationWithCacheAdapter"] =
+                    parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
+            configData["conversationWithAppBrandListView"] =
+                    parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithAppBrandListView(classes))
+            configData["conversationAvatar"] =
+                    parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
+            configData["conversationClickListener"] =
+                    parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
+            configData["logcat"] =
+                    parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
         } catch (e: Exception) {
             e.printStackTrace()
         }
 
         writeNewConfig()
 
-        sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_PASS), weakA.get()!!.getString(R.string.config_step3_text3),
-                WechatJsonUtils.configPath, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
+        sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_PASS),
+                weakA.get()!!.getString(R.string.config_step3_text3),
+                WechatJsonUtils.configPath, apkFile.apkMeta.versionName,
+                apkFile.apkMeta.versionCode.toString())
     }
 
+    override fun onPreExecute() {
+        sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_NORMAL),
+                weakA.get()!!.getString(R.string.config_step3_text0))
+    }
 
     override fun onPostExecute(result: Unit?) {
         sendMessageToHandler(makeTypeSpec(HANDLER_SHOW_NEXT_BUTTON, TEXT_COLOR_NORMAL), String())

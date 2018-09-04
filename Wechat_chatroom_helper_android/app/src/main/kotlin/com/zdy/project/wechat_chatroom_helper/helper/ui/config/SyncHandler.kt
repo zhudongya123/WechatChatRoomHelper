@@ -39,7 +39,8 @@ class SyncHandler(val activity: ConfigActivity) : Handler() {
 
         val time = SimpleDateFormat("HH:mm:ss", Locale.CHINESE).format(Calendar.getInstance().time)
 
-        when (getType(msg.what)) {
+        val type = getType(msg.what)
+        when (type) {
             HANDLER_TEXT_ADDITION,
             HANDLER_TEXT_CHANGE_LINE -> {
 
@@ -57,7 +58,7 @@ class SyncHandler(val activity: ConfigActivity) : Handler() {
 
                 val singleString = String.format(Locale.CHINESE, format, part1, part2)
 
-                if (msg.what == HANDLER_TEXT_CHANGE_LINE) {
+                if (type == HANDLER_TEXT_CHANGE_LINE && spannableStringBuilder.toString().contains("个类")) {
                     spannableStringBuilder.delete(0, spannableStringBuilder.toString().indexOfFirst { it == '\n' } + 1)
                 }
 
