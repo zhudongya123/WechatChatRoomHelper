@@ -39,9 +39,11 @@ object WechatJsonUtils {
             config.setWritable(true)
             config.setReadable(true)
         }
+
+        val fileString = getFileString()
         activity?.sendBroadcast(Intent(Constants.FILE_INIT_SUCCESS))
 
-        return getFileString()
+        return fileString
     }
 
     fun getJsonValue(key: String, defaultValue: String): String {
@@ -103,7 +105,7 @@ object WechatJsonUtils {
             fis = FileInputStream(File(configPath))
         } catch (e: Exception) {
             e.printStackTrace()
-            return init(null)
+            throw RuntimeException("error")
         }
         val length = fis.available()
         val buffer = ByteArray(length)

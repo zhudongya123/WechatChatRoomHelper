@@ -16,9 +16,9 @@ import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.ConfigActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActivity
-import manager.PermissionHelper
-import network.ApiManager
+import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import network.ApiManager
 
 
 class MainActivity : AppCompatActivity() {
@@ -31,18 +31,23 @@ class MainActivity : AppCompatActivity() {
     private lateinit var detail: TextView
     private lateinit var listContent: LinearLayout
 
+    private lateinit var receiver: PermissionBroadCastReceiver
 
+
+    inner class PermissionBroadCastReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+
+            initSetting()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         thisActivity = this@MainActivity
 
-        //权限检查广播
-        // receiver = PermissionBroadCastReceiver()
-        //   registerReceiver(receiver, IntentFilter(Constants.FILE_INIT_SUCCESS))
+        receiver = PermissionBroadCastReceiver()
+        registerReceiver(receiver, IntentFilter(Constants.FILE_INIT_SUCCESS))
 
-        //检查权限
-        //permissionHelper = PermissionHelper.checkFile(thisActivity)
 
         //加載佈局
         setContentView(R.layout.activity_main)
@@ -54,8 +59,7 @@ class MainActivity : AppCompatActivity() {
 
         bindView()
 
-        //加載可配置項的佈局
-        initSetting()
+        WechatJsonUtils.init(thisActivity)
     }
 
     private fun initSetting() {
@@ -242,9 +246,6 @@ class MainActivity : AppCompatActivity() {
             AppSaveInfo.setShowInfo(msg)
         }
     }
-
-
-
 
 
 }
