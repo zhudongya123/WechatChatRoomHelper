@@ -74,7 +74,7 @@ class PreviewFragment : Fragment() {
             it.setTitleTextColor(0xFFFFFFFF.toInt())
         }
 
-        val clazz: Class<*> = Class.forName("android.widget.Toolbar")
+        val clazz: Class<*> = Toolbar::class.java
         val mTitleTextView = clazz.getDeclaredField("mTitleTextView").apply { isAccessible = true }
         (mTitleTextView.get(mToolbar) as TextView).setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
 

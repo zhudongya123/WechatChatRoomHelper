@@ -24,5 +24,7 @@
             android:layout_height="wrap_content"
             android:text="@string/config_step2_button1" />
 
+
+
     </LinearLayout>
 </RelativeLayout>

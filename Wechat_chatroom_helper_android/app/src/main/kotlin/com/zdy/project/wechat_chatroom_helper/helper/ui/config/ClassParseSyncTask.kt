@@ -17,6 +17,7 @@ import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.WXClassParser
 import dalvik.system.DexClassLoader
 import net.dongliu.apk.parser.ApkFile
+import ui.MyApplication
 import java.io.File
 import java.lang.ref.WeakReference
 import java.lang.reflect.AnnotatedElement
@@ -92,6 +93,8 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                 weakA.get()!!.getString(R.string.config_step3_text3),
                 WechatJsonUtils.configPath, apkFile.apkMeta.versionName,
                 apkFile.apkMeta.versionCode.toString())
+
+
     }
 
     override fun onPreExecute() {
@@ -101,6 +104,9 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
 
     override fun onPostExecute(result: Unit?) {
         sendMessageToHandler(makeTypeSpec(HANDLER_SHOW_NEXT_BUTTON, TEXT_COLOR_NORMAL), String())
+        AppSaveInfo.setSuitWechatDataInfo(true)
+        AppSaveInfo.setWechatVersionInfo(MyApplication.get().getWechatVersionCode().toString())
+        WechatJsonUtils.putFileString()
     }
 
     @Throws(Exception::class)

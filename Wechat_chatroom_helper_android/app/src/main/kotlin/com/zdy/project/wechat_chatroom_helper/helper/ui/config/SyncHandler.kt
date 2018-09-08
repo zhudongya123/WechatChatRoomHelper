@@ -70,8 +70,8 @@ class SyncHandler(val activity: ConfigActivity) : Handler() {
                 val color = when (getColor(msg.what)) {
 
                     TEXT_COLOR_NORMAL -> Color.GRAY
-                    TEXT_COLOR_PASS -> ContextCompat.getColor(activity, R.color.material_deep_teal_500)
-                    TEXT_COLOR_ERROR -> ContextCompat.getColor(activity, R.color.error_color_material)
+                    TEXT_COLOR_PASS -> ContextCompat.getColor(activity, R.color.right_color)
+                    TEXT_COLOR_ERROR -> ContextCompat.getColor(activity, R.color.error_color)
                     else -> Color.GRAY
                 }
                 spannableStringBuilder.setSpan(ForegroundColorSpan(color), startLength, endLength, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)

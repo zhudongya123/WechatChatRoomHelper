@@ -91,7 +91,11 @@ object WechatJsonUtils {
 
 
     private fun getFileString(): String {
-
+        try {
+            throw Exception("getFileString")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         val res = FileIOUtils.readFile2String(configPath, "UTF-8")
         if (TextUtils.isEmpty(res)) {
             init(null)
@@ -104,6 +108,12 @@ object WechatJsonUtils {
     }
 
     fun putFileString() {
+
+        try {
+            throw Exception("getFileString")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         Log.v("WechatJsonUtils", "putFileString = $currentJson")
 
         FileIOUtils.writeFileFromString(File(configPath), currentJson.toString())

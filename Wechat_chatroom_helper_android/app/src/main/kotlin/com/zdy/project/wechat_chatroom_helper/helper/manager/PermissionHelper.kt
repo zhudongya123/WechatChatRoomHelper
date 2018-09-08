@@ -9,6 +9,7 @@ import android.net.Uri
 import android.provider.Settings
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import com.blankj.utilcode.util.SPUtils
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
 
@@ -38,7 +39,8 @@ class PermissionHelper(private var activity: Activity) {
             if (ContextCompat.checkSelfPermission(activity,
                             Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 //拒絕過權限授予，直接提醒跳轉到設置
-                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                if (!ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        && SPUtils.getInstance().getBoolean("Permission_Flag", false)) {
                     permissionHelper.settingDialog.show()
                 }
                 //請求權限授予
@@ -61,7 +63,8 @@ class PermissionHelper(private var activity: Activity) {
             if (ContextCompat.checkSelfPermission(activity,
                             Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 //拒絕過權限授予
-                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                if (!ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        && SPUtils.getInstance().getBoolean("Permission_Flag", false)) {
                     return DENY
                 }
                 //請求權限授予
@@ -76,9 +79,20 @@ class PermissionHelper(private var activity: Activity) {
 
         @JvmStatic
         fun requestPermission(activity: Activity) {
+            SPUtils.getInstance().put("Permission_Flag", true)
             ActivityCompat.requestPermissions(activity,
                     arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
                     Constants.WRITE_EXTERNAL_STORAGE_RESULT_CODE)
+        }
+
+        @JvmStatic
+        fun gotoPermissionPage(activity: Activity) {
+            val intent = Intent().also { intent ->
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                intent.data = Uri.fromParts("package", activity.packageName, null)
+            }
+            activity.startActivity(intent)
         }
     }
 
@@ -99,12 +113,7 @@ class PermissionHelper(private var activity: Activity) {
             .setMessage("我们必须获得读写文件的权限才能正常工作，请前往设置项授予相应权限。")
             .setTitle("授予权限消息")
             .setPositiveButton("去设置") { dialog, _ ->
-                val intent = Intent().also { intent ->
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                    intent.data = Uri.fromParts("package", activity.packageName, null)
-                }
-                activity.startActivity(intent)
+                gotoPermissionPage(activity)
                 dialog.dismiss()
             }
             .setCancelable(false)

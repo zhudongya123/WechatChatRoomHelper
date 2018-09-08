@@ -4,6 +4,7 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.SwitchCompat
 import android.view.LayoutInflater
@@ -11,9 +12,11 @@ import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.blankj.utilcode.util.AppUtils
 import com.google.gson.JsonParser
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
+import com.zdy.project.wechat_chatroom_helper.helper.ui.BaseActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.ConfigActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActivity
 import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
@@ -22,38 +25,21 @@ import network.ApiManager
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
 
-    private lateinit var thisActivity: MainActivity
 
-    private lateinit var clickMe: Button
-    private lateinit var qian: Button
-    private lateinit var multiWechat: Button
-    private lateinit var detail: TextView
     private lateinit var listContent: LinearLayout
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        thisActivity = this@MainActivity
 
-        //权限检查广播
-        // receiver = PermissionBroadCastReceiver()
-        //   registerReceiver(receiver, IntentFilter(Constants.FILE_INIT_SUCCESS))
-
-        //检查权限
-        //permissionHelper = PermissionHelper.checkFile(thisActivity)
 
         //加載佈局
         setContentView(R.layout.activity_main)
-        clickMe = findViewById<Button>(R.id.button)
-        qian = findViewById<Button>(R.id.button2)
-        multiWechat = findViewById<Button>(R.id.button3)
-        detail = findViewById<TextView>(R.id.detail)
         listContent = findViewById<LinearLayout>(R.id.list_content)
 
-        bindView()
-
+        title = "微信群消息助手"
     }
 
 
@@ -65,27 +51,26 @@ class MainActivity : AppCompatActivity() {
                 PermissionHelper.ALLOW -> {
                     //加載可配置項的佈局
                     WechatJsonUtils.init(this)
-                    initSetting()
+                    initSetting(arrayOf("群消息助手状态", "疑难解答", "群消息助手功能设置", "群消息助手 UI 设置", "其他功能", "联系和捐赠"))
                 }
                 PermissionHelper.ASK -> {
-
+                    initSetting(arrayOf("群消息助手状态"))
                 }
                 PermissionHelper.DENY -> {
-
+                    initSetting(arrayOf("群消息助手状态"))
                 }
-
             }
         }
 
     }
 
-    private fun initSetting() {
-        val titles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手UI设置", "Xposed日志开关", "隐藏程序入口")
-        val subTitles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手UI设置", "Xposed日志开关", "隐藏程序入口")
+    private fun initSetting(array: Array<String>) {
 
-        repeat(titles.size) {
+        listContent.removeAllViews()
 
-            title = titles[it]
+        repeat(array.size) { index ->
+
+            title = array[index]
 
             val itemView = LayoutInflater.from(thisActivity).inflate(R.layout.layout_setting_item, listContent, false)
             val text1 = itemView.findViewById<TextView>(android.R.id.text1)
@@ -96,40 +81,35 @@ class MainActivity : AppCompatActivity() {
 
             itemView.setOnClickListener { switch.performClick() }
 
-            when (it) {
+            when (index) {
                 0 -> {
-                    switch.isChecked = AppSaveInfo.openInfo()
-                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfo.setOpen(isChecked) }
-                }
-                1 -> {
-                    switch.isChecked = AppSaveInfo.isPlayVersionInfo()
-                    switch.setOnCheckedChangeListener { _, isChecked ->
-                        AppSaveInfo.setPlayVersionInfo(isChecked)
-                        sendRequest(MyApplication.get().getWechatVersionCode().toString(), AppSaveInfo.isPlayVersionInfo())
+                    itemView.setOnClickListener {
+                        thisActivity.startActivity(Intent(thisActivity, ConfigActivity::class.java))
                     }
-                }
-                2 -> {
-                    switch.isChecked = AppSaveInfo.isCircleAvatarInfo()
-                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfo.setCircleAvatarInfo(isChecked) }
-                }
-                3 -> {
-                    switch.isChecked = AppSaveInfo.autoCloseInfo()
-                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfo.setAutoCloseInfo(isChecked) }
-                }
-                4 -> {
-                    switch.visibility = View.INVISIBLE
-                    switch.setOnClickListener { startActivity(Intent(thisActivity, UISettingActivity::class.java)) }
-                }
-                5 -> {
-                    switch.isChecked = AppSaveInfo.openLogInfo()
-                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfo.setOpenLog(isChecked) }
-                }
-                6 -> {
-                    switch.isChecked = AppSaveInfo.launcherEntryInfo()
-                    switch.setOnCheckedChangeListener { _, isChecked ->
-                        AppSaveInfo.setLauncherEntry(isChecked)
-                        showHideLauncherIcon(!isChecked)
+
+                    when (PermissionHelper.check(thisActivity)) {
+                        PermissionHelper.ALLOW -> {
+                            if (AppSaveInfo.hasSuitWechatDataInfo()) {
+                                val saveWechatVersionInfo = AppSaveInfo.wechatVersionInfo()
+                                val currentWechatVersionInfo = MyApplication.get().getWechatVersionCode().toString()
+                                if (saveWechatVersionInfo == currentWechatVersionInfo) {
+                                    setSuccessText(text2, "本地适配文件适用于 $saveWechatVersionInfo 版本微信，已适配。")
+                                } else {
+                                    setFailText(text2, "本地适配文件适用于 $saveWechatVersionInfo 版本微信，当前微信版本：$currentWechatVersionInfo， 点击获取新的适配文件。")
+                                }
+                            } else {
+                                setFailText(text2, "本地未发现适配文件， 点击获取新的适配文件。")
+                            }
+                        }
+                        PermissionHelper.ASK -> {
+                            setWarmText(text2, "未获得外部存储存储权限，点击获取并创建新的适配文件。")
+                        }
+                        PermissionHelper.DENY -> {
+                            setFailText(text2, "您已经拒绝了我们的权限授予，点击手动授予权限。")
+                        }
                     }
+
+
                 }
 
             }
@@ -137,133 +117,21 @@ class MainActivity : AppCompatActivity() {
             listContent.addView(itemView)
         }
 
-        title = "微信群消息助手"
     }
 
-
-    private fun bindView() {
-
-        //获取公告及其Dialog
-        clickMe.setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse("http://116.62.247.71:8080/wechat/") }
-            startActivity(intent)
-        }
-        qian.setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse("https://QR.ALIPAY.COM/FKX09384NJXB5JXT9MLD11") }
-            startActivity(intent)
-        }
-        multiWechat.setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW).apply { data = Uri.parse("https://github.com/zhudongya123/WechatChatroomHelper/wiki/在双开-分身-中使用群消息助手") }
-            startActivity(intent)
-        }
-
-
-        findViewById<View>(R.id.button4).setOnClickListener {
-
-            val intent = Intent(thisActivity, ConfigActivity::class.java)
-            startActivity(intent)
-        }
-
-        //檢查配置
-        //loadConfig()
+    private fun setWarmText(view: TextView, msg: String) {
+        view.text = msg
+        view.setTextColor(ContextCompat.getColor(thisActivity, R.color.warm_color))
     }
 
-    private fun loadConfig() {
-        //是否已经适配了合适的数据的标记(已经成功匹配过)
-        val hasSuitWechatData = AppSaveInfo.hasSuitWechatDataInfo()
-
-        //play开关是否打开的标记
-        val playVersion = AppSaveInfo.isPlayVersionInfo()
-
-        //当前保存的微信版本号
-        val saveWechatVersionCode = AppSaveInfo.wechatVersionInfo()
-
-        //当前保存的主程序版本号
-        val saveHelperVersionCode = AppSaveInfo.helpVersionCodeInfo()
-
-        //当前的微信版本号
-        val wechatVersionCode = MyApplication.get().getWechatVersionCode().toString()
-
-        //当前的主程序版本号
-        val helperVersionCode = MyApplication.get().getHelperVersionCode().toString()
-
-        //  如果微信版本号发生了变化且保存过版本号（上次使用别的版本加载过）
-        //  或者保存的数据中是 没有适合的数据的标记
-        //  或者主程序版本号发生了改变
-        if (wechatVersionCode != saveWechatVersionCode
-                && saveWechatVersionCode != "0"
-                || !hasSuitWechatData
-                || saveHelperVersionCode != helperVersionCode) {
-
-            //则发送数据请求
-            sendRequest(wechatVersionCode, playVersion)
-        } else {
-
-            //否则则取出上次保存的合适的信息
-            detail.setTextColor(0xFF888888.toInt())
-            detail.text = AppSaveInfo.showInfo()
-        }
+    private fun setFailText(view: TextView, msg: String) {
+        view.text = msg
+        view.setTextColor(ContextCompat.getColor(thisActivity, R.color.error_color))
     }
 
-    private fun sendRequest(versionCode: String, play_version: Boolean) {
-
-        val request = ApiManager.getClassMappingRequest(versionCode, play_version)
-
-        ApiManager.sendRequestForClassMapping(request) {
-            try {
-                val string = it.body()!!.string()
-                val jsonObject = JsonParser().parse(string).asJsonObject
-                val code = jsonObject.get("code").asInt
-                val msg = jsonObject.get("msg").asString
-
-                //保存匹配到的数据
-                if (code == 0) {
-                    AppSaveInfo.setJson(jsonObject.get("data").toString())
-                    setSuccessText(msg)
-                } else {
-                    AppSaveInfo.setJson("")
-                    setFailText(msg)
-                }
-
-                //保存主程序版本号
-                AppSaveInfo.setHelpVersionCodeInfo(MyApplication.get().getHelperVersionCode().toString())
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-                setFailText("从服务器获取数据失败，请联系检查网络链接")
-            }
-        }
-
-    }
-
-    private fun showHideLauncherIcon(show: Boolean) {
-        val p = packageManager
-        val componentName = ComponentName(this, "$packageName.LauncherDelegate")
-        p.setComponentEnabledSetting(componentName,
-                if (show) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-                PackageManager.DONT_KILL_APP)
-    }
-
-    private fun setFailText(msg: String) {
-        runOnUiThread {
-            detail.text = msg
-            detail.setTextColor(0xFFFF0000.toInt())
-
-            AppSaveInfo.setSuitWechatDataInfo(false)
-            AppSaveInfo.setShowInfo(msg)
-        }
-    }
-
-    private fun setSuccessText(msg: String) {
-        runOnUiThread {
-            detail.setTextColor(0xFF888888.toInt())
-            detail.text = msg
-
-            AppSaveInfo.setWechatVersionInfo(MyApplication.get().getWechatVersionCode().toString())
-            AppSaveInfo.setSuitWechatDataInfo(true)
-            AppSaveInfo.setShowInfo(msg)
-        }
+    private fun setSuccessText(view: TextView, msg: String) {
+        view.text = msg
+        view.setTextColor(ContextCompat.getColor(thisActivity, R.color.right_color))
     }
 
 

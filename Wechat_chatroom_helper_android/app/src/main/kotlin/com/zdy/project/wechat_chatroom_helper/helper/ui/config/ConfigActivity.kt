@@ -13,6 +13,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
+import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import manager.PermissionHelper
 import me.omico.base.activity.SetupWizardBaseActivity
 import ui.MainActivity
@@ -33,12 +35,13 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
                 val check = PermissionHelper.check(this)
                 when (check) {
                     PermissionHelper.ALLOW -> {
-                        initColorTextView(R.id.config_step2_text1, R.string.config_permission_success, R.color.material_deep_teal_500)
+                        initColorTextView(R.id.config_step2_text1, R.string.config_permission_success, R.color.right_color)
                         setNavigationBarNextButtonEnabled(true)
                     }
                     PermissionHelper.ASK -> PermissionHelper.requestPermission(this)
                     PermissionHelper.DENY -> {
-                        initColorTextView(R.id.config_step2_text1, R.string.config_permission_fail, R.color.error_color_material)
+                        initColorTextView(R.id.config_step2_text1, R.string.config_permission_fail, R.color.error_color)
+                        PermissionHelper.gotoPermissionPage(this)
                         setNavigationBarNextButtonEnabled(false)
                     }
                 }
@@ -56,11 +59,11 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
                 val check = PermissionHelper.check(this)
                 when (check) {
                     PermissionHelper.ALLOW -> {
-                        initColorTextView(R.id.config_step2_text1, R.string.config_permission_success, R.color.material_deep_teal_500)
+                        initColorTextView(R.id.config_step2_text1, R.string.config_permission_success, R.color.right_color)
                         setNavigationBarNextButtonEnabled(true)
                     }
                     PermissionHelper.DENY -> {
-                        initColorTextView(R.id.config_step2_text1, R.string.config_permission_fail, R.color.error_color_material)
+                        initColorTextView(R.id.config_step2_text1, R.string.config_permission_fail, R.color.error_color)
                         setNavigationBarNextButtonEnabled(false)
                     }
                 }
@@ -137,15 +140,26 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
     }
 
     private fun parseApkClasses() {
+        AppSaveInfo.setSuitWechatDataInfo(false)
+
         val publicSourceDir = this.packageManager.getApplicationInfo(Constants.WECHAT_PACKAGE_NAME, 0).publicSourceDir
         val optimizedDirectory = getDir("dex", 0).absolutePath
 
         syncHandler = SyncHandler(this)
-        val task = ClassParseSyncTask(syncHandler, this)
-        task.execute(publicSourceDir, optimizedDirectory)
+        task = ClassParseSyncTask(syncHandler, this)
+        task?.execute(publicSourceDir, optimizedDirectory)
     }
 
-     fun setNavigationBarNextButtonEnabled2(result: Boolean) {
+    var task: ClassParseSyncTask? = null
+
+    override fun onDestroy() {
+        super.onDestroy()
+        task?.cancel(true)
+
+    }
+
+
+    fun setNavigationBarNextButtonEnabled2(result: Boolean) {
         this.setNavigationBarNextButtonEnabled(result)
     }
 }

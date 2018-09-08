@@ -20,7 +20,7 @@ class MyApplication : Application() {
 
     }
 
-     fun getWechatVersionCode(): Int {
+    fun getWechatVersionCode(): Int {
         val list = packageManager.getInstalledPackages(0) as List<PackageInfo>
 
         var wechatVersionCode = -1
@@ -28,8 +28,7 @@ class MyApplication : Application() {
         try {
             for (packageInfo in list) {
                 if (packageInfo.packageName == Constants.WECHAT_PACKAGE_NAME) {
-                    wechatVersionCode = if (packageInfo.versionName == "6.5.14") 1101
-                    else packageInfo.versionCode
+                    wechatVersionCode = packageInfo.versionCode
                     break
                 }
             }
