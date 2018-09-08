@@ -50,12 +50,9 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
 
         LogUtils.log("onBindViewHolder, position = $position, " + item.toString())
 
-        holder.nickname.text = if (item.nickname.isEmpty()) "群聊" else item.nickname
-        holder.content.text = Html.fromHtml((ConversationItemHandler.getConversationContent(MainAdapter.originAdapter, item, position)
-                ?: (item.content)).toString())
-        holder.time.text = ConversationItemHandler.getConversationTimeString(MainAdapter.originAdapter, item.conversationTime)
-
-        ConversationItemHandler.getConversationAvatar(item.username.toString(), holder.avatar)
+        holder.nickname.text = item.nickname
+        holder.content.text = item.content
+        holder.time.text = item.conversationTime
 
         if (item.unReadCount > 0)
             holder.unread.background = ShapeDrawable(object : Shape() {
@@ -68,15 +65,18 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
                     canvas.drawCircle(size, size, size, paint)
                 }
             })
-        else
-            holder.unread.background = BitmapDrawable(mContext.resources)
+        else holder.unread.background = BitmapDrawable(mContext.resources)
 
         holder.itemView.background = ChatRoomViewFactory.getItemViewBackground(mContext)
-        holder.itemView.setOnClickListener {
-            XposedHelpers.callMethod(MainLauncherUI.launcherUI, WXObject.MainUI.M.StartChattingOfLauncherUI, item.username, null, true)
-        }
-        holder.itemView.setOnLongClickListener {
-            return@setOnLongClickListener true
+
+        if (!item.field_username.isEmpty()) {
+            ConversationItemHandler.getConversationAvatar(item.field_username.toString(), holder.avatar)
+            holder.itemView.setOnClickListener {
+                XposedHelpers.callMethod(MainLauncherUI.launcherUI, WXObject.MainUI.M.StartChattingOfLauncherUI, item.field_username, null, true)
+            }
+            holder.itemView.setOnLongClickListener {
+                return@setOnLongClickListener true
+            }
         }
 
         holder.nickname.setTextColor(Color.parseColor("#" + AppSaveInfo.nicknameColorInfo()))

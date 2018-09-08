@@ -46,8 +46,8 @@ class PluginEntry : IXposedHookLoadPackage {
 
             WXObject.Tool.C.Logcat = configJson.get("logcat").asString
 
-
             ConversationItemHandler
+
             MessageHandler.executeHook()
             MainAdapter.executeHook()
             MainLauncherUI.executeHook()

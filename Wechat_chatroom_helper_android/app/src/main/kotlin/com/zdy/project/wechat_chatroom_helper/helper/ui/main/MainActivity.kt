@@ -16,6 +16,7 @@ import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.ConfigActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActivity
+import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
 import manager.PermissionHelper
 import network.ApiManager
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
@@ -30,7 +31,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var multiWechat: Button
     private lateinit var detail: TextView
     private lateinit var listContent: LinearLayout
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,22 +54,45 @@ class MainActivity : AppCompatActivity() {
 
         bindView()
 
-        //加載可配置項的佈局
-        initSetting()
+    }
+
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+
+        if (hasFocus) {
+            when (PermissionHelper.check(this)) {
+                PermissionHelper.ALLOW -> {
+                    //加載可配置項的佈局
+                    WechatJsonUtils.init(this)
+                    initSetting()
+                }
+                PermissionHelper.ASK -> {
+
+                }
+                PermissionHelper.DENY -> {
+
+                }
+
+            }
+        }
+
     }
 
     private fun initSetting() {
         val titles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手UI设置", "Xposed日志开关", "隐藏程序入口")
+        val subTitles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手UI设置", "Xposed日志开关", "隐藏程序入口")
 
         repeat(titles.size) {
 
             title = titles[it]
 
             val itemView = LayoutInflater.from(thisActivity).inflate(R.layout.layout_setting_item, listContent, false)
-            val text = itemView.findViewById<TextView>(android.R.id.text1)
+            val text1 = itemView.findViewById<TextView>(android.R.id.text1)
+            val text2 = itemView.findViewById<TextView>(android.R.id.text2)
             val switch = itemView.findViewById<SwitchCompat>(android.R.id.button1)
 
-            text.text = title
+            text1.text = title
 
             itemView.setOnClickListener { switch.performClick() }
 
@@ -242,9 +265,6 @@ class MainActivity : AppCompatActivity() {
             AppSaveInfo.setShowInfo(msg)
         }
     }
-
-
-
 
 
 }

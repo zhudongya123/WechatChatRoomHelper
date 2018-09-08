@@ -18,6 +18,8 @@ import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomRecyclerViewAdapter
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * 此类为 UiSetting 中的预览 Fragment
@@ -117,7 +119,6 @@ class PreviewFragment : Fragment() {
         return mRecyclerView
     }
 
-
     fun notifyUIToChangeColor() {
         mToolbarContainer.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.toolbarColorInfo()))
         mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo()))
@@ -126,19 +127,24 @@ class PreviewFragment : Fragment() {
 
     private fun arrayList() = ArrayList<ChatInfoModel>()
             .also {
+                val timeString = SimpleDateFormat("HH:mm:ss", Locale.CHINESE).format(Calendar.getInstance().time)
+
                 it.add(ChatInfoModel()
                         .apply {
                             nickname = "欢迎使用微信群消息助手"
-                            content = "这是回话的消息内容"
-                            conversationTime = System.currentTimeMillis() / 1000
+                            content = "这是会话的消息内容"
+                            conversationTime = timeString
                             unReadCount = 1
+                            field_username = ""
                         })
                 it.add(ChatInfoModel()
                         .apply {
                             nickname = "Welcome to WechatChatRoomHelper"
                             content = "this is the content of the conversation"
-                            conversationTime = System.currentTimeMillis() / 1000
+                            conversationTime = timeString
                             unReadCount = 0
+                            field_username = ""
+
                         })
             }
 

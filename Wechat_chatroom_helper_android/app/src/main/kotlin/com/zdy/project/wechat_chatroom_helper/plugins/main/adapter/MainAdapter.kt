@@ -154,7 +154,7 @@ object MainAdapter {
                             setTextForNoMeasuredTextView(nickname, "群消息")
                             avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.CHAT_ROOMS)) }
 
-                            setTextForNoMeasuredTextView(time, ConversationItemHandler.getConversationTimeString(originAdapter, allChatRoom.first().conversationTime))
+                            setTextForNoMeasuredTextView(time, allChatRoom.first().conversationTime)
 
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
 
@@ -174,7 +174,7 @@ object MainAdapter {
                             setTextForNoMeasuredTextView(nickname, "服务号")
                             avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.OFFICIAL)) }
 
-                            setTextForNoMeasuredTextView(time, ConversationItemHandler.getConversationTimeString(originAdapter, allOfficial.first().conversationTime))
+                            setTextForNoMeasuredTextView(time,allOfficial.first().conversationTime)
                             param.result = view
 
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)

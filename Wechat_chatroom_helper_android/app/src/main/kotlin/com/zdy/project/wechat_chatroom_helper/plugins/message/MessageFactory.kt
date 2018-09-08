@@ -1,8 +1,11 @@
 package com.zdy.project.wechat_chatroom_helper.plugins.message
 
 import android.database.Cursor
+import android.text.Html
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.LogUtils
+import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.ConversationItemHandler
+import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import de.robv.android.xposed.XposedHelpers
 
@@ -41,7 +44,7 @@ object MessageFactory {
             list.add(buildChatInfoModelByCursor(cursor))
         }
 
-       // LogUtils.log("getAllChatRoom " + list.joinToString { it.toString() + "\n" })
+        // LogUtils.log("getAllChatRoom " + list.joinToString { it.toString() + "\n" })
 
         return list
     }
@@ -63,27 +66,37 @@ object MessageFactory {
             list.add(buildChatInfoModelByCursor(cursor))
         }
 
-  //      LogUtils.log("getAllOfficial " + list.joinToString { it.toString() + "\n" })
+        //      LogUtils.log("getAllOfficial " + list.joinToString { it.toString() + "\n" })
         return list
     }
 
     private fun buildChatInfoModelByCursor(cursor: Cursor): ChatInfoModel {
+
         return ChatInfoModel().apply {
-            username = cursor.getString(cursor.getColumnIndex("username"))
-            nickname = cursor.getString(cursor.getColumnIndex("nickname"))
-            content = cursor.getString(cursor.getColumnIndex("content"))
-            digest = cursor.getString(cursor.getColumnIndex("digest"))
-            digestUser = cursor.getString(cursor.getColumnIndex("digestUser"))
-            editingMsg = cursor.getString(cursor.getColumnIndex("editingMsg"))
-            msgType = cursor.getString(cursor.getColumnIndex("msgType"))
-            conversationTime = cursor.getLong(cursor.getColumnIndex("conversationTime"))
-            isSend = cursor.getInt(cursor.getColumnIndex("isSend"))
-            status = cursor.getInt(cursor.getColumnIndex("status"))
-            attrflag = cursor.getInt(cursor.getColumnIndex("attrflag"))
-            atCount = cursor.getInt(cursor.getColumnIndex("atCount"))
-            unReadMuteCount = cursor.getInt(cursor.getColumnIndex("unReadMuteCount"))
-            UnReadInvite = cursor.getInt(cursor.getColumnIndex("UnReadInvite"))
-            unReadCount = cursor.getInt(cursor.getColumnIndex("unReadCount"))
+            field_username = cursor.getString(cursor.getColumnIndex("username"))
+            field_nickname = cursor.getString(cursor.getColumnIndex("nickname"))
+            field_content = cursor.getString(cursor.getColumnIndex("content"))
+            field_digest = cursor.getString(cursor.getColumnIndex("digest"))
+            field_digestUser = cursor.getString(cursor.getColumnIndex("digestUser"))
+            field_editingMsg = cursor.getString(cursor.getColumnIndex("editingMsg"))
+            field_msgType = cursor.getString(cursor.getColumnIndex("msgType"))
+            field_conversationTime = cursor.getLong(cursor.getColumnIndex("conversationTime"))
+            field_isSend = cursor.getInt(cursor.getColumnIndex("isSend"))
+            field_status = cursor.getInt(cursor.getColumnIndex("status"))
+            field_attrflag = cursor.getInt(cursor.getColumnIndex("attrflag"))
+            field_atCount = cursor.getInt(cursor.getColumnIndex("atCount"))
+            field_unReadMuteCount = cursor.getInt(cursor.getColumnIndex("unReadMuteCount"))
+            field_UnReadInvite = cursor.getInt(cursor.getColumnIndex("UnReadInvite"))
+            field_unReadCount = cursor.getInt(cursor.getColumnIndex("unReadCount"))
+
+
+            nickname = if (field_nickname.isEmpty()) "群聊" else field_nickname
+            content = (ConversationItemHandler.getConversationContent(MainAdapter.originAdapter, this)
+                    ?: (field_content)).toString()
+            conversationTime = ConversationItemHandler.getConversationTimeString(MainAdapter.originAdapter, field_conversationTime)
+
+            unReadCount = field_unReadCount
+            unReadMuteCount = field_unReadMuteCount
         }
     }
 

@@ -156,8 +156,6 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         diffResult.dispatchUpdatesTo(mAdapter)
 
         mAdapter.data = newDatas
-//      todo
-
 
         LogUtils.log("showMessageRefresh for all recycler view , pageType = " + PageType.printPageType(pageType))
     }

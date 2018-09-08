@@ -1,6 +1,8 @@
 package com.zdy.project.wechat_chatroom_helper.plugins.main.adapter
 
+import android.content.Context
 import android.widget.ImageView
+import com.blankj.utilcode.util.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
@@ -44,7 +46,7 @@ object ConversationItemHandler {
             XposedHelpers.callStaticMethod(conversationAvatar, conversationAvatarMethod.name, imageView, field_username)
 
 
-    fun getConversationContent(adapter: Any, chatInfoModel: ChatInfoModel, position: Int): CharSequence? {
+    fun getConversationContent(adapter: Any, chatInfoModel: ChatInfoModel): CharSequence? {
 
         val getContentMethod = conversationWithCacheAdapter.declaredMethods
                 .filter { it.parameterTypes.size == 3 }
@@ -54,23 +56,26 @@ object ConversationItemHandler {
                             it.parameterTypes[2].simpleName == Boolean::class.java.simpleName
                 }
 
-        val aeConstructor = beanClass.constructors.filter { it.parameterTypes.size == 1 }.firstOrNull { it.parameterTypes[0] == String::class.java }!!
+        val aeConstructor = beanClass.constructors.filter { it.parameterTypes.size == 1 }
+                .firstOrNull { it.parameterTypes[0] == String::class.java }!!
         val ae = aeConstructor.newInstance(chatInfoModel.username)
 
-        beanClass.getField("field_editingMsg").set(ae, chatInfoModel.editingMsg)
-        beanClass.getField("field_atCount").set(ae, chatInfoModel.atCount)
+        beanClass.getField("field_editingMsg").set(ae, chatInfoModel.field_editingMsg)
+        beanClass.getField("field_atCount").set(ae, chatInfoModel.field_atCount)
         beanClass.getField("field_unReadCount").set(ae, chatInfoModel.unReadCount)
         beanClass.getField("field_unReadMuteCount").set(ae, chatInfoModel.unReadMuteCount)
-        beanClass.getField("field_msgType").set(ae, chatInfoModel.msgType)
+        beanClass.getField("field_msgType").set(ae, chatInfoModel.field_msgType)
         beanClass.getField("field_username").set(ae, chatInfoModel.username)
         beanClass.getField("field_content").set(ae, chatInfoModel.content)
-        beanClass.getField("field_digest").set(ae, chatInfoModel.digest)
-        beanClass.getField("field_digestUser").set(ae, chatInfoModel.digestUser)
-        beanClass.getField("field_isSend").set(ae, chatInfoModel.isSend)
-        beanClass.getField("field_UnReadInvite").set(ae, chatInfoModel.UnReadInvite)
-        beanClass.getField("field_atCount").set(ae, chatInfoModel.atCount)
+        beanClass.getField("field_digest").set(ae, chatInfoModel.field_digest)
+        beanClass.getField("field_digestUser").set(ae, chatInfoModel.field_digestUser)
+        beanClass.getField("field_isSend").set(ae, chatInfoModel.field_isSend)
+        beanClass.getField("field_UnReadInvite").set(ae, chatInfoModel.field_UnReadInvite)
+        beanClass.getField("field_atCount").set(ae, chatInfoModel.field_atCount)
 
-        val content = XposedHelpers.callMethod(adapter, getContentMethod.name, ae, position, false) as CharSequence
+
+        val textSize = (ScreenUtils.getScreenDensity() * 13f).toInt()
+        val content = XposedHelpers.callMethod(adapter, getContentMethod.name, ae, textSize, false) as CharSequence
 
         LogUtils.log("getConversationContent,  content =  $content")
 
