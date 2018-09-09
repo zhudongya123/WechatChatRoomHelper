@@ -18,7 +18,7 @@ object ApiManager {
 
 
     private fun getHost(): String {
-        return "http://116.62.247.71:8080/"
+        return "http://carfielder.club:8080/"
     }
 
     fun sendRequestForUserStatistics(action: String, uuid: String, model: String) {
