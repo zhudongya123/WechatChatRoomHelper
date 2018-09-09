@@ -60,6 +60,7 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
                 when (check) {
                     PermissionHelper.ALLOW -> {
                         initColorTextView(R.id.config_step2_text1, R.string.config_permission_success, R.color.right_color)
+                        WechatJsonUtils.init(null)
                         setNavigationBarNextButtonEnabled(true)
                     }
                     PermissionHelper.DENY -> {
