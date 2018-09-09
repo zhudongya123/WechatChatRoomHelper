@@ -19,8 +19,8 @@ open class BaseActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         Log.v("W.C.R.H.", "BaseActivity, onStart")
-
     }
+
 
     override fun onResume() {
         super.onResume()
@@ -30,6 +30,7 @@ open class BaseActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         Log.v("W.C.R.H.", "BaseActivity, onPause")
+
     }
 
     override fun onRestart() {
@@ -46,7 +47,7 @@ open class BaseActivity : AppCompatActivity() {
         super.onDestroy()
         Log.v("W.C.R.H.", "BaseActivity, onDestroy")
 
-        WechatJsonUtils.putFileString()
+
     }
 
     override fun onAttachedToWindow() {

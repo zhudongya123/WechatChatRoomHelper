@@ -93,8 +93,6 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                 weakA.get()!!.getString(R.string.config_step3_text3),
                 WechatJsonUtils.configPath, apkFile.apkMeta.versionName,
                 apkFile.apkMeta.versionCode.toString())
-
-
     }
 
     override fun onPreExecute() {

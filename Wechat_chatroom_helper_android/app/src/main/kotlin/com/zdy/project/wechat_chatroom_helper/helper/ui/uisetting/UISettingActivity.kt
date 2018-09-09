@@ -7,6 +7,7 @@ import android.view.MenuItem
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.utils.ActivityUtils
+import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
 import ui.MyApplication
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 
@@ -91,7 +92,7 @@ class UISettingActivity : AppCompatActivity() {
         return when (item.itemId) {
             android.R.id.home -> {
                 finish()
-                 true
+                true
             }
             R.id.ui_setting_reset -> {
                 AppSaveInfo.setToolbarColorInfo(Constants.DEFAULT_TOOLBAR_COLOR)
@@ -107,5 +108,10 @@ class UISettingActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        WechatJsonUtils.putFileString()
     }
 }

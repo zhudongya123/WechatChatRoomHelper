@@ -18,6 +18,7 @@ import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.ui.BaseActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.ConfigActivity
+import com.zdy.project.wechat_chatroom_helper.helper.ui.functionsetting.FunctionSettingActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActivity
 import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
 import manager.PermissionHelper
@@ -34,12 +35,11 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        supportActionBar?.setTitle(R.string.app_name)
 
         //加載佈局
         setContentView(R.layout.activity_main)
-        listContent = findViewById<LinearLayout>(R.id.list_content)
-
-        title = "微信群消息助手"
+        listContent = findViewById(R.id.list_content)
     }
 
 
@@ -51,7 +51,12 @@ class MainActivity : BaseActivity() {
                 PermissionHelper.ALLOW -> {
                     //加載可配置項的佈局
                     WechatJsonUtils.init(this)
-                    initSetting(arrayOf("群消息助手状态", "疑难解答", "群消息助手功能设置", "群消息助手 UI 设置", "其他功能", "联系和捐赠"))
+                    initSetting(arrayOf("群消息助手状态",
+                            getString(R.string.title_question_string),
+                            getString(R.string.title_function_setting_string),
+                            getString(R.string.title_ui_setting_string),
+                            getString(R.string.title_other_setting_string),
+                            getString(R.string.title_about_string)))
                 }
                 PermissionHelper.ASK -> {
                     initSetting(arrayOf("群消息助手状态"))
@@ -81,8 +86,8 @@ class MainActivity : BaseActivity() {
 
             itemView.setOnClickListener { switch.performClick() }
 
-            when (index) {
-                0 -> {
+            when (title) {
+                "群消息助手状态" -> {
                     itemView.setOnClickListener {
                         thisActivity.startActivity(Intent(thisActivity, ConfigActivity::class.java))
                     }
@@ -108,8 +113,20 @@ class MainActivity : BaseActivity() {
                             setFailText(text2, "您已经拒绝了我们的权限授予，点击手动授予权限。")
                         }
                     }
+                }
+                getString(R.string.title_ui_setting_string) -> {
+                    itemView.setOnClickListener {
+                        thisActivity.startActivity(Intent(thisActivity, UISettingActivity::class.java))
+                    }
+                    text2.setText(R.string.sub_title_ui_setting_string)
+                }
 
 
+                getString(R.string.title_function_setting_string) -> {
+                    itemView.setOnClickListener {
+                        thisActivity.startActivity(Intent(thisActivity, FunctionSettingActivity::class.java))
+                    }
+                    text2.setText(R.string.sub_title_function_setting_string)
                 }
 
             }

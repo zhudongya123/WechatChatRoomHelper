@@ -7,80 +7,117 @@ import android.os.Bundle
 import android.os.PersistableBundle
 import android.support.v7.widget.SwitchCompat
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.ui.BaseActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActivity
+import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import manager.PermissionHelper
 import ui.MyApplication
 
 class FunctionSettingActivity : BaseActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
-        super.onCreate(savedInstanceState, persistentState)
+
+    private lateinit var listContent: LinearLayout
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        supportActionBar?.setTitle(R.string.title_function_setting_string)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        setContentView(R.layout.activity_function_setting)
+        listContent = findViewById(R.id.list_content)
     }
 
-//    private fun initSetting() {
-//        val titles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手UI设置", "Xposed日志开关", "隐藏程序入口")
-//        val subTitles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手UI设置", "Xposed日志开关", "隐藏程序入口")
-//
-//        repeat(titles.size) {
-//
-//            title = titles[it]
-//
-//            val itemView = LayoutInflater.from(thisActivity).inflate(R.layout.layout_setting_item, listContent, false)
-//            val text1 = itemView.findViewById<TextView>(android.R.id.text1)
-//            val text2 = itemView.findViewById<TextView>(android.R.id.text2)
-//            val switch = itemView.findViewById<SwitchCompat>(android.R.id.button1)
-//
-//            text1.text = title
-//
-//            itemView.setOnClickListener { switch.performClick() }
-//
-//            when (it) {
-//                0 -> {
-//                    switch.isChecked = AppSaveInfo.openInfo()
-//                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfo.setOpen(isChecked) }
-//                }
-//                1 -> {
-//                    switch.isChecked = AppSaveInfo.isPlayVersionInfo()
-//                    switch.setOnCheckedChangeListener { _, isChecked ->
-//                        AppSaveInfo.setPlayVersionInfo(isChecked)
-//                       // sendRequest(MyApplication.get().getWechatVersionCode().toString(), AppSaveInfo.isPlayVersionInfo())
-//                    }
-//                }
-//                2 -> {
-//                    switch.isChecked = AppSaveInfo.isCircleAvatarInfo()
-//                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfo.setCircleAvatarInfo(isChecked) }
-//                }
-//                3 -> {
-//                    switch.isChecked = AppSaveInfo.autoCloseInfo()
-//                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfo.setAutoCloseInfo(isChecked) }
-//                }
-//                4 -> {
-//                    switch.visibility = View.INVISIBLE
-//                    switch.setOnClickListener { startActivity(Intent(thisActivity, UISettingActivity::class.java)) }
-//                }
-//                5 -> {
-//                    switch.isChecked = AppSaveInfo.openLogInfo()
-//                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfo.setOpenLog(isChecked) }
-//                }
-//                6 -> {
-//                    switch.isChecked = AppSaveInfo.launcherEntryInfo()
-//                    switch.setOnCheckedChangeListener { _, isChecked ->
-//                        AppSaveInfo.setLauncherEntry(isChecked)
-//                        showHideLauncherIcon(!isChecked)
-//                    }
-//                }
-//
-//            }
-//
-//          //  listContent.addView(itemView)
-//        }
-//
-//        title = "微信群消息助手"
-//    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+
+        if (hasFocus) {
+            if (PermissionHelper.check(this) == PermissionHelper.ALLOW) {
+                //加載可配置項的佈局
+                WechatJsonUtils.init(this)
+                initSetting()
+            }
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+
+        item?.let {
+            when (item.itemId) {
+                android.R.id.home -> {
+                    finish()
+                    return true
+                }
+                else -> {
+                }
+            }
+
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+
+    private fun initSetting() {
+
+        listContent.removeAllViews()
+
+        val titles =
+                arrayOf(getString(R.string.title_function_settting_item_1),
+                        getString(R.string.title_function_settting_item_2),
+                        getString(R.string.title_function_settting_item_3),
+                        getString(R.string.title_function_settting_item_4))
+
+        repeat(titles.size) {
+
+            title = titles[it]
+
+            val itemView = LayoutInflater.from(thisActivity).inflate(R.layout.layout_setting_item, listContent, false)
+            val text1 = itemView.findViewById<TextView>(android.R.id.text1)
+            val text2 = itemView.findViewById<TextView>(android.R.id.text2)
+            val switch = itemView.findViewById<SwitchCompat>(android.R.id.button1)
+
+            switch.visibility = View.VISIBLE
+
+            text1.text = title
+
+            itemView.setOnClickListener { switch.performClick() }
+
+            when (title) {
+
+                getString(R.string.title_function_settting_item_1) -> {
+                    switch.isChecked = AppSaveInfo.isCircleAvatarInfo()
+                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfo.setCircleAvatarInfo(isChecked) }
+                }
+
+                getString(R.string.title_function_settting_item_2) -> {
+                    switch.isChecked = AppSaveInfo.autoCloseInfo()
+                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfo.setAutoCloseInfo(isChecked) }
+                }
+
+                getString(R.string.title_function_settting_item_3) -> {
+                    switch.isChecked = AppSaveInfo.openLogInfo()
+                    switch.setOnCheckedChangeListener { _, isChecked -> AppSaveInfo.setOpenLog(isChecked) }
+                }
+                getString(R.string.title_function_settting_item_4) -> {
+                    switch.isChecked = AppSaveInfo.launcherEntryInfo()
+                    switch.setOnCheckedChangeListener { _, isChecked ->
+                        AppSaveInfo.setLauncherEntry(isChecked)
+                        showHideLauncherIcon(!isChecked)
+                    }
+                }
+
+            }
+            listContent.addView(itemView)
+        }
+    }
 
     private fun showHideLauncherIcon(show: Boolean) {
         val p = packageManager
@@ -91,4 +128,9 @@ class FunctionSettingActivity : BaseActivity() {
                 PackageManager.DONT_KILL_APP)
     }
 
+
+    override fun onPause() {
+        super.onPause()
+        WechatJsonUtils.putFileString()
+    }
 }
