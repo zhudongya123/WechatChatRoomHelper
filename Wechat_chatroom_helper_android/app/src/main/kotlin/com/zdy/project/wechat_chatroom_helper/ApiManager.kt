@@ -10,8 +10,8 @@ object ApiManager {
 
     var okHttpClient = OkHttpClient()
 
-    private const val CLASS_MAPPING = "http://116.62.247.71:8080/wechat/class/mapping"
-    private const val USER_STATISTICS = "http://116.62.247.71:8080/wechat/user/statistics"
+    private const val CLASS_MAPPING = "http://carfielder.club:8080/wechat/class/mapping"
+    private const val USER_STATISTICS = "http://carfielder.club:8080/wechat/user/statistics"
 
     /**
      * 发送用户统计请求，自带一天只发送一次的逻辑~

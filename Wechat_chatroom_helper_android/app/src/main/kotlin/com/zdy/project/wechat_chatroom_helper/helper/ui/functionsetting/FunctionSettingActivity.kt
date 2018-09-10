@@ -71,7 +71,7 @@ class FunctionSettingActivity : BaseActivity() {
 
         val titles =
                 arrayOf(getString(R.string.title_function_settting_item_1),
-                        getString(R.string.title_function_settting_item_2),
+                        /*getString(R.string.title_function_settting_item_2),*/
                         getString(R.string.title_function_settting_item_3),
                         getString(R.string.title_function_settting_item_4))
 

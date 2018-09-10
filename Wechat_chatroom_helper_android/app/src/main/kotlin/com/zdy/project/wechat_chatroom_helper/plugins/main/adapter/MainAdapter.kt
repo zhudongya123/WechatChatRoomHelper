@@ -149,42 +149,51 @@ object MainAdapter {
                         //               "firstChatRoomPosition = $firstChatRoomPosition ,firstOfficialPosition = $firstOfficialPosition \n")
 
                         if (position == firstChatRoomPosition) {
+                            unReadCount.visibility = View.GONE
+                            unMuteReadIndicators.visibility = View.GONE
+
                             val allChatRoom = MessageFactory.getAllChatRoom()
+                            val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
 
                             setTextForNoMeasuredTextView(nickname, "群消息")
-                            avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.CHAT_ROOMS)) }
-
                             setTextForNoMeasuredTextView(time, allChatRoom.first().conversationTime)
-
-                            val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
+                            avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.CHAT_ROOMS)) }
 
                             LogUtils.log("getUnReadCountItemChatRoom " + allChatRoom.joinToString { "unReadCount = ${it.unReadCount}" })
 
-                            if (unReadCountItem > 0) {
-                                setTextForNoMeasuredTextView(content, "有${unReadCountItem}个群聊收到新消息")
-                            } else {
 
+                            if (unReadCountItem > 0) {
+                                setTextForNoMeasuredTextView(content, "[有${unReadCountItem}个群聊收到新消息]")
+                                setTextColorForNoMeasuredTextView(content, 0xFFF57C00.toInt())
+                                unMuteReadIndicators.visibility = View.VISIBLE
+                            } else {
+                                setTextForNoMeasuredTextView(content, "${allChatRoom.first().nickname}：${allChatRoom.first().content}")
                             }
 
                             param.result = view
                         }
                         if (position == firstOfficialPosition) {
+                            unReadCount.visibility = View.GONE
+                            unMuteReadIndicators.visibility = View.GONE
+
                             val allOfficial = MessageFactory.getAllOfficial()
+                            val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)
 
                             setTextForNoMeasuredTextView(nickname, "服务号")
+                            setTextForNoMeasuredTextView(time, allOfficial.first().conversationTime)
                             avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.OFFICIAL)) }
 
-                            setTextForNoMeasuredTextView(time,allOfficial.first().conversationTime)
                             param.result = view
-
-                            val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)
 
                             LogUtils.log("getUnReadCountItemChatRoom " + allOfficial.joinToString { "unReadCount = ${it.unReadCount}" })
 
-
                             if (unReadCountItem > 0) {
-                                setTextForNoMeasuredTextView(content, "有${unReadCountItem}个服务号收到新消息")
+                                setTextForNoMeasuredTextView(content, "[有${unReadCountItem}个服务号收到新消息]")
+                                setTextColorForNoMeasuredTextView(content, 0xFFF57C00.toInt())
+
+                                unMuteReadIndicators.visibility = View.VISIBLE
                             } else {
+                                setTextForNoMeasuredTextView(content, "${allOfficial.first().nickname}：${allOfficial.first().content}")
 
                             }
                         }

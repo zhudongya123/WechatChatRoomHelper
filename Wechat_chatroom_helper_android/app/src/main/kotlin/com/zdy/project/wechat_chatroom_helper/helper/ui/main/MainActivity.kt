@@ -52,11 +52,11 @@ class MainActivity : BaseActivity() {
                     //加載可配置項的佈局
                     WechatJsonUtils.init(this)
                     initSetting(arrayOf("群消息助手状态",
-                            getString(R.string.title_question_string),
+                          //  getString(R.string.title_question_string),
                             getString(R.string.title_function_setting_string),
-                            getString(R.string.title_ui_setting_string),
-                            getString(R.string.title_other_setting_string),
-                            getString(R.string.title_about_string)))
+                            getString(R.string.title_ui_setting_string)/*,
+                           getString(R.string.title_other_setting_string),
+                            getString(R.string.title_about_string)*/))
                 }
                 PermissionHelper.ASK -> {
                     initSetting(arrayOf("群消息助手状态"))

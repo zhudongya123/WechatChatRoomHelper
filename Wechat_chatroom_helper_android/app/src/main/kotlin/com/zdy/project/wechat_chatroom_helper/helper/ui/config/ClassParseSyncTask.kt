@@ -8,6 +8,7 @@ import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.HANDLER_SHOW_NEXT_BUTTON
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.HANDLER_TEXT_ADDITION
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.HANDLER_TEXT_CHANGE_LINE
+import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.TEXT_COLOR_ERROR
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.TEXT_COLOR_NORMAL
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.TEXT_COLOR_PASS
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.getType
@@ -53,26 +54,26 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                 srcPath, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
         sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_NORMAL),
                 weakA.get()!!.getString(R.string.config_step3_text2))
-
-
-        dexClasses.map { it.classType.substring(1, it.classType.length - 1).replace("/", ".") }
-                .filter { it.contains(Constants.WECHAT_PACKAGE_NAME) }
-                .forEachIndexed { index, className ->
-
-                    try {
-                        val clazz = classLoader.loadClass(className)
-                        classes.add(clazz)
-                    } catch (e: Throwable) {
-                    }
-
-                    if (index == CURRENT_RANDOM_CURSOR) {
-                        CURRENT_RANDOM_CURSOR += random.nextInt(RANDOM_CHANGE_CLASS_NUMBER)
-                        sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_CHANGE_LINE, TEXT_COLOR_NORMAL),
-                                weakA.get()!!.getString(R.string.config_step3_text6), index + 1, classes.size)
-                    }
-                }
-
         try {
+
+            dexClasses.map { it.classType.substring(1, it.classType.length - 1).replace("/", ".") }
+                    .filter { it.contains(Constants.WECHAT_PACKAGE_NAME) }
+                    .forEachIndexed { index, className ->
+
+                        try {
+                            val clazz = classLoader.loadClass(className)
+                            classes.add(clazz)
+                        } catch (e: Throwable) {
+                        }
+
+                        if (index == CURRENT_RANDOM_CURSOR) {
+                            CURRENT_RANDOM_CURSOR += random.nextInt(RANDOM_CHANGE_CLASS_NUMBER)
+                            sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_CHANGE_LINE, TEXT_COLOR_NORMAL),
+                                    weakA.get()!!.getString(R.string.config_step3_text6), index + 1, classes.size)
+                        }
+                    }
+
+
             configData["conversationWithCacheAdapter"] =
                     parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
             configData["conversationWithAppBrandListView"] =
@@ -83,16 +84,18 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                     parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
             configData["logcat"] =
                     parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
-        } catch (e: Exception) {
+
+            writeNewConfig()
+
+            sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_PASS),
+                    weakA.get()!!.getString(R.string.config_step3_text3),
+                    WechatJsonUtils.configPath, apkFile.apkMeta.versionName,
+                    apkFile.apkMeta.versionCode.toString())
+        } catch (e: Throwable) {
             e.printStackTrace()
+            sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_ERROR),
+                    e.toString())
         }
-
-        writeNewConfig()
-
-        sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_PASS),
-                weakA.get()!!.getString(R.string.config_step3_text3),
-                WechatJsonUtils.configPath, apkFile.apkMeta.versionName,
-                apkFile.apkMeta.versionCode.toString())
     }
 
     override fun onPreExecute() {
