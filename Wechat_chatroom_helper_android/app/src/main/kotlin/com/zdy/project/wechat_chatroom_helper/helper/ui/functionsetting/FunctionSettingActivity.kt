@@ -42,7 +42,6 @@ class FunctionSettingActivity : BaseActivity() {
         if (hasFocus) {
             if (PermissionHelper.check(this) == PermissionHelper.ALLOW) {
                 //加載可配置項的佈局
-                WechatJsonUtils.init(this)
                 initSetting()
             }
         }
@@ -66,7 +65,6 @@ class FunctionSettingActivity : BaseActivity() {
 
 
     private fun initSetting() {
-
         listContent.removeAllViews()
 
         val titles =

@@ -34,6 +34,7 @@ class PluginEntry : IXposedHookLoadPackage {
     override fun handleLoadPackage(p0: XC_LoadPackage.LoadPackageParam) {
 
         if (p0.processName == Constants.WECHAT_PACKAGE_NAME) {
+
             classloader = p0.classLoader
 
             WechatJsonUtils.init(null)
@@ -43,7 +44,6 @@ class PluginEntry : IXposedHookLoadPackage {
             WXObject.Adapter.C.ConversationWithCacheAdapter = configJson.get("conversationWithCacheAdapter").asString
             WXObject.Adapter.C.ConversationAvatar = configJson.get("conversationAvatar").asString
             WXObject.Adapter.C.ConversationClickListener = configJson.get("conversationClickListener").asString
-
             WXObject.Tool.C.Logcat = configJson.get("logcat").asString
 
             ConversationItemHandler

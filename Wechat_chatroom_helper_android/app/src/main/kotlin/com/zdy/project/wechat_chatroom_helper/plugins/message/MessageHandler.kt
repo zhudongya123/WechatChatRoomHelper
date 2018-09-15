@@ -4,7 +4,6 @@ import android.content.ContentValues
 import android.database.Cursor
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.plugins.interfaces.MessageEventNotifyListener
-import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
@@ -72,13 +71,26 @@ object MessageHandler {
         val cursorForChatRoom = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY,
                 MessageFactory.getDataBaseFactory(thisObject), SqlForGetFirstChatroom, null, null) as Cursor
 
-        cursorForOfficial.moveToNext()
-        val firstOfficialUsername = cursorForOfficial.getString(0)
+        if (cursorForOfficial.count != 0 && cursorForChatRoom.count != 0) {
+            cursorForOfficial.moveToNext()
+            val firstOfficialUsername = cursorForOfficial.getString(0)
+            cursorForChatRoom.moveToNext()
+            val firstChatRoomUsername = cursorForChatRoom.getString(0)
+            return Pair(firstOfficialUsername, firstChatRoomUsername)
+        } else {
+            return if (cursorForOfficial.count == 0 && cursorForChatRoom.count != 0) {
+                cursorForChatRoom.moveToNext()
+                val firstChatRoomUsername = cursorForChatRoom.getString(0)
+                Pair("", firstChatRoomUsername)
+            } else if (cursorForOfficial.count != 0 && cursorForChatRoom.count == 0) {
+                cursorForOfficial.moveToNext()
+                val firstOfficialUsername = cursorForOfficial.getString(0)
+                Pair(firstOfficialUsername, "")
+            } else {
+                Pair("", "")
+            }
+        }
 
-        cursorForChatRoom.moveToNext()
-        val firstChatRoomUsername = cursorForChatRoom.getString(0)
-
-        return Pair(firstOfficialUsername, firstChatRoomUsername)
     }
 
     fun executeHook() {
@@ -89,9 +101,6 @@ object MessageHandler {
                 XposedHelpers.findClass(WXObject.Message.C.SQLiteDatabaseCursorFactory, PluginEntry.classloader)
         val databaseCancellationSignal =
                 XposedHelpers.findClass(WXObject.Message.C.SQLiteCancellationSignal, PluginEntry.classloader)
-
-    //    XposedBridge.log("MessageHooker2.11, database = $database, databaseFactory = $databaseFactory, databaseCancellationSignal = $databaseCancellationSignal")
-
 
         val queryHook = object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -118,8 +127,6 @@ object MessageHandler {
                 if (isQueryAllConversation(sql)) {
 
                     try {
-                 //       XposedBridge.log("MessageHooker2.10, QUERY ALL CONVERSATION")
-
                         val (firstOfficialUsername, firstChatRoomUsername) = refreshEntryUsername(thisObject)
                         iMainAdapterRefreshes.forEach { it.onEntryInit(firstChatRoomUsername, firstOfficialUsername) }
 
@@ -129,7 +136,6 @@ object MessageHandler {
                         val result = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, sqlForAllContactConversation, selectionArgs, editTable, cancellation)
 
                         param.result = result
-
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
@@ -138,42 +144,45 @@ object MessageHandler {
                 //确定服务号和群聊的入口位置
                 else if (sql == sqlForAllContactConversation) {
 
-              //      XposedBridge.log("MessageHooker2.17,size = $sqlForAllContactConversation")
-
+                    //      XposedBridge.log("MessageHooker2.17,size = $sqlForAllContactConversation")
 
                     //额外查询两次，找到当前最新的服务号和群聊的最近消息时间
                     val cursorForOfficial = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, SqlForGetFirstOfficial, null, null) as Cursor
                     val cursorForChatRoom = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, SqlForGetFirstChatroom, null, null) as Cursor
 
-                    var firstOfficialFlag: Long = 0
-                    var firstChatRoomFlag: Long = 0
+                    var firstOfficialConversationTime: Long = 0
+                    var firstChatRoomConversationTime: Long = 0
 
                     try {
-                        cursorForOfficial.moveToNext()
-                        firstOfficialFlag = cursorForOfficial.getLong(cursorForOfficial.getColumnIndex("flag"))
+                        if (cursorForOfficial.count > 0) {
+                            cursorForOfficial.moveToNext()
+                            firstOfficialConversationTime = cursorForOfficial.getLong(cursorForOfficial.getColumnIndex("flag"))
+                        }
 
-                        cursorForChatRoom.moveToNext()
-                        firstChatRoomFlag = cursorForChatRoom.getLong(cursorForChatRoom.getColumnIndex("flag"))
+                        if (cursorForChatRoom.count > 0) {
+                            cursorForChatRoom.moveToNext()
+                            firstChatRoomConversationTime = cursorForChatRoom.getLong(cursorForChatRoom.getColumnIndex("flag"))
+                        }
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
 
                     val cursor = param.result as Cursor
 
-
                     var officialPosition = -1
                     var chatRoomPosition = -1
 
                     //根据时间先后排序，确定入口的位置
+                    //遍历每一条回话，比较会话时间
                     while (cursor.moveToNext()) {
 
-                        val flag = cursor.getLong(cursor.columnNames.indexOf("flag"))
+                        val conversationTime = cursor.getLong(cursor.columnNames.indexOf("flag"))
 
-                        if (flag < firstOfficialFlag && officialPosition == -1) {
+                        if (conversationTime < firstOfficialConversationTime && officialPosition == -1) {
                             officialPosition = cursor.position
                         }
 
-                        if (flag < firstChatRoomFlag && chatRoomPosition == -1) {
+                        if (conversationTime < firstChatRoomConversationTime && chatRoomPosition == -1) {
                             chatRoomPosition = cursor.position
                         }
                     }
@@ -185,11 +194,11 @@ object MessageHandler {
                         } else if (officialPosition < chatRoomPosition) {
                             chatRoomPosition += 1
                         } else if (officialPosition == chatRoomPosition) {
-                            if (firstOfficialFlag > firstChatRoomFlag) chatRoomPosition += 1 else officialPosition += 1
+                            if (firstOfficialConversationTime > firstChatRoomConversationTime) chatRoomPosition += 1 else officialPosition += 1
                         }
                     }
 
-                 //   XposedBridge.log("MessageHooker2.17, chatRoomPosition = $chatRoomPosition, officialPosition = $officialPosition")
+                       XposedBridge.log("MessageHooker2.17, chatRoomPosition = $chatRoomPosition, officialPosition = $officialPosition")
 
 
                     iMainAdapterRefreshes.forEach { it.onEntryPositionChanged(chatRoomPosition, officialPosition) }

@@ -93,8 +93,6 @@ object MainAdapter {
 
                             param.result = null
                         }
-
-
                     }
                 })
 
@@ -107,7 +105,7 @@ object MainAdapter {
                         val position = param.args[0] as Int
                         val view = param.args[1] as View?
 
-                        XposedBridge.log("MMBaseAdapter_getView, beforeHookedMethod, index = " + position)
+                        XposedBridge.log("MMBaseAdapter_getView, beforeHookedMethod, index = " + position + ", view = $view")
 
                         if (view == null) {
                             /**
@@ -123,14 +121,19 @@ object MainAdapter {
                     }
 
                     override fun afterHookedMethod(param: MethodHookParam) {
-
                         val position = param.args[0] as Int
+                        val view = param.args[1] as View?
 
-                        if (param.result != null)
-                            refreshEntryView(param.result as View, position, param)
+                        XposedBridge.log("MMBaseAdapter_getView, afterHookedMethod, index = " + position + ", view = $view")
+
+                        if (view != null)
+                            refreshEntryView(view, position, param)
                     }
 
                     private fun refreshEntryView(view: View?, position: Int, param: MethodHookParam) {
+                        XposedBridge.log("MessageHooker2.6,position = $position, position = $position, " +
+                                "firstChatRoomPosition = $firstChatRoomPosition ,firstOfficialPosition = $firstOfficialPosition \n")
+
                         val itemView = view as ViewGroup
 
                         val avatarContainer = itemView.getChildAt(0) as ViewGroup
@@ -145,9 +148,6 @@ object MainAdapter {
 
                         val content = ((contentContainer.getChildAt(1) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(1)
 
-                        //       XposedBridge.log("MessageHooker2.6,position = $position, position = $position, " +
-                        //               "firstChatRoomPosition = $firstChatRoomPosition ,firstOfficialPosition = $firstOfficialPosition \n")
-
                         if (position == firstChatRoomPosition) {
                             unReadCount.visibility = View.GONE
                             unMuteReadIndicators.visibility = View.GONE
@@ -160,7 +160,6 @@ object MainAdapter {
                             avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.CHAT_ROOMS)) }
 
                             LogUtils.log("getUnReadCountItemChatRoom " + allChatRoom.joinToString { "unReadCount = ${it.unReadCount}" })
-
 
                             if (unReadCountItem > 0) {
                                 setTextForNoMeasuredTextView(content, "[有${unReadCountItem}个群聊收到新消息]")
@@ -183,51 +182,62 @@ object MainAdapter {
                             setTextForNoMeasuredTextView(time, allOfficial.first().conversationTime)
                             avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.OFFICIAL)) }
 
-                            param.result = view
-
                             LogUtils.log("getUnReadCountItemChatRoom " + allOfficial.joinToString { "unReadCount = ${it.unReadCount}" })
 
                             if (unReadCountItem > 0) {
                                 setTextForNoMeasuredTextView(content, "[有${unReadCountItem}个服务号收到新消息]")
                                 setTextColorForNoMeasuredTextView(content, 0xFFF57C00.toInt())
-
                                 unMuteReadIndicators.visibility = View.VISIBLE
                             } else {
                                 setTextForNoMeasuredTextView(content, "${allOfficial.first().nickname}：${allOfficial.first().content}")
-
                             }
+
+                            param.result = view
                         }
                     }
                 })
 
 
+        /**
+         * 修改 getObject 的数据下标
+         */
         findAndHookMethod(conversationWithCacheAdapter.superclass, conversationWithCacheAdapter_getItem,
                 Int::class.java, object : XC_MethodHook() {
 
             override fun beforeHookedMethod(param: MethodHookParam) {
+                XposedBridge.log("MessageHooker2.7,size = ${originAdapter.count}")
 
                 if (param.thisObject::class.simpleName != conversationWithCacheAdapter.simpleName) return
 
                 val index = param.args[0] as Int
 
-
-                if (firstChatRoomPosition == -1 || firstOfficialPosition == -1) return
-
                 val min = Math.min(firstChatRoomPosition, firstOfficialPosition)
                 val max = Math.max(firstChatRoomPosition, firstOfficialPosition)
 
-                val newIndex = when (index) {
-                    in 0 until min -> index
-                    min -> index //TODO
-                    in min + 1 until max -> index - 1
-                    max -> index //TODO
-                    in max + 1 until Int.MAX_VALUE -> index - 2
-                    else -> index
-                }
-
-                //      XposedBridge.log("MessageHooker2.7,size = ${originAdapter.count}, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
+                val newIndex =
+                        if (min == -1 && max == -1) {
+                            index
+                        } else if (min == -1 || max == -1) {
+                            when (index) {
+                                in 0 until max -> index
+                                max -> index //TODO
+                                in max + 1 until Int.MAX_VALUE -> index - 1
+                                else -> index //TODO
+                            }
+                        } else {
+                            when (index) {
+                                in 0 until min -> index
+                                min -> index //TODO
+                                in min + 1 until max -> index - 1
+                                max -> index //TODO
+                                in max + 1 until Int.MAX_VALUE -> index - 2
+                                else -> index //TODO
+                            }
+                        }
 
                 param.args[0] = newIndex
+
+                XposedBridge.log("MessageHooker2.7,size = ${originAdapter.count}, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
             }
         })
 
@@ -241,7 +251,7 @@ object MainAdapter {
                     override fun onEntryPositionChanged(chatroomPosition: Int, officialPosition: Int) {
                         super.onEntryPositionChanged(chatroomPosition, officialPosition)
 
-                        if (firstOfficialPosition != officialPosition || firstChatRoomPosition == chatroomPosition) {
+                        if (firstOfficialPosition != officialPosition || firstChatRoomPosition != chatroomPosition) {
                             firstChatRoomPosition = chatroomPosition
                             firstOfficialPosition = officialPosition
                         }
