@@ -7,16 +7,14 @@ package com.zdy.project.wechat_chatroom_helper;
 public class PageType {
 
 
-    private static final int MODE_SHIFT = 30;
-    private static final int MODE_MASK = 0x3 << MODE_SHIFT;
+    public static final int CHAT_ROOMS = 2;
+    public static final int OFFICIAL = 3;
+    public static final int MAIN = 0;
 
-    public static final int CHAT_ROOMS = 2 << MODE_SHIFT;
-    public static final int OFFICIAL = 3 << MODE_SHIFT;
-    public static final int MAIN = 0 << MODE_SHIFT;
-    public static final int CHATTING = 1 << MODE_SHIFT;
+    private static final int CHATTING = 4;
+    public static final int CHATTING_WITH_CHAT_ROOMS = CHATTING + 1;
+    public static final int CHATTING_WITH_OFFICIAL = CHATTING + 2;
 
-    public static final int CHATTING_WITH_CHAT_ROOMS = (1 << MODE_SHIFT) + 2;
-    public static final int CHATTING_WITH_OFFICIAL = (1 << MODE_SHIFT) + 3;
 
     public static String printPageType(int pagetype) {
         switch (pagetype) {

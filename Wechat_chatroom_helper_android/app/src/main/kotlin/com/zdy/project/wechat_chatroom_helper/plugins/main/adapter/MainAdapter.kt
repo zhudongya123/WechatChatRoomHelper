@@ -73,24 +73,19 @@ object MainAdapter {
                         val position = (param.args[2] as Int) - listView.headerViewsCount
 
                         val field_username = XposedHelpers.getObjectField(XposedHelpers.callMethod(originAdapter, conversationWithCacheAdapter_getItem, position), "field_username") as String
-
 //                        XposedBridge.log("MessageHooker2.6,position = $position, field_username = $field_username, " +
 //                                "firstChatRoomUserName = $firstChatRoomUserName ,firstOfficialUserName = $firstOfficialUserName \n")
 
                         if (position == firstChatRoomPosition) {
 
                             //    XposedBridge.log("MessageHooker2.6,position = $position, firstChatRoomUserName equal")
-
                             PluginEntry.chatRoomViewPresenter.show()
-
                             param.result = null
                         }
                         if (position == firstOfficialPosition) {
 
                             //      XposedBridge.log("MessageHooker2.6,position = $position, firstOfficialUserName equal")
-
                             PluginEntry.officialViewPresenter.show()
-
                             param.result = null
                         }
                     }
@@ -166,7 +161,9 @@ object MainAdapter {
                                 setTextColorForNoMeasuredTextView(content, 0xFFF57C00.toInt())
                                 unMuteReadIndicators.visibility = View.VISIBLE
                             } else {
+                                setTextColorForNoMeasuredTextView(content, 0xFF999999.toInt())
                                 setTextForNoMeasuredTextView(content, "${allChatRoom.first().nickname}：${allChatRoom.first().content}")
+                                unMuteReadIndicators.visibility = View.GONE
                             }
 
                             param.result = view
@@ -190,6 +187,9 @@ object MainAdapter {
                                 unMuteReadIndicators.visibility = View.VISIBLE
                             } else {
                                 setTextForNoMeasuredTextView(content, "${allOfficial.first().nickname}：${allOfficial.first().content}")
+                                setTextColorForNoMeasuredTextView(content, 0xFF999999.toInt())
+                                unMuteReadIndicators.visibility = View.GONE
+
                             }
 
                             param.result = view
