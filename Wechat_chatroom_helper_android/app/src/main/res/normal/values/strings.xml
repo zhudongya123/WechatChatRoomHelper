@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">微信群消息助手</string>
+    <string name="app_desc">整理微信中的免打扰消息</string>
+    <string name="setting">设置</string>
+    <string name="pref_open">功能开关</string>
+    <string name="play_version_string">我使用的是play版本</string>
+    <string name="is_circle_avatar_string">群消息助手圆形头像</string>
+    <string name="force_hide_navi_bar_string">修复群聊天助手底部显示异常</string>
+
+
+    <string name="title_main_string">微信群消息助手</string>
+    <string name="title_question_string">疑难解答</string>
+    <string name="title_function_setting_string">群消息助手功能设置</string>
+
+    <string name="title_ui_setting_string">群消息助手 UI 设置</string>
+
+    <string name="title_other_setting_string">其他功能（实验）</string>
+    <string name="title_about_string">联系和捐赠</string>
+
+    <string name="sub_title_ui_setting_string">设置群消息和服务号消息列表内的 UI 样式。</string>
+    <string name="sub_title_function_setting_string">助手的一些功能性设置。</string>
+    <string name="sub_title_question_string">出现问题时的解决方案。</string>
+
+
+    <string name="title_function_settting_item_1">助手圆形头像</string>
+    <string name="title_function_settting_item_2">进入聊天界面自动关闭助手</string>
+    <string name="title_function_settting_item_3">Xposed 日志开关</string>
+    <string name="title_function_settting_item_4">隐藏程序入口</string>
+
+    <string name="sub_title_function_settting_item_1">助手圆形头像</string>
+    <string name="sub_title_function_settting_item_2">进入聊天界面自动关闭助手</string>
+    <string name="sub_title_function_settting_item_3">Xposed 日志开关</string>
+    <string name="sub_title_function_settting_item_4">隐藏程序入口</string>
+
+    <string name="sub_title_ques_item_1">使用时出现闪退或者崩溃</string>
+    <string name="sub_title_ques_item_2">在双（多）开/分身中使用群消息助手</string>
+
+    <string name="sub_title_about_item_1">项目主页</string>
+    <string name="sub_title_about_item_2">捐钱续命</string>
+</resources>

@@ -1,1 +1,1 @@
-include ':app', ':swipebackLibrary'
+include ':app', ':SwipeBackLibrary', ':WechatSpellbook'

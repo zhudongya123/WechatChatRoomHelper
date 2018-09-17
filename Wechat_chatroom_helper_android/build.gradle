@@ -1,38 +1,44 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.2.0'
+    ext.kotlin_version = '1.2.50'
     repositories {
         jcenter()
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0'
+        classpath 'com.android.tools.build:gradle:3.1.4'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
+apply plugin: 'kotlin'
 
 allprojects {
     repositories {
         jcenter()
         google()
+        maven { url 'https://dl.bintray.com/omico/OmicoLibrary' }
     }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
 }
 
 ext {
 
-    buildToolVersion = '26.0.2'
-    sdkVersion = 26
-    minSdkVersion = 21
-    supportLibVersion = '26.1.0'
-
-    archLifecycleVersion = '1.0.0'
-
+    buildToolVersion = '27.0.3'
+    sdkVersion = 27
+    minSdkVersion = 23
+    supportLibVersion = '27.1.1'
+    constraintLayoutVersion = '1.1.3'
 }
+repositories {
+    mavenCentral()
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+

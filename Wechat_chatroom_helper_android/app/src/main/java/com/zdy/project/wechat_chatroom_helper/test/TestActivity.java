@@ -39,7 +39,7 @@ public class TestActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Log.v("TestActivity", "button onClick");
-             swipeBackLayout.closePane();
+                swipeBackLayout.closePane();
 
             }
         });
@@ -55,6 +55,8 @@ public class TestActivity extends Activity {
         swipeBackLayout = new MySwipeBackLayout(this);
         swipeBackLayout.attachToView(mainView, this);
         content.addView(swipeBackLayout, params);
+
+
 
     }
 

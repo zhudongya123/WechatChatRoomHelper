@@ -1,0 +1,18 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion rootProject.ext.sdkVersion
+    buildToolsVersion rootProject.ext.buildToolVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.sdkVersion
+    }
+}
+
+dependencies {
+    compileOnly "com.android.support:support-v4:$rootProject.ext.supportLibVersion"
+}
+
+// gradle clean build bintrayUpload
+//apply from: 'https://raw.githubusercontent.com/bingoogolapple/PublishAar/master/jcenter-release.gradle'

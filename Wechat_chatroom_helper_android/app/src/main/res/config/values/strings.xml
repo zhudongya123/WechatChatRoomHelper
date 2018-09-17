@@ -1,0 +1,31 @@
+<resources>
+
+    <string name="config_step1_title">欢迎使用微信群消息助手</string>
+    <string name="config_step2_title">权限设置</string>
+    <string name="config_step3_title">获得配置文件</string>
+
+    <string name="config_step1_text1">首先我们需要进行一些配置后才能正常使用。</string>
+
+    <string name="config_step2_text1">我们需要文件读写权限来保存配置。</string>
+    <string name="config_step2_button1">检查</string>
+    <string name="config_step2_button2">去设置</string>
+
+
+    <string name="config_step3_text0">准备开始获取配置。</string>
+    <string name="config_step3_text1">确定微信安装包位置：%s。\n微信版本：%s (%s)。</string>
+    <string name="config_step3_text2">正在准备解析类，可能需要数分钟准备，请耐心等待……</string>
+    <string name="config_step3_text3">点击下一步完成。\n获取配置完成。\n配置文件路径：%s。\n配置文件已经写入本地， 适用于 %s (%s) 版本。</string>
+    <string name="config_step3_text4">找到可配置项：%s。</string>
+    <string name="config_step3_text5">写入可配置项：%s, %s。</string>
+    <string name="config_step3_text6">遍历了%d个类，已经加载了%d个类。</string>
+
+
+    <string name="config_step3_text_ex">%s : %s\n</string>
+
+
+    <string name="config_permission_success">检查成功，已经获得了权限。</string>
+    <string name="config_permission_fail">无法获得权限，您可能已经拒绝了我们的权限申请，请点【检查】按钮来获得权限。</string>
+
+
+
+</resources>
