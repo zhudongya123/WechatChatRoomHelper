@@ -20,7 +20,7 @@ import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.ConfigChatRoomDialog
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialog
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.ConfigInfo
+import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
 import de.robv.android.xposed.XposedHelpers
 import network.ApiManager
 import java.util.*

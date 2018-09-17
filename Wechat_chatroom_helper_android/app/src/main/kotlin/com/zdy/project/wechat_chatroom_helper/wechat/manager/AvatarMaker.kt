@@ -4,6 +4,7 @@ import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.widget.ImageView
 import com.zdy.project.wechat_chatroom_helper.PageType
+import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
 
 /**
  * Created by Mr.Zdy on 2018/3/2.

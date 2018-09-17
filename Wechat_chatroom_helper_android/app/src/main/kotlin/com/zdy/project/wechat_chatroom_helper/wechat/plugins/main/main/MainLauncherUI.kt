@@ -12,7 +12,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
-import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.PluginEntry.Companion.chatRoomViewPresenter
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.PluginEntry.Companion.officialViewPresenter
@@ -109,7 +109,7 @@ object MainLauncherUI {
                         if (RuntimeInfo.currentPage == PageType.OFFICIAL) RuntimeInfo.currentPage = PageType.CHATTING_WITH_OFFICIAL
                         else if (RuntimeInfo.currentPage == PageType.CHAT_ROOMS) RuntimeInfo.currentPage = PageType.CHATTING_WITH_CHAT_ROOMS
 
-                        if (AppSaveInfo.autoCloseInfo()) {
+                        if (ConfigInfo.isAutoClose) {
                             if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_OFFICIAL) PluginEntry.officialViewPresenter.dismiss()
                             else if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_CHAT_ROOMS) PluginEntry.chatRoomViewPresenter.dismiss()
                         }

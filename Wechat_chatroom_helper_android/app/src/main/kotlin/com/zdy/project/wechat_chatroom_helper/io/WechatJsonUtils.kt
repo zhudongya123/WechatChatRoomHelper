@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.helper.utils
+package com.zdy.project.wechat_chatroom_helper.io
 
 import android.app.Activity
 import android.content.Intent
@@ -6,17 +6,16 @@ import android.os.Environment
 import android.text.TextUtils
 import android.util.Log
 import com.blankj.utilcode.util.FileIOUtils
-import com.blankj.utilcode.util.FileUtils
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.zdy.project.wechat_chatroom_helper.Constants
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.nio.charset.Charset
 
 
 /**
+ *
+ *此类是 io 底层类，用于存储和读取配置文件，
+ *
  * Created by Mr.Zdy on 2017/11/2.
  */
 object WechatJsonUtils {

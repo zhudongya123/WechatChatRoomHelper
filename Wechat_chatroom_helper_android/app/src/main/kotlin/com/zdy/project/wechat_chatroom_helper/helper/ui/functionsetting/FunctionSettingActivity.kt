@@ -1,10 +1,8 @@
 package com.zdy.project.wechat_chatroom_helper.helper.ui.functionsetting
 
 import android.content.ComponentName
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.support.v7.widget.SwitchCompat
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -13,11 +11,9 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.ui.BaseActivity
-import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActivity
-import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
+import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import manager.PermissionHelper
-import ui.MyApplication
 
 class FunctionSettingActivity : BaseActivity() {
 

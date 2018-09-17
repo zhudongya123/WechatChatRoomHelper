@@ -3,7 +3,6 @@ package com.zdy.project.wechat_chatroom_helper.helper.ui.config
 import android.app.Activity
 import android.os.AsyncTask
 import android.os.Message
-import com.tencent.bugly.Bugly
 import com.tencent.bugly.crashreport.CrashReport
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
@@ -15,7 +14,7 @@ import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Compa
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.TEXT_COLOR_PASS
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.getType
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.makeTypeSpec
-import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
+import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.WXClassParser
 import dalvik.system.DexClassLoader

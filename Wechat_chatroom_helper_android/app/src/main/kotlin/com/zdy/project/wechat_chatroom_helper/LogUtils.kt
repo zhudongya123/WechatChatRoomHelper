@@ -2,6 +2,7 @@ package com.zdy.project.wechat_chatroom_helper
 
 import android.util.Log
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
 
 /**
  * Created by zhudo on 2018/2/11.
@@ -9,7 +10,7 @@ import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 object LogUtils {
 
     fun log(s: String) {
-         if (!AppSaveInfo.openLogInfo()) return
+         if (!ConfigInfo.isOpenLog) return
         Log.v("WCRH", " : $s")
     }
 

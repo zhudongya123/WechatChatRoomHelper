@@ -1,7 +1,7 @@
 package network
 
 import android.os.Build
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.ConfigInfo
+import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
 import okhttp3.*
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import java.io.IOException

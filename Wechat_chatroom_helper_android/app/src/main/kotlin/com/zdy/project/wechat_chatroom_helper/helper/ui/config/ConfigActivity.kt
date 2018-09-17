@@ -13,7 +13,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
-import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
+import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import manager.PermissionHelper
 import me.omico.base.activity.SetupWizardBaseActivity

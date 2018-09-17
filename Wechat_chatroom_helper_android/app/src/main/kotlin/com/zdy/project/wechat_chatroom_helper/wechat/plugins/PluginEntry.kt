@@ -3,6 +3,7 @@ package     com.zdy.project.wechat_chatroom_helper.wechat.plugins
 import android.annotation.SuppressLint
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.log.LogRecord
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.ConversationItemHandler
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.MainAdapter
@@ -12,7 +13,7 @@ import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.callbacks.XC_LoadPackage
-import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
+import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 
 /**
  * Created by Mr.Zdy on 2018/3/31.
@@ -46,7 +47,9 @@ class PluginEntry : IXposedHookLoadPackage {
             WXObject.Adapter.C.ConversationClickListener = configJson.get("conversationClickListener").asString
             WXObject.Tool.C.Logcat = configJson.get("logcat").asString
 
-            ConversationItemHandler
+
+
+            ConversationItemHandler//初始化相关类
 
             MessageHandler.executeHook()
             MainAdapter.executeHook()

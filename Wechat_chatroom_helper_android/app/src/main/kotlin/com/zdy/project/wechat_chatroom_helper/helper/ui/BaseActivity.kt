@@ -3,7 +3,6 @@ package com.zdy.project.wechat_chatroom_helper.helper.ui
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import com.zdy.project.wechat_chatroom_helper.helper.utils.WechatJsonUtils
 
 open class BaseActivity : AppCompatActivity() {
 
