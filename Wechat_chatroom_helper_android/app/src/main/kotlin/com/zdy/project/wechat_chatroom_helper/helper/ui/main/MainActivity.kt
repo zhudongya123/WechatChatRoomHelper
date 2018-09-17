@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.zdy.project.wechat_chatroom_helper.R
+import com.zdy.project.wechat_chatroom_helper.helper.ui.AboutActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.BaseActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.QuestionActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.ConfigActivity
@@ -46,8 +47,8 @@ class MainActivity : BaseActivity() {
                     initSetting(arrayOf("群消息助手状态",
                             getString(R.string.title_function_setting_string),
                             getString(R.string.title_ui_setting_string),
-                            getString(R.string.title_question_string),
-                            getString(R.string.title_other_setting_string),
+                            /*  getString(R.string.title_question_string),
+                              getString(R.string.title_other_setting_string),*/
                             getString(R.string.title_about_string)))
                 }
                 PermissionHelper.ASK -> {
@@ -126,6 +127,11 @@ class MainActivity : BaseActivity() {
                         thisActivity.startActivity(Intent(thisActivity, FunctionSettingActivity::class.java))
                     }
                     text2.setText(R.string.sub_title_function_setting_string)
+                }
+                getString(R.string.title_about_string) -> {
+                    itemView.setOnClickListener {
+                        thisActivity.startActivity(Intent(thisActivity, AboutActivity::class.java))
+                    }
                 }
 
             }

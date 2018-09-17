@@ -35,4 +35,6 @@
     <string name="sub_title_ques_item_1">使用时出现闪退或者崩溃</string>
     <string name="sub_title_ques_item_2">在双（多）开/分身中使用群消息助手</string>
 
+    <string name="sub_title_about_item_1">项目主页</string>
+    <string name="sub_title_about_item_2">捐钱续命</string>
 </resources>
