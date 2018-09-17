@@ -8,14 +8,12 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.Shape
 import android.support.v7.widget.RecyclerView
-import android.text.Html
 import android.view.ViewGroup
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
-import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.ConversationItemHandler
-import com.zdy.project.wechat_chatroom_helper.plugins.main.adapter.MainAdapter
-import com.zdy.project.wechat_chatroom_helper.plugins.main.main.MainLauncherUI
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.ConversationItemHandler
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import de.robv.android.xposed.XposedHelpers
 import java.util.*

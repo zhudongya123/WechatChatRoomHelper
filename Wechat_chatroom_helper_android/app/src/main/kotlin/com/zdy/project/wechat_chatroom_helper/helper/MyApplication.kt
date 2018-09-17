@@ -58,6 +58,5 @@ class MyApplication : Application() {
         fun get(): MyApplication {
             return instance!!
         }
-
     }
 }

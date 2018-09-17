@@ -3,6 +3,8 @@ package com.zdy.project.wechat_chatroom_helper.helper.ui.config
 import android.app.Activity
 import android.os.AsyncTask
 import android.os.Message
+import com.tencent.bugly.Bugly
+import com.tencent.bugly.crashreport.CrashReport
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.HANDLER_SHOW_NEXT_BUTTON
@@ -42,19 +44,19 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
         val srcPath = params[0]
         val optimizedDirectory = params[1]
 
-        val classes = mutableListOf<Class<*>>()
-
-        val apkFile = ApkFile(File(srcPath))
-        val dexClasses = apkFile.dexClasses
-        val classLoader = DexClassLoader(srcPath, optimizedDirectory, null, weakA.get()?.classLoader)
-
-
-        sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_NORMAL),
-                weakA.get()!!.getString(R.string.config_step3_text1),
-                srcPath, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
-        sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_NORMAL),
-                weakA.get()!!.getString(R.string.config_step3_text2))
         try {
+            val classes = mutableListOf<Class<*>>()
+
+
+            val apkFile = ApkFile(File(srcPath))
+            val dexClasses = apkFile.dexClasses
+            val classLoader = DexClassLoader(srcPath, optimizedDirectory, null, weakA.get()?.classLoader)
+
+
+            sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_NORMAL),
+                    weakA.get()!!.getString(R.string.config_step3_text1),
+                    srcPath, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
+
 
             dexClasses.map { it.classType.substring(1, it.classType.length - 1).replace("/", ".") }
                     .filter { it.contains(Constants.WECHAT_PACKAGE_NAME) }
@@ -92,6 +94,7 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                     WechatJsonUtils.configPath, apkFile.apkMeta.versionName,
                     apkFile.apkMeta.versionCode.toString())
         } catch (e: Throwable) {
+            CrashReport.postCatchedException(e)
             e.printStackTrace()
             sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_ERROR),
                     e.toString())
@@ -101,6 +104,8 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
     override fun onPreExecute() {
         sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_NORMAL),
                 weakA.get()!!.getString(R.string.config_step3_text0))
+        sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_NORMAL),
+                weakA.get()!!.getString(R.string.config_step3_text2))
     }
 
     override fun onPostExecute(result: Unit?) {

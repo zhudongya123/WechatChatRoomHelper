@@ -1,7 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper
 
 import android.util.Log
-import de.robv.android.xposed.XposedBridge
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 
 /**
@@ -10,7 +9,7 @@ import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 object LogUtils {
 
     fun log(s: String) {
-        // if (!PluginEntry.runtimeInfo.isOpenLog) return
+         if (!AppSaveInfo.openLogInfo()) return
         Log.v("WCRH", " : $s")
     }
 

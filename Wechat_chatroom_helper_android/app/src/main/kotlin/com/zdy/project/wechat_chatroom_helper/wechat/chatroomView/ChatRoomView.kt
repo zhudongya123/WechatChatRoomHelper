@@ -15,7 +15,7 @@ import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
-import com.zdy.project.wechat_chatroom_helper.plugins.message.MessageFactory
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageFactory
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.ConfigChatRoomDialog

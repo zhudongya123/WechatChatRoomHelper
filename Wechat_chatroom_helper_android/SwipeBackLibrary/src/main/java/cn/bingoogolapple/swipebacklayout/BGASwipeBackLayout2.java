@@ -86,7 +86,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
     /**
      * Minimum velocity that will be detected as a fling
      */
-    private static final int MIN_FLING_VELOCITY = 400; // dips per second
+    private static final int MIN_FLING_VELOCITY = 800; // dips per second
 
     /**
      * The fade color used for the panel covered by the slider. 0 = no fading.

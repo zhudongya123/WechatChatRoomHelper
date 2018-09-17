@@ -27,7 +27,7 @@ object AppSaveInfo {
     private const val DIVIDER_COLOR = "divider_color"
 
 
-    private const val HAS_SUIT_WECHAT_DATA = "has_suit_wechat_data"//
+    private const val HAS_SUIT_WECHAT_DATA = "has_suit_wechat_data"
     private const val IS_PLAY_VERSION = "is_play_version"//
     private const val HELPER_VERSIONCODE = "helper_versionCode"
     private const val WECHAT_VERSION = "wechat_version"
@@ -56,7 +56,7 @@ object AppSaveInfo {
     }
 
     fun openLogInfo(): Boolean {
-        return WechatJsonUtils.getJsonValue(IS_OPEN_LOG, true)
+        return WechatJsonUtils.getJsonValue(IS_OPEN_LOG, false)
     }
 
     fun setOpenLog(value: Boolean) {
