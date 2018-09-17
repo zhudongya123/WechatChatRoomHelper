@@ -1,6 +1,5 @@
 package com.zdy.project.wechat_chatroom_helper.plugins.main.adapter
 
-import android.content.Context
 import android.widget.ImageView
 import com.blankj.utilcode.util.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel

@@ -125,24 +125,6 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
     }
 
     override fun showMessageRefresh(targetUserName: String) {
-//        Handler(mContext.mainLooper).post(Runnable {
-//            val data = mAdapter.data
-//            for (i in data.indices) {
-//                val item = data[i]
-//                if (item.avatarString == targetUserName) {
-//                    val bean = HookLogic.getMessageBeanForOriginIndex(mPresenter.originAdapter,
-//                            mAdapter.muteListInAdapterPositions[i])
-//
-//                    data[i] = ChatInfoModel.convertFromObject(bean, mPresenter.originAdapter, mContext)
-//                    mAdapter.data = data
-//                    mAdapter.notifyItemChanged(i)
-//
-//                    LogUtils.log("showMessageRefresh for one recycler view , pageType = " + PageType.printPageType(pageType))
-//                    return@Runnable
-//                }
-//            }
-//        })
-
 
     }
 
@@ -184,8 +166,6 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         val height = ScreenUtils.dip2px(mContext, 48f)
 
         mToolbar.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
-//        mToolbar.setNavigationIcon(mContext.resources
-//                .getIdentifier(Drawable_String_Arrow, "drawable", mContext.packageName))
 
         mToolbar.setNavigationOnClickListener { dismiss() }
         mToolbar.setBackgroundColor(Color.parseColor("#" + ConfigInfo.toolbarColor))

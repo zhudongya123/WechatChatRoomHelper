@@ -46,6 +46,9 @@
         <activity
             android:name=".helper.ui.functionsetting.FunctionSettingActivity"
             android:label="@string/title_function_setting_string" />
+        <activity
+            android:name=".helper.ui.QuestionActivity"
+            android:label="@string/title_question_string" />
 
         <activity
             android:name=".helper.ui.config.ConfigActivity"

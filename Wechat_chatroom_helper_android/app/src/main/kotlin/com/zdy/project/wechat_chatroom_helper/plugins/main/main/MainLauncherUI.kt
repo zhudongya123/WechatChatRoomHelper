@@ -12,6 +12,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry.Companion.chatRoomViewPresenter
 import com.zdy.project.wechat_chatroom_helper.plugins.PluginEntry.Companion.officialViewPresenter
@@ -107,6 +108,11 @@ object MainLauncherUI {
                         LogUtils.log("MainLauncherUI, startChatting")
                         if (RuntimeInfo.currentPage == PageType.OFFICIAL) RuntimeInfo.currentPage = PageType.CHATTING_WITH_OFFICIAL
                         else if (RuntimeInfo.currentPage == PageType.CHAT_ROOMS) RuntimeInfo.currentPage = PageType.CHATTING_WITH_CHAT_ROOMS
+
+                        if (AppSaveInfo.autoCloseInfo()) {
+                            if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_OFFICIAL) PluginEntry.officialViewPresenter.dismiss()
+                            else if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_CHAT_ROOMS) PluginEntry.chatRoomViewPresenter.dismiss()
+                        }
                     }
                 })
 
@@ -117,8 +123,16 @@ object MainLauncherUI {
                     @Throws(Throwable::class)
                     override fun beforeHookedMethod(param: XC_MethodHook.MethodHookParam) {
                         LogUtils.log("MainLauncherUI, closeChatting")
-                        if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_OFFICIAL) RuntimeInfo.currentPage = PageType.OFFICIAL
-                        else if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_CHAT_ROOMS) RuntimeInfo.currentPage = PageType.CHAT_ROOMS
+                        if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_OFFICIAL) {
+                            if (PluginEntry.officialViewPresenter.isShowing)
+                                RuntimeInfo.currentPage = PageType.OFFICIAL
+                            else RuntimeInfo.currentPage = PageType.MAIN
+
+                        } else if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_CHAT_ROOMS) {
+                            if (PluginEntry.chatRoomViewPresenter.isShowing)
+                                RuntimeInfo.currentPage = PageType.CHAT_ROOMS
+                            else RuntimeInfo.currentPage = PageType.MAIN
+                        }
                     }
                 })
     }
