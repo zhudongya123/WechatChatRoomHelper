@@ -8,7 +8,7 @@ object Constants {
 
     val WECHAT_PACKAGE_NAME = "com.tencent.mm"
 
-    val DEFAULT_TOOLBAR_COLOR = "393A3F"
+    val DEFAULT_TOOLBAR_COLOR = "303030"
     val DEFAULT_HELPER_COLOR = "FFFFFF"
     val DEFAULT_NICKNAME_COLOR = "353535"
     val DEFAULT_CONTENT_COLOR = "999999"

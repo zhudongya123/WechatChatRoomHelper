@@ -74,7 +74,7 @@ object ConversationItemHandler {
 
 
         val textSize = (ScreenUtils.getScreenDensity() * 13f).toInt()
-        val content = XposedHelpers.callMethod(adapter, getContentMethod.name, ae, textSize, false) as CharSequence
+        val content = XposedHelpers.callMethod(adapter, getContentMethod.name, ae, textSize, true) as CharSequence
 
         LogUtils.log("getConversationContent,  content =  $content")
 

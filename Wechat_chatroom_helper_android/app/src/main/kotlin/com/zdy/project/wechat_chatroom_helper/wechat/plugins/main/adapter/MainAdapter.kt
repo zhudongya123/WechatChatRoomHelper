@@ -31,7 +31,7 @@ object MainAdapter {
     private var firstOfficialPosition = -1
 
     fun executeHook() {
-
+        ConversationItemHandler
         val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithCacheAdapter, PluginEntry.classloader)
         val conversationWithAppBrandListView = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithAppBrandListView, PluginEntry.classloader)
         val conversationClickListener = XposedHelpers.findClass(WXObject.Adapter.C.ConversationClickListener, PluginEntry.classloader)
@@ -50,6 +50,10 @@ object MainAdapter {
         findAndHookMethod(conversationWithAppBrandListView, "setAdapter", ListAdapter::class.java, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 listView = param.thisObject as ListView
+                val adapter = param.args[0]
+
+                PluginEntry.chatRoomViewPresenter.setAdapter(adapter)
+                PluginEntry.officialViewPresenter.setAdapter(adapter)
 
                 PluginEntry.chatRoomViewPresenter.start()
                 PluginEntry.officialViewPresenter.start()

@@ -19,7 +19,7 @@ import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageFact
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.ConfigChatRoomDialog
-import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialog
+import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialogBuilder
 import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
 import de.robv.android.xposed.XposedHelpers
 import network.ApiManager
@@ -212,7 +212,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         imageView.setOnClickListener {
             when (pageType) {
                 PageType.OFFICIAL -> {
-//                    val dialog = WhiteListDialog(mContext)
+//                    val dialog = WhiteListDialogBuilder(mContext)
 //                    dialog.list = HookLogic.officialNickNameEntries
 //                    dialog.pageType = PageType.OFFICIAL
 //                    dialog.setOnClickListener(View.OnClickListener { XposedHelpers.callMethod(mPresenter.originAdapter, "notifyDataSetChanged") })
@@ -227,15 +227,22 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
                     })
                     configChatRoomDialog.setOnWhiteListClickListener(object : ConfigChatRoomDialog.OnWhiteListClickListener {
                         override fun onClick() {
-                            val dialog = WhiteListDialog(mContext)
+                            val whiteListDialogBuilder = WhiteListDialogBuilder()
+                            val dialog = whiteListDialogBuilder.getWhiteListDialog(mContext)
 
-                            //   if (AppSaveInfo.chatRoomTypeInfo() == "1")
-                            //     dialog.list = HookLogic.allChatRoomNickNameEntries
-                            //    else
-                            //      dialog.list = HookLogic.muteChatRoomNickNameEntries
+//                               if (AppSaveInfo.chatRoomTypeInfo() == "1")
+//                                 dialog.list = HookLogic.allChatRoomNickNameEntries
+//                                else
+//                                  dialog.list = HookLogic.muteChatRoomNickNameEntries
 
-                            dialog.pageType = PageType.CHAT_ROOMS
-                            dialog.setOnClickListener(View.OnClickListener { XposedHelpers.callMethod(mPresenter.originAdapter, "notifyDataSetChanged") })
+                           // dialog.list = MessageFactory.getAllChatRoom().map { it.field_username.toString() }.toMutableList()
+                            whiteListDialogBuilder.pageType = PageType.CHAT_ROOMS
+                            whiteListDialogBuilder.setOnClickListener(object :View.OnClickListener{
+
+                                override fun onClick(v: View?) {
+                                    XposedHelpers.callMethod(mPresenter.originAdapter, "notifyDataSetChanged")
+                                }
+                            })
                             dialog.show()
 
                         }

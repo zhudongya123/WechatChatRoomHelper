@@ -19,6 +19,7 @@ import com.zdy.project.wechat_chatroom_helper.wechat.plugins.PluginEntry.Compani
 import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.ConversationItemHandler
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod

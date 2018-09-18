@@ -49,7 +49,7 @@ class PluginEntry : IXposedHookLoadPackage {
 
 
 
-            ConversationItemHandler//初始化相关类
+
 
             MessageHandler.executeHook()
             MainAdapter.executeHook()
