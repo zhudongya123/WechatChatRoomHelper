@@ -2,6 +2,8 @@ package com.zdy.project.wechat_chatroom_helper.wechat.plugins.message
 
 import android.database.Cursor
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.PageType
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.ConversationItemHandler
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
@@ -41,19 +43,14 @@ object MessageFactory {
         while (cursor.moveToNext()) {
             list.add(buildChatInfoModelByCursor(cursor))
         }
-
-        // LogUtils.log("getAllChatRoom " + list.joinToString { it.toString() + "\n" })
-
         return list
     }
 
-    fun getUnReadCountItem(list: ArrayList<ChatInfoModel>) = list.count { it.unReadCount > 0 }
-
-    fun getSingle(field_username: String) =
-            buildChatInfoModelByCursor((XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject,
-                    WXObject.Message.M.QUERY, getDataBaseFactory(MessageHandler.MessageDatabaseObject!!),
-                    SqlForByUsername(field_username), null, null) as Cursor).apply { moveToNext() })
-
+    fun getSpecChatRoom(): ArrayList<ChatInfoModel> {
+        val list = getAllChatRoom()
+        val chatroomList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_CHAT_ROOM)
+        return ArrayList(list.filterNot { chatroomList.contains(it.field_username) })
+    }
 
     fun getAllOfficial(): ArrayList<ChatInfoModel> {
         val cursor = XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, "rawQuery", SqlForGetAllOfficial, null) as Cursor
@@ -63,10 +60,22 @@ object MessageFactory {
         while (cursor.moveToNext()) {
             list.add(buildChatInfoModelByCursor(cursor))
         }
-
-        //      LogUtils.log("getAllOfficial " + list.joinToString { it.toString() + "\n" })
         return list
     }
+
+    fun getSpecOfficial(): ArrayList<ChatInfoModel> {
+        val list = getAllOfficial()
+        val officialList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
+        return ArrayList(list.filterNot { officialList.contains(it.field_username) })
+    }
+
+    fun getUnReadCountItem(list: ArrayList<ChatInfoModel>) = list.count { it.unReadCount > 0 }
+
+    fun getSingle(field_username: String) =
+            buildChatInfoModelByCursor((XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject,
+                    WXObject.Message.M.QUERY, getDataBaseFactory(MessageHandler.MessageDatabaseObject!!),
+                    SqlForByUsername(field_username), null, null) as Cursor).apply { moveToNext() })
+
 
     private fun buildChatInfoModelByCursor(cursor: Cursor): ChatInfoModel {
 

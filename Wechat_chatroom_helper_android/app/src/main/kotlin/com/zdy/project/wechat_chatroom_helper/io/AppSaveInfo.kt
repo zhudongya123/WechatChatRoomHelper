@@ -231,14 +231,11 @@ object AppSaveInfo {
                 .asJsonObject
         jsonObject.addProperty(key, value)
         WechatJsonUtils.putJsonValue("current_config", jsonObject.toString())
-
-
     }
 
     fun clearAddConfig() {
         WechatJsonUtils.putJsonValue("current_config", "{}")
     }
-
 
     fun getConfigJson() = WechatJsonUtils
             .parser

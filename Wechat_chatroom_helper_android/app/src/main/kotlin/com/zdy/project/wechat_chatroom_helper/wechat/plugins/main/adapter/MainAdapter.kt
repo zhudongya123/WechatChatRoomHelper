@@ -151,7 +151,7 @@ object MainAdapter {
                             unReadCount.visibility = View.GONE
                             unMuteReadIndicators.visibility = View.GONE
 
-                            val allChatRoom = MessageFactory.getAllChatRoom()
+                            val allChatRoom = MessageFactory.getSpecChatRoom()
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
 
                             setTextForNoMeasuredTextView(nickname, "群消息")
@@ -176,7 +176,7 @@ object MainAdapter {
                             unReadCount.visibility = View.GONE
                             unMuteReadIndicators.visibility = View.GONE
 
-                            val allOfficial = MessageFactory.getAllOfficial()
+                            val allOfficial = MessageFactory.getSpecOfficial()
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)
 
                             setTextForNoMeasuredTextView(nickname, "服务号")

@@ -15,6 +15,7 @@ import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageFactory
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
@@ -131,7 +132,12 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
     override fun showMessageRefresh(muteListInAdapterPositions: ArrayList<Int>) {
 
-        val newDatas = if (pageType == PageType.CHAT_ROOMS) MessageFactory.getAllChatRoom() else MessageFactory.getAllOfficial()
+        AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
+
+        val newDatas =
+                if (pageType == PageType.CHAT_ROOMS) MessageFactory.getSpecChatRoom()
+                else MessageFactory.getSpecOfficial()
+
         val oldDatas = mAdapter.data
 
         val diffResult = DiffUtil.calculateDiff(DiffCallBack(newDatas, oldDatas), true)
@@ -207,52 +213,17 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
         imageView.layoutParams = params
         imageView.setPadding(height / 5, height / 5, height / 5, height / 5)
-        //     imageView.setImageResource(mContext.resources.getIdentifier(Drawable_String_Setting, "drawable", mContext.packageName))
 
         imageView.setOnClickListener {
+            val whiteListDialogBuilder = WhiteListDialogBuilder()
             when (pageType) {
-                PageType.OFFICIAL -> {
-//                    val dialog = WhiteListDialogBuilder(mContext)
-//                    dialog.list = HookLogic.officialNickNameEntries
-//                    dialog.pageType = PageType.OFFICIAL
-//                    dialog.setOnClickListener(View.OnClickListener { XposedHelpers.callMethod(mPresenter.originAdapter, "notifyDataSetChanged") })
-//                    dialog.show()
-                }
-                PageType.CHAT_ROOMS -> {
-                    val configChatRoomDialog = ConfigChatRoomDialog(mContext)
-                    configChatRoomDialog.setOnModeChangedListener(object : ConfigChatRoomDialog.OnModeChangedListener {
-                        override fun onChanged() {
-                            XposedHelpers.callMethod(mPresenter.originAdapter, "notifyDataSetChanged")
-                        }
-                    })
-                    configChatRoomDialog.setOnWhiteListClickListener(object : ConfigChatRoomDialog.OnWhiteListClickListener {
-                        override fun onClick() {
-                            val whiteListDialogBuilder = WhiteListDialogBuilder()
-                            val dialog = whiteListDialogBuilder.getWhiteListDialog(mContext)
-
-//                               if (AppSaveInfo.chatRoomTypeInfo() == "1")
-//                                 dialog.list = HookLogic.allChatRoomNickNameEntries
-//                                else
-//                                  dialog.list = HookLogic.muteChatRoomNickNameEntries
-
-                           // dialog.list = MessageFactory.getAllChatRoom().map { it.field_username.toString() }.toMutableList()
-                            whiteListDialogBuilder.pageType = PageType.CHAT_ROOMS
-                            whiteListDialogBuilder.setOnClickListener(object :View.OnClickListener{
-
-                                override fun onClick(v: View?) {
-                                    XposedHelpers.callMethod(mPresenter.originAdapter, "notifyDataSetChanged")
-                                }
-                            })
-                            dialog.show()
-
-                        }
-                    })
-                    configChatRoomDialog.show()
-                }
+                PageType.OFFICIAL -> whiteListDialogBuilder.pageType = PageType.OFFICIAL
+                PageType.CHAT_ROOMS -> whiteListDialogBuilder.pageType = PageType.CHAT_ROOMS
             }
+            val dialog = whiteListDialogBuilder.getWhiteListDialog(mContext)
+            dialog.show()
         }
 
-        //   imageView.drawable.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
 
         mToolbarContainer.addView(mToolbar)
         mToolbarContainer.addView(imageView)
