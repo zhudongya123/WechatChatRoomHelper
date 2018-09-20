@@ -61,8 +61,8 @@ object ConversationItemHandler {
 
         beanClass.getField("field_editingMsg").set(ae, chatInfoModel.field_editingMsg)
         beanClass.getField("field_atCount").set(ae, chatInfoModel.field_atCount)
-        beanClass.getField("field_unReadCount").set(ae, chatInfoModel.unReadCount)
-        beanClass.getField("field_unReadMuteCount").set(ae, chatInfoModel.unReadMuteCount)
+        beanClass.getField("field_unReadCount").set(ae, chatInfoModel.field_unReadCount)
+        beanClass.getField("field_unReadMuteCount").set(ae, chatInfoModel.field_unReadMuteCount)
         beanClass.getField("field_msgType").set(ae, chatInfoModel.field_msgType)
         beanClass.getField("field_username").set(ae, chatInfoModel.field_username)
         beanClass.getField("field_content").set(ae, chatInfoModel.field_content)
