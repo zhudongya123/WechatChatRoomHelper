@@ -25,8 +25,6 @@ class ChatInfoModel {
     var field_UnReadInvite: Int = 0
     var field_unReadCount: Int = 0
 
-
-    var username: CharSequence = ""
     var nickname: CharSequence = ""
     var content: CharSequence = ""
     var conversationTime: CharSequence = ""
