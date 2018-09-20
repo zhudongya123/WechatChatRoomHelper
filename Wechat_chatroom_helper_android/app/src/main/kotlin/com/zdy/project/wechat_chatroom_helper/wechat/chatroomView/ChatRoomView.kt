@@ -140,20 +140,25 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
         val oldDatas = mAdapter.data
 
-        val diffResult = DiffUtil.calculateDiff(DiffCallBack(newDatas, oldDatas), true)
-        diffResult.dispatchUpdatesTo(mAdapter)
-
+//        val diffResult = DiffUtil.calculateDiff(DiffCallBack(newDatas, oldDatas), true)
+//        diffResult.dispatchUpdatesTo(mAdapter)
         mAdapter.data = newDatas
+        mAdapter.notifyDataSetChanged()
 
         LogUtils.log("showMessageRefresh for all recycler view , pageType = " + PageType.printPageType(pageType))
     }
 
-
     internal class DiffCallBack(private var mOldDatas: ArrayList<ChatInfoModel>,
                                 private var mNewDatas: ArrayList<ChatInfoModel>) : DiffUtil.Callback() {
 
+        init {
+            LogUtils.log("oldData = ${mOldDatas.joinToString { it.toString() }}")
+            LogUtils.log("newData = ${mNewDatas.joinToString { it.toString() }}")
 
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) = true
+        }
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                mOldDatas[oldItemPosition].field_username == mNewDatas[newItemPosition].field_username
 
         override fun getOldListSize() = mOldDatas.size
 
@@ -162,6 +167,15 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
                 mOldDatas[oldItemPosition] == mNewDatas[newItemPosition]
 
+
+        override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
+
+            val oldItem = mOldDatas[oldItemPosition]
+            val newItem = mNewDatas[newItemPosition]
+
+            LogUtils.log("getChangePayload, oldItem = $oldItem, newItem = $newItem")
+            return null
+        }
     }
 
     private fun initToolbar(): View {

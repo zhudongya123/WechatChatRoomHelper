@@ -2,6 +2,7 @@ package com.zdy.project.wechat_chatroom_helper.wechat.plugins.message
 
 import android.database.Cursor
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.ConversationItemHandler
@@ -35,9 +36,7 @@ object MessageFactory {
 
 
     fun getAllChatRoom(): ArrayList<ChatInfoModel> {
-
         val cursor = XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, "rawQuery", SqlForGetAllChatRoom, null) as Cursor
-
         val list = arrayListOf<ChatInfoModel>()
 
         while (cursor.moveToNext()) {
@@ -46,27 +45,32 @@ object MessageFactory {
         return list
     }
 
-    fun getSpecChatRoom(): ArrayList<ChatInfoModel> {
-        val list = getAllChatRoom()
-        val chatroomList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_CHAT_ROOM)
-        return ArrayList(list.filterNot { chatroomList.contains(it.field_username) })
-    }
 
     fun getAllOfficial(): ArrayList<ChatInfoModel> {
         val cursor = XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, "rawQuery", SqlForGetAllOfficial, null) as Cursor
-
         val list = arrayListOf<ChatInfoModel>()
 
         while (cursor.moveToNext()) {
             list.add(buildChatInfoModelByCursor(cursor))
         }
         return list
+    }
+    fun getSpecChatRoom(): ArrayList<ChatInfoModel> {
+        val list = getAllChatRoom()
+        val chatroomList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_CHAT_ROOM)
+        val data = ArrayList(list.filterNot { chatroomList.contains(it.field_username) })
+
+        LogUtils.log("getSpecChatRoom, list = ${list.joinToString { it.toString() }}, data = ${data.joinToString { it.toString() }}")
+        return data
     }
 
     fun getSpecOfficial(): ArrayList<ChatInfoModel> {
         val list = getAllOfficial()
         val officialList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
-        return ArrayList(list.filterNot { officialList.contains(it.field_username) })
+        val data = ArrayList(list.filterNot { officialList.contains(it.field_username) })
+
+        LogUtils.log("getSpecOfficial, list = ${list.joinToString { it.toString() }}, data = ${data.joinToString { it.toString() }}")
+        return data
     }
 
     fun getUnReadCountItem(list: ArrayList<ChatInfoModel>) = list.count { it.unReadCount > 0 }

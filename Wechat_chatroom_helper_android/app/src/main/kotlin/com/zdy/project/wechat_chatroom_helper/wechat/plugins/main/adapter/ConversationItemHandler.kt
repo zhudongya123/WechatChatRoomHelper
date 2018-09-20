@@ -57,15 +57,15 @@ object ConversationItemHandler {
 
         val aeConstructor = beanClass.constructors.filter { it.parameterTypes.size == 1 }
                 .firstOrNull { it.parameterTypes[0] == String::class.java }!!
-        val ae = aeConstructor.newInstance(chatInfoModel.username)
+        val ae = aeConstructor.newInstance(chatInfoModel.field_username)
 
         beanClass.getField("field_editingMsg").set(ae, chatInfoModel.field_editingMsg)
         beanClass.getField("field_atCount").set(ae, chatInfoModel.field_atCount)
         beanClass.getField("field_unReadCount").set(ae, chatInfoModel.unReadCount)
         beanClass.getField("field_unReadMuteCount").set(ae, chatInfoModel.unReadMuteCount)
         beanClass.getField("field_msgType").set(ae, chatInfoModel.field_msgType)
-        beanClass.getField("field_username").set(ae, chatInfoModel.username)
-        beanClass.getField("field_content").set(ae, chatInfoModel.content)
+        beanClass.getField("field_username").set(ae, chatInfoModel.field_username)
+        beanClass.getField("field_content").set(ae, chatInfoModel.field_content)
         beanClass.getField("field_digest").set(ae, chatInfoModel.field_digest)
         beanClass.getField("field_digestUser").set(ae, chatInfoModel.field_digestUser)
         beanClass.getField("field_isSend").set(ae, chatInfoModel.field_isSend)
@@ -74,9 +74,13 @@ object ConversationItemHandler {
 
 
         val textSize = (ScreenUtils.getScreenDensity() * 13f).toInt()
+
+
         val content = XposedHelpers.callMethod(adapter, getContentMethod.name, ae, textSize, true) as CharSequence
 
-        LogUtils.log("getConversationContent,  content =  $content")
+        LogUtils.log("getConversationContent,  content1 =  $content")
+        LogUtils.log("getConversationContent,  content2 =  ${XposedHelpers.callMethod(adapter, getContentMethod.name, ae, textSize, false) as CharSequence}")
+
 
         return if (content.isEmpty()) null else content
     }

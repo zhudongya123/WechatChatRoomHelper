@@ -26,7 +26,6 @@ class ChatInfoModel {
     var field_unReadCount: Int = 0
 
 
-    var username: CharSequence = ""
     var nickname: CharSequence = ""
     var content: CharSequence = ""
     var conversationTime: CharSequence = ""
@@ -34,12 +33,11 @@ class ChatInfoModel {
     var unReadCount: Int = 0
 
 
-
     override fun equals(other: Any?): Boolean {
         if (other == null) return false
         if (other !is ChatInfoModel) return false
 
-        if (other.nickname != nickname) return false
+        if (other.field_username != field_username) return false
         if (other.content != content) return false
         if (other.conversationTime != conversationTime) return false
         if (other.unReadMuteCount != unReadMuteCount) return false
@@ -48,6 +46,12 @@ class ChatInfoModel {
         return true
     }
 
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
 
+    override fun toString(): String {
+        return "ChatInfoModel, username = $field_username, nickname = $nickname, content = $content, conversationTime = $conversationTime, unReadMuteCount = $unReadMuteCount, unReadCount = $unReadCount"
+    }
 
 }
