@@ -1,9 +1,9 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.log
 
-import android.util.Log
 import com.zdy.project.wechat_chatroom_helper.LogUtils
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.PluginEntry
+import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.PluginEntry
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
@@ -18,25 +18,22 @@ object LogRecord {
 
 
         logcatLogMethods.forEach { method ->
-            val parameterTypes = method.parameterTypes.toMutableList().also { list ->
-                if (list.size == 3) {
-                    list.removeAt(2)
-                    list.add(Array<Any>::class.java)
-                }
-            }
-            Log.e("parameterTypes", parameterTypes.joinToString { it.toString() })
+            //            val parameterTypes = method.parameterTypes.toMutableList().also { list ->
+//                if (list.size == 3) {
+//                    list.removeAt(2)
+//                    list.add(Array<Any>::class.java)
+//                }
+//            }
 
-            findAndHookMethod(logcatClass, method.name, parameterTypes, object : XC_MethodHook() {
+            findAndHookMethod(logcatClass, method.name, String::class.java, String::class.java, Array<Any>::class.java, object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
 
-                    //    if (!PluginEntry.runtimeInfo.isOpenLog) return
+                    if (!ConfigInfo.isOpenLog) return
+
                     try {
 
                         val str1 = param.args[0] as String
                         val str2 = param.args[1] as String
-
-
-                        if (str1 != "MicroMsg.ConversationWithCacheAdapter") return
 
                         if (param.args[2] == null) {
 
