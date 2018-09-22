@@ -165,7 +165,19 @@ object MessageHandler {
                                         .apply { removeAt(SqlForAllContactConversation.size - 1) }
                                         .joinToString("", "", "", -1, "") { it }
 
-                                prefix + list.joinToString("", "", "", -1, "") { " or rconversation.username = $it " } + postfix
+
+                                var addition = "and ( "
+
+                                list.forEachIndexed { index, username ->
+                                    if (index == 0) {
+                                        addition = addition + " rconversation.username = $username "
+                                    } else {
+                                        addition = addition + " or rconversation.username = $username "
+                                    }
+                                }
+                                addition = addition + " ) "
+
+                                prefix + addition + postfix
                             }
 
                             LogUtils.log("sqlForAllConversation =  $sqlForAllConversation")
