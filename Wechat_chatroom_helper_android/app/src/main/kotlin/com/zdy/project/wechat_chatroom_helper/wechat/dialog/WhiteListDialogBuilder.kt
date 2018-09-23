@@ -36,13 +36,8 @@ class WhiteListDialogBuilder {
         return AlertDialog.Builder(mContext)
                 .setTitle("请选择不需要显示在助手中的条目")
                 .setPositiveButton("确认") { dialog, which ->
-
                     WechatJsonUtils.putFileString()
-
                     dialog.dismiss()
-                    XposedHelpers.callMethod(MainAdapter.originAdapter, "notifyDataSetChanged")
-
-
                 }
                 .setAdapter(whiteListAdapter) { _, _ -> }
                 .create()

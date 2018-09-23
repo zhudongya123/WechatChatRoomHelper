@@ -103,7 +103,6 @@ object WechatJsonUtils {
 
     fun putFileString() {
         Log.v("WechatJsonUtils", "putFileString = $currentJson")
-
         FileIOUtils.writeFileFromString(File(configPath), currentJson.toString())
         currentJson = parser.parse(getFileString()).asJsonObject
     }

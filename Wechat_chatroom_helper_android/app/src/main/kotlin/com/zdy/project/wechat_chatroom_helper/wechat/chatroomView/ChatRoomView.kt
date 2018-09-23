@@ -22,6 +22,7 @@ import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.ConfigChatRoomDialog
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialogBuilder
 import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.MainAdapter
 import de.robv.android.xposed.XposedHelpers
 import network.ApiManager
 import java.util.*
@@ -236,6 +237,9 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             }
             val dialog = whiteListDialogBuilder.getWhiteListDialog(mContext)
             dialog.show()
+            dialog.setOnDismissListener {
+                MainAdapter.originAdapter.notifyDataSetChanged()
+            }
         }
 
 
