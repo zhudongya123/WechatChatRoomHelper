@@ -22,6 +22,7 @@ import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.ConfigChatRoomDialog
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialogBuilder
 import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.MainAdapter
 import de.robv.android.xposed.XposedHelpers
 import network.ApiManager
@@ -223,8 +224,11 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         val params = RelativeLayout.LayoutParams(height, height)
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
 
+
         imageView.layoutParams = params
-        imageView.setPadding(height / 5, height / 5, height / 5, height / 5)
+        //  imageView.setPadding(height / 5, height / 5, height / 5, height / 5)
+
+        imageView.setImageDrawable(AvatarMaker.handleAvatarDrawable(mContext, pageType, 0x00000000))
 
         imageView.setOnClickListener {
             val whiteListDialogBuilder = WhiteListDialogBuilder()

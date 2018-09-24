@@ -155,7 +155,7 @@ object MainAdapter {
 
                             setTextForNoMeasuredTextView(nickname, "群消息")
                             setTextForNoMeasuredTextView(time, allChatRoom.first().conversationTime)
-                            avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.CHAT_ROOMS)) }
+                            avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar.context, PageType.CHAT_ROOMS))
 
                             LogUtils.log("getUnReadCountItemChatRoom " + allChatRoom.joinToString { "unReadCount = ${it.unReadCount}" })
 
@@ -180,7 +180,7 @@ object MainAdapter {
 
                             setTextForNoMeasuredTextView(nickname, "服务号")
                             setTextForNoMeasuredTextView(time, allOfficial.first().conversationTime)
-                            avatar.post { avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar, PageType.OFFICIAL)) }
+                            avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar.context, PageType.OFFICIAL))
 
                             LogUtils.log("getUnReadCountItemChatRoom " + allOfficial.joinToString { "unReadCount = ${it.unReadCount}" })
 

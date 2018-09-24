@@ -1,10 +1,12 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.manager
 
+import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
-import android.widget.ImageView
+import android.support.annotation.ColorInt
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
+import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 
 /**
  * Created by Mr.Zdy on 2018/3/2.
@@ -16,25 +18,33 @@ object AvatarMaker {
     private const val AVATAR_AMBER = 0xFFF5CB00.toInt()
 
 
-    fun handleAvatarDrawable(imageView: ImageView, type: Int): BitmapDrawable {
-        val contentSize = imageView.measuredHeight / 2
+    fun handleAvatarDrawable(context: Context, type: Int): BitmapDrawable {
+        return when (type) {
+            PageType.OFFICIAL -> handleAvatarDrawable(context, type, AVATAR_AMBER)
+            PageType.CHAT_ROOMS -> handleAvatarDrawable(context, type, AVATAR_BLUE)
+            else -> throw IllegalStateException("Error type = $type")
+        }
+    }
+
+    fun handleAvatarDrawable(context: Context, type: Int, @ColorInt color: Int): BitmapDrawable {
+        val fullSize = ScreenUtils.dip2px(context, 96f)
+        val contentSize = fullSize / 2
 
         val paint = Paint()
-        val drawableBitmap = Bitmap.createBitmap(imageView.measuredHeight, imageView.measuredHeight, Bitmap.Config.ARGB_8888)
+        val drawableBitmap = Bitmap.createBitmap(fullSize, fullSize, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(drawableBitmap)
 
         when (type) {
-            PageType.CHAT_ROOMS ->
-            {
+            PageType.CHAT_ROOMS -> {
                 canvas.run {
                     if (ConfigInfo.isCircleAvatar)
                         drawCircle(contentSize.toFloat(), contentSize.toFloat(), contentSize.toFloat(),
                                 paint.apply {
-                                    color = AVATAR_BLUE
+                                    setColor(color)
                                     strokeWidth = 0f
                                     style = Paint.Style.FILL_AND_STROKE
                                 })
-                    else drawColor(AVATAR_BLUE)
+                    else drawColor(color)
                 }
 
                 paint.color = 0xFFFFFFFF.toInt()
@@ -71,25 +81,25 @@ object AvatarMaker {
 
 
             PageType.OFFICIAL ->
-                makeAvatarBitmap(canvas, paint, AVATAR_AMBER,
-                        {
-                            val rawDrawable = Bitmap.createBitmap(contentSize, contentSize, Bitmap.Config.ARGB_8888)
-                            val logoCanvas = Canvas(rawDrawable)
+                makeAvatarBitmap(canvas, paint, color) {
+                    val rawDrawable = Bitmap.createBitmap(contentSize, contentSize, Bitmap.Config.ARGB_8888)
+                    val logoCanvas = Canvas(rawDrawable)
 
-                            with(paint) {
-                                strokeWidth = contentSize.toFloat() / 10f
-                                style = Paint.Style.STROKE
-                                color = -0x60d761//随机颜色
-                            }
+                    with(paint) {
+                        strokeWidth = contentSize.toFloat() / 10f
+                        style = Paint.Style.STROKE
+                        setColor(-0x60d761)  //随机颜色
+                    }
 
-                            logoCanvas.drawCircle((contentSize / 4 + contentSize / 10).toFloat(), (contentSize / 2).toFloat(), (contentSize / 4).toFloat(), paint)
-                            logoCanvas.drawCircle((contentSize - contentSize / 4 - contentSize / 10).toFloat(), (contentSize / 2).toFloat(), (contentSize / 4).toFloat(), paint)
-                            rawDrawable
-                        })
+                    logoCanvas.drawCircle((contentSize / 4 + contentSize / 10).toFloat(), (contentSize / 2).toFloat(), (contentSize / 4).toFloat(), paint)
+                    logoCanvas.drawCircle((contentSize - contentSize / 4 - contentSize / 10).toFloat(), (contentSize / 2).toFloat(), (contentSize / 4).toFloat(), paint)
+                    rawDrawable
+                }
             else -> {
             }
+
         }
-        return BitmapDrawable(imageView.context.resources, drawableBitmap)
+        return BitmapDrawable(context.resources, drawableBitmap)
     }
 
 
