@@ -16,15 +16,13 @@ import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageFactory
+import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
-import com.zdy.project.wechat_chatroom_helper.wechat.dialog.ConfigChatRoomDialog
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialogBuilder
-import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.MainAdapter
-import de.robv.android.xposed.XposedHelpers
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageFactory
 import network.ApiManager
 import java.util.*
 

@@ -35,16 +35,15 @@ object MessageHandler {
             "and rconversation.username != 'qmessage' ",
             "order by flag desc")
 
-    //查询除去服务号的未读消息总数
+    //查询除去服务号的未读消息总数(不完整 查看相关逻辑)
     private var SqlForNewAllUnreadCount = "select sum(unReadCount) from rconversation, rcontact where rconversation.unReadCount > 0 " +
             "AND (rconversation.parentRef is null or parentRef = '' ) " +
             "AND rconversation.username = rcontact.username " +
-            "AND rcontact.verifyFlag != 24 " +
             "AND ( 1 != 1  or rconversation.username like '%@im.chatroom' or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  " +
             "AND ( type & 512 ) == 0 " +
             "AND rcontact.username != 'officialaccounts' " +
             "AND rconversation.username != 'floatbottle' " +
-            "AND rconversation.username != 'notifymessage'"
+            "AND rconversation.username != 'notifymessage' "
 
     //微信原始的查询所有消息回话的语句，通过分段来筛选出相关逻辑
     private val FilterListForOriginAllConversation =
@@ -67,7 +66,7 @@ object MessageHandler {
                     "rcontact.username != 'officialaccounts'",
                     "rconversation.username != 'notifymessage'")
 
-    private const val FilterListForOriginAllUnread2 = "AND rcontact.verifyFlag != 24"
+    private const val FilterListForOriginAllUnread2 = "rcontact.verifyFlag != 24"
 
     //判断当前sql语句是否为微信原始的未读数逻辑
     private fun isQueryOriginAllUnReadCount(sql: String) = FilterListForOriginAllUnread1.all { sql.contains(it) } && !sql.contains(FilterListForOriginAllUnread2)
@@ -76,7 +75,7 @@ object MessageHandler {
     private fun isQueryOriginAllConversation(sql: String) = FilterListForOriginAllConversation.all { sql.contains(it) }
 
     //判断当前sql语句是否为我们自定义的未读数逻辑
-    private fun isQueryNewAllUnReadCount(sql: String) = SqlForNewAllContactConversation.all { sql.contains(it) }
+    private fun isQueryNewAllConversation(sql: String) = SqlForNewAllContactConversation.all { sql.contains(it) }
 
     var MessageDatabaseObject: Any? = null
 
@@ -174,12 +173,12 @@ object MessageHandler {
 
                                 list.forEachIndexed { index, username ->
                                     if (index == 0) {
-                                        addition = addition + " rconversation.username = '$username' "
+                                        addition += " rconversation.username = '$username' "
                                     } else {
-                                        addition = addition + " or rconversation.username = '$username' "
+                                        addition += " or rconversation.username = '$username' "
                                     }
                                 }
-                                addition = addition + " ) ) "
+                                addition += " ) ) "
 
                                 prefix + addition + postfix
                             }
@@ -194,15 +193,42 @@ object MessageHandler {
                         }
                     }
                     isQueryOriginAllUnReadCount(sql) -> {
+
+                        val list = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
+
+                        val prefix = SqlForNewAllUnreadCount
+
+                        val sqlForAllUnReadCount = if (list.size == 0) {
+                            val postfix = " and rcontact.verifyFlag != 24 "
+
+                            prefix + postfix
+                        } else {
+
+                            val postfix = " or rcontact.verifyFlag != 24 )) "
+                            var addition = " and ( rconversation.username = rcontact.username and ( "
+
+                            list.forEachIndexed { index, username ->
+                                if (index == 0) {
+                                    addition += " rconversation.username = '$username' "
+                                } else {
+                                    addition += " or rconversation.username = '$username' "
+                                }
+                            }
+
+                            prefix + addition + postfix
+                        }
+
+                        LogUtils.log("sqlForAllUnReadCount =  $sqlForAllUnReadCount")
+
                         try {
-                            param.result = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, SqlForNewAllUnreadCount, selectionArgs, editTable, cancellation)
+                            param.result = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, sqlForAllUnReadCount, selectionArgs, editTable, cancellation)
                         } catch (e: Exception) {
                             e.printStackTrace()
                         }
                     }
                 //当请求全部联系人回话时
                 //确定服务号和群聊的入口位置
-                    isQueryNewAllUnReadCount(sql)-> {
+                    isQueryNewAllConversation(sql) -> {
 
                         //      LogUtils.log("MessageHooker2.17,size = $SqlForNewAllContactConversation")
 
