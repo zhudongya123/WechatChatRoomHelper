@@ -34,10 +34,7 @@ import java.util.*
 
 class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private val pageType: Int) : ChatRoomContract.View {
 
-
     private lateinit var mPresenter: ChatRoomContract.Presenter
-
-
     private lateinit var swipeBackLayout: MySwipeBackLayout
 
     private val mainView: LinearLayout

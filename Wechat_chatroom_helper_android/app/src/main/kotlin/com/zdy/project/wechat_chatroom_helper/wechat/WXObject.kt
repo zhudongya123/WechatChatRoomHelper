@@ -39,12 +39,21 @@ object WXObject {
 
     object Adapter {
 
+        object M{
+            const val SetAdapter = "setAdapter"
+            const val GetCount = "getCount"
+            const val OnItemClick = "onItemClick"
+            const val GetView = "getView"
+
+        }
+
         object C {
             var ConversationWithCacheAdapter = ""
             var ConversationWithAppBrandListView = ""
             var ConversationAvatar = ""
             var ConversationClickListener = ""
         }
+
 
     }
 

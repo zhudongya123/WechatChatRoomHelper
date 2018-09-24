@@ -21,7 +21,7 @@ import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 object ChatRoomViewFactory {
 
     @IdRes
-    val id_avatar_container = 7
+    private val id_avatar_container = 7
     @IdRes
     val id_avatar = 1
     @IdRes
@@ -120,8 +120,8 @@ object ChatRoomViewFactory {
         unReadParams.addRule(RelativeLayout.ALIGN_TOP, avatarContainer.id)
         unReadParams.setMargins(0, ScreenUtils.dip2px(mContext, 5f), ScreenUtils.dip2px(mContext, 7f), 0)
 
-        val dividerParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams
-                .MATCH_PARENT, 1)
+        val dividerParams =
+                RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
         dividerParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
 
         contentView.addView(avatarContainer, avatarContainerParams)

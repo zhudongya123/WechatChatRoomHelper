@@ -13,7 +13,6 @@ import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageHand
 import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
@@ -35,7 +34,7 @@ object MainAdapter {
         val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithCacheAdapter, PluginEntry.classloader)
         val conversationWithAppBrandListView = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithAppBrandListView, PluginEntry.classloader)
         val conversationClickListener = XposedHelpers.findClass(WXObject.Adapter.C.ConversationClickListener, PluginEntry.classloader)
-        val conversationWithCacheAdapter_getItem = conversationWithCacheAdapter.superclass.declaredMethods
+        val conversationWithCacheAdapterGetItem = conversationWithCacheAdapter.superclass.declaredMethods
                 .filter { it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java }
                 .first { it.name != "getItem" && it.name != "getItemId" }.name
 
@@ -47,7 +46,7 @@ object MainAdapter {
             }
         })
 
-        findAndHookMethod(conversationWithAppBrandListView, "setAdapter", ListAdapter::class.java, object : XC_MethodHook() {
+        findAndHookMethod(conversationWithAppBrandListView, WXObject.Adapter.M.SetAdapter, ListAdapter::class.java, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 listView = param.thisObject as ListView
                 val adapter = param.args[0]
@@ -61,7 +60,7 @@ object MainAdapter {
         })
 
 
-        findAndHookMethod(conversationWithCacheAdapter.superclass, "getCount", object : XC_MethodHook() {
+        findAndHookMethod(conversationWithCacheAdapter.superclass, WXObject.Adapter.M.GetCount, object : XC_MethodHook() {
 
             override fun afterHookedMethod(param: MethodHookParam) {
                 var count = param.result as Int + (if (firstChatRoomPosition != -1) 1 else 0)
@@ -70,13 +69,13 @@ object MainAdapter {
             }
         })
 
-        findAndHookMethod(conversationClickListener, "onItemClick",
+        findAndHookMethod(conversationClickListener, WXObject.Adapter.M.OnItemClick,
                 AdapterView::class.java, View::class.java, Int::class.java, Long::class.java,
                 object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         val position = (param.args[2] as Int) - listView.headerViewsCount
 
-                        val field_username = XposedHelpers.getObjectField(XposedHelpers.callMethod(originAdapter, conversationWithCacheAdapter_getItem, position), "field_username") as String
+                        val field_username = XposedHelpers.getObjectField(XposedHelpers.callMethod(originAdapter, conversationWithCacheAdapterGetItem, position), "field_username") as String
 //                        LogUtils.log("MessageHooker2.6,position = $position, field_username = $field_username, " +
 //                                "firstChatRoomUserName = $firstChatRoomUserName ,firstOfficialUserName = $firstOfficialUserName \n")
 
@@ -95,7 +94,7 @@ object MainAdapter {
                     }
                 })
 
-        findAndHookMethod(conversationWithCacheAdapter, "getView",
+        findAndHookMethod(conversationWithCacheAdapter, WXObject.Adapter.M.GetView,
                 Int::class.java, View::class.java, ViewGroup::class.java,
                 object : XC_MethodHook() {
 
@@ -123,7 +122,7 @@ object MainAdapter {
                         val position = param.args[0] as Int
                         val view = param.args[1] as View?
 
-                        LogUtils.log("MMBaseAdapter_getView, afterHookedMethod, index = " + position + ", view = $view")
+                        LogUtils.log("MMBaseAdapter_getView, afterHookedMethod, index = $position, view = $view")
 
                         if (view != null)
                             refreshEntryView(view, position, param)
@@ -205,7 +204,7 @@ object MainAdapter {
         /**
          * 修改 getObject 的数据下标
          */
-        findAndHookMethod(conversationWithCacheAdapter.superclass, conversationWithCacheAdapter_getItem,
+        findAndHookMethod(conversationWithCacheAdapter.superclass, conversationWithCacheAdapterGetItem,
                 Int::class.java, object : XC_MethodHook() {
 
             override fun beforeHookedMethod(param: MethodHookParam) {
