@@ -2,6 +2,9 @@ package com.zdy.project.wechat_chatroom_helper.wechat.dialog
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.PorterDuff
+import android.support.v4.graphics.drawable.DrawableCompat
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +17,9 @@ import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageFactory
 import de.robv.android.xposed.XposedHelpers
+import com.tencent.bugly.proguard.v
+
+
 
 
 class WhiteListDialogBuilder {
@@ -137,6 +143,10 @@ class WhiteListDialogBuilder {
                     RelativeLayout.LayoutParams.MATCH_PARENT).apply {
                 addRule(RelativeLayout.ALIGN_PARENT_END)
             }
+
+            DrawableCompat.setTintList(switch.thumbDrawable, ColorStateList(
+                    arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
+                    intArrayOf(0xFF12B7F6.toInt(), 0xFFf1f1f1.toInt())))
 
             itemView.addView(textContainer)
             itemView.addView(switch)
