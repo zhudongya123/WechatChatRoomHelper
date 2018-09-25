@@ -49,7 +49,9 @@ object WXClassParser {
                         } catch (e: Throwable) {
                             return@filter1 false
                         }
-                    }.firstOrNull { it.enclosingClass == null }
+                    }
+                    .filter { it.interfaces.size == 1 }
+                    .firstOrNull { it.enclosingClass == null }
         }
 
 

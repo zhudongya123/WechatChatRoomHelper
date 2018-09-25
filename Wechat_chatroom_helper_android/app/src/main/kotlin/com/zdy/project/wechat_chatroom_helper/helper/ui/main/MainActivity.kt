@@ -47,8 +47,8 @@ class MainActivity : BaseActivity() {
                     initSetting(arrayOf("群消息助手状态",
                             getString(R.string.title_function_setting_string),
                             getString(R.string.title_ui_setting_string),
-                            /*  getString(R.string.title_question_string),
-                              getString(R.string.title_other_setting_string),*/
+                             getString(R.string.title_question_string),
+                            /*   getString(R.string.title_other_setting_string),*/
                             getString(R.string.title_about_string)))
                 }
                 PermissionHelper.ASK -> {
