@@ -222,10 +222,9 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         val params = RelativeLayout.LayoutParams(height, height)
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
 
-
         imageView.layoutParams = params
-        //  imageView.setPadding(height / 5, height / 5, height / 5, height / 5)
-
+        val padding = height / 8
+        imageView.setPadding(padding, padding, padding, padding)
         imageView.setImageDrawable(AvatarMaker.handleAvatarDrawable(mContext, pageType, 0x00000000))
 
         imageView.setOnClickListener {
@@ -240,7 +239,6 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
                 MainAdapter.originAdapter.notifyDataSetChanged()
             }
         }
-
 
         mToolbarContainer.addView(mToolbar)
         mToolbarContainer.addView(imageView)

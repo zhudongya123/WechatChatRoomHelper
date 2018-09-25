@@ -111,6 +111,7 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
         sendMessageToHandler(makeTypeSpec(HANDLER_SHOW_NEXT_BUTTON, TEXT_COLOR_NORMAL), String())
         AppSaveInfo.setSuitWechatDataInfo(true)
         AppSaveInfo.setWechatVersionInfo(MyApplication.get().getWechatVersionCode().toString())
+        AppSaveInfo.setHelpVersionCodeInfo(MyApplication.get().getHelperVersionCode().toString())
         WechatJsonUtils.putFileString()
     }
 

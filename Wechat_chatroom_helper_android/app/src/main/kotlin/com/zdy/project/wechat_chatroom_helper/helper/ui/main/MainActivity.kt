@@ -89,9 +89,16 @@ class MainActivity : BaseActivity() {
                         PermissionHelper.ALLOW -> {
                             if (AppSaveInfo.hasSuitWechatDataInfo()) {
                                 val saveWechatVersionInfo = AppSaveInfo.wechatVersionInfo()
+                                val saveHelpVersionInfo = AppSaveInfo.helpVersionCodeInfo()
                                 val currentWechatVersionInfo = MyApplication.get().getWechatVersionCode().toString()
+                                val currentHelperVersionInfo = MyApplication.get().getHelperVersionCode().toString()
+
                                 if (saveWechatVersionInfo == currentWechatVersionInfo) {
-                                    setSuccessText(text2, "本地适配文件适用于 $saveWechatVersionInfo 版本微信，已适配。")
+                                    if (currentHelperVersionInfo == saveHelpVersionInfo) {
+                                        setSuccessText(text2, "本地适配文件适用于 $saveWechatVersionInfo 版本微信，已适配。")
+                                    } else {
+                                        setWarmText(text2, "本地适配文件由老版本的助手生成，请点击生成新版本的适配文件。")
+                                    }
                                 } else {
                                     setFailText(text2, "本地适配文件适用于 $saveWechatVersionInfo 版本微信，当前微信版本：$currentWechatVersionInfo， 点击获取新的适配文件。")
                                 }

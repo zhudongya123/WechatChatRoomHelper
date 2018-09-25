@@ -3,7 +3,6 @@ package com.zdy.project.wechat_chatroom_helper.wechat.dialog
 import android.app.AlertDialog
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.PorterDuff
 import android.support.v4.graphics.drawable.DrawableCompat
 import android.view.Gravity
 import android.view.View
@@ -14,12 +13,7 @@ import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageFactory
-import de.robv.android.xposed.XposedHelpers
-import com.tencent.bugly.proguard.v
-
-
 
 
 class WhiteListDialogBuilder {
@@ -154,79 +148,6 @@ class WhiteListDialogBuilder {
             return itemView
         }
     }
-
-
-//    private fun getContentView(): ViewGroup {
-//
-//        val rootView = LinearLayout(mContext)
-//        rootView.gravity = Gravity.RIGHT
-//        rootView.orientation = LinearLayout.VERTICAL
-//        val padding = ScreenUtils.dip2px(mContext, 16f)
-//        rootView.setPadding(padding, padding, padding, padding)
-//
-//        val title = TextView(mContext)
-//        title.setTextColor(0xff000000.toInt())
-//        title.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, ScreenUtils.dip2px(mContext, 48f))
-//        title.gravity = Gravity.CENTER_VERTICAL
-//        title.text = "请选择不需要显示在助手中的条目"
-//        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
-//
-//
-//        val button = TextView(mContext)
-//        val layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ScreenUtils.dip2px(mContext, 32f))
-//        layoutParams.setMargins(0, padding / 2, padding / 2, 0)
-//        button.layoutParams = layoutParams
-//        button.gravity = Gravity.CENTER_VERTICAL
-//        button.setPadding(padding / 2, 0, padding / 2, 0)
-//        button.text = "确认"
-//        button.background = mContext.obtainStyledAttributes(intArrayOf(android.R.attr.selectableItemBackground)).getDrawable(0)
-//
-//
-//        val existList = AppSaveInfo.getWhiteList(keyName)
-//        val listView = LinearLayout(mContext)
-//        listView.orientation = LinearLayout.VERTICAL
-//
-//        for (s in list) {
-//            val switch = Switch(mContext)
-//
-//            switch.text = s
-//
-//            switch.buttonTintList = ColorStateList.valueOf(Color.rgb(26, 173, 25))
-//            val params = LinearLayout.LayoutParams(ScreenUtils.dip2px(mContext, 250f), ViewGroup.LayoutParams.WRAP_CONTENT)
-//            params.setMargins(0, 0, 0, ScreenUtils.dip2px(mContext, 12f))
-//
-//            existList
-//                    .filter { it == s }
-//                    .forEach { switch.isChecked = true }
-//
-//            switch.setOnCheckedChangeListener { buttonView, isChecked ->
-//
-//                if (isChecked) AppSaveInfo.setWhiteList(keyName, buttonView.text.toString())
-//                else AppSaveInfo.removeWhitList(keyName, buttonView.text.toString())
-//            }
-//
-//            listView.addView(switch, params)
-//        }
-//
-//        val scrollView = ScrollView(mContext)
-//
-//        if (list.size > 6) {
-//            scrollView.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-//                    ScreenUtils.dip2px(mContext, 210f))
-//        }
-//        scrollView.addView(listView)
-//
-//        //  rootView.addView(title)
-//        rootView.addView(scrollView)
-//        //  rootView.addView(button)
-//
-////        button.setOnClickListener {
-////
-////
-////        }
-//
-//        return rootView
-//    }
 
 
 }

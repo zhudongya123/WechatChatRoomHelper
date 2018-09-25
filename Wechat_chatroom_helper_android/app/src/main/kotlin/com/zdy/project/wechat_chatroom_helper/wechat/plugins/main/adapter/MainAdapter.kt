@@ -76,18 +76,13 @@ object MainAdapter {
                         val position = (param.args[2] as Int) - listView.headerViewsCount
 
                         val field_username = XposedHelpers.getObjectField(XposedHelpers.callMethod(originAdapter, conversationWithCacheAdapterGetItem, position), "field_username") as String
-//                        LogUtils.log("MessageHooker2.6,position = $position, field_username = $field_username, " +
-//                                "firstChatRoomUserName = $firstChatRoomUserName ,firstOfficialUserName = $firstOfficialUserName \n")
+                        LogUtils.log("MessageHooker2.6, position = $position, field_username = $field_username")
 
                         if (position == firstChatRoomPosition) {
-
-                            //    LogUtils.log("MessageHooker2.6,position = $position, firstChatRoomUserName equal")
                             PluginEntry.chatRoomViewPresenter.show()
                             param.result = null
                         }
                         if (position == firstOfficialPosition) {
-
-                            //      LogUtils.log("MessageHooker2.6,position = $position, firstOfficialUserName equal")
                             PluginEntry.officialViewPresenter.show()
                             param.result = null
                         }
@@ -162,7 +157,7 @@ object MainAdapter {
                             LogUtils.log("getUnReadCountItemChatRoom " + allChatRoom.joinToString { "unReadCount = ${it.unReadCount}" })
 
                             if (unReadCountItem > 0) {
-                                setTextForNoMeasuredTextView(content, "[有${unReadCountItem}个群聊收到${totalUnReadCount}条新消息]")
+                                setTextForNoMeasuredTextView(content, "[有 $unReadCountItem 个群聊收到 $totalUnReadCount 条新消息]")
                                 setTextColorForNoMeasuredTextView(content, 0xFFF57C00.toInt())
                                 unMuteReadIndicators.visibility = View.VISIBLE
                             } else {
@@ -189,14 +184,13 @@ object MainAdapter {
                             LogUtils.log("getUnReadCountItemChatRoom " + allOfficial.joinToString { "unReadCount = ${it.unReadCount}" })
 
                             if (unReadCountItem > 0) {
-                                setTextForNoMeasuredTextView(content, "[有${unReadCountItem}个服务号收到${totalUnReadCount}条新消息]")
+                                setTextForNoMeasuredTextView(content, "[有 $unReadCountItem 个服务号收到 $totalUnReadCount 条新消息]")
                                 setTextColorForNoMeasuredTextView(content, 0xFFF57C00.toInt())
                                 unMuteReadIndicators.visibility = View.VISIBLE
                             } else {
                                 setTextForNoMeasuredTextView(content, "${allOfficial.first().nickname}：${allOfficial.first().content}")
                                 setTextColorForNoMeasuredTextView(content, 0xFF999999.toInt())
                                 unMuteReadIndicators.visibility = View.GONE
-
                             }
 
                             param.result = view
@@ -212,7 +206,7 @@ object MainAdapter {
                 Int::class.java, object : XC_MethodHook() {
 
             override fun beforeHookedMethod(param: MethodHookParam) {
-                LogUtils.log("MessageHooker2.7,size = ${originAdapter.count}")
+                LogUtils.log("MessageHooker2.7, size = ${originAdapter.count}")
 
                 if (param.thisObject::class.simpleName != conversationWithCacheAdapter.simpleName) return
 
@@ -244,7 +238,7 @@ object MainAdapter {
 
                 param.args[0] = newIndex
 
-                LogUtils.log("MessageHooker2.7,size = ${originAdapter.count}, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
+                LogUtils.log("MessageHooker2.7, size = ${originAdapter.count}, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
             }
         })
 
