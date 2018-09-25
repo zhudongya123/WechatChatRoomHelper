@@ -71,7 +71,7 @@ class QuestionActivity : BaseActivity() {
             when (title) {
                 getString(R.string.sub_title_ques_item_1) -> {
                     itemView.setOnClickListener {
-                        thisActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("http://t.cn/EvMoMNv")))
+                        thisActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("http://t.cn/EP6XMon")))
                     }
                 }
 
