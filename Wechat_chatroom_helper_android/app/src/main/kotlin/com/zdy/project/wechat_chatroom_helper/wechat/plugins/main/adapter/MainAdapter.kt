@@ -152,6 +152,8 @@ object MainAdapter {
 
                             val allChatRoom = MessageFactory.getSpecChatRoom()
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
+                            val totalUnReadCount = MessageFactory.getUnReadCount(allChatRoom)
+
 
                             setTextForNoMeasuredTextView(nickname, "群消息")
                             setTextForNoMeasuredTextView(time, allChatRoom.first().conversationTime)
@@ -160,7 +162,7 @@ object MainAdapter {
                             LogUtils.log("getUnReadCountItemChatRoom " + allChatRoom.joinToString { "unReadCount = ${it.unReadCount}" })
 
                             if (unReadCountItem > 0) {
-                                setTextForNoMeasuredTextView(content, "[有${unReadCountItem}个群聊收到新消息]")
+                                setTextForNoMeasuredTextView(content, "[有${unReadCountItem}个群聊收到${totalUnReadCount}条新消息]")
                                 setTextColorForNoMeasuredTextView(content, 0xFFF57C00.toInt())
                                 unMuteReadIndicators.visibility = View.VISIBLE
                             } else {
@@ -177,6 +179,8 @@ object MainAdapter {
 
                             val allOfficial = MessageFactory.getSpecOfficial()
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)
+                            val totalUnReadCount = MessageFactory.getUnReadCount(allOfficial)
+
 
                             setTextForNoMeasuredTextView(nickname, "服务号")
                             setTextForNoMeasuredTextView(time, allOfficial.first().conversationTime)
@@ -185,7 +189,7 @@ object MainAdapter {
                             LogUtils.log("getUnReadCountItemChatRoom " + allOfficial.joinToString { "unReadCount = ${it.unReadCount}" })
 
                             if (unReadCountItem > 0) {
-                                setTextForNoMeasuredTextView(content, "[有${unReadCountItem}个服务号收到新消息]")
+                                setTextForNoMeasuredTextView(content, "[有${unReadCountItem}个服务号收到${totalUnReadCount}条新消息]")
                                 setTextColorForNoMeasuredTextView(content, 0xFFF57C00.toInt())
                                 unMuteReadIndicators.visibility = View.VISIBLE
                             } else {

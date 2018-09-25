@@ -75,6 +75,8 @@ object MessageFactory {
 
     fun getUnReadCountItem(list: ArrayList<ChatInfoModel>) = list.count { it.unReadCount > 0 }
 
+    fun getUnReadCount(list: ArrayList<ChatInfoModel>) = list.sumBy { it.unReadCount  }
+
     fun getSingle(field_username: String) =
             buildChatInfoModelByCursor((XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject,
                     WXObject.Message.M.QUERY, getDataBaseFactory(MessageHandler.MessageDatabaseObject!!),
