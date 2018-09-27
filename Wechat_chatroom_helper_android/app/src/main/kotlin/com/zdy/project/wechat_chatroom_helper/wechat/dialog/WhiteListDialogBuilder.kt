@@ -8,6 +8,7 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.blankj.utilcode.util.ToastUtils
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
@@ -33,10 +34,19 @@ class WhiteListDialogBuilder {
             whiteListAdapter.list = MessageFactory.getAllChatRoom()
         }
 
+//        val spannableStringBuilder = SpannableStringBuilder()
+//        spannableStringBuilder.append("请选择不需要显示在助手中的条目\n")
+//        val firstLength = spannableStringBuilder.length
+//        spannableStringBuilder.setSpan(AbsoluteSizeSpan(ScreenUtils.dip2px(mContext, 16f)), 0, firstLength, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+//        spannableStringBuilder.append("1：应用后，白名单效果会在微信收到一条消息后自动更新。\n2：收入至助手内的服务号收到新消息时，主界面将不再更新未读数。")
+//        val secondLength = spannableStringBuilder.length
+//        spannableStringBuilder.setSpan(AbsoluteSizeSpan(ScreenUtils.dip2px(mContext, 14f)), firstLength, secondLength, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
         return AlertDialog.Builder(mContext)
                 .setTitle("请选择不需要显示在助手中的条目")
                 .setPositiveButton("确认") { dialog, which ->
                     WechatJsonUtils.putFileString()
+                    Toast.makeText(mContext, "效果将在收到一条新消息时生效", Toast.LENGTH_SHORT).show()
                     dialog.dismiss()
                 }
                 .setAdapter(whiteListAdapter) { _, _ -> }
