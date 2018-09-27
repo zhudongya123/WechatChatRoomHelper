@@ -45,7 +45,7 @@ object ConversationItemHandler {
             XposedHelpers.callStaticMethod(conversationAvatar, conversationAvatarMethod.name, imageView, field_username)
 
 
-    fun getConversationContent(adapter: Any, chatInfoModel: ChatInfoModel): CharSequence? {
+    fun getConversationContent(adapter: Any, chatInfoModel: ChatInfoModel): CharSequence {
 
         val getContentMethod = conversationWithCacheAdapter.declaredMethods
                 .filter { it.parameterTypes.size == 3 }
@@ -74,15 +74,9 @@ object ConversationItemHandler {
 
 
         val textSize = (ScreenUtils.getScreenDensity() * 13f).toInt()
-
-
         val content = XposedHelpers.callMethod(adapter, getContentMethod.name, ae, textSize, true) as CharSequence
 
-        LogUtils.log("getConversationContent,  content1 =  $content")
-        LogUtils.log("getConversationContent,  content2 =  ${XposedHelpers.callMethod(adapter, getContentMethod.name, ae, textSize, false) as CharSequence}")
-
-
-        return if (content.isEmpty()) null else content
+        return if (content.isEmpty()) chatInfoModel.field_content else content
     }
 
 }

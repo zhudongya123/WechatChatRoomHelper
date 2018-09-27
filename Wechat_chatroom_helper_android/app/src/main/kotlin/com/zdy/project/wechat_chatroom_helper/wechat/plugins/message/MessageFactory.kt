@@ -55,6 +55,7 @@ object MessageFactory {
         }
         return list
     }
+
     fun getSpecChatRoom(): ArrayList<ChatInfoModel> {
         val list = getAllChatRoom()
         val chatroomList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_CHAT_ROOM)
@@ -75,7 +76,7 @@ object MessageFactory {
 
     fun getUnReadCountItem(list: ArrayList<ChatInfoModel>) = list.count { it.unReadCount > 0 }
 
-    fun getUnReadCount(list: ArrayList<ChatInfoModel>) = list.sumBy { it.unReadCount  }
+    fun getUnReadCount(list: ArrayList<ChatInfoModel>) = list.sumBy { it.unReadCount }
 
     fun getSingle(field_username: String) =
             buildChatInfoModelByCursor((XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject,
@@ -104,8 +105,11 @@ object MessageFactory {
 
 
             nickname = if (field_nickname.isEmpty()) "群聊" else field_nickname
-            content = (ConversationItemHandler.getConversationContent(MainAdapter.originAdapter, this)
-                    ?: (field_content)).toString()
+            val conversationContent = ConversationItemHandler.getConversationContent(MainAdapter.originAdapter, this)
+
+            LogUtils.log("getConversationContent,  content =  $conversationContent, class = ${conversationContent::class.java.name}")
+
+            content = conversationContent
             conversationTime = ConversationItemHandler.getConversationTimeString(MainAdapter.originAdapter, field_conversationTime)
 
             unReadCount = field_unReadCount

@@ -11,7 +11,7 @@ public class PageType {
     public static final int OFFICIAL = 3;
     public static final int MAIN = 0;
 
-    private static final int CHATTING = 4;
+    public static final int CHATTING = 4;
     public static final int CHATTING_WITH_CHAT_ROOMS = CHATTING + 1;
     public static final int CHATTING_WITH_OFFICIAL = CHATTING + 2;
 

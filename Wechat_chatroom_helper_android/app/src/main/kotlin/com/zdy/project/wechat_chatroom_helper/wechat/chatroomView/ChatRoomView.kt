@@ -21,6 +21,8 @@ import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialogBuilder
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageFactory
 import network.ApiManager
@@ -109,6 +111,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
     override fun show(offest: Int) {
         swipeBackLayout.closePane()
+        refreshList(Any())
     }
 
     override fun dismiss(offest: Int) {
@@ -124,6 +127,10 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
 
     override fun refreshList(data: Any) {
+
+        if (RuntimeInfo.currentPage == PageType.MAIN || RuntimeInfo.currentPage > PageType.CHATTING) {
+            return
+        }
 
         AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
 
