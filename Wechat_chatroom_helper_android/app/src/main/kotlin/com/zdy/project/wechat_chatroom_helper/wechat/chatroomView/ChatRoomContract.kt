@@ -17,7 +17,7 @@ interface ChatRoomContract {
 
         fun start()
 
-        fun setMessageRefresh(targetUserName: String)
+        fun refreshList(data: Any)
 
         fun show()
 
@@ -40,9 +40,7 @@ interface ChatRoomContract {
 
         fun dismiss(offest: Int)
 
-        fun showMessageRefresh(targetUserName: String)
-
-        fun showMessageRefresh(muteListInAdapterPositions: ArrayList<Int>)
+        fun refreshList(data: Any)
 
         fun setPresenter(presenter: Presenter)
     }

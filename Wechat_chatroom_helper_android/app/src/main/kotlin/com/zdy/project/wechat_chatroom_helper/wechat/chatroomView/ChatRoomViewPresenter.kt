@@ -13,6 +13,7 @@ import java.util.*
 
 class ChatRoomViewPresenter(mContext: Context, var pageType: Int) : ChatRoomContract.Presenter {
 
+
     override val presenterView: ViewGroup
     override lateinit var originAdapter: Any
 
@@ -40,13 +41,10 @@ class ChatRoomViewPresenter(mContext: Context, var pageType: Int) : ChatRoomCont
         this.originAdapter = mAdapter
     }
 
-    fun setListInAdapterPositions(listInAdapterPositions: ArrayList<Int>) {
-        mView.showMessageRefresh(listInAdapterPositions)
+    override fun refreshList(data: Any) {
+        mView.refreshList(data)
     }
 
-    override fun setMessageRefresh(targetUserName: String) {
-        mView.showMessageRefresh(targetUserName)
-    }
 
     override fun show() {
         mView.show()

@@ -153,8 +153,8 @@ object MessageHandler {
                             val (firstOfficialUsername, firstChatRoomUsername) = refreshEntryUsername(thisObject)
                             iMainAdapterRefreshes.forEach { it.onEntryInit(firstChatRoomUsername, firstOfficialUsername) }
 
-                            PluginEntry.chatRoomViewPresenter.run { presenterView.post { setListInAdapterPositions(arrayListOf()) } }
-                            PluginEntry.officialViewPresenter.run { presenterView.post { setListInAdapterPositions(arrayListOf()) } }
+                            PluginEntry.chatRoomViewPresenter.run { presenterView.post { refreshList(Any()) } }
+                            PluginEntry.officialViewPresenter.run { presenterView.post { refreshList(Any()) } }
 
 
                             val list = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_CHAT_ROOM).apply { addAll(AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)) }

@@ -122,12 +122,8 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         mRecyclerView.adapter = mAdapter
     }
 
-    override fun showMessageRefresh(targetUserName: String) {
 
-    }
-
-
-    override fun showMessageRefresh(muteListInAdapterPositions: ArrayList<Int>) {
+    override fun refreshList(data: Any) {
 
         AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
 
