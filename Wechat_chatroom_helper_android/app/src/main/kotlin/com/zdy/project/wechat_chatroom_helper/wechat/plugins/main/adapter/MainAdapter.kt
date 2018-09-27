@@ -6,12 +6,12 @@ import android.view.ViewGroup
 import android.widget.*
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.PluginEntry
+import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.interfaces.MessageEventNotifyListener
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageFactory
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageHandler
-import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers
@@ -31,9 +31,9 @@ object MainAdapter {
 
     fun executeHook() {
         ConversationItemHandler
-        val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithCacheAdapter, PluginEntry.classloader)
-        val conversationWithAppBrandListView = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithAppBrandListView, PluginEntry.classloader)
-        val conversationClickListener = XposedHelpers.findClass(WXObject.Adapter.C.ConversationClickListener, PluginEntry.classloader)
+        val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithCacheAdapter, RuntimeInfo.classloader)
+        val conversationWithAppBrandListView = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithAppBrandListView, RuntimeInfo.classloader)
+        val conversationClickListener = XposedHelpers.findClass(WXObject.Adapter.C.ConversationClickListener, RuntimeInfo.classloader)
         val conversationWithCacheAdapterGetItem = conversationWithCacheAdapter.superclass.declaredMethods
                 .filter { it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java }
                 .first { it.name != "getItem" && it.name != "getItemId" }.name
@@ -51,11 +51,11 @@ object MainAdapter {
                 listView = param.thisObject as ListView
                 val adapter = param.args[0]
 
-                PluginEntry.chatRoomViewPresenter.setAdapter(adapter)
-                PluginEntry.officialViewPresenter.setAdapter(adapter)
+                RuntimeInfo.chatRoomViewPresenter.setAdapter(adapter)
+                RuntimeInfo.officialViewPresenter.setAdapter(adapter)
 
-                PluginEntry.chatRoomViewPresenter.start()
-                PluginEntry.officialViewPresenter.start()
+                RuntimeInfo.chatRoomViewPresenter.start()
+                RuntimeInfo.officialViewPresenter.start()
             }
         })
 
@@ -79,11 +79,11 @@ object MainAdapter {
                         LogUtils.log("MessageHooker2.6, position = $position, field_username = $field_username")
 
                         if (position == firstChatRoomPosition) {
-                            PluginEntry.chatRoomViewPresenter.show()
+                            RuntimeInfo.chatRoomViewPresenter.show()
                             param.result = null
                         }
                         if (position == firstOfficialPosition) {
-                            PluginEntry.officialViewPresenter.show()
+                            RuntimeInfo.officialViewPresenter.show()
                             param.result = null
                         }
                     }
@@ -266,7 +266,7 @@ object MainAdapter {
     fun setTextColorForNoMeasuredTextView(noMeasuredTextView: Any, color: Int) = XposedHelpers.callMethod(noMeasuredTextView, "setTextColor", color)
 
     fun getTextFromNoMeasuredTextView(noMeasuredTextView: Any): CharSequence {
-        val mTextField = XposedHelpers.findField(XposedHelpers.findClass("com.tencent.mm.ui.base.NoMeasuredTextView", PluginEntry.classloader), "mText")
+        val mTextField = XposedHelpers.findField(XposedHelpers.findClass("com.tencent.mm.ui.base.NoMeasuredTextView", RuntimeInfo.classloader), "mText")
         mTextField.isAccessible = true
         return mTextField.get(noMeasuredTextView) as CharSequence
     }

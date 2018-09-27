@@ -3,16 +3,15 @@ package com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter
 import android.widget.ImageView
 import com.blankj.utilcode.util.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
-import com.zdy.project.wechat_chatroom_helper.LogUtils
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.PluginEntry
 import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import de.robv.android.xposed.XposedHelpers
 import java.lang.reflect.ParameterizedType
 
 object ConversationItemHandler {
 
-    private val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithCacheAdapter, PluginEntry.classloader)
-    private val conversationAvatar = XposedHelpers.findClass(WXObject.Adapter.C.ConversationAvatar, PluginEntry.classloader)
+    private val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithCacheAdapter, RuntimeInfo.classloader)
+    private val conversationAvatar = XposedHelpers.findClass(WXObject.Adapter.C.ConversationAvatar, RuntimeInfo.classloader)
 
     private val conversationTimeStringMethod = conversationWithCacheAdapter.declaredMethods
             .filter { !it.isAccessible }.filter { it.returnType == CharSequence::class.java }

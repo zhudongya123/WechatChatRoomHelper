@@ -5,7 +5,7 @@ import android.database.Cursor
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.PluginEntry
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.interfaces.MessageEventNotifyListener
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
@@ -32,8 +32,7 @@ object MessageHandler {
             "from rconversation, rcontact where  ( parentRef is null  or parentRef = ''  ) ",
             "and ( rconversation.username = rcontact.username and rcontact.verifyFlag = 0 ) ",
             "and ( 1 != 1 or rconversation.username like '%@openim' or rconversation.username not like '%@%'  ) ",
-            "and rconversation.username != 'qmessage' ",
-            "order by flag desc")
+            "and rconversation.username != 'qmessage' ", "order by flag desc")
 
     //查询除去服务号的未读消息总数(不完整 查看相关逻辑)
     private var SqlForNewAllUnreadCount = "select sum(unReadCount) from rconversation, rcontact where rconversation.unReadCount > 0 " +
@@ -120,11 +119,11 @@ object MessageHandler {
     fun executeHook() {
 
         val database =
-                XposedHelpers.findClass(WXObject.Message.C.SQLiteDatabase, PluginEntry.classloader)
+                XposedHelpers.findClass(WXObject.Message.C.SQLiteDatabase, RuntimeInfo.classloader)
         val databaseFactory =
-                XposedHelpers.findClass(WXObject.Message.C.SQLiteDatabaseCursorFactory, PluginEntry.classloader)
+                XposedHelpers.findClass(WXObject.Message.C.SQLiteDatabaseCursorFactory, RuntimeInfo.classloader)
         val databaseCancellationSignal =
-                XposedHelpers.findClass(WXObject.Message.C.SQLiteCancellationSignal, PluginEntry.classloader)
+                XposedHelpers.findClass(WXObject.Message.C.SQLiteCancellationSignal, RuntimeInfo.classloader)
 
         val queryHook = object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -153,8 +152,8 @@ object MessageHandler {
                             val (firstOfficialUsername, firstChatRoomUsername) = refreshEntryUsername(thisObject)
                             iMainAdapterRefreshes.forEach { it.onEntryInit(firstChatRoomUsername, firstOfficialUsername) }
 
-                            PluginEntry.chatRoomViewPresenter.run { presenterView.post { refreshList(Any()) } }
-                            PluginEntry.officialViewPresenter.run { presenterView.post { refreshList(Any()) } }
+                            RuntimeInfo.chatRoomViewPresenter.run { presenterView.post { refreshList(false,Any()) } }
+                            RuntimeInfo.officialViewPresenter.run { presenterView.post { refreshList(false,Any()) } }
 
 
                             val list = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_CHAT_ROOM).apply { addAll(AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)) }

@@ -13,13 +13,9 @@ import android.widget.LinearLayout
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.PluginEntry
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.PluginEntry.Companion.chatRoomViewPresenter
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.PluginEntry.Companion.officialViewPresenter
 import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.ConversationItemHandler
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
@@ -34,7 +30,7 @@ object MainLauncherUI {
 
     fun executeHook() {
 
-        hookAllConstructors(PluginEntry.classloader.loadClass(WXObject.MainUI.C.FitSystemWindowLayoutView), object : XC_MethodHook() {
+        hookAllConstructors(RuntimeInfo.classloader.loadClass(WXObject.MainUI.C.FitSystemWindowLayoutView), object : XC_MethodHook() {
 
             override fun afterHookedMethod(param: MethodHookParam) {
                 val fitSystemWindowLayoutView = param.thisObject as ViewGroup
@@ -80,7 +76,7 @@ object MainLauncherUI {
         })
 
 
-        findAndHookMethod(WXObject.MainUI.C.LauncherUI, PluginEntry.classloader,
+        findAndHookMethod(WXObject.MainUI.C.LauncherUI, RuntimeInfo.classloader,
                 WXObject.MainUI.M.DispatchKeyEventOfLauncherUI, KeyEvent::class.java, object : XC_MethodHook() {
             @Throws(Throwable::class)
             override fun beforeHookedMethod(param: XC_MethodHook.MethodHookParam) {
@@ -95,13 +91,13 @@ object MainLauncherUI {
 
                     launcherUI = param.thisObject as Activity
 
-                    PluginEntry.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
-                    PluginEntry.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
+                    RuntimeInfo.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
+                    RuntimeInfo.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
                 }
             }
         })
 
-        findAndHookMethod(WXObject.MainUI.C.LauncherUI, PluginEntry.classloader,
+        findAndHookMethod(WXObject.MainUI.C.LauncherUI, RuntimeInfo.classloader,
                 WXObject.MainUI.M.StartChattingOfLauncherUI, String::class.java, Bundle::class.java, Boolean::class.java,
                 object : XC_MethodHook() {
                     @Throws(Throwable::class)
@@ -111,26 +107,26 @@ object MainLauncherUI {
                         else if (RuntimeInfo.currentPage == PageType.CHAT_ROOMS) RuntimeInfo.currentPage = PageType.CHATTING_WITH_CHAT_ROOMS
 
                         if (ConfigInfo.isAutoClose) {
-                            if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_OFFICIAL) PluginEntry.officialViewPresenter.dismiss()
-                            else if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_CHAT_ROOMS) PluginEntry.chatRoomViewPresenter.dismiss()
+                            if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_OFFICIAL) RuntimeInfo.officialViewPresenter.dismiss()
+                            else if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_CHAT_ROOMS) RuntimeInfo.chatRoomViewPresenter.dismiss()
                         }
                     }
                 })
 
 
-        findAndHookMethod(WXObject.MainUI.C.LauncherUI, PluginEntry.classloader,
+        findAndHookMethod(WXObject.MainUI.C.LauncherUI, RuntimeInfo.classloader,
                 WXObject.MainUI.M.CloseChattingOfLauncherUI, Boolean::class.java,
                 object : XC_MethodHook() {
                     @Throws(Throwable::class)
                     override fun beforeHookedMethod(param: XC_MethodHook.MethodHookParam) {
                         LogUtils.log("MainLauncherUI, closeChatting")
                         if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_OFFICIAL) {
-                            if (PluginEntry.officialViewPresenter.isShowing)
+                            if (RuntimeInfo.officialViewPresenter.isShowing)
                                 RuntimeInfo.currentPage = PageType.OFFICIAL
                             else RuntimeInfo.currentPage = PageType.MAIN
 
                         } else if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_CHAT_ROOMS) {
-                            if (PluginEntry.chatRoomViewPresenter.isShowing)
+                            if (RuntimeInfo.chatRoomViewPresenter.isShowing)
                                 RuntimeInfo.currentPage = PageType.CHAT_ROOMS
                             else RuntimeInfo.currentPage = PageType.MAIN
                         }
@@ -153,14 +149,14 @@ object MainLauncherUI {
         if (keyEvent.keyCode == KeyEvent.KEYCODE_BACK && keyEvent.action == KeyEvent.ACTION_DOWN) {
 
             //群消息助手在屏幕上显示
-            if (RuntimeInfo.currentPage == PageType.CHAT_ROOMS && chatRoomViewPresenter.isShowing) {
-                chatRoomViewPresenter.dismiss()
+            if (RuntimeInfo.currentPage == PageType.CHAT_ROOMS && RuntimeInfo.chatRoomViewPresenter.isShowing) {
+                RuntimeInfo.chatRoomViewPresenter.dismiss()
                 param.result = true
 
             }
             //公众号助手在屏幕上显示
-            if (RuntimeInfo.currentPage == PageType.OFFICIAL && officialViewPresenter.isShowing) {
-                officialViewPresenter.dismiss()
+            if (RuntimeInfo.currentPage == PageType.OFFICIAL && RuntimeInfo.officialViewPresenter.isShowing) {
+                RuntimeInfo.officialViewPresenter.dismiss()
                 param.result = true
             }
         }
@@ -169,18 +165,18 @@ object MainLauncherUI {
 
     fun onFitSystemWindowLayoutViewReady(chatRoomIndex: Int, officialIndex: Int, fitSystemWindowLayoutView: ViewGroup) {
 
-        val chatRoomViewParent = PluginEntry.chatRoomViewPresenter.presenterView.parent
+        val chatRoomViewParent = RuntimeInfo.chatRoomViewPresenter.presenterView.parent
         if (chatRoomViewParent != null) {
-            (chatRoomViewParent as ViewGroup).removeView(PluginEntry.chatRoomViewPresenter.presenterView)
+            (chatRoomViewParent as ViewGroup).removeView(RuntimeInfo.chatRoomViewPresenter.presenterView)
         }
 
-        val officialViewParent = PluginEntry.officialViewPresenter.presenterView.parent
+        val officialViewParent = RuntimeInfo.officialViewPresenter.presenterView.parent
         if (officialViewParent != null) {
-            (chatRoomViewParent as ViewGroup).removeView(PluginEntry.officialViewPresenter.presenterView)
+            (chatRoomViewParent as ViewGroup).removeView(RuntimeInfo.officialViewPresenter.presenterView)
         }
 
-        fitSystemWindowLayoutView.addView(PluginEntry.chatRoomViewPresenter.presenterView, chatRoomIndex)
-        fitSystemWindowLayoutView.addView(PluginEntry.officialViewPresenter.presenterView, officialIndex)
+        fitSystemWindowLayoutView.addView(RuntimeInfo.chatRoomViewPresenter.presenterView, chatRoomIndex)
+        fitSystemWindowLayoutView.addView(RuntimeInfo.officialViewPresenter.presenterView, officialIndex)
 
 
         if ((fitSystemWindowLayoutView.getChildAt(0) as ViewGroup).childCount != 2)
@@ -201,8 +197,8 @@ object MainLauncherUI {
 
                     if (width == 0 || height == 0) return@OnGlobalLayoutListener
 
-                    val chatRoomViewPresenterPresenterView = PluginEntry.chatRoomViewPresenter.presenterView
-                    val officialViewPresenterPresenterView = PluginEntry.officialViewPresenter.presenterView
+                    val chatRoomViewPresenterPresenterView = RuntimeInfo.chatRoomViewPresenter.presenterView
+                    val officialViewPresenterPresenterView = RuntimeInfo.officialViewPresenter.presenterView
 
 
                     val left1 = chatRoomViewPresenterPresenterView.left

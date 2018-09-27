@@ -21,8 +21,7 @@ import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialogBuilder
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.PluginEntry
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageFactory
 import network.ApiManager
@@ -75,6 +74,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
         uuid = DeviceUtils.getIMELCode(mContext)
         ApiManager.sendRequestForUserStatistics("init", uuid, Build.MODEL)
+
     }
 
 
@@ -111,7 +111,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
     override fun show(offest: Int) {
         swipeBackLayout.closePane()
-        refreshList(Any())
+        refreshList(false, Any())
     }
 
     override fun dismiss(offest: Int) {
@@ -123,14 +123,15 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         mAdapter = ChatRoomRecyclerViewAdapter(mContext)
         LogUtils.log("mRecyclerView = $mRecyclerView, mAdapter = $mAdapter")
         mRecyclerView.adapter = mAdapter
+
+        refreshList(true, Any())
     }
 
 
-    override fun refreshList(data: Any) {
+    override fun refreshList(isForce: Boolean, data: Any?) {
 
-        if (RuntimeInfo.currentPage == PageType.MAIN || RuntimeInfo.currentPage > PageType.CHATTING) {
-            return
-        }
+        if (!isForce)
+            if (RuntimeInfo.currentPage == PageType.MAIN || RuntimeInfo.currentPage > PageType.CHATTING) return
 
         AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
 
@@ -239,6 +240,11 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             val dialog = whiteListDialogBuilder.getWhiteListDialog(mContext)
             dialog.show()
             dialog.setOnDismissListener {
+                when (pageType) {
+                    PageType.OFFICIAL -> RuntimeInfo.officialViewPresenter.refreshList(false, Any())
+                    PageType.CHAT_ROOMS -> RuntimeInfo.chatRoomViewPresenter.refreshList(false, Any())
+                }
+
                 MainAdapter.originAdapter.notifyDataSetChanged()
             }
         }

@@ -17,7 +17,7 @@ interface ChatRoomContract {
 
         fun start()
 
-        fun refreshList(data: Any)
+        fun refreshList(isForce: Boolean, data: Any?)
 
         fun show()
 
@@ -40,7 +40,7 @@ interface ChatRoomContract {
 
         fun dismiss(offest: Int)
 
-        fun refreshList(data: Any)
+        fun refreshList(isForce: Boolean, data: Any?)
 
         fun setPresenter(presenter: Presenter)
     }

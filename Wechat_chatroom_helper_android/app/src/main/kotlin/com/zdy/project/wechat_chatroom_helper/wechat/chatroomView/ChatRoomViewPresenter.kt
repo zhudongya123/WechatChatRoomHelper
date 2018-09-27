@@ -4,8 +4,7 @@ import android.content.Context
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.zdy.project.wechat_chatroom_helper.PageType
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
-import java.util.*
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 
 /**
  * Created by Mr.Zdy on 2017/8/25.
@@ -41,8 +40,8 @@ class ChatRoomViewPresenter(mContext: Context, var pageType: Int) : ChatRoomCont
         this.originAdapter = mAdapter
     }
 
-    override fun refreshList(data: Any) {
-        mView.refreshList(data)
+    override fun refreshList(isForce: Boolean, data: Any?) {
+        mView.refreshList(isForce, data)
     }
 
 
@@ -59,7 +58,6 @@ class ChatRoomViewPresenter(mContext: Context, var pageType: Int) : ChatRoomCont
     override fun start() {
         mView.init()
     }
-
 
 
 }
