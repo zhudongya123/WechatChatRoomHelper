@@ -130,53 +130,58 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
     override fun refreshList(isForce: Boolean, data: Any?) {
 
-        if (!isForce)
-            if (RuntimeInfo.currentPage == PageType.MAIN || RuntimeInfo.currentPage > PageType.CHATTING) return
-
-        AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
+//        if (!isForce)
+//            if (RuntimeInfo.currentPage == PageType.MAIN || RuntimeInfo.currentPage > PageType.CHATTING) return
 
         val newDatas =
-                if (pageType == PageType.CHAT_ROOMS) MessageFactory.getSpecChatRoom()
+                if (pageType == PageType.CHAT_ROOMS)
+                    MessageFactory.getSpecChatRoom()
                 else MessageFactory.getSpecOfficial()
 
         val oldDatas = mAdapter.data
 
-//        val diffResult = DiffUtil.calculateDiff(DiffCallBack(newDatas, oldDatas), true)
-//        diffResult.dispatchUpdatesTo(mAdapter)
+        val diffResult = DiffUtil.calculateDiff(DiffCallBack(newDatas, oldDatas), true)
+        diffResult.dispatchUpdatesTo(mAdapter)
+
         mAdapter.data = newDatas
-        mAdapter.notifyDataSetChanged()
+
+
+//        mAdapter.notifyDataSetChanged()
 
         LogUtils.log("showMessageRefresh for all recycler view , pageType = " + PageType.printPageType(pageType))
     }
 
-    internal class DiffCallBack(private var mOldDatas: ArrayList<ChatInfoModel>,
-                                private var mNewDatas: ArrayList<ChatInfoModel>) : DiffUtil.Callback() {
+    class DiffCallBack(private var mOldDatas: ArrayList<ChatInfoModel>,
+                       private var mNewDatas: ArrayList<ChatInfoModel>) : DiffUtil.Callback() {
 
         init {
-            LogUtils.log("oldData = ${mOldDatas.joinToString { it.toString() }}")
-            LogUtils.log("newData = ${mNewDatas.joinToString { it.toString() }}")
+            if (mOldDatas.size != 0 && mNewDatas.size != 0) {
+                val old_conversationTime = mOldDatas.first().field_conversationTime
+                val new_conversationTime = mNewDatas.first().field_conversationTime
 
+                LogUtils.log("DiffCallBack, oldData = ${mOldDatas.joinToString { (old_conversationTime - it.field_conversationTime).toString() }}")
+                LogUtils.log("DiffCallBack, newData = ${mNewDatas.joinToString { (new_conversationTime - it.field_conversationTime).toString() }}")
+            }
         }
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-                mOldDatas[oldItemPosition].field_username == mNewDatas[newItemPosition].field_username
 
         override fun getOldListSize() = mOldDatas.size
 
         override fun getNewListSize() = mNewDatas.size
 
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                mOldDatas[oldItemPosition].field_username == mNewDatas[newItemPosition].field_username
+
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
                 mOldDatas[oldItemPosition] == mNewDatas[newItemPosition]
 
-
-        override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-
-            val oldItem = mOldDatas[oldItemPosition]
-            val newItem = mNewDatas[newItemPosition]
-
-            LogUtils.log("getChangePayload, oldItem = $oldItem, newItem = $newItem")
-            return null
-        }
+//        override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
+//
+//            val oldItem = mOldDatas[oldItemPosition]
+//            val newItem = mNewDatas[newItemPosition]
+//
+//            LogUtils.log("getChangePayload, oldItem = $oldItem, newItem = $newItem")
+//            return null
+//        }
     }
 
     private fun initToolbar(): View {
