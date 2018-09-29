@@ -15,7 +15,6 @@ import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
-import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
@@ -156,11 +155,9 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
         init {
             if (mOldDatas.size != 0 && mNewDatas.size != 0) {
-                val old_conversationTime = mOldDatas.first().field_conversationTime
-                val new_conversationTime = mNewDatas.first().field_conversationTime
 
-                LogUtils.log("DiffCallBack, oldData = ${mOldDatas.joinToString { (old_conversationTime - it.field_conversationTime).toString() }}")
-                LogUtils.log("DiffCallBack, newData = ${mNewDatas.joinToString { (new_conversationTime - it.field_conversationTime).toString() }}")
+                LogUtils.log("DiffCallBack, oldData = ${mOldDatas.joinToString { it.content.toString() + "\n" }}")
+                LogUtils.log("DiffCallBack, newData = ${mNewDatas.joinToString { it.content.toString() + "\n" }}")
             }
         }
 

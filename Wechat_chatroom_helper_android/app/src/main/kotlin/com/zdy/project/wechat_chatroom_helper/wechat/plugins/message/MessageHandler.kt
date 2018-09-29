@@ -143,6 +143,7 @@ object MessageHandler {
                     }
                 }
 
+                LogUtils.log("MessageHandler, queryHook, sql = $sql")
                 if (!sql.contains("unReadCount")) return
 
                 //如果本次查询是查询全部回话时，修改返回结果为全部联系人回话（不包括服务号和群聊）
