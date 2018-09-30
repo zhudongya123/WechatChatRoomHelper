@@ -107,7 +107,7 @@ object MessageFactory {
             nickname = if (field_nickname.isEmpty()) "群聊" else field_nickname
             val conversationContent = ConversationItemHandler.getConversationContent(MainAdapter.originAdapter, this)
 
-            LogUtils.log("getConversationContent,  content =  $conversationContent, class = ${conversationContent::class.java.name}")
+          //  LogUtils.log("getConversationContent,  content =  $conversationContent, class = ${conversationContent::class.java.name}")
 
             content = conversationContent
             conversationTime = ConversationItemHandler.getConversationTimeString(MainAdapter.originAdapter, field_conversationTime)

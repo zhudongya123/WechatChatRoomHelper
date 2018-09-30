@@ -3,9 +3,11 @@ package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 import android.content.Context
 import android.graphics.Color
 import android.os.Build
+import android.os.Bundle
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.SimpleItemAnimator
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
@@ -60,6 +62,12 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         mRecyclerView = RecyclerView(mContext)
         mRecyclerView.id = android.R.id.list
         mRecyclerView.layoutManager = LinearLayoutManager(mContext)
+
+        mRecyclerView.itemAnimator.addDuration = 0
+        mRecyclerView.itemAnimator.changeDuration = 0
+        mRecyclerView.itemAnimator.moveDuration = 0
+        mRecyclerView.itemAnimator.removeDuration = 0
+        (mRecyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
 
         mainView.addView(initToolbar())
         mainView.addView(mRecyclerView)
@@ -129,23 +137,17 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
     override fun refreshList(isForce: Boolean, data: Any?) {
 
-//        if (!isForce)
-//            if (RuntimeInfo.currentPage == PageType.MAIN || RuntimeInfo.currentPage > PageType.CHATTING) return
-
-        val newDatas =
-                if (pageType == PageType.CHAT_ROOMS)
+        val newDatas = if (pageType == PageType.CHAT_ROOMS)
                     MessageFactory.getSpecChatRoom()
                 else MessageFactory.getSpecOfficial()
 
         val oldDatas = mAdapter.data
 
-        val diffResult = DiffUtil.calculateDiff(DiffCallBack(newDatas, oldDatas), true)
+        val diffResult = DiffUtil.calculateDiff(DiffCallBack(oldDatas, newDatas), true)
         diffResult.dispatchUpdatesTo(mAdapter)
-
         mAdapter.data = newDatas
 
-
-//        mAdapter.notifyDataSetChanged()
+        //    mAdapter.notifyDataSetChanged()
 
         LogUtils.log("showMessageRefresh for all recycler view , pageType = " + PageType.printPageType(pageType))
     }
@@ -171,14 +173,24 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
                 mOldDatas[oldItemPosition] == mNewDatas[newItemPosition]
 
-//        override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-//
-//            val oldItem = mOldDatas[oldItemPosition]
-//            val newItem = mNewDatas[newItemPosition]
-//
-//            LogUtils.log("getChangePayload, oldItem = $oldItem, newItem = $newItem")
-//            return null
-//        }
+        override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
+
+            val oldItem = mOldDatas[oldItemPosition]
+            val newItem = mNewDatas[newItemPosition]
+
+            LogUtils.log("getChangePayload, oldItem = $oldItem, newItem = $newItem")
+
+            return if (oldItem == newItem) null
+            else {
+                val bundle = Bundle()
+                if (oldItem.content != newItem.content) bundle.putCharSequence("content", newItem.content)
+                if (oldItem.conversationTime != newItem.conversationTime) bundle.putCharSequence("conversationTime", newItem.conversationTime)
+                if (oldItem.unReadMuteCount != newItem.unReadMuteCount) bundle.putInt("unReadMuteCount", newItem.unReadMuteCount)
+                if (oldItem.unReadCount != newItem.unReadCount) bundle.putInt("unReadCount", newItem.unReadCount)
+
+                if (bundle.isEmpty) null else bundle
+            }
+        }
     }
 
     private fun initToolbar(): View {

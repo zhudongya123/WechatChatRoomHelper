@@ -3,9 +3,11 @@ package com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter
 import android.widget.ImageView
 import com.blankj.utilcode.util.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import de.robv.android.xposed.XposedHelpers
+import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 
 object ConversationItemHandler {
@@ -74,21 +76,23 @@ object ConversationItemHandler {
 
         val textSize = (ScreenUtils.getScreenDensity() * 13f).toInt()
         val content = XposedHelpers.callMethod(adapter, getContentMethod.name, bean, textSize, true) as CharSequence
+//
+//        val secondBeanMethodName = conversationWithCacheAdapter.declaredMethods
+//                .filter { it.parameterTypes.size == 1 }
+//                .filter { Modifier.isFinal(it.modifiers) }
+//                .single { it.parameterTypes[0].name == beanClass.name }.name
+//
+//        val secondBean = XposedHelpers.callMethod(adapter, secondBeanMethodName, bean)
+//
+//        val fields = secondBean::class.java.fields
+//
+//        var fieldString = ""
+//        fields.forEach {
+//            fieldString += ", ${it.name} = ${it.get(secondBean)}"
+//        }
+//
+//        LogUtils.log("getConversationContent121212121 = $fieldString\n")
 
-        val secondBeanMethodName = conversationWithCacheAdapter.declaredMethods
-                .filter { it.parameterTypes.size == 1 }
-                .single { it.parameterTypes[0]::class == beanClass }.name
-
-        val secondBean = XposedHelpers.callMethod(adapter, secondBeanMethodName, beanClass)
-
-        val fields = secondBean::class.java.fields
-
-        var fieldString = ""
-        fields.forEach {
-            fieldString = "fieldName = ${it.name}, fieldValue = ${it.get(secondBean)}\n"
-        }
-
-        com.zdy.project.wechat_chatroom_helper.LogUtils.log("getConversationContent = $fieldString")
         return if (content.isEmpty()) chatInfoModel.field_content else content
     }
 
