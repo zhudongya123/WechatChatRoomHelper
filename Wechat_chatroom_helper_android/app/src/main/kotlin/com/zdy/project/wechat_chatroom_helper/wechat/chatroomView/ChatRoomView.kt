@@ -63,12 +63,6 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         mRecyclerView.id = android.R.id.list
         mRecyclerView.layoutManager = LinearLayoutManager(mContext)
 
-        mRecyclerView.itemAnimator.addDuration = 0
-        mRecyclerView.itemAnimator.changeDuration = 0
-        mRecyclerView.itemAnimator.moveDuration = 0
-        mRecyclerView.itemAnimator.removeDuration = 0
-        (mRecyclerView.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
-
         mainView.addView(initToolbar())
         mainView.addView(mRecyclerView)
         mainView.isClickable = true
@@ -118,7 +112,6 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
     override fun show(offest: Int) {
         swipeBackLayout.closePane()
-        refreshList(false, Any())
     }
 
     override fun dismiss(offest: Int) {
@@ -130,25 +123,22 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         mAdapter = ChatRoomRecyclerViewAdapter(mContext)
         LogUtils.log("mRecyclerView = $mRecyclerView, mAdapter = $mAdapter")
         mRecyclerView.adapter = mAdapter
-
-        refreshList(true, Any())
     }
 
 
     override fun refreshList(isForce: Boolean, data: Any?) {
+        mainView.post {
+            val newDatas =
+                    if (pageType == PageType.CHAT_ROOMS) MessageFactory.getSpecChatRoom()
+                    else MessageFactory.getSpecOfficial()
 
-        val newDatas = if (pageType == PageType.CHAT_ROOMS)
-                    MessageFactory.getSpecChatRoom()
-                else MessageFactory.getSpecOfficial()
+//            val oldDatas = mAdapter.data
+//            val diffResult = DiffUtil.calculateDiff(DiffCallBack(oldDatas, newDatas), true)
+//            diffResult.dispatchUpdatesTo(mAdapter)
+            mAdapter.data = newDatas
 
-        val oldDatas = mAdapter.data
-
-        val diffResult = DiffUtil.calculateDiff(DiffCallBack(oldDatas, newDatas), true)
-        diffResult.dispatchUpdatesTo(mAdapter)
-        mAdapter.data = newDatas
-
-        //    mAdapter.notifyDataSetChanged()
-
+            mAdapter.notifyDataSetChanged()
+        }
         LogUtils.log("showMessageRefresh for all recycler view , pageType = " + PageType.printPageType(pageType))
     }
 
