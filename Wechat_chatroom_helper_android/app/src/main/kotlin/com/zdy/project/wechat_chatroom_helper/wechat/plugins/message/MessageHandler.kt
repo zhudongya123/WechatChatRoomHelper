@@ -19,7 +19,7 @@ object MessageHandler {
 
     //查询当前第一个服务号的会话信息
     private const val SqlForGetFirstOfficial = "select rconversation.username, flag from rconversation,rcontact " +
-            "where ( rcontact.username = rconversation.username and rcontact.verifyFlag = 24) and ( parentRef is null  or parentRef = '' )  " +
+            "where ( rcontact.username = rconversation.username and rcontact.verifyFlag != 0) and ( parentRef is null  or parentRef = '' )  " +
             "and ( 1 !=1 or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  " +
             "and rconversation.username != 'qmessage' order by flag desc limit 1"
 

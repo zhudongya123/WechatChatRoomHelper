@@ -15,7 +15,7 @@ object MessageFactory {
     private const val SqlForGetAllOfficial = "select unReadCount, status, isSend, conversationTime," +
             "rconversation.username, rcontact.nickname, content, msgType ,digest, digestUser, attrflag, editingMsg, " +
             "atCount, unReadMuteCount, UnReadInvite from rconversation, rcontact " +
-            "where ( rcontact.username = rconversation.username and rcontact.verifyFlag = 24) and ( parentRef is null  or parentRef = '' )  " +
+            "where ( rcontact.username = rconversation.username and rcontact.verifyFlag != 0) and ( parentRef is null  or parentRef = '' )  " +
             "and ( 1 !=1 or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  " +
             "and rconversation.username != 'qmessage' order by flag desc"
 
