@@ -240,6 +240,22 @@ object MainAdapter {
 
                 LogUtils.log("MessageHooker2.7, size = ${originAdapter.count}, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
             }
+
+            override fun afterHookedMethod(param: MethodHookParam) {
+                super.afterHookedMethod(param)
+
+                val index = param.args[0] as Int
+
+                if (index == firstChatRoomPosition || index == firstOfficialPosition) {
+
+                    val currentResult = param.result
+
+                    XposedHelpers.setObjectField(currentResult,"field_username","")
+
+                    param.result = currentResult
+                }
+
+            }
         })
 
         MessageHandler.addMessageEventNotifyListener(
