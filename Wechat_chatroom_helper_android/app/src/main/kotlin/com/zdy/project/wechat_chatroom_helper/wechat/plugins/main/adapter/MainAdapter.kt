@@ -16,6 +16,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
+import java.lang.reflect.ParameterizedType
 
 @SuppressLint("StaticFieldLeak")
 /**
@@ -215,22 +216,32 @@ object MainAdapter {
                 val min = Math.min(firstChatRoomPosition, firstOfficialPosition)
                 val max = Math.max(firstChatRoomPosition, firstOfficialPosition)
 
+
                 val newIndex =
                         if (min == -1 && max == -1) {
                             index
                         } else if (min == -1 || max == -1) {
                             when (index) {
                                 in 0 until max -> index
-                                max -> index //TODO
+                                max -> {
+                                    param.result = getBlankItemForPlaceHolder(param)
+                                    return
+                                }
                                 in max + 1 until Int.MAX_VALUE -> index - 1
                                 else -> index //TODO
                             }
                         } else {
                             when (index) {
                                 in 0 until min -> index
-                                min -> index //TODO
+                                min -> {
+                                    param.result = getBlankItemForPlaceHolder(param)
+                                    return
+                                }
                                 in min + 1 until max -> index - 1
-                                max -> index //TODO
+                                max -> {
+                                    param.result = getBlankItemForPlaceHolder(param)
+                                    return
+                                }
                                 in max + 1 until Int.MAX_VALUE -> index - 2
                                 else -> index //TODO
                             }
@@ -241,21 +252,16 @@ object MainAdapter {
                 LogUtils.log("MessageHooker2.7, size = ${originAdapter.count}, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
             }
 
-            override fun afterHookedMethod(param: MethodHookParam) {
-                super.afterHookedMethod(param)
 
-                val index = param.args[0] as Int
+            fun getBlankItemForPlaceHolder(param: MethodHookParam): Any {
+                val beanClass = (param.thisObject::class.java.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>
 
-                if (index == firstChatRoomPosition || index == firstOfficialPosition) {
+                val constructor = beanClass.getConstructor(String::class.java)
+                val newInstance = constructor.newInstance(" ")
 
-                    val currentResult = param.result
-
-                    XposedHelpers.setObjectField(currentResult,"field_username","")
-
-                    param.result = currentResult
-                }
-
+                return newInstance
             }
+
         })
 
         MessageHandler.addMessageEventNotifyListener(
