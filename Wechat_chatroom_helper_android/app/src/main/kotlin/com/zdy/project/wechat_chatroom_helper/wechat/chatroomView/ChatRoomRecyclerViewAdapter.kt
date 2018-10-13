@@ -10,10 +10,10 @@ import android.graphics.drawable.shapes.Shape
 import android.os.Bundle
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
-import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.LogUtils
-import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
-import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.ConversationItemHandler
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.main.MainLauncherUI
 import de.robv.android.xposed.XposedHelpers
@@ -79,10 +79,10 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
             }
         }
 
-        holder.nickname.setTextColor(Color.parseColor("#" + ConfigInfo.nicknameColor))
-        holder.content.setTextColor(Color.parseColor("#" + ConfigInfo.contentColor))
-        holder.time.setTextColor(Color.parseColor("#" + ConfigInfo.timeColor))
-        holder.divider.setBackgroundColor(Color.parseColor("#" + ConfigInfo.dividerColor))
+        holder.nickname.setTextColor(Color.parseColor("#" + AppSaveInfo.nicknameColorInfo()))
+        holder.content.setTextColor(Color.parseColor("#" + AppSaveInfo.contentColorInfo()))
+        holder.time.setTextColor(Color.parseColor("#" + AppSaveInfo.timeColorInfo()))
+        holder.divider.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.dividerColorInfo()))
     }
 
 

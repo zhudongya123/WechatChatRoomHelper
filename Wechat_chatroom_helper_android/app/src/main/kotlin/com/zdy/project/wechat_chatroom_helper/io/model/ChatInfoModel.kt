@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper
+package com.zdy.project.wechat_chatroom_helper.io.model
 
 
 /**

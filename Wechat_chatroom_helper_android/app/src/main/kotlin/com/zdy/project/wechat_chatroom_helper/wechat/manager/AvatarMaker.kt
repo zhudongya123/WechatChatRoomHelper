@@ -5,7 +5,7 @@ import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.support.annotation.ColorInt
 import com.zdy.project.wechat_chatroom_helper.PageType
-import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 
 /**
@@ -37,7 +37,7 @@ object AvatarMaker {
         when (type) {
             PageType.CHAT_ROOMS -> {
                 canvas.run {
-                    if (ConfigInfo.isCircleAvatar)
+                    if (AppSaveInfo.isCircleAvatarInfo())
                         drawCircle(contentSize.toFloat(), contentSize.toFloat(), contentSize.toFloat(),
                                 paint.apply {
                                     setColor(color)
@@ -133,7 +133,7 @@ object AvatarMaker {
 
         //填充背景
         canvas.run {
-            if (ConfigInfo.isCircleAvatar)
+            if (AppSaveInfo.isCircleAvatarInfo())
                 drawCircle(contentSize.toFloat(), contentSize.toFloat(), contentSize.toFloat(),
                         paint.apply {
                             color = backgroundColor

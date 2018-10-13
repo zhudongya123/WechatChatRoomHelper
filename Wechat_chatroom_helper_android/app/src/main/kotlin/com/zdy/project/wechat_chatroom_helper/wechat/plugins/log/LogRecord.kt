@@ -1,8 +1,8 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.log
 
 import com.zdy.project.wechat_chatroom_helper.LogUtils
-import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
-import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
@@ -28,7 +28,7 @@ object LogRecord {
             findAndHookMethod(logcatClass, method.name, String::class.java, String::class.java, Array<Any>::class.java, object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
 
-                    if (!ConfigInfo.isOpenLog) return
+                    if (!AppSaveInfo.openLogInfo()) return
 
                     try {
 

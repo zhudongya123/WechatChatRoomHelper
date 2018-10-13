@@ -5,6 +5,8 @@ import com.zdy.project.wechat_chatroom_helper.Constants
 
 
 /**
+ *
+ * 此类声明了所有需要存储的字段和相应的get set 方法
  * Created by zhudo on 2017/11/4.
  */
 object AppSaveInfo {

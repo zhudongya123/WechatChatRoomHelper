@@ -7,17 +7,16 @@ import android.os.Bundle
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.SimpleItemAnimator
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout
-import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
-import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialogBuilder
@@ -67,7 +66,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         mainView.addView(mRecyclerView)
         mainView.isClickable = true
 
-        mainView.setBackgroundColor(Color.parseColor("#" + ConfigInfo.helperColor))
+        mainView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo()))
 
         initSwipeBack()
 
@@ -195,8 +194,8 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         mToolbar.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
 
         mToolbar.setNavigationOnClickListener { dismiss() }
-        mToolbar.setBackgroundColor(Color.parseColor("#" + ConfigInfo.toolbarColor))
-        mRecyclerView.setBackgroundColor(Color.parseColor("#" + ConfigInfo.helperColor))
+        mToolbar.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.toolbarColorInfo()))
+        mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo()))
 
         when (pageType) {
             PageType.CHAT_ROOMS -> mToolbar.title = "群消息助手"

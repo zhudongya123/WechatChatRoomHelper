@@ -2,8 +2,8 @@ package com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter
 
 import android.widget.ImageView
 import com.blankj.utilcode.util.ScreenUtils
-import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
-import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
+import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.io.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import de.robv.android.xposed.XposedHelpers
 import java.lang.reflect.ParameterizedType
