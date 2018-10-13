@@ -3,6 +3,7 @@ package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 import android.content.Context
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 
@@ -46,6 +47,7 @@ class ChatRoomViewPresenter(mContext: Context, var pageType: Int) : ChatRoomCont
 
 
     override fun show() {
+        LogUtils.log("TrackHelperCan'tOpen, ChatRoomViewPresenter -> show, mView = ${mView}")
         mView.show()
         RuntimeInfo.currentPage = pageType
     }

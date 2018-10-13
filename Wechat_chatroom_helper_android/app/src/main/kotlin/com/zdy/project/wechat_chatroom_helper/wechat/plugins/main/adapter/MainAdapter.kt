@@ -76,14 +76,15 @@ object MainAdapter {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         val position = (param.args[2] as Int) - listView.headerViewsCount
 
-                        val field_username = XposedHelpers.getObjectField(XposedHelpers.callMethod(originAdapter, conversationWithCacheAdapterGetItem, position), "field_username") as String
-                        LogUtils.log("MessageHooker2.6, position = $position, field_username = $field_username")
+                        LogUtils.log("TrackHelperCan'tOpen, MainAdapter -> HookItemClickListener -> onItemClick ")
 
                         if (position == firstChatRoomPosition) {
+                            LogUtils.log("TrackHelperCan'tOpen, MainAdapter -> HookItemClickListener -> onItemClick -> chatRoomClickPerform, RuntimeInfo.chatRoomViewPresenter = ${RuntimeInfo.chatRoomViewPresenter}")
                             RuntimeInfo.chatRoomViewPresenter.show()
                             param.result = null
                         }
                         if (position == firstOfficialPosition) {
+                            LogUtils.log("TrackHelperCan'tOpen, MainAdapter -> HookItemClickListener -> onItemClick -> officialClickPerform, RuntimeInfo.officialViewPresenter = ${RuntimeInfo.officialViewPresenter}")
                             RuntimeInfo.officialViewPresenter.show()
                             param.result = null
                         }

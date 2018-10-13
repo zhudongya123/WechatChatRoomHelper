@@ -103,6 +103,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
 
     override fun show() {
+        LogUtils.log("TrackHelperCan'tOpen, ChatRoomView -> show no params")
         show(ScreenUtils.getScreenWidth(mContext))
     }
 
@@ -111,6 +112,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
     }
 
     override fun show(offest: Int) {
+        LogUtils.log("TrackHelperCan'tOpen, ChatRoomView -> show, offest = ${offest}, swipeBackLayout = ${swipeBackLayout}")
         swipeBackLayout.closePane()
     }
 
