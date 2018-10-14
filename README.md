@@ -16,7 +16,7 @@
 
 下载地址：[酷安](https://www.coolapk.com/apk/com.zdy.project.wechat_chatroom_helper)
 
-项目主页及更多信息：[Site](http://116.62.247.71:8080/wechat/)
+项目主页及更多信息：[Site](http://122.152.202.233:8080/wechat/)
 
 ## 功能
 
