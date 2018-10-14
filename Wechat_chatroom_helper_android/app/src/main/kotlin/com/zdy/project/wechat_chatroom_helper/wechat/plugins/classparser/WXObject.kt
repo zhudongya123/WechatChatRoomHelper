@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.wechat
+package com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser
 
 object WXObject {
 
@@ -12,7 +12,7 @@ object WXObject {
             const val SQLiteCancellationSignal = "com.tencent.wcdb.support.CancellationSignal"
         }
 
-        object M{
+        object M {
             const val QUERY = "rawQueryWithFactory"
             const val INSERT = "insertWithOnConflict"
             const val UPDATE = "updateWithOnConflict"
@@ -39,7 +39,7 @@ object WXObject {
 
     object Adapter {
 
-        object M{
+        object M {
             const val SetAdapter = "setAdapter"
             const val GetCount = "getCount"
             const val OnItemClick = "onItemClick"
@@ -52,13 +52,14 @@ object WXObject {
             var ConversationWithAppBrandListView = ""
             var ConversationAvatar = ""
             var ConversationClickListener = ""
+            const val NoMeasuredTextView = "com.tencent.mm.ui.base.NoMeasuredTextView"
         }
 
 
     }
 
 
-    object Tool{
+    object Tool {
 
         object C {
 
@@ -66,8 +67,6 @@ object WXObject {
         }
 
     }
-
-
 
 
 }

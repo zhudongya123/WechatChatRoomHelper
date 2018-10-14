@@ -1,9 +1,9 @@
-package com.zdy.project.wechat_chatroom_helper.wechat.plugins.log
+package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.log
 
 import com.zdy.project.wechat_chatroom_helper.LogUtils
-import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
-import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.PluginEntry
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
@@ -13,7 +13,7 @@ object LogRecord {
 
     fun executeHook() {
 
-        val logcatClass = XposedHelpers.findClass(WXObject.Tool.C.Logcat, PluginEntry.classloader)
+        val logcatClass = XposedHelpers.findClass(WXObject.Tool.C.Logcat, RuntimeInfo.classloader)
         val logcatLogMethods = findMethodsByExactParameters(logcatClass, null, String::class.java, String::class.java, Array<Any>::class.java)
 
 
@@ -28,7 +28,7 @@ object LogRecord {
             findAndHookMethod(logcatClass, method.name, String::class.java, String::class.java, Array<Any>::class.java, object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
 
-                    if (!ConfigInfo.isOpenLog) return
+                    if (!AppSaveInfo.openLogInfo()) return
 
                     try {
 

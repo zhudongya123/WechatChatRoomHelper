@@ -1,7 +1,6 @@
 package network
 
 import android.os.Build
-import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
 import okhttp3.*
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import java.io.IOException
@@ -10,8 +9,8 @@ object ApiManager {
 
     var okHttpClient = OkHttpClient()
 
-    private const val CLASS_MAPPING = "http://carfielder.club:8080/wechat/class/mapping"
-    private const val USER_STATISTICS = "http://carfielder.club:8080/wechat/user/statistics"
+    private const val CLASS_MAPPING = "http://122.152.202.233:8080/wechat/class/mapping"
+    private const val USER_STATISTICS = "http://122.152.202.233:8080/wechat/user/statistics"
 
     /**
      * 发送用户统计请求，自带一天只发送一次的逻辑~
@@ -25,8 +24,8 @@ object ApiManager {
                 .add("action", action)
                 .add("uuidCode", uuid)
                 .add("model", model)
-                .add("version", ConfigInfo.helperVersionCode.toString())
-                .add("wechat_version", ConfigInfo.wechatVersion.toString())
+                .add("version", AppSaveInfo.helpVersionCodeInfo())
+                .add("wechat_version", AppSaveInfo.wechatVersionInfo())
                 .add("android_version", Build.VERSION.SDK)
                 .build()
 

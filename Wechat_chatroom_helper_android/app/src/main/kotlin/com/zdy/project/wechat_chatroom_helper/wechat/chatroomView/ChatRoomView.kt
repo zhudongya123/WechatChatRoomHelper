@@ -3,6 +3,7 @@ package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 import android.content.Context
 import android.graphics.Color
 import android.os.Build
+import android.os.Bundle
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -12,17 +13,17 @@ import android.view.ViewGroup
 import android.widget.*
 import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout
-import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
-import com.zdy.project.wechat_chatroom_helper.io.ConfigInfo
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialogBuilder
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.MainAdapter
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageFactory
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageFactory
 import network.ApiManager
 import java.util.*
 
@@ -65,7 +66,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         mainView.addView(mRecyclerView)
         mainView.isClickable = true
 
-        mainView.setBackgroundColor(Color.parseColor("#" + ConfigInfo.helperColor))
+        mainView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo()))
 
         initSwipeBack()
 
@@ -73,6 +74,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
         uuid = DeviceUtils.getIMELCode(mContext)
         ApiManager.sendRequestForUserStatistics("init", uuid, Build.MODEL)
+
     }
 
 
@@ -100,6 +102,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
 
     override fun show() {
+        LogUtils.log("TrackHelperCan'tOpen, ChatRoomView -> show no params")
         show(ScreenUtils.getScreenWidth(mContext))
     }
 
@@ -108,6 +111,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
     }
 
     override fun show(offest: Int) {
+        LogUtils.log("TrackHelperCan'tOpen, ChatRoomView -> show, offest = ${offest}, swipeBackLayout = ${swipeBackLayout}")
         swipeBackLayout.closePane()
     }
 
@@ -122,48 +126,43 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         mRecyclerView.adapter = mAdapter
     }
 
-    override fun showMessageRefresh(targetUserName: String) {
 
-    }
+    override fun refreshList(isForce: Boolean, data: Any?) {
+        mainView.post {
+            val newDatas =
+                    if (pageType == PageType.CHAT_ROOMS) MessageFactory.getSpecChatRoom()
+                    else MessageFactory.getSpecOfficial()
 
+//            val oldDatas = mAdapter.data
+//            val diffResult = DiffUtil.calculateDiff(DiffCallBack(oldDatas, newDatas), true)
+//            diffResult.dispatchUpdatesTo(mAdapter)
+            mAdapter.data = newDatas
 
-    override fun showMessageRefresh(muteListInAdapterPositions: ArrayList<Int>) {
-
-        AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
-
-        val newDatas =
-                if (pageType == PageType.CHAT_ROOMS) MessageFactory.getSpecChatRoom()
-                else MessageFactory.getSpecOfficial()
-
-        val oldDatas = mAdapter.data
-
-//        val diffResult = DiffUtil.calculateDiff(DiffCallBack(newDatas, oldDatas), true)
-//        diffResult.dispatchUpdatesTo(mAdapter)
-        mAdapter.data = newDatas
-        mAdapter.notifyDataSetChanged()
-
+            mAdapter.notifyDataSetChanged()
+        }
         LogUtils.log("showMessageRefresh for all recycler view , pageType = " + PageType.printPageType(pageType))
     }
 
-    internal class DiffCallBack(private var mOldDatas: ArrayList<ChatInfoModel>,
-                                private var mNewDatas: ArrayList<ChatInfoModel>) : DiffUtil.Callback() {
+    class DiffCallBack(private var mOldDatas: ArrayList<ChatInfoModel>,
+                       private var mNewDatas: ArrayList<ChatInfoModel>) : DiffUtil.Callback() {
 
         init {
-            LogUtils.log("oldData = ${mOldDatas.joinToString { it.toString() }}")
-            LogUtils.log("newData = ${mNewDatas.joinToString { it.toString() }}")
+            if (mOldDatas.size != 0 && mNewDatas.size != 0) {
 
+                LogUtils.log("DiffCallBack, oldData = ${mOldDatas.joinToString { it.content.toString() + "\n" }}")
+                LogUtils.log("DiffCallBack, newData = ${mNewDatas.joinToString { it.content.toString() + "\n" }}")
+            }
         }
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-                mOldDatas[oldItemPosition].field_username == mNewDatas[newItemPosition].field_username
 
         override fun getOldListSize() = mOldDatas.size
 
         override fun getNewListSize() = mNewDatas.size
 
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
+                mOldDatas[oldItemPosition].field_username == mNewDatas[newItemPosition].field_username
+
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
                 mOldDatas[oldItemPosition] == mNewDatas[newItemPosition]
-
 
         override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
 
@@ -171,7 +170,17 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             val newItem = mNewDatas[newItemPosition]
 
             LogUtils.log("getChangePayload, oldItem = $oldItem, newItem = $newItem")
-            return null
+
+            return if (oldItem == newItem) null
+            else {
+                val bundle = Bundle()
+                if (oldItem.content != newItem.content) bundle.putCharSequence("content", newItem.content)
+                if (oldItem.conversationTime != newItem.conversationTime) bundle.putCharSequence("conversationTime", newItem.conversationTime)
+                if (oldItem.unReadMuteCount != newItem.unReadMuteCount) bundle.putInt("unReadMuteCount", newItem.unReadMuteCount)
+                if (oldItem.unReadCount != newItem.unReadCount) bundle.putInt("unReadCount", newItem.unReadCount)
+
+                if (bundle.isEmpty) null else bundle
+            }
         }
     }
 
@@ -185,8 +194,8 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         mToolbar.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
 
         mToolbar.setNavigationOnClickListener { dismiss() }
-        mToolbar.setBackgroundColor(Color.parseColor("#" + ConfigInfo.toolbarColor))
-        mRecyclerView.setBackgroundColor(Color.parseColor("#" + ConfigInfo.helperColor))
+        mToolbar.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.toolbarColorInfo()))
+        mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo()))
 
         when (pageType) {
             PageType.CHAT_ROOMS -> mToolbar.title = "群消息助手"
@@ -236,6 +245,11 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             val dialog = whiteListDialogBuilder.getWhiteListDialog(mContext)
             dialog.show()
             dialog.setOnDismissListener {
+                when (pageType) {
+                    PageType.OFFICIAL -> RuntimeInfo.officialViewPresenter.refreshList(false, Any())
+                    PageType.CHAT_ROOMS -> RuntimeInfo.chatRoomViewPresenter.refreshList(false, Any())
+                }
+
                 MainAdapter.originAdapter.notifyDataSetChanged()
             }
         }

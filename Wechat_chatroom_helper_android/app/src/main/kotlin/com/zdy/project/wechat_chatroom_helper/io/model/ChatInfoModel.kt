@@ -1,6 +1,5 @@
-package com.zdy.project.wechat_chatroom_helper
+package com.zdy.project.wechat_chatroom_helper.io.model
 
-import android.content.Context
 
 /**
  * Created by Mr.Zdy on 2017/11/7.

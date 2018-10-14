@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter
+package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter
 
 import android.annotation.SuppressLint
 import android.view.View
@@ -6,16 +6,17 @@ import android.view.ViewGroup
 import android.widget.*
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.PluginEntry
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.interfaces.MessageEventNotifyListener
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageFactory
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageHandler
-import com.zdy.project.wechat_chatroom_helper.wechat.WXObject
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.interfaces.MessageEventNotifyListener
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageFactory
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageHandler
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
+import java.lang.reflect.ParameterizedType
 
 @SuppressLint("StaticFieldLeak")
 /**
@@ -31,9 +32,9 @@ object MainAdapter {
 
     fun executeHook() {
         ConversationItemHandler
-        val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithCacheAdapter, PluginEntry.classloader)
-        val conversationWithAppBrandListView = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithAppBrandListView, PluginEntry.classloader)
-        val conversationClickListener = XposedHelpers.findClass(WXObject.Adapter.C.ConversationClickListener, PluginEntry.classloader)
+        val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithCacheAdapter, RuntimeInfo.classloader)
+        val conversationWithAppBrandListView = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithAppBrandListView, RuntimeInfo.classloader)
+        val conversationClickListener = XposedHelpers.findClass(WXObject.Adapter.C.ConversationClickListener, RuntimeInfo.classloader)
         val conversationWithCacheAdapterGetItem = conversationWithCacheAdapter.superclass.declaredMethods
                 .filter { it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java }
                 .first { it.name != "getItem" && it.name != "getItemId" }.name
@@ -51,11 +52,11 @@ object MainAdapter {
                 listView = param.thisObject as ListView
                 val adapter = param.args[0]
 
-                PluginEntry.chatRoomViewPresenter.setAdapter(adapter)
-                PluginEntry.officialViewPresenter.setAdapter(adapter)
+                RuntimeInfo.chatRoomViewPresenter.setAdapter(adapter)
+                RuntimeInfo.officialViewPresenter.setAdapter(adapter)
 
-                PluginEntry.chatRoomViewPresenter.start()
-                PluginEntry.officialViewPresenter.start()
+                RuntimeInfo.chatRoomViewPresenter.start()
+                RuntimeInfo.officialViewPresenter.start()
             }
         })
 
@@ -75,15 +76,16 @@ object MainAdapter {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         val position = (param.args[2] as Int) - listView.headerViewsCount
 
-                        val field_username = XposedHelpers.getObjectField(XposedHelpers.callMethod(originAdapter, conversationWithCacheAdapterGetItem, position), "field_username") as String
-                        LogUtils.log("MessageHooker2.6, position = $position, field_username = $field_username")
+                        LogUtils.log("TrackHelperCan'tOpen, MainAdapter -> HookItemClickListener -> onItemClick ")
 
                         if (position == firstChatRoomPosition) {
-                            PluginEntry.chatRoomViewPresenter.show()
+                            LogUtils.log("TrackHelperCan'tOpen, MainAdapter -> HookItemClickListener -> onItemClick -> chatRoomClickPerform, RuntimeInfo.chatRoomViewPresenter = ${RuntimeInfo.chatRoomViewPresenter}")
+                            RuntimeInfo.chatRoomViewPresenter.show()
                             param.result = null
                         }
                         if (position == firstOfficialPosition) {
-                            PluginEntry.officialViewPresenter.show()
+                            LogUtils.log("TrackHelperCan'tOpen, MainAdapter -> HookItemClickListener -> onItemClick -> officialClickPerform, RuntimeInfo.officialViewPresenter = ${RuntimeInfo.officialViewPresenter}")
+                            RuntimeInfo.officialViewPresenter.show()
                             param.result = null
                         }
                     }
@@ -215,22 +217,32 @@ object MainAdapter {
                 val min = Math.min(firstChatRoomPosition, firstOfficialPosition)
                 val max = Math.max(firstChatRoomPosition, firstOfficialPosition)
 
+
                 val newIndex =
                         if (min == -1 && max == -1) {
                             index
                         } else if (min == -1 || max == -1) {
                             when (index) {
                                 in 0 until max -> index
-                                max -> index //TODO
+                                max -> {
+                                    param.result = getBlankItemForPlaceHolder(param)
+                                    return
+                                }
                                 in max + 1 until Int.MAX_VALUE -> index - 1
                                 else -> index //TODO
                             }
                         } else {
                             when (index) {
                                 in 0 until min -> index
-                                min -> index //TODO
+                                min -> {
+                                    param.result = getBlankItemForPlaceHolder(param)
+                                    return
+                                }
                                 in min + 1 until max -> index - 1
-                                max -> index //TODO
+                                max -> {
+                                    param.result = getBlankItemForPlaceHolder(param)
+                                    return
+                                }
                                 in max + 1 until Int.MAX_VALUE -> index - 2
                                 else -> index //TODO
                             }
@@ -240,6 +252,17 @@ object MainAdapter {
 
                 LogUtils.log("MessageHooker2.7, size = ${originAdapter.count}, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
             }
+
+
+            fun getBlankItemForPlaceHolder(param: MethodHookParam): Any {
+                val beanClass = (param.thisObject::class.java.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>
+
+                val constructor = beanClass.getConstructor(String::class.java)
+                val newInstance = constructor.newInstance(" ")
+
+                return newInstance
+            }
+
         })
 
         MessageHandler.addMessageEventNotifyListener(
@@ -266,7 +289,7 @@ object MainAdapter {
     fun setTextColorForNoMeasuredTextView(noMeasuredTextView: Any, color: Int) = XposedHelpers.callMethod(noMeasuredTextView, "setTextColor", color)
 
     fun getTextFromNoMeasuredTextView(noMeasuredTextView: Any): CharSequence {
-        val mTextField = XposedHelpers.findField(XposedHelpers.findClass("com.tencent.mm.ui.base.NoMeasuredTextView", PluginEntry.classloader), "mText")
+        val mTextField = XposedHelpers.findField(XposedHelpers.findClass(WXObject.Adapter.C.NoMeasuredTextView, RuntimeInfo.classloader), "mText")
         mTextField.isAccessible = true
         return mTextField.get(noMeasuredTextView) as CharSequence
     }

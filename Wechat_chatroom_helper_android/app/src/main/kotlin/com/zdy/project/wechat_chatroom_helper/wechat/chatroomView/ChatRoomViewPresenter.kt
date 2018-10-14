@@ -3,15 +3,16 @@ package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 import android.content.Context
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
-import java.util.*
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 
 /**
  * Created by Mr.Zdy on 2017/8/25.
  */
 
 class ChatRoomViewPresenter(mContext: Context, var pageType: Int) : ChatRoomContract.Presenter {
+
 
     override val presenterView: ViewGroup
     override lateinit var originAdapter: Any
@@ -40,15 +41,13 @@ class ChatRoomViewPresenter(mContext: Context, var pageType: Int) : ChatRoomCont
         this.originAdapter = mAdapter
     }
 
-    fun setListInAdapterPositions(listInAdapterPositions: ArrayList<Int>) {
-        mView.showMessageRefresh(listInAdapterPositions)
+    override fun refreshList(isForce: Boolean, data: Any?) {
+        mView.refreshList(isForce, data)
     }
 
-    override fun setMessageRefresh(targetUserName: String) {
-        mView.showMessageRefresh(targetUserName)
-    }
 
     override fun show() {
+        LogUtils.log("TrackHelperCan'tOpen, ChatRoomViewPresenter -> show, mView = ${mView}")
         mView.show()
         RuntimeInfo.currentPage = pageType
     }
@@ -61,7 +60,6 @@ class ChatRoomViewPresenter(mContext: Context, var pageType: Int) : ChatRoomCont
     override fun start() {
         mView.init()
     }
-
 
 
 }

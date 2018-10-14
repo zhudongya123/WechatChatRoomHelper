@@ -14,7 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.zdy.project.wechat_chatroom_helper.R
-import com.zdy.project.wechat_chatroom_helper.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomRecyclerViewAdapter
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo

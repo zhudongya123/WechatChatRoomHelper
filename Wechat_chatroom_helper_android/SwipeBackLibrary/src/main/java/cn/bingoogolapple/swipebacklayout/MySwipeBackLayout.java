@@ -76,6 +76,7 @@ public class MySwipeBackLayout extends BGASwipeBackLayout2 {
 
     @Override
     public boolean closePane() {
+        Log.v("TrackHelperCan'tOpen", "MySwipeBackLayout -> closePane, getVisibility() = " + getVisibility());
         if (getVisibility() == INVISIBLE) setVisibility(VISIBLE);
         return super.closePane();
     }
