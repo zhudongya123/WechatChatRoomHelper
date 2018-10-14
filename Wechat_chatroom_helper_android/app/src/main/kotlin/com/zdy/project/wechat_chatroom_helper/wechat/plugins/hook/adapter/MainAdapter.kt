@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter
+package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter
 
 import android.annotation.SuppressLint
 import android.view.View
@@ -6,12 +6,12 @@ import android.view.ViewGroup
 import android.widget.*
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
-import com.zdy.project.wechat_chatroom_helper.io.WXObject
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.interfaces.MessageEventNotifyListener
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageFactory
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageHandler
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageFactory
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageHandler
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers
@@ -289,7 +289,7 @@ object MainAdapter {
     fun setTextColorForNoMeasuredTextView(noMeasuredTextView: Any, color: Int) = XposedHelpers.callMethod(noMeasuredTextView, "setTextColor", color)
 
     fun getTextFromNoMeasuredTextView(noMeasuredTextView: Any): CharSequence {
-        val mTextField = XposedHelpers.findField(XposedHelpers.findClass("com.tencent.mm.ui.base.NoMeasuredTextView", RuntimeInfo.classloader), "mText")
+        val mTextField = XposedHelpers.findField(XposedHelpers.findClass(WXObject.Adapter.C.NoMeasuredTextView, RuntimeInfo.classloader), "mText")
         mTextField.isAccessible = true
         return mTextField.get(noMeasuredTextView) as CharSequence
     }

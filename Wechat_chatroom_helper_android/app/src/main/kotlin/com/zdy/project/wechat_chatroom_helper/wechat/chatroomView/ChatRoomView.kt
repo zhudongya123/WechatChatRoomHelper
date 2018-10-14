@@ -22,8 +22,8 @@ import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialogBuilder
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.MainAdapter
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageFactory
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageFactory
 import network.ApiManager
 import java.util.*
 

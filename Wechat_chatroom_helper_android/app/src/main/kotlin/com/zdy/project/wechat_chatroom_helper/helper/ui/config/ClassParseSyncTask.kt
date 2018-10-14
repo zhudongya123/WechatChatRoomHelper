@@ -16,7 +16,7 @@ import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Compa
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.makeTypeSpec
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
-import com.zdy.project.wechat_chatroom_helper.io.WXClassParser
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXClassParser
 import dalvik.system.DexClassLoader
 import net.dongliu.apk.parser.ApkFile
 import ui.MyApplication

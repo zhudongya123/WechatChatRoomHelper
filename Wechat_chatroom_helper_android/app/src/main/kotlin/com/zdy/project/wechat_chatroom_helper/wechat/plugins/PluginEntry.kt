@@ -4,11 +4,11 @@ import android.annotation.SuppressLint
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
-import com.zdy.project.wechat_chatroom_helper.io.WXObject
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.log.LogRecord
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.adapter.MainAdapter
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.main.main.MainLauncherUI
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.message.MessageHandler
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.log.LogRecord
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageHandler
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
