@@ -132,16 +132,19 @@ object MainAdapter {
                         val itemView = view as ViewGroup
 
                         val avatarContainer = itemView.getChildAt(0) as ViewGroup
-                        val contentContainer = itemView.getChildAt(1) as ViewGroup
+                        val textContainer = itemView.getChildAt(1) as ViewGroup
 
                         val avatar = avatarContainer.getChildAt(0) as ImageView
                         val unReadCount = avatarContainer.getChildAt(1) as TextView
                         val unMuteReadIndicators = avatarContainer.getChildAt(2) as ImageView
 
-                        val nickname = ((contentContainer.getChildAt(0) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(0)
-                        val time = (contentContainer.getChildAt(0) as ViewGroup).getChildAt(1)
+                        val nickname = ((textContainer.getChildAt(0) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(0)
+                        val time = (textContainer.getChildAt(0) as ViewGroup).getChildAt(1)
 
-                        val content = ((contentContainer.getChildAt(1) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(1)
+                        val sendStatus = ((textContainer.getChildAt(1) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(0)
+                        val content = ((textContainer.getChildAt(1) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(1)
+                        val muteImage = ((textContainer.getChildAt(1) as ViewGroup).getChildAt(1) as ViewGroup).getChildAt(1)
+
 
                         if (position == firstChatRoomPosition) {
                             unReadCount.visibility = View.GONE
@@ -156,7 +159,11 @@ object MainAdapter {
                             setTextForNoMeasuredTextView(time, allChatRoom.first().conversationTime)
                             avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar.context, PageType.CHAT_ROOMS))
 
+                            sendStatus.visibility = View.GONE
+                            muteImage.visibility = View.GONE
+
                             LogUtils.log("getUnReadCountItemChatRoom " + allChatRoom.joinToString { "unReadCount = ${it.unReadCount}" })
+
 
                             if (unReadCountItem > 0) {
                                 setTextForNoMeasuredTextView(content, "[有 $unReadCountItem 个群聊收到 $totalUnReadCount 条新消息]")
@@ -168,6 +175,8 @@ object MainAdapter {
                                 unMuteReadIndicators.visibility = View.GONE
                             }
 
+
+
                             param.result = view
                         }
                         if (position == firstOfficialPosition) {
@@ -178,6 +187,8 @@ object MainAdapter {
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)
                             val totalUnReadCount = MessageFactory.getUnReadCount(allOfficial)
 
+                            sendStatus.visibility = View.GONE
+                            muteImage.visibility = View.GONE
 
                             setTextForNoMeasuredTextView(nickname, "服务号")
                             setTextForNoMeasuredTextView(time, allOfficial.first().conversationTime)

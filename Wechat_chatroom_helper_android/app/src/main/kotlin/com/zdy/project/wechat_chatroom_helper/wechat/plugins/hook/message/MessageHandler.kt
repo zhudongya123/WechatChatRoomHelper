@@ -65,7 +65,7 @@ object MessageHandler {
                     "rcontact.username != 'officialaccounts'",
                     "rconversation.username != 'notifymessage'")
 
-    private const val FilterListForOriginAllUnread2 = "rcontact.verifyFlag != 24"
+    private const val FilterListForOriginAllUnread2 = "rcontact.verifyFlag == 0"
 
     //判断当前sql语句是否为微信原始的未读数逻辑
     private fun isQueryOriginAllUnReadCount(sql: String) = FilterListForOriginAllUnread1.all { sql.contains(it) } && !sql.contains(FilterListForOriginAllUnread2)
@@ -198,12 +198,12 @@ object MessageHandler {
                         val prefix = SqlForNewAllUnreadCount
 
                         val sqlForAllUnReadCount = if (list.size == 0) {
-                            val postfix = " and rcontact.verifyFlag != 24 "
+                            val postfix = " and rcontact.verifyFlag == 0 "
 
                             prefix + postfix
                         } else {
 
-                            val postfix = " or rcontact.verifyFlag != 24 )) "
+                            val postfix = " or rcontact.verifyFlag == 0 )) "
                             var addition = " and ( rconversation.username = rcontact.username and ( "
 
                             list.forEachIndexed { index, username ->
