@@ -3,8 +3,10 @@ package com.zdy.project.wechat_chatroom_helper.helper.ui.config
 import android.app.Activity
 import android.os.AsyncTask
 import android.os.Message
+import android.widget.BaseAdapter
 import com.tencent.bugly.crashreport.CrashReport
 import com.zdy.project.wechat_chatroom_helper.Constants
+import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.HANDLER_SHOW_NEXT_BUTTON
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.HANDLER_TEXT_ADDITION
@@ -73,6 +75,13 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                                     weakA.get()!!.getString(R.string.config_step3_text6), index + 1, classes.size)
                         }
                     }
+
+            classes.forEach {
+                if (it.superclass == null) return@forEach
+                if (it.superclass.name == BaseAdapter::class.java.name && it.name.contains("com.tencent.mm.ui")) {
+                    LogUtils.log("BaseAdapter, value = " + it.name)
+                }
+            }
 
             configData["conversationWithCacheAdapter"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
             configData["conversationWithAppBrandListView"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithAppBrandListView(classes))
