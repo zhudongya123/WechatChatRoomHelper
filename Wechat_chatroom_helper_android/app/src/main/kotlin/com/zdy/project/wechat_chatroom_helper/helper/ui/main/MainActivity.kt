@@ -17,6 +17,7 @@ import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActiv
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import manager.PermissionHelper
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import java.util.HashMap
 
 
 class MainActivity : BaseActivity() {
@@ -33,6 +34,7 @@ class MainActivity : BaseActivity() {
         //加載佈局
         setContentView(R.layout.activity_main)
         listContent = findViewById(R.id.list_content)
+
     }
 
 

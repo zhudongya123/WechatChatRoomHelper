@@ -10,6 +10,7 @@ import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAd
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageHandler
 import de.robv.android.xposed.IXposedHookLoadPackage
+import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
 /**
@@ -24,6 +25,13 @@ class PluginEntry : IXposedHookLoadPackage {
 
         if (p0.processName == Constants.WECHAT_PACKAGE_NAME) {
 
+            try {
+                XposedHelpers.findClass(WXObject.Message.C.SQLiteDatabase, p0.classLoader)
+            } catch (e: Throwable) {
+                e.printStackTrace()
+                return
+            }
+
             RuntimeInfo.classloader = p0.classLoader
 
             WechatJsonUtils.init(null)
@@ -36,10 +44,14 @@ class PluginEntry : IXposedHookLoadPackage {
             WXObject.Tool.C.Logcat = configJson.get("logcat").asString
 
 
-            MessageHandler.executeHook()
-            MainAdapter.executeHook()
-            MainLauncherUI.executeHook()
-            LogRecord.executeHook()
+            try {
+                MessageHandler.executeHook()
+                MainAdapter.executeHook()
+                MainLauncherUI.executeHook()
+                LogRecord.executeHook()
+            } catch (e: Throwable) {
+                e.printStackTrace()
+            }
         }
 
     }
