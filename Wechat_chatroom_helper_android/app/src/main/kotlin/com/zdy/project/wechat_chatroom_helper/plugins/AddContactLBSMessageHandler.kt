@@ -16,6 +16,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.gh0u1l5.wechatmagician.spellbook.C
+import com.gh0u1l5.wechatmagician.spellbook.base.Hooker
+import com.gh0u1l5.wechatmagician.spellbook.hookers.Database
+import com.gh0u1l5.wechatmagician.spellbook.interfaces.IDatabaseHook
+import com.gh0u1l5.wechatmagician.spellbook.mirror.com.tencent.wcdb.database.Classes
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodHook
@@ -45,22 +49,20 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
         classLoader = lpparam.classLoader
 
-        //  if (lpparam.processName != "com.tencent.mm") return
-//        if (!lpparam.processName .contains("dkmodel")) return
-
-        //  if (System.currentTimeMillis() > 1531627200000) return
-
-        try {
-            XposedHelpers.findClass(DB, lpparam.classLoader)
-
+        if (lpparam.processName == "com.tencent.mm") {
             hookLog()
             hookDataBase()
             hookSayHiPage()
-            //    hookFConversation()
-
-        } catch (e: Exception) {
-            e.printStackTrace()
+            hookFConversation()
         }
+
+//        try {
+//            XposedHelpers.findClass(DB, lpparam.classLoader)
+//
+//
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
 
 
     }
@@ -82,11 +84,33 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                 XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 700, "清除已接受", object : MenuItem.OnMenuItemClickListener {
                     override fun onMenuItemClick(item: MenuItem?): Boolean {
 
-                        try {
-                            XposedHelpers.callMethod(msgDataBase, "delete",
-                                    "fmessage_conversation", "state=?", arrayOf("1"))
-                        } catch (e: Throwable) {
-                            e.printStackTrace()
+//                        try {
+//                            XposedHelpers.callMethod(msgDataBase, "delete",
+//                                    "fmessage_conversation", "state=?", arrayOf("1"))
+//                        } catch (e: Throwable) {
+//                            e.printStackTrace()
+//                        }
+
+                        val cursor: Cursor = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
+                                msgDataBaseFactory, "SELECT * FROM fmessage_conversation where state = 1", null, null) as Cursor
+
+                        while (cursor.moveToNext()) {
+                            val talker = cursor.getString(cursor.getColumnIndex("talker"))
+
+                            LogUtils.log("fmessage_conversation, talker = ${talker}")
+
+                            try {
+                                XposedHelpers.callMethod(msgDataBase, "delete",
+                                        "fmessage_conversation", "talker=?", arrayOf(talker))
+                            } catch (e: Throwable) {
+                                e.printStackTrace()
+                            }
+                            try {
+                                XposedHelpers.callMethod(msgDataBase, "delete",
+                                        "fmessage_msginfo", "talker=?", arrayOf(talker))
+                            } catch (e: Throwable) {
+                                e.printStackTrace()
+                            }
                         }
 
                         thisObject.finish()
@@ -114,7 +138,6 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                                         } catch (e: Throwable) {
                                             e.printStackTrace()
                                         }
-
 
                                         Handler(thisObject.mainLooper).postDelayed(object : Runnable {
                                             override fun run() {
@@ -158,7 +181,7 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
         var isAdd = 0
     }
 
-    inner class MyListAdapter(val context: Activity, val m: Class<*>, val au: Class<*>,val ui:Class<*>) : BaseAdapter() {
+    inner class MyListAdapter(val context: Activity, val m: Class<*>, val au: Class<*>, val ui: Class<*>) : BaseAdapter() {
 
         private val cursor: Cursor = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
                 msgDataBaseFactory, "SELECT * FROM LBSVerifyMessage where isSend = 0 ORDER BY createtime desc", null, null) as Cursor
@@ -370,7 +393,7 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                 XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 700, "鸡", object : MenuItem.OnMenuItemClickListener {
                     override fun onMenuItemClick(item: MenuItem?): Boolean {
 
-                        val myListAdapter = MyListAdapter(thisObject as Activity, m, au,NearbySayHiListUI)
+                        val myListAdapter = MyListAdapter(thisObject as Activity, m, au, NearbySayHiListUI)
 
                         val dialogView = getDialogView(thisObject as Activity)
                         val listView = dialogView.findViewById<ListView>(android.R.id.list) as ListView
@@ -451,7 +474,8 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
     private fun hookDataBase() {
         LogUtils.log("Msghook1")
 
-        XposedHelpers.findAndHookMethod(XposedHelpers.findClass(DB, classLoader), "rawQueryWithFactory",
+        val DBClass = XposedHelpers.findClass(DB, classLoader)
+        XposedHelpers.findAndHookMethod(DBClass, "rawQueryWithFactory",
                 XposedHelpers.findClass(DBF, classLoader), C.String, C.StringArray, C.String,
                 XposedHelpers.findClass(DBSIGN, classLoader), object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
@@ -468,13 +492,13 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                 val editTable = param.args[3] as String?
                 val cancellation = param.args[4]
 
-                LogUtils.log("Msghook, onDatabaseQuerying, sql = $sql, selectionArgs  = ${selectionArgs?.joinToString { it }},  ")
+                LogUtils.log("QWEA, Msghook, onDatabaseQuerying, sql = $sql, selectionArgs  = ${selectionArgs?.joinToString { it }},  ")
 
             }
 
         })
 
-        XposedHelpers.findAndHookMethod(XposedHelpers.findClass(DB, classLoader), "insertWithOnConflict",
+        XposedHelpers.findAndHookMethod(DBClass, "insertWithOnConflict",
                 C.String, C.String, C.ContentValues, C.Int, object : XC_MethodHook() {
 
             override fun beforeHookedMethod(param: MethodHookParam) {
@@ -487,12 +511,59 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                 val initialValues = param.args[2] as ContentValues?
                 val conflictAlgorithm = param.args[3] as Int
 
-                LogUtils.log("Msghook, onDatabaseInserted, table = $table ,nullColumnHack = $nullColumnHack ,initialValues = $initialValues, conflictAlgorithm = $conflictAlgorithm")
+                LogUtils.log("QWEA, Msghook, onDatabaseInserted, table = $table ,nullColumnHack = $nullColumnHack ,initialValues = $initialValues, conflictAlgorithm = $conflictAlgorithm")
 
             }
 
         })
 
+        XposedHelpers.findAndHookMethod(
+                DBClass, "delete",
+                C.String, C.String, C.StringArray, object : XC_MethodHook() {
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val thisObject = param.thisObject
+                val table = param.args[0] as String
+                val whereClause = param.args[1] as String?
+                val whereArgs = param.args[2] as Array<String>?
+
+                LogUtils.log("QWEA, Msghook, onDatabaseDeleted, table = $table ,whereClause = $whereClause ," +
+                        "whereArgs = ${if (whereArgs != null && !whereArgs.isEmpty()) whereArgs.joinToString { it } else ""}")
+            }
+
+
+        })
+
+        XposedHelpers.findAndHookMethod(
+                DBClass, "updateWithOnConflict",
+                C.String, C.ContentValues, C.String, C.StringArray, C.Int, object : XC_MethodHook() {
+
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val thisObject = param.thisObject
+                val table = param.args[0] as String
+                val values = param.args[1] as ContentValues
+                val whereClause = param.args[2] as String?
+                val whereArgs = param.args[3] as Array<String>?
+                val conflictAlgorithm = param.args[4] as Int
+
+                LogUtils.log("QWEA, Msghook, onDatabaseDeleted, table = $table , values = $values, whereClause = $whereClause ," +
+                        "whereArgs = ${if (whereArgs != null && !whereArgs.isEmpty()) whereArgs.joinToString { it } else ""}, conflictAlgorithm = $conflictAlgorithm")
+            }
+        })
+
+        XposedHelpers.findAndHookMethod(
+                DBClass, "executeSql",
+                C.String, C.ObjectArray, XposedHelpers.findClass(DBSIGN, classLoader), object : XC_MethodHook() {
+
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                val thisObject = param.thisObject
+                val sql = param.args[0] as String
+                val bindArgs = param.args[1] as Array<Any?>?
+                val cancellation = param.args[2]
+
+                LogUtils.log("QWEA, Msghook, onDatabaseDeleted, sql = $sql ," +
+                        "bindArgs = ${if (bindArgs != null && bindArgs.isEmpty()) bindArgs.joinToString { it.toString() } else ""}, cancellation = $cancellation")
+            }
+        })
     }
 
     private fun hookLog() {
@@ -513,14 +584,14 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                         val str2 = param.args[1] as String
 
                         if (param.args[2] == null) {
-                            //        LogUtils.log("level = " + param.method.name + ", name = $str1, value = $str2")
+                            LogUtils.log("QWEA, LogHook, level = " + param.method.name + ", name = $str1, value = $str2")
 
                         } else {
                             val objArr = param.args[2] as Array<Any>
 
                             val format = String.format(str2, *objArr)
 
-                            //    LogUtils.log("level = " + param.method.name + ", name = $str1, value = $format")
+                            LogUtils.log("QWEA, LogHook, level = " + param.method.name + ", name = $str1, value = $format")
                         }
 
                     } catch (e: Exception) {
