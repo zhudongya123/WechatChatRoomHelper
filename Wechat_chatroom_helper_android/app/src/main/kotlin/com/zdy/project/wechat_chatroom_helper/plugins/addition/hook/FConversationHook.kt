@@ -118,14 +118,14 @@ object FConversationHook {
 
 
                         val cursor: Cursor = XposedHelpers.callMethod(DataBaseHook.msgDataBase, "rawQueryWithFactory",
-                                DataBaseHook.msgDataBaseFactory, "SELECT * FROM fmessage_conversation where addScene = 30", null, null) as Cursor
+                                DataBaseHook.msgDataBaseFactory, "SELECT * FROM fmessage_conversation where addScene = 30 and state = 0", null, null) as Cursor
 
 
                         val data = mutableListOf<DataModel>()
 
                         while (cursor.moveToNext()) {
                             val fmsgContent = cursor.getString(cursor.getColumnIndex("fmsgContent"))
-                            val contentVerifyContent = cursor.getString(cursor.getColumnIndex("contentVerifyContent"))
+                            val talker = cursor.getString(cursor.getColumnIndex("talker"))
 
 
                             LogUtils.log("fmessage_conversation, fmsgContent = $fmsgContent")
@@ -139,9 +139,9 @@ object FConversationHook {
 
                             data.add(DataModel().apply {
                                 ticket = doc.getElementsByTagName("msg").item(0).attributes.getNamedItem("ticket").nodeValue
-                                sayhiuser = contentVerifyContent
+                                sayhiuser = talker
                                 isAdd = 0
-                                scene = 45
+                                scene = 30
                             })
 
                         }

@@ -37,7 +37,7 @@ class SpecialPluginEntry : IXposedHookLoadPackage {
         }
 
         try {
-            XposedHelpers.findClass(DB, lpparam.classLoader)
+            XposedHelpers.findClass("com.tencent.mm.ui.LauncherUI", lpparam.classLoader)
 
             C = Clazz(lpparam.classLoader)
 
