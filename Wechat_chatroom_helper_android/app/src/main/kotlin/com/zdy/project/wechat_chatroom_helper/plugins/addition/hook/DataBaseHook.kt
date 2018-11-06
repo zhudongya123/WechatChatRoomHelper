@@ -27,10 +27,6 @@ object DataBaseHook {
                 XposedHelpers.findClass(DBSIGN, classLoader), object : XC_MethodHook() {
             override fun beforeHookedMethod(param: MethodHookParam) {
 
-                msgDataBase = param.thisObject
-                if (param.args[0] != null)
-                    msgDataBaseFactory = param.args[0]
-
 
                 val thisObject = param.thisObject
                 val factory = param.args[0]
@@ -38,6 +34,15 @@ object DataBaseHook {
                 val selectionArgs = param.args[2] as Array<String>?
                 val editTable = param.args[3] as String?
                 val cancellation = param.args[4]
+
+
+                val path = thisObject.toString()
+
+                if (path.endsWith("EnMicroMsg.db")) {
+                    msgDataBase = thisObject
+                    if (param.args[0] != null)
+                        msgDataBaseFactory = param.args[0]
+                }
 
                 LogUtils.log("QWEA, Msghook, onDatabaseQuerying, sql = $sql, selectionArgs  = ${selectionArgs?.joinToString { it }},  ")
 
