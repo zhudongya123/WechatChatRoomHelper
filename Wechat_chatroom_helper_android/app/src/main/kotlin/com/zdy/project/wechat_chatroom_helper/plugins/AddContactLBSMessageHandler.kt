@@ -15,24 +15,21 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.gh0u1l5.wechatmagician.spellbook.C
-import com.gh0u1l5.wechatmagician.spellbook.base.Hooker
-import com.gh0u1l5.wechatmagician.spellbook.hookers.Database
-import com.gh0u1l5.wechatmagician.spellbook.interfaces.IDatabaseHook
-import com.gh0u1l5.wechatmagician.spellbook.mirror.com.tencent.wcdb.database.Classes
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
+import org.xml.sax.InputSource
+import java.io.StringReader
 import java.util.*
+import javax.xml.parsers.DocumentBuilderFactory
 
 class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
 
     val Logclass = "com.tencent.mm.sdk.platformtools.x"
-
     val DB = "com.tencent.wcdb.database.SQLiteDatabase"
     val DBF = "com.tencent.wcdb.database.SQLiteDatabase\$CursorFactory"
     val DBSIGN = "com.tencent.wcdb.support.CancellationSignal"
@@ -42,7 +39,13 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
     lateinit var msgDataBase: Any
     var msgDataBaseFactory: Any? = null
 
+
+    var dbf = DocumentBuilderFactory.newInstance()
+
     var time = 3000L
+
+    lateinit var C: Clazz
+
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
 
@@ -50,20 +53,22 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
         classLoader = lpparam.classLoader
 
         if (lpparam.processName == "com.tencent.mm") {
+
+        }
+
+        try {
+            XposedHelpers.findClass(DB, lpparam.classLoader)
+
+            C = Clazz(lpparam.classLoader)
+
             hookLog()
             hookDataBase()
             hookSayHiPage()
             hookFConversation()
+
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-
-//        try {
-//            XposedHelpers.findClass(DB, lpparam.classLoader)
-//
-//
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//        }
-
 
     }
 
@@ -81,7 +86,7 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
                 val thisObject = param.thisObject as Activity
 
-                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 700, "清除已接受", object : MenuItem.OnMenuItemClickListener {
+                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 700, "清除·已", object : MenuItem.OnMenuItemClickListener {
                     override fun onMenuItemClick(item: MenuItem?): Boolean {
 
 //                        try {
@@ -91,26 +96,29 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 //                            e.printStackTrace()
 //                        }
 
-                        val cursor: Cursor = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
-                                msgDataBaseFactory, "SELECT * FROM fmessage_conversation where state = 1", null, null) as Cursor
+                        try {
+                            val cursor: Cursor = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
+                                    msgDataBaseFactory, "SELECT * FROM fmessage_conversation where state = 1", null, null) as Cursor
 
-                        while (cursor.moveToNext()) {
-                            val talker = cursor.getString(cursor.getColumnIndex("talker"))
+                            while (cursor.moveToNext()) {
+                                val talker = cursor.getString(cursor.getColumnIndex("talker"))
 
-                            LogUtils.log("fmessage_conversation, talker = ${talker}")
+                                LogUtils.log("fmessage_conversation, talker = $talker")
 
-                            try {
-                                XposedHelpers.callMethod(msgDataBase, "delete",
-                                        "fmessage_conversation", "talker=?", arrayOf(talker))
-                            } catch (e: Throwable) {
-                                e.printStackTrace()
+                                try {
+                                    XposedHelpers.callMethod(msgDataBase, "delete", "fmessage_conversation", "talker=?", arrayOf(talker))
+                                } catch (e: Throwable) {
+                                    e.printStackTrace()
+                                }
+
+                                try {
+                                    XposedHelpers.callMethod(msgDataBase, "delete", "fmessage_msginfo", "talker=?", arrayOf(talker))
+                                } catch (e: Throwable) {
+                                    e.printStackTrace()
+                                }
                             }
-                            try {
-                                XposedHelpers.callMethod(msgDataBase, "delete",
-                                        "fmessage_msginfo", "talker=?", arrayOf(talker))
-                            } catch (e: Throwable) {
-                                e.printStackTrace()
-                            }
+                        } catch (e: Throwable) {
+                            e.printStackTrace()
                         }
 
                         thisObject.finish()
@@ -120,7 +128,7 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                     }
                 })
 
-                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 701, "清除未接受", object : MenuItem.OnMenuItemClickListener {
+                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 701, "清除·未", object : MenuItem.OnMenuItemClickListener {
                     override fun onMenuItemClick(item: MenuItem?): Boolean {
 
                         AlertDialog.Builder(thisObject).setTitle("提示")
@@ -154,19 +162,52 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                     }
                 })
 
+                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 702, "加扫一扫", object : MenuItem.OnMenuItemClickListener {
+                    override fun onMenuItemClick(item: MenuItem?): Boolean {
 
-                val cursor: Cursor = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
-                        msgDataBaseFactory, "SELECT * FROM fmessage_conversation ORDER BY lastModifiedTime desc", null, null) as Cursor
 
-                while (cursor.moveToNext()) {
+                        val fs = XposedHelpers.callStaticMethod(C.c, "FS")
+                        val bq = XposedHelpers.callMethod(fs, "Hh", "username")
 
-                    var string = ""
 
-                    for (index in 0 until cursor.columnCount) {
-                        string = string + ", " + cursor.getColumnName(index) + " = " + cursor.getString(index)
+                        val cursor: Cursor = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
+                                msgDataBaseFactory, "SELECT * FROM fmessage_conversation where state = 0", null, null) as Cursor
+
+                        while (cursor.moveToNext()) {
+                            val fmsgContent = cursor.getString(cursor.getColumnIndex("fmsgContent"))
+
+                            LogUtils.log("fmessage_conversation, fmsgContent = $fmsgContent")
+
+
+                            val db = dbf.newDocumentBuilder()
+
+                            val sr = StringReader(fmsgContent)
+                            val doc = db.parse(InputSource(sr))
+
+                            val ticket = doc.getElementsByTagName("msg").item(0).attributes.getNamedItem("ticket").nodeValue
+
+
+
+
+
+                        }
+
+                        return true
                     }
-                    XposedBridge.log("fmessage_conversation" + string)
-                }
+                })
+
+//                val cursor: Cursor = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
+//                        msgDataBaseFactory, "SELECT * FROM fmessage_conversation ORDER BY lastModifiedTime desc", null, null) as Cursor
+//
+//                while (cursor.moveToNext()) {
+//
+//                    var string = ""
+//
+//                    for (index in 0 until cursor.columnCount) {
+//                        string = string + ", " + cursor.getColumnName(index) + " = " + cursor.getString(index)
+//                    }
+//                    XposedBridge.log("fmessage_conversation" + string)
+//                }
             }
         })
 
@@ -181,7 +222,7 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
         var isAdd = 0
     }
 
-    inner class MyListAdapter(val context: Activity, val m: Class<*>, val au: Class<*>, val ui: Class<*>) : BaseAdapter() {
+    inner class MyListAdapter(val context: Activity) : BaseAdapter() {
 
         private val cursor: Cursor = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
                 msgDataBaseFactory, "SELECT * FROM LBSVerifyMessage where isSend = 0 ORDER BY createtime desc", null, null) as Cursor
@@ -263,11 +304,11 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
             itemView.setOnClickListener {
 
-                val addContactClass = m
+                val addContactClass = C.m
                 val constructor = XposedHelpers.findConstructorExact(addContactClass, String::class.java, String::class.java, Int::class.java)
                 constructor.isAccessible = true
                 val m = constructor.newInstance(data.sayhiuser, data.ticket, data.scene)
-                val auDF = XposedHelpers.callStaticMethod(au, "DF")
+                val auDF = XposedHelpers.callStaticMethod(C.au, "DF")
                 XposedHelpers.callMethod(auDF, "a", m, 0)
             }
 
@@ -304,11 +345,11 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                     }
 
                     val item = data[position]
-                    val addContactClass = m
+                    val addContactClass = C.m
                     val constructor = XposedHelpers.findConstructorExact(addContactClass, String::class.java, String::class.java, Int::class.java)
                     constructor.isAccessible = true
                     val m = constructor.newInstance(item.sayhiuser, item.ticket, item.scene)
-                    val auDF = XposedHelpers.callStaticMethod(au, "DF")
+                    val auDF = XposedHelpers.callStaticMethod(C.au, "DF")
                     XposedHelpers.callMethod(auDF, "a", m, 0)
 
                     Handler(context.mainLooper).post { Toast.makeText(context, "当前第${position + 1} 个，共${data.size}个, 当前间隔 $time 毫秒", Toast.LENGTH_SHORT).show() }
@@ -338,7 +379,7 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
             Handler(context.mainLooper).postDelayed(object : Runnable {
                 override fun run() {
                     context.finish()
-                    context.startActivity(Intent(context, ui))
+                    context.startActivity(Intent(context, C.NearbySayHiListUI))
                 }
 
             }, 500)
@@ -356,18 +397,17 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
                     val item = list.get(index)
 
-                    val addContactClass = m
+                    val addContactClass = C.m
                     val constructor = XposedHelpers.findConstructorExact(addContactClass, String::class.java, String::class.java, Int::class.java)
                     constructor.isAccessible = true
                     val m = constructor.newInstance(item.sayhiuser, item.ticket, item.scene)
-                    val auDF = XposedHelpers.callStaticMethod(au, "DF")
+                    val auDF = XposedHelpers.callStaticMethod(C.au, "DF")
                     XposedHelpers.callMethod(auDF, "a", m, 0)
 
                     Toast.makeText(context, "当前第$index 个，共${list.size}个, 当前间隔 $time 毫秒", Toast.LENGTH_SHORT).show()
 
                     if (index < list.size - 1)
                         sendMessageDelayed(Message.obtain(this, index + 1), time)
-
                 }
             }
         }
@@ -377,12 +417,8 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
     private fun hookSayHiPage() {
 
-        val m = XposedHelpers.findClass("com.tencent.mm.pluginsdk.model.m", classLoader)
-        val au = XposedHelpers.findClass("com.tencent.mm.model.au", classLoader)
 
-        val NearbySayHiListUI = XposedHelpers.findClass("com.tencent.mm.plugin.nearby.ui.NearbySayHiListUI", classLoader)
-
-        XposedHelpers.findAndHookMethod(NearbySayHiListUI, "initView", object : XC_MethodHook() {
+        XposedHelpers.findAndHookMethod(C.NearbySayHiListUI, "initView", object : XC_MethodHook() {
 
 
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -393,7 +429,7 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
                 XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 700, "鸡", object : MenuItem.OnMenuItemClickListener {
                     override fun onMenuItemClick(item: MenuItem?): Boolean {
 
-                        val myListAdapter = MyListAdapter(thisObject as Activity, m, au, NearbySayHiListUI)
+                        val myListAdapter = MyListAdapter(thisObject as Activity)
 
                         val dialogView = getDialogView(thisObject as Activity)
                         val listView = dialogView.findViewById<ListView>(android.R.id.list) as ListView
@@ -449,7 +485,7 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
 
         })
 
-        XposedHelpers.findAndHookConstructor(m, String::class.java, String::class.java,
+        XposedHelpers.findAndHookConstructor(C.m, String::class.java, String::class.java,
                 Int::class.java, object : XC_MethodHook() {
 
             override fun beforeHookedMethod(param: MethodHookParam) {
@@ -467,8 +503,6 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
             }
         })
 
-
-        // "SELECT * FROM LBSVerifyMessage where isSend = 0 ORDER BY createtime desc"
     }
 
     private fun hookDataBase() {
@@ -603,4 +637,33 @@ class AddContactLBSMessageHandler : IXposedHookLoadPackage {
         }
     }
 
+
+    class Clazz(classLoader: ClassLoader) {
+        val m = XposedHelpers.findClass("com.tencent.mm.pluginsdk.model.m", classLoader)
+        val au = XposedHelpers.findClass("com.tencent.mm.model.au", classLoader)
+        val NearbySayHiListUI = XposedHelpers.findClass("com.tencent.mm.plugin.nearby.ui.NearbySayHiListUI", classLoader)
+
+
+        val c = XposedHelpers.findClass("com.tencent.mm.model.c", classLoader)
+
+
+        val Boolean = Boolean::class.java
+        val Int = Int::class.java
+        val Iterator = java.util.Iterator::class.java
+        val Long = Long::class.java
+        val Map = Map::class.java
+        val Object = Object::class.java
+        val String = String::class.java
+
+        val Bundle = android.os.Bundle::class.java
+        val ContentValues = android.content.ContentValues::class.java
+        val Context = android.content.Context::class.java
+        val View = android.view.View::class.java
+        val ViewGroup = android.view.ViewGroup::class.java
+
+        val ByteArray = ByteArray::class.java
+        val IntArray = IntArray::class.java
+        val ObjectArray = Array<Any>::class.java
+        val StringArray = Array<String>::class.java
+    }
 }
