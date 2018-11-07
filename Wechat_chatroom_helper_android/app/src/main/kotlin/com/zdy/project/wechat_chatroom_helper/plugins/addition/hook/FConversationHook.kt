@@ -87,9 +87,35 @@ object FConversationHook {
                                 })
                                 .setPositiveButton("确定", object : DialogInterface.OnClickListener {
                                     override fun onClick(dialog: DialogInterface, which: Int) {
+//                                        try {
+//                                            XposedHelpers.callMethod(DataBaseHook.msgDataBase, "delete",
+//                                                    "fmessage_conversation", "state=?", arrayOf("0"))
+//                                        } catch (e: Throwable) {
+//                                            e.printStackTrace()
+//                                        }
+//
+
                                         try {
-                                            XposedHelpers.callMethod(DataBaseHook.msgDataBase, "delete",
-                                                    "fmessage_conversation", "state=?", arrayOf("0"))
+                                            val cursor: Cursor = XposedHelpers.callMethod(DataBaseHook.msgDataBase, "rawQueryWithFactory",
+                                                    DataBaseHook.msgDataBaseFactory, "SELECT * FROM fmessage_conversation where state = 0", null, null) as Cursor
+
+                                            while (cursor.moveToNext()) {
+                                                val talker = cursor.getString(cursor.getColumnIndex("talker"))
+
+                                                LogUtils.log("fmessage_conversation, talker = $talker")
+
+                                                try {
+                                                    XposedHelpers.callMethod(DataBaseHook.msgDataBase, "delete", "fmessage_conversation", "talker=?", arrayOf(talker))
+                                                } catch (e: Throwable) {
+                                                    e.printStackTrace()
+                                                }
+
+                                                try {
+                                                    XposedHelpers.callMethod(DataBaseHook.msgDataBase, "delete", "fmessage_msginfo", "talker=?", arrayOf(talker))
+                                                } catch (e: Throwable) {
+                                                    e.printStackTrace()
+                                                }
+                                            }
                                         } catch (e: Throwable) {
                                             e.printStackTrace()
                                         }
@@ -112,41 +138,37 @@ object FConversationHook {
                 XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 702, "加扫", object : MenuItem.OnMenuItemClickListener {
                     override fun onMenuItemClick(item: MenuItem?): Boolean {
 
-
-                        val fs = XposedHelpers.callStaticMethod(C.c, "FS")
-                        val bq = XposedHelpers.callMethod(fs, "Hh", "username")
-
-
                         val cursor: Cursor = XposedHelpers.callMethod(DataBaseHook.msgDataBase, "rawQueryWithFactory",
                                 DataBaseHook.msgDataBaseFactory, "SELECT * FROM fmessage_conversation where addScene = 30 and state = 0", null, null) as Cursor
 
-
                         val data = mutableListOf<DataModel>()
 
-                        while (cursor.moveToNext()) {
-                            val fmsgContent = cursor.getString(cursor.getColumnIndex("fmsgContent"))
-                            val talker = cursor.getString(cursor.getColumnIndex("talker"))
-                            val displayName = cursor.getString(cursor.getColumnIndex("displayName"))
+//                        while (cursor.moveToNext()) {
+//                            val fmsgContent = cursor.getString(cursor.getColumnIndex("fmsgContent"))
+//                            val talker = cursor.getString(cursor.getColumnIndex("talker"))
+//                            val displayName = cursor.getString(cursor.getColumnIndex("displayName"))
+//
+//
+//
+//                            LogUtils.log("fmessage_conversation, fmsgContent = $fmsgContent")
+//
+//
+//                            val db = dbf.newDocumentBuilder()
+//                            val sr = StringReader(fmsgContent)
+//                            val doc = db.parse(InputSource(sr))
+//
+//
+//                            data.add(DataModel().apply {
+//                                ticket = doc.getElementsByTagName("msg").item(0).attributes.getNamedItem("ticket").nodeValue
+//                                sayhiuser = talker
+//                                isAdd = 0
+//                                scene = 30
+//                                username = displayName
+//                            })
+//
+//                        }
 
 
-
-                            LogUtils.log("fmessage_conversation, fmsgContent = $fmsgContent")
-
-
-                            val db = dbf.newDocumentBuilder()
-                            val sr = StringReader(fmsgContent)
-                            val doc = db.parse(InputSource(sr))
-
-
-                            data.add(DataModel().apply {
-                                ticket = doc.getElementsByTagName("msg").item(0).attributes.getNamedItem("ticket").nodeValue
-                                sayhiuser = talker
-                                isAdd = 0
-                                scene = 30
-                                username = displayName
-                            })
-
-                        }
 
                         val myListAdapter = MyListAdapter(thisObject as Activity, data, C)
 
@@ -167,22 +189,12 @@ object FConversationHook {
                                     }
                                 }).show()
 
+
+
                         return true
                     }
                 })
 
-//                val cursor: Cursor = XposedHelpers.callMethod(msgDataBase, "rawQueryWithFactory",
-//                        msgDataBaseFactory, "SELECT * FROM fmessage_conversation ORDER BY lastModifiedTime desc", null, null) as Cursor
-//
-//                while (cursor.moveToNext()) {
-//
-//                    var string = ""
-//
-//                    for (index in 0 until cursor.columnCount) {
-//                        string = string + ", " + cursor.getColumnName(index) + " = " + cursor.getString(index)
-//                    }
-//                    XposedBridge.log("fmessage_conversation" + string)
-//                }
             }
         })
 

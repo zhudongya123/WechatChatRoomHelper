@@ -459,7 +459,7 @@ class HookLogic {/*: IXposedHookLoadPackage {
         //將第一個免打擾的itemView更改為群消息助手入口，更新其UI
         if (position == firstChatRoomPosition) {
 
-            val context = itemView.context
+            val context = itemView.mContext
 
             //修改头像
             val shapeDrawable = ShapeDrawable(object : Shape() {

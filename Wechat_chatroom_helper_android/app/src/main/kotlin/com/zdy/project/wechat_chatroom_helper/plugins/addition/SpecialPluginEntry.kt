@@ -33,7 +33,18 @@ class SpecialPluginEntry : IXposedHookLoadPackage {
         classLoader = lpparam.classLoader
 
         if (lpparam.processName == "com.tencent.mm") {
-
+//            C = Clazz(lpparam.classLoader)
+//
+//
+//            DataBaseHook.C = C
+//            FConversationHook.C = C
+//            LBSFriendHook.C = C
+//
+//
+//            LogHook.hook(classLoader)
+//            DataBaseHook.hook(classLoader)
+//            FConversationHook.hook(classLoader)
+//            LBSFriendHook.hook(classLoader)
         }
 
         try {
