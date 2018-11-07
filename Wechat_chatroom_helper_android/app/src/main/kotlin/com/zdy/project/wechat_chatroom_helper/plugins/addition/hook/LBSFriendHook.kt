@@ -14,6 +14,8 @@ import com.zdy.project.wechat_chatroom_helper.plugins.addition.SpecialPluginEntr
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
+import org.xml.sax.InputSource
+import java.io.StringReader
 
 object LBSFriendHook {
 
@@ -124,11 +126,19 @@ object LBSFriendHook {
                 }
             }
 
+
+            val db = SpecialPluginEntry.dbf.newDocumentBuilder()
+            val sr = StringReader(content)
+            val doc = db.parse(InputSource(sr))
+            val fromNickname = doc.getElementsByTagName("msg").item(0).attributes.getNamedItem("fromnickname").nodeValue
+
+
             data.add(DataModel().also {
                 it.ticket = ticket
                 it.scene = scene
                 it.sayhiuser = sayhiuser
                 it.isAdd = isAddFriend
+                it.username = fromNickname
             })
 
             rcontactResult.close()

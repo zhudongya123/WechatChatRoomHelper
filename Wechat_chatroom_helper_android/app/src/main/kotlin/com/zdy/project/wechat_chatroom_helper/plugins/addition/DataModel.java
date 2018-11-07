@@ -6,4 +6,5 @@ public class DataModel {
     public int scene = 0;
     public String sayhiuser = "";
     public int isAdd = 0;
+    public String username = "";
 }

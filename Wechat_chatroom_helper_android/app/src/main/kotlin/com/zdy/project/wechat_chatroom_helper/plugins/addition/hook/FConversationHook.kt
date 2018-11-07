@@ -126,13 +126,14 @@ object FConversationHook {
                         while (cursor.moveToNext()) {
                             val fmsgContent = cursor.getString(cursor.getColumnIndex("fmsgContent"))
                             val talker = cursor.getString(cursor.getColumnIndex("talker"))
+                            val displayName = cursor.getString(cursor.getColumnIndex("displayName"))
+
 
 
                             LogUtils.log("fmessage_conversation, fmsgContent = $fmsgContent")
 
 
                             val db = dbf.newDocumentBuilder()
-
                             val sr = StringReader(fmsgContent)
                             val doc = db.parse(InputSource(sr))
 
@@ -142,6 +143,7 @@ object FConversationHook {
                                 sayhiuser = talker
                                 isAdd = 0
                                 scene = 30
+                                username = displayName
                             })
 
                         }
