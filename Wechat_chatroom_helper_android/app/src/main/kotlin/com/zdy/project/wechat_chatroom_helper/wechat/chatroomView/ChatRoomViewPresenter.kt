@@ -5,7 +5,11 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
+import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
+import de.robv.android.xposed.XposedHelpers
 
 /**
  * Created by Mr.Zdy on 2017/8/25.
@@ -33,9 +37,7 @@ class ChatRoomViewPresenter(mContext: Context, var pageType: Int) : ChatRoomCont
     }
 
 
-    fun setOnDialogItemClickListener(listener: ChatRoomRecyclerViewAdapter.OnDialogItemClickListener) {
-        mView.setOnDialogItemClickListener(listener)
-    }
+
 
     fun setAdapter(mAdapter: Any) {
         this.originAdapter = mAdapter

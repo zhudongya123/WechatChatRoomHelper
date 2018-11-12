@@ -309,7 +309,6 @@ object MessageHandler {
                         val nullColumnHack = param.args[1] as String?
                         val initialValues = param.args[2] as ContentValues?
                         val conflictAlgorithm = param.args[3] as Int
-                        val result = param.result as Long
 
 
                         if (table == "message") {

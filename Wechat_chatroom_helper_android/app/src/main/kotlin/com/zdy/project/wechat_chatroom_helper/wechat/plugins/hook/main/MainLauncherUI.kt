@@ -13,9 +13,9 @@ import android.widget.LinearLayout
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
@@ -89,6 +89,7 @@ object MainLauncherUI {
 
                 if (param.thisObject::class.java.name == WXObject.MainUI.C.LauncherUI) {
 
+                    LogUtils.log("MainLauncherUI, ChatRoomViewPresenter init")
                     launcherUI = param.thisObject as Activity
 
                     RuntimeInfo.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)

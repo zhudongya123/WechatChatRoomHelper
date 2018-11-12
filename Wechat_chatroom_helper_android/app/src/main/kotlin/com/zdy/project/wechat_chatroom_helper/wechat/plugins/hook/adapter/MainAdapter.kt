@@ -6,12 +6,12 @@ import android.view.ViewGroup
 import android.widget.*
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.interfaces.MessageEventNotifyListener
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageFactory
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageHandler
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.interfaces.MessageEventNotifyListener
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers
@@ -25,7 +25,7 @@ import java.lang.reflect.ParameterizedType
 object MainAdapter {
 
     lateinit var originAdapter: BaseAdapter
-    private lateinit var listView: ListView
+    lateinit var listView: ListView
 
     private var firstChatRoomPosition = -1
     private var firstOfficialPosition = -1
@@ -223,6 +223,20 @@ object MainAdapter {
 
                 if (param.thisObject::class.simpleName != conversationWithCacheAdapter.simpleName) return
 
+                /**
+                 * 附加长按逻辑
+                 *
+                 * 在 onItemLongClick 内会调用 getItem 方法来获取 bean ，使用 flag 来判断是否有必要拦截
+                 */
+                if (MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlag != "") {
+                    param.result = getSpecItemForPlaceHolder(MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlag, param)
+                    MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlag = ""
+                    return
+                }
+                /**
+                 * 长按逻辑结束
+                 */
+
                 val index = param.args[0] as Int
 
                 val min = Math.min(firstChatRoomPosition, firstOfficialPosition)
@@ -270,6 +284,15 @@ object MainAdapter {
 
                 val constructor = beanClass.getConstructor(String::class.java)
                 val newInstance = constructor.newInstance(" ")
+
+                return newInstance
+            }
+
+            fun getSpecItemForPlaceHolder(username: CharSequence, param: MethodHookParam): Any {
+                val beanClass = (param.thisObject::class.java.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>
+
+                val constructor = beanClass.getConstructor(String::class.java)
+                val newInstance = constructor.newInstance(username)
 
                 return newInstance
             }

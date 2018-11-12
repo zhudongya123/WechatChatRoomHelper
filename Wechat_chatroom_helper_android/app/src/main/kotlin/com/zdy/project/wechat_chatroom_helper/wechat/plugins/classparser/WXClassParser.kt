@@ -54,6 +54,19 @@ object WXClassParser {
                     .firstOrNull { it.enclosingClass == null }
         }
 
+        fun getConversationLongClickListener(classes: MutableList<Class<*>>): Class<*>? {
+            return classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }
+                    .filterNot { it.name.contains("$") }
+                    .filter filter1@{
+                        try {
+                            return@filter1 it.getMethod("onItemLongClick", AdapterView::class.java, View::class.java, Int::class.java, Long::class.java) != null
+                        } catch (e: Throwable) {
+                            return@filter1 false
+                        }
+                    }
+                    .filter { it.interfaces.size == 3 }
+                    .firstOrNull { it.enclosingClass == null }
+        }
 
         fun getConversationAvatar(classes: MutableList<Class<*>>): Class<*>? {
             return classes.filter { it.name.contains("com.tencent.mm.pluginsdk.ui") }

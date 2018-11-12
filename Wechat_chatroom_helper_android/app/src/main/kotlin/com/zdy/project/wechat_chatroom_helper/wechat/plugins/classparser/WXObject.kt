@@ -52,9 +52,14 @@ object WXObject {
             var ConversationWithAppBrandListView = ""
             var ConversationAvatar = ""
             var ConversationClickListener = ""
+            var ConversationLongClickListener = ""
+
             const val NoMeasuredTextView = "com.tencent.mm.ui.base.NoMeasuredTextView"
         }
 
+    }
+
+    object OnLongClick{
 
     }
 

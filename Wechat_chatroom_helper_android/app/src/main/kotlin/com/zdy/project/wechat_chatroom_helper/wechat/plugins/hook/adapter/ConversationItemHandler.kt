@@ -1,11 +1,14 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter
 
+import android.app.Activity
 import android.widget.ImageView
+import android.widget.ListView
 import com.blankj.utilcode.util.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import de.robv.android.xposed.XposedHelpers
+import java.lang.reflect.Constructor
 import java.lang.reflect.ParameterizedType
 
 object ConversationItemHandler {
@@ -26,7 +29,7 @@ object ConversationItemHandler {
 
     fun getConversationTimeString(adapter: Any, conversationTime: Long): CharSequence {
 
-        conversationTimeStringMethod.let {
+        conversationTimeStringMethod.let { _ ->
 
             beanConstructor?.let {
                 val obj = beanConstructor.newInstance("")
@@ -39,6 +42,7 @@ object ConversationItemHandler {
         }
         return ""
     }
+
 
     fun getConversationAvatar(field_username: String, imageView: ImageView) =
             XposedHelpers.callStaticMethod(conversationAvatar, conversationAvatarMethod.name, imageView, field_username)
@@ -94,5 +98,6 @@ object ConversationItemHandler {
 //        com.zdy.project.wechat_chatroom_helper.LogUtils.log("getConversationContent = $fieldString")
         return if (content.isEmpty()) chatInfoModel.field_content else content
     }
+
 
 }
