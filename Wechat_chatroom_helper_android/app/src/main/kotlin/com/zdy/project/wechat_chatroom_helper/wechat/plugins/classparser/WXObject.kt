@@ -43,6 +43,8 @@ object WXObject {
             const val SetAdapter = "setAdapter"
             const val GetCount = "getCount"
             const val OnItemClick = "onItemClick"
+            const val OnItemLongClick = "onItemLongClick"
+
             const val GetView = "getView"
 
         }
@@ -53,15 +55,11 @@ object WXObject {
             var ConversationAvatar = ""
             var ConversationClickListener = ""
             var ConversationLongClickListener = ""
-
             const val NoMeasuredTextView = "com.tencent.mm.ui.base.NoMeasuredTextView"
         }
 
     }
 
-    object OnLongClick{
-
-    }
 
 
     object Tool {

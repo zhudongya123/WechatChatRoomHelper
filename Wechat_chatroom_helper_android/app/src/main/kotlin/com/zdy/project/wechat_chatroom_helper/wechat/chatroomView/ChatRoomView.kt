@@ -153,7 +153,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             }
 
             override fun onItemLongClick(view: View, relativePosition: Int, chatInfoModel: ChatInfoModel): Boolean {
-                MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlag = chatInfoModel.field_username.toString()
+                MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlagNickName = chatInfoModel.field_username.toString()
                 XposedHelpers.callMethod(mLongClickListener, "onItemLongClick",
                         arrayOf(AdapterView::class.java, View::class.java, Int::class.java, Long::class.java),
                         MainAdapter.listView, view, relativePosition + MainAdapter.listView.headerViewsCount, 0)

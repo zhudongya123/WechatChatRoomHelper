@@ -27,8 +27,8 @@ object MainAdapter {
     lateinit var originAdapter: BaseAdapter
     lateinit var listView: ListView
 
-    private var firstChatRoomPosition = -1
-    private var firstOfficialPosition = -1
+    var firstChatRoomPosition = -1
+    var firstOfficialPosition = -1
 
     fun executeHook() {
         ConversationItemHandler
@@ -228,9 +228,9 @@ object MainAdapter {
                  *
                  * 在 onItemLongClick 内会调用 getItem 方法来获取 bean ，使用 flag 来判断是否有必要拦截
                  */
-                if (MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlag != "") {
-                    param.result = getSpecItemForPlaceHolder(MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlag, param)
-                    MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlag = ""
+                if (MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlagNickName != "") {
+                    param.result = getSpecItemForPlaceHolder(MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlagNickName, param)
+                    MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlagNickName = ""
                     return
                 }
                 /**
