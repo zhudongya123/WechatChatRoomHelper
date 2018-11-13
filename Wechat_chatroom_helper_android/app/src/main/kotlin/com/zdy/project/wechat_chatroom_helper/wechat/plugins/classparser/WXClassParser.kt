@@ -1,9 +1,11 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser
 
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ImageView
 import com.zdy.project.wechat_chatroom_helper.Constants
+import com.zdy.project.wechat_chatroom_helper.LogUtils
 
 object WXClassParser {
 
@@ -63,9 +65,8 @@ object WXClassParser {
                         } catch (e: Throwable) {
                             return@filter1 false
                         }
-                    }
-                    .filter { it.interfaces.size == 3 }
-                    .firstOrNull { it.enclosingClass == null }
+                    }.firstOrNull { it.constructors.any { it.parameterTypes.size == 4 } }
+
         }
 
         fun getConversationAvatar(classes: MutableList<Class<*>>): Class<*>? {

@@ -76,13 +76,6 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                         }
                     }
 
-            classes.forEach {
-                if (it.superclass == null) return@forEach
-                if (it.superclass.name == BaseAdapter::class.java.name && it.name.contains("com.tencent.mm.ui")) {
-                    LogUtils.log("BaseAdapter, value = " + it.name)
-                }
-            }
-
             configData["conversationWithCacheAdapter"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
             configData["conversationWithAppBrandListView"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithAppBrandListView(classes))
             configData["conversationAvatar"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
@@ -98,9 +91,9 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                     apkFile.apkMeta.versionCode.toString())
         } catch (e: Throwable) {
             CrashReport.postCatchedException(e)
-            e.printStackTrace()
             sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_ERROR),
-                    e.toString())
+                    e.toString() + "\n" + e.stackTrace.joinToString("\n") { it.toString() })
+            e.printStackTrace()
         }
     }
 

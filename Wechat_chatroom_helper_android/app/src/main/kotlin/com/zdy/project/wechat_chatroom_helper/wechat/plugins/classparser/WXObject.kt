@@ -46,7 +46,6 @@ object WXObject {
             const val OnItemLongClick = "onItemLongClick"
 
             const val GetView = "getView"
-
         }
 
         object C {

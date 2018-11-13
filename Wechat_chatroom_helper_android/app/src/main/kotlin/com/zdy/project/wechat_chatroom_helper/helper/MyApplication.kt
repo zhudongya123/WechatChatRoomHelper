@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import com.tencent.bugly.Bugly
+import com.tencent.bugly.crashreport.CrashReport
 import com.zdy.project.wechat_chatroom_helper.Constants
 
 /**
@@ -14,7 +15,7 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        Bugly.init(applicationContext, "ed7bb0e103", false)
+        CrashReport.initCrashReport(applicationContext, "ed7bb0e103", false)
 
         instance = this
 
