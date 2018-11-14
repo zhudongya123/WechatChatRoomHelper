@@ -95,34 +95,19 @@ object MainAdapter {
                 Int::class.java, View::class.java, ViewGroup::class.java,
                 object : XC_MethodHook() {
 
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-
-                        val position = param.args[0] as Int
-                        val view = param.args[1] as View?
-
-                        LogUtils.log("MMBaseAdapter_getView, beforeHookedMethod, index = " + position + ", view = $view")
-
-                        if (view == null) {
-                            /**
-                             * 此时为第一次刷新，处理逻辑放在{@link XC_MethodHook.afterHookedMethod}
-                             */
-                        } else {
-                            /**
-                             * 后续刷新
-                             * 一旦符合条件，只做相应自定义UI刷新，跳过微信处理逻辑
-                             */
-                            refreshEntryView(view, position, param)
-                        }
-                    }
-
                     override fun afterHookedMethod(param: MethodHookParam) {
                         val position = param.args[0] as Int
-                        val view = param.args[1] as View?
+
+                        val view = param.result as View
+                        if (position == firstChatRoomPosition || position == firstOfficialPosition) {
+                            @Suppress("SENSELESS_COMPARISON")
+                            if (view != null) {
+                                refreshEntryView(view, position, param)
+                            }
+                        }
 
                         LogUtils.log("MMBaseAdapter_getView, afterHookedMethod, index = $position, view = $view")
 
-                        if (view != null)
-                            refreshEntryView(view, position, param)
                     }
 
                     private fun refreshEntryView(view: View?, position: Int, param: MethodHookParam) {
