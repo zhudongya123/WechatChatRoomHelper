@@ -97,17 +97,16 @@ object MainAdapter {
 
                     override fun afterHookedMethod(param: MethodHookParam) {
                         val position = param.args[0] as Int
-
                         val view = param.result as View
+
+                        LogUtils.log("MMBaseAdapter_getView, afterHookedMethod, index = $position, view = $view")
+
                         if (position == firstChatRoomPosition || position == firstOfficialPosition) {
                             @Suppress("SENSELESS_COMPARISON")
                             if (view != null) {
                                 refreshEntryView(view, position, param)
                             }
                         }
-
-                        LogUtils.log("MMBaseAdapter_getView, afterHookedMethod, index = $position, view = $view")
-
                     }
 
                     private fun refreshEntryView(view: View?, position: Int, param: MethodHookParam) {
@@ -159,9 +158,6 @@ object MainAdapter {
                                 unMuteReadIndicators.visibility = View.GONE
                             }
 
-
-
-                            param.result = view
                         }
                         if (position == firstOfficialPosition) {
                             unReadCount.visibility = View.GONE
@@ -190,7 +186,6 @@ object MainAdapter {
                                 unMuteReadIndicators.visibility = View.GONE
                             }
 
-                            param.result = view
                         }
                     }
                 })

@@ -70,7 +70,8 @@ object WXClassParser {
         }
 
         fun getConversationAvatar(classes: MutableList<Class<*>>): Class<*>? {
-            return classes.filter { it.name.contains("com.tencent.mm.pluginsdk.ui") }
+            return classes
+                    .filter { it.name.contains("com.tencent.mm.pluginsdk.ui") }
                     .filter { it.declaredClasses.isNotEmpty() }
                     .firstOrNull { it.declaredClasses.any { it.methods.map { it.name }.contains("doInvalidate") } }!!
                     .declaredClasses!!
