@@ -154,7 +154,6 @@ object MainAdapter {
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
                             val totalUnReadCount = MessageFactory.getUnReadCount(allChatRoom)
 
-
                             setTextForNoMeasuredTextView(nickname, "群消息")
                             setTextForNoMeasuredTextView(time, allChatRoom.first().conversationTime)
                             avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar.context, PageType.CHAT_ROOMS))

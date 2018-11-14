@@ -1,6 +1,7 @@
 package ui
 
 import android.app.Application
+import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import com.tencent.bugly.Bugly
@@ -20,6 +21,8 @@ class MyApplication : Application() {
         instance = this
 
     }
+
+
 
     fun getWechatVersionCode(): Int {
         val list = packageManager.getInstalledPackages(0) as List<PackageInfo>
