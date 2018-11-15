@@ -97,12 +97,12 @@ object MainAdapter {
 
                     override fun afterHookedMethod(param: MethodHookParam) {
                         val position = param.args[0] as Int
-                        val view = param.result as View
+                        val view = param.result as View?
 
                         LogUtils.log("MMBaseAdapter_getView, afterHookedMethod, index = $position, view = $view")
 
                         if (position == firstChatRoomPosition || position == firstOfficialPosition) {
-                            @Suppress("SENSELESS_COMPARISON")
+
                             if (view != null) {
                                 refreshEntryView(view, position, param)
                             }
@@ -147,7 +147,6 @@ object MainAdapter {
 
                             LogUtils.log("getUnReadCountItemChatRoom " + allChatRoom.joinToString { "unReadCount = ${it.unReadCount}" })
 
-
                             if (unReadCountItem > 0) {
                                 setTextForNoMeasuredTextView(content, "[有 $unReadCountItem 个群聊收到 $totalUnReadCount 条新消息]")
                                 setTextColorForNoMeasuredTextView(content, 0xFFF57C00.toInt())
@@ -157,6 +156,8 @@ object MainAdapter {
                                 setTextForNoMeasuredTextView(content, "${allChatRoom.first().nickname}：${allChatRoom.first().content}")
                                 unMuteReadIndicators.visibility = View.GONE
                             }
+
+                            param.result = view
 
                         }
                         if (position == firstOfficialPosition) {
@@ -186,6 +187,7 @@ object MainAdapter {
                                 unMuteReadIndicators.visibility = View.GONE
                             }
 
+                            param.result = view
                         }
                     }
                 })
