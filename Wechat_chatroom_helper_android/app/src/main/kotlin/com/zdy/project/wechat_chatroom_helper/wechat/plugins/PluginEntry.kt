@@ -43,6 +43,7 @@ class PluginEntry : IXposedHookLoadPackage {
             WXObject.Adapter.C.ConversationAvatar = configJson.get("conversationAvatar").asString
             WXObject.Adapter.C.ConversationClickListener = configJson.get("conversationClickListener").asString
             WXObject.Adapter.C.ConversationLongClickListener = configJson.get("conversationLongClickListener").asString
+            WXObject.Adapter.C.ConversationMenuItemSelectedListener = configJson.get("conversationMenuItemSelectedListener").asString
             WXObject.Tool.C.Logcat = configJson.get("logcat").asString
 
 

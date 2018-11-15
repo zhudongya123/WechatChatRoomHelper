@@ -44,6 +44,9 @@ object WXObject {
             const val GetCount = "getCount"
             const val OnItemClick = "onItemClick"
             const val OnItemLongClick = "onItemLongClick"
+            const val OnCreateContextMenu = "onCreateContextMenu"
+            const val OnMMMenuItemSelected = "onMMMenuItemSelected"
+
 
             const val GetView = "getView"
         }
@@ -54,6 +57,8 @@ object WXObject {
             var ConversationAvatar = ""
             var ConversationClickListener = ""
             var ConversationLongClickListener = ""
+            var ConversationMenuItemSelectedListener = ""
+
             const val NoMeasuredTextView = "com.tencent.mm.ui.base.NoMeasuredTextView"
         }
 
@@ -64,7 +69,6 @@ object WXObject {
     object Tool {
 
         object C {
-
             var Logcat = ""
         }
 

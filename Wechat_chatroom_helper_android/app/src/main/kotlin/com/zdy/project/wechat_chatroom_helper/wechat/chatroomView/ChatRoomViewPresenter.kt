@@ -7,9 +7,6 @@ import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
-import de.robv.android.xposed.XposedHelpers
 
 /**
  * Created by Mr.Zdy on 2017/8/25.
@@ -36,9 +33,6 @@ class ChatRoomViewPresenter(mContext: Context, var pageType: Int) : ChatRoomCont
         mView.setPresenter(this)
     }
 
-
-
-
     fun setAdapter(mAdapter: Any) {
         this.originAdapter = mAdapter
     }
@@ -46,7 +40,6 @@ class ChatRoomViewPresenter(mContext: Context, var pageType: Int) : ChatRoomCont
     override fun refreshList(isForce: Boolean, data: Any?) {
         mView.refreshList(isForce, data)
     }
-
 
     override fun show() {
         LogUtils.log("TrackHelperCan'tOpen, ChatRoomViewPresenter -> show, mView = ${mView}")
@@ -63,5 +56,7 @@ class ChatRoomViewPresenter(mContext: Context, var pageType: Int) : ChatRoomCont
         mView.init()
     }
 
-
+    override fun getCurrentData(): ArrayList<ChatInfoModel> {
+        return mView.getCurrentData()
+    }
 }

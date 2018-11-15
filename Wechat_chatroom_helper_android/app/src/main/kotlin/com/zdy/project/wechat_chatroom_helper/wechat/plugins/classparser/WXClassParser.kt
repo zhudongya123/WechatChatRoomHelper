@@ -1,11 +1,10 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser
 
-import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ImageView
 import com.zdy.project.wechat_chatroom_helper.Constants
-import com.zdy.project.wechat_chatroom_helper.LogUtils
 
 object WXClassParser {
 
@@ -66,6 +65,18 @@ object WXClassParser {
                             return@filter1 false
                         }
                     }.firstOrNull { it.constructors.any { it.parameterTypes.size == 4 } }
+
+        }
+
+        fun getConversationMenuItemSelectedListener(classes: MutableList<Class<*>>): Class<*>? {
+            return classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }
+                    .filter filter1@{
+                        try {
+                            return@filter1 it.getMethod("onMMMenuItemSelected", MenuItem::class.java, Int::class.java) != null
+                        } catch (e: Throwable) {
+                            return@filter1 false
+                        }
+                    }.firstOrNull { it.constructors.any { it.parameterTypes.size == 1 } }
 
         }
 

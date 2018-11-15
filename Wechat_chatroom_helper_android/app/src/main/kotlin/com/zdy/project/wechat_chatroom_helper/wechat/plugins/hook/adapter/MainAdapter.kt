@@ -220,34 +220,46 @@ object MainAdapter {
 
                 val index = param.args[0] as Int
 
+                /**
+                 * 比较两个入口的先后并确定位置
+                 */
                 val min = Math.min(firstChatRoomPosition, firstOfficialPosition)
                 val max = Math.max(firstChatRoomPosition, firstOfficialPosition)
 
 
                 val newIndex =
+                //如果没有群助手和公众号
                         if (min == -1 && max == -1) {
                             index
-                        } else if (min == -1 || max == -1) {
+                        }
+                        //群助手和公众号只有一个
+                        else if (min == -1 || max == -1) {
                             when (index) {
                                 in 0 until max -> index
                                 max -> {
-                                    param.result = getBlankItemForPlaceHolder(param)
-                                    return
+                                    //param.result = getSpecItemForPlaceHolder(" ",param)//填充空数据
+                                    //return
+                                    index
                                 }
                                 in max + 1 until Int.MAX_VALUE -> index - 1
                                 else -> index //TODO
                             }
-                        } else {
+                        }
+                        //群助手和公众号都存在
+                        else {
                             when (index) {
                                 in 0 until min -> index
                                 min -> {
-                                    param.result = getBlankItemForPlaceHolder(param)
-                                    return
+
+                                    //param.result = getSpecItemForPlaceHolder(" ",param)//填充空数据
+                                    //return
+                                    index
                                 }
                                 in min + 1 until max -> index - 1
                                 max -> {
-                                    param.result = getBlankItemForPlaceHolder(param)
-                                    return
+                                    //param.result = getSpecItemForPlaceHolder(" ",param)//填充空数据
+                                    //return
+                                    index
                                 }
                                 in max + 1 until Int.MAX_VALUE -> index - 2
                                 else -> index //TODO
@@ -259,15 +271,6 @@ object MainAdapter {
                 LogUtils.log("MessageHooker2.7, size = ${originAdapter.count}, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
             }
 
-
-            fun getBlankItemForPlaceHolder(param: MethodHookParam): Any {
-                val beanClass = (param.thisObject::class.java.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>
-
-                val constructor = beanClass.getConstructor(String::class.java)
-                val newInstance = constructor.newInstance(" ")
-
-                return newInstance
-            }
 
             fun getSpecItemForPlaceHolder(username: CharSequence, param: MethodHookParam): Any {
                 val beanClass = (param.thisObject::class.java.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>

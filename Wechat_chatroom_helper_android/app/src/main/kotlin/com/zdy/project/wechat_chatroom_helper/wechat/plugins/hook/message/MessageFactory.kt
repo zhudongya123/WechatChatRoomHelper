@@ -1,12 +1,12 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message
 
 import android.database.Cursor
-import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.ConversationItemHandler
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import de.robv.android.xposed.XposedHelpers
 
 object MessageFactory {

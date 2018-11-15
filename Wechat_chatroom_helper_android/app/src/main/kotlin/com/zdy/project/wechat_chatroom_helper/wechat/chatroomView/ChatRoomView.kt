@@ -37,6 +37,7 @@ import network.ApiManager
 
 class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private val pageType: Int) : ChatRoomContract.View {
 
+
     private lateinit var mLongClickListener: Any
 
     private lateinit var mPresenter: ChatRoomContract.Presenter
@@ -99,7 +100,6 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         swipeBackLayout.attachToView(mainView, mContext)
         swipeBackLayout.setPanelSlideListener(object : BGASwipeBackLayout2.PanelSlideListener {
             override fun onPanelSlide(panel: View, slideOffset: Float) {
-
             }
 
             override fun onPanelOpened(panel: View) {
@@ -135,15 +135,15 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         swipeBackLayout.openPane()
     }
 
+    override fun getCurrentData(): ArrayList<ChatInfoModel> {
+        return mAdapter.data
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun init() {
         mAdapter = ChatRoomRecyclerViewAdapter(mContext)
         LogUtils.log("mRecyclerView = $mRecyclerView, mAdapter = $mAdapter")
         mRecyclerView.adapter = mAdapter
-
-
-
 
         mLongClickListener = MainAdapterLongClick.getConversationLongClickClassConstructor()
                 .newInstance(MainAdapter.originAdapter, MainAdapter.listView, MainLauncherUI.launcherUI, intArrayOf(300, 300))
