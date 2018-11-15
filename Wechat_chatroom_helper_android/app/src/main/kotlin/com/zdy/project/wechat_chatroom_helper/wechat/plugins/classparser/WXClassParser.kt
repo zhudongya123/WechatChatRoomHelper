@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ImageView
 import com.zdy.project.wechat_chatroom_helper.Constants
+import com.zdy.project.wechat_chatroom_helper.LogUtils
 
 object WXClassParser {
 
@@ -28,13 +29,7 @@ object WXClassParser {
 
         fun getConversationWithCacheAdapter(classes: MutableList<Class<*>>): Class<*>? {
             return classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }
-                    .firstOrNull {
-                        try {
-                            return@firstOrNull it.getMethod("clearCache") != null
-                        } catch (e: Throwable) {
-                            return@firstOrNull false
-                        }
-                    }
+                    .firstOrNull { it.methods.any { it.name == "clearCache" } }
         }
 
         fun getConversationWithAppBrandListView(classes: MutableList<Class<*>>): Class<*>? {
@@ -44,11 +39,14 @@ object WXClassParser {
         fun getConversationClickListener(classes: MutableList<Class<*>>): Class<*>? {
             return classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }
                     .filterNot { it.name.contains("$") }
-                    .filter filter1@{
-                        try {
-                            return@filter1 it.getMethod("onItemClick", AdapterView::class.java, View::class.java, Int::class.java, Long::class.java) != null
-                        } catch (e: Throwable) {
-                            return@filter1 false
+                    .filter {
+                        it.methods.any {
+                            it.name == "onItemClick" &&
+                                    it.parameterTypes.size == 4 &&
+                                    it.parameterTypes[0] == AdapterView::class.java &&
+                                    it.parameterTypes[1] == View::class.java &&
+                                    it.parameterTypes[2] == Int::class.java &&
+                                    it.parameterTypes[3] == Long::class.java
                         }
                     }
                     .filter { it.interfaces.size == 1 }
@@ -58,25 +56,39 @@ object WXClassParser {
         fun getConversationLongClickListener(classes: MutableList<Class<*>>): Class<*>? {
             return classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }
                     .filterNot { it.name.contains("$") }
-                    .filter filter1@{
-                        try {
-                            return@filter1 it.getMethod("onItemLongClick", AdapterView::class.java, View::class.java, Int::class.java, Long::class.java) != null
-                        } catch (e: Throwable) {
-                            return@filter1 false
+                    .filter {
+                        it.methods.any {
+                            it.name == "onItemLongClick" && it.parameterTypes.size == 4 &&
+                                    it.parameterTypes[0] == AdapterView::class.java &&
+                                    it.parameterTypes[1] == View::class.java &&
+                                    it.parameterTypes[2] == Int::class.java &&
+                                    it.parameterTypes[3] == Long::class.java
                         }
-                    }.firstOrNull { it.constructors.any { it.parameterTypes.size == 4 } }
+                    }
+                    .firstOrNull { it.constructors.any { it.parameterTypes.size == 4 } }
 
         }
 
         fun getConversationMenuItemSelectedListener(classes: MutableList<Class<*>>): Class<*>? {
             return classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }
-                    .filter filter1@{
-                        try {
-                            return@filter1 it.getMethod("onMMMenuItemSelected", MenuItem::class.java, Int::class.java) != null
-                        } catch (e: Throwable) {
-                            return@filter1 false
+                    .filter { it.name.split("$").size == 2 }
+                    .filter {
+                        it.methods.any {
+                            it.name == "onMMMenuItemSelected" &&
+                                    it.parameterTypes.size == 2 &&
+                                    it.parameterTypes[0] == MenuItem::class.java &&
+                                    it.parameterTypes[1] == Int::class.java
                         }
-                    }.firstOrNull { it.constructors.any { it.parameterTypes.size == 1 } }
+                    }
+                    .firstOrNull {
+                        try {
+                            LogUtils.log(it.declaredConstructors.first().toString())
+                            it.declaredConstructors.size == 1 && it.declaredConstructors.any { it.parameterTypes.size == 1 }
+                        } catch (t: Throwable) {
+                            t.printStackTrace()
+                            false
+                        }
+                    }
 
         }
 

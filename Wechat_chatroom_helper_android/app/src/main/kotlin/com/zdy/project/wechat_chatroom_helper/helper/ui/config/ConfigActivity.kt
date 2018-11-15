@@ -142,6 +142,7 @@ class ConfigActivity : SetupWizardBaseActivity(), View.OnClickListener {
 
     private fun parseApkClasses() {
         AppSaveInfo.setSuitWechatDataInfo(false)
+        WechatJsonUtils.putFileString()
 
         val publicSourceDir = this.packageManager.getApplicationInfo(Constants.WECHAT_PACKAGE_NAME, 0).publicSourceDir
         val optimizedDirectory = getDir("dex", 0).absolutePath
