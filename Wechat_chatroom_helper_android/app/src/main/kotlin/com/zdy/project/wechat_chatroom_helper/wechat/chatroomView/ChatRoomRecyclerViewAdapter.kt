@@ -14,7 +14,7 @@ import android.view.ViewGroup
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.ConversationItemHandler
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction
 import java.util.*
 
 
@@ -68,7 +68,7 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
         holder.itemView.background = ChatRoomViewFactory.getItemViewBackground(mContext)
 
         if (!item.field_username.isEmpty()) {
-            ConversationItemHandler.getConversationAvatar(item.field_username.toString(), holder.avatar)
+            ConversationReflectFunction.getConversationAvatar(item.field_username.toString(), holder.avatar)
             holder.itemView.setOnClickListener {
                 onItemActionListener.onItemClick(holder.itemView, position, item)
             }
@@ -81,6 +81,8 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
         holder.content.setTextColor(Color.parseColor("#" + AppSaveInfo.contentColorInfo()))
         holder.time.setTextColor(Color.parseColor("#" + AppSaveInfo.timeColorInfo()))
         holder.divider.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.dividerColorInfo()))
+
+
     }
 
 

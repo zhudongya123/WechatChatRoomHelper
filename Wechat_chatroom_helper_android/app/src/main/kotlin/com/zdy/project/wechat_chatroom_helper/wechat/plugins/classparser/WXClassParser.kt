@@ -6,6 +6,8 @@ import android.widget.AdapterView
 import android.widget.ImageView
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.LogUtils
+import java.lang.reflect.Modifier
+import java.lang.reflect.ParameterizedType
 
 object WXClassParser {
 
@@ -28,8 +30,11 @@ object WXClassParser {
     object Adapter {
 
         fun getConversationWithCacheAdapter(classes: MutableList<Class<*>>): Class<*>? {
-            return classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }
-                    .firstOrNull { it.methods.any { it.name == "clearCache" } }
+            val clazz = classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }
+                    .firstOrNull { it.methods.any { it.name == "clearCache" } }!!
+
+
+            return clazz
         }
 
         fun getConversationWithAppBrandListView(classes: MutableList<Class<*>>): Class<*>? {
@@ -106,6 +111,24 @@ object WXClassParser {
                     }
         }
 
+
+        fun getConversationStickyHeaderHandler(classes: MutableList<Class<*>>): Class<*>? {
+
+            val conversationWithCacheAdapter = getConversationWithCacheAdapter(classes)!!
+            val beanClass = (conversationWithCacheAdapter.genericSuperclass as ParameterizedType).actualTypeArguments[1]
+
+            return classes.filter { Modifier.isFinal(it.modifiers) }
+                    .firstOrNull { it ->
+                        it.methods.any { method ->
+                            method.parameterTypes.size == 3 &&
+                                    Modifier.isStatic(method.modifiers) &&
+                                    method.parameterTypes[0] == beanClass &&
+                                    method.parameterTypes[1] == Int::class.java &&
+                                    method.parameterTypes[2] == Long::class.java &&
+                                    method.returnType == Long::class.java
+                        }
+                    }
+        }
 
     }
 }

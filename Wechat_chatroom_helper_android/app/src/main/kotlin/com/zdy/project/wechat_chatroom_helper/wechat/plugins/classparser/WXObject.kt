@@ -60,6 +60,8 @@ object WXObject {
             var ConversationClickListener = ""
             var ConversationLongClickListener = ""
             var ConversationMenuItemSelectedListener = ""
+            var ConversationStickyHeaderHandler = ""
+
 
             const val NoMeasuredTextView = "com.tencent.mm.ui.base.NoMeasuredTextView"
         }

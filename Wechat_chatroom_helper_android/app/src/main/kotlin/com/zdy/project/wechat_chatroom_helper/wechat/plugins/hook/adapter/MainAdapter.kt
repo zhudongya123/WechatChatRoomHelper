@@ -8,6 +8,11 @@ import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.conversationClickListener
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.conversationStickyHeaderHandler
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.conversationWithAppBrandListView
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.conversationWithCacheAdapter
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageFactory
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageHandler
@@ -31,14 +36,11 @@ object MainAdapter {
     var firstOfficialPosition = -1
 
     fun executeHook() {
-        ConversationItemHandler
-        val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithCacheAdapter, RuntimeInfo.classloader)
-        val conversationWithAppBrandListView = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithAppBrandListView, RuntimeInfo.classloader)
-        val conversationClickListener = XposedHelpers.findClass(WXObject.Adapter.C.ConversationClickListener, RuntimeInfo.classloader)
+        ConversationReflectFunction
+
         val conversationWithCacheAdapterGetItem = conversationWithCacheAdapter.superclass.declaredMethods
                 .filter { it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java }
                 .first { it.name != "getItem" && it.name != "getItemId" }.name
-
 
         hookAllConstructors(conversationWithCacheAdapter, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -189,6 +191,8 @@ object MainAdapter {
 
                             param.result = view
                         }
+
+
                     }
                 })
 
@@ -283,8 +287,20 @@ object MainAdapter {
 
         })
 
-        MessageHandler.addMessageEventNotifyListener(
-                object : MessageEventNotifyListener {
+
+        findAndHookMethod(conversationStickyHeaderHandler, ConversationReflectFunction.stickyHeaderHandlerMethod.name,
+                ConversationReflectFunction.beanClass, Int::class.java, Long::class.java, object : XC_MethodHook() {
+
+            override fun afterHookedMethod(param: MethodHookParam) {
+
+                val bean = param.args[0] as Any
+                val result = param.result as Long
+
+                LogUtils.log("conversationStickyHeaderHandler, username = ${XposedHelpers.getObjectField(bean, "field_username")}, result = ${result}")
+            }
+
+        })
+        MessageHandler.addMessageEventNotifyListener(object : MessageEventNotifyListener {
 
                     override fun onNewMessageCreate(talker: String, createTime: Long, content: Any) {
                         super.onNewMessageCreate(talker, createTime, content)
