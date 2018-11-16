@@ -9,6 +9,7 @@ import android.widget.ListView
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageFactory
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import java.lang.reflect.Constructor
@@ -20,6 +21,13 @@ object MainAdapterLongClick {
     var onItemLongClickMethodInvokeGetItemFlagNickName = ""
     var onCreateContextMenuMethodInvokeGetChatRoomFlag = false
     var onCreateContextMenuMethodInvokeGetOfficialFlag = false
+
+
+    const val MENU_ITEM_CLEAR_UNREAD_CHATROOM = 1024
+    const val MENU_ITEM_CLEAR_UNREAD_OFFICIAL = 1025
+
+    const val MENU_ITEM_STICK_HEADER_CHATROOM = 1034
+    const val MENU_ITEM_STICK_HEADER_OFFICIAL = 1035
 
 
     val CoordinateField = XposedHelpers.findClass(WXObject.Adapter.C.ConversationLongClickListener, RuntimeInfo.classloader).declaredFields.firstOrNull { it.type == IntArray::class.java }!!
@@ -90,8 +98,8 @@ object MainAdapterLongClick {
                     LogUtils.log("OnCreateContextMenu, method = onCreateContextMenuMethodInvokeGetChatRoomFlag")
 
                     XposedHelpers.callMethod(contextMenu, "clear")
-                    XposedHelpers.callMethod(contextMenu, "add", position, 1024, 0, "清除所有群聊未读")
-                    XposedHelpers.callMethod(contextMenu, "add", position, 1026, 0, "群聊助手置顶")
+                    XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_CLEAR_UNREAD_CHATROOM, 0, "所有群聊标为已读")
+                    XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_CHATROOM, 0, "群聊助手置顶")
 
                 }
 
@@ -100,8 +108,8 @@ object MainAdapterLongClick {
                     LogUtils.log("OnCreateContextMenu, method = onCreateContextMenuMethodInvokeGetOfficialFlag")
 
                     XposedHelpers.callMethod(contextMenu, "clear")
-                    XposedHelpers.callMethod(contextMenu, "add", position, 1025, 0, "清除所有服务号号未读")
-                    XposedHelpers.callMethod(contextMenu, "add", position, 1027, 0, "服务号助手置顶")
+                    XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_CLEAR_UNREAD_OFFICIAL, 0, "所有服务号标为已读")
+                    XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_OFFICIAL, 0, "服务号助手置顶")
 
                 }
             }
@@ -112,15 +120,43 @@ object MainAdapterLongClick {
         XposedHelpers.findAndHookMethod(conversationMenuItemSelectedListener, WXObject.Adapter.M.OnMMMenuItemSelected,
                 MenuItem::class.java, Int::class.java, object : XC_MethodHook() {
 
-            override fun afterHookedMethod(param: MethodHookParam?) {
-                super.afterHookedMethod(param)
+            override fun beforeHookedMethod(param: MethodHookParam) {
 
+                val menuItem = param.args[0] as MenuItem
+
+
+                when (menuItem.itemId) {
+
+                    MENU_ITEM_CLEAR_UNREAD_CHATROOM -> {
+                        MessageFactory.clearSpecChatRoomUnRead()
+                        RuntimeInfo.chatRoomViewPresenter.refreshList(false, Any())
+                        MainAdapter.originAdapter.notifyDataSetChanged()
+                        param.result = null
+                    }
+                    MENU_ITEM_CLEAR_UNREAD_OFFICIAL -> {
+                        MessageFactory.clearSpecOfficialUnRead()
+                        RuntimeInfo.officialViewPresenter.refreshList(false, Any())
+                        MainAdapter.originAdapter.notifyDataSetChanged()
+                        param.result = null
+                    }
+                    MENU_ITEM_STICK_HEADER_CHATROOM -> {
+                        param.result = null
+                    }
+                    MENU_ITEM_STICK_HEADER_OFFICIAL -> {
+                        param.result = null
+                    }
+                }
+            }
+
+            override fun afterHookedMethod(param: MethodHookParam?) {
 
                 if (RuntimeInfo.chatRoomViewPresenter.getCurrentData().none { it.field_username == currentLongClickUsername } &&
                         RuntimeInfo.officialViewPresenter.getCurrentData().none { it.field_username == currentLongClickUsername }) return
 
                 /**
                  * 如果当前的点击项是助手里面的某项,刷新助手的数据
+                 *
+                 * ps:点击了删除此会话时，需要更新adapter
                  */
                 RuntimeInfo.chatRoomViewPresenter.refreshList(false, Any())
                 RuntimeInfo.officialViewPresenter.refreshList(false, Any())

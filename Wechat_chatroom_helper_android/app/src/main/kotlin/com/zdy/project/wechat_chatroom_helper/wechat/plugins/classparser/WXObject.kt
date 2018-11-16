@@ -16,6 +16,8 @@ object WXObject {
             const val QUERY = "rawQueryWithFactory"
             const val INSERT = "insertWithOnConflict"
             const val UPDATE = "updateWithOnConflict"
+            const val EXECSQL = "execSQL"
+
         }
     }
 

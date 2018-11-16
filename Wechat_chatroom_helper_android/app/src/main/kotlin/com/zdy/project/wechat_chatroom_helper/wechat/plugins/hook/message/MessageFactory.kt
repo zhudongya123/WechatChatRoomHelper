@@ -73,6 +73,23 @@ object MessageFactory {
         return data
     }
 
+    fun clearSpecChatRoomUnRead() {
+        clearListUnRead(getSpecChatRoom())
+    }
+
+    fun clearSpecOfficialUnRead() {
+        clearListUnRead(getSpecOfficial())
+    }
+
+    private fun clearListUnRead(list: ArrayList<ChatInfoModel>) {
+        list.forEach { chatInfoModel: ChatInfoModel ->
+            if (chatInfoModel.field_unReadCount > 0) {
+                XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, WXObject.Message.M.EXECSQL,
+                        "update rconversation set unReadCount = 0 where username = '${chatInfoModel.field_username}'")
+            }
+        }
+    }
+
     fun getUnReadCountItem(list: ArrayList<ChatInfoModel>) = list.count { it.unReadCount > 0 }
 
     fun getUnReadCount(list: ArrayList<ChatInfoModel>) = list.sumBy { it.unReadCount }

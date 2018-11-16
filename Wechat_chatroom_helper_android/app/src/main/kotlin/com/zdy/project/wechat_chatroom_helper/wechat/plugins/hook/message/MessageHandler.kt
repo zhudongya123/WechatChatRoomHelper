@@ -115,7 +115,6 @@ object MessageHandler {
         }
 
     }
-
     fun executeHook() {
 
         val database =
