@@ -1,9 +1,14 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.res.TypedArray
+import android.graphics.drawable.Drawable
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
@@ -111,6 +116,16 @@ object MainAdapter {
                         }
                     }
 
+                    private fun getSimpleBackground(context: Context): Drawable {
+                        val typedValue = TypedValue()
+                        context.theme.resolveAttribute(android.R.attr.selectableItemBackground, typedValue, true)
+                        val attribute = intArrayOf(android.R.attr.selectableItemBackground)
+                        val typedArray = context.theme.obtainStyledAttributes(typedValue.resourceId, attribute)
+                        val drawable = typedArray.getDrawable(0)
+                        typedArray.recycle()
+                        return drawable
+                    }
+
                     private fun refreshEntryView(view: View?, position: Int, param: MethodHookParam) {
                         LogUtils.log("MessageHooker2.6,position = $position, position = $position, " +
                                 "firstChatRoomPosition = $firstChatRoomPosition ,firstOfficialPosition = $firstOfficialPosition \n")
@@ -139,6 +154,8 @@ object MainAdapter {
                             val allChatRoom = MessageFactory.getSpecChatRoom()
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
                             val totalUnReadCount = MessageFactory.getUnReadCount(allChatRoom)
+
+                            itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt)
 
                             setTextForNoMeasuredTextView(nickname, "群消息")
                             setTextForNoMeasuredTextView(time, allChatRoom.first().conversationTime)
@@ -170,6 +187,8 @@ object MainAdapter {
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)
                             val totalUnReadCount = MessageFactory.getUnReadCount(allOfficial)
 
+                            itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemSelectorBackGroundInt)
+
                             sendStatus.visibility = View.GONE
                             muteImage.visibility = View.GONE
 
@@ -191,7 +210,6 @@ object MainAdapter {
 
                             param.result = view
                         }
-
 
                     }
                 })
@@ -243,7 +261,7 @@ object MainAdapter {
                                 max -> {
                                     //param.result = getSpecItemForPlaceHolder(" ",param)//填充空数据
                                     //return
-                                    index
+                                    0
                                 }
                                 in max + 1 until Int.MAX_VALUE -> index - 1
                                 else -> index //TODO
@@ -257,13 +275,13 @@ object MainAdapter {
 
                                     //param.result = getSpecItemForPlaceHolder(" ",param)//填充空数据
                                     //return
-                                    index
+                                    0
                                 }
                                 in min + 1 until max -> index - 1
                                 max -> {
                                     //param.result = getSpecItemForPlaceHolder(" ",param)//填充空数据
                                     //return
-                                    index
+                                    0
                                 }
                                 in max + 1 until Int.MAX_VALUE -> index - 2
                                 else -> index //TODO
@@ -302,21 +320,21 @@ object MainAdapter {
         })
         MessageHandler.addMessageEventNotifyListener(object : MessageEventNotifyListener {
 
-                    override fun onNewMessageCreate(talker: String, createTime: Long, content: Any) {
-                        super.onNewMessageCreate(talker, createTime, content)
-                    }
+            override fun onNewMessageCreate(talker: String, createTime: Long, content: Any) {
+                super.onNewMessageCreate(talker, createTime, content)
+            }
 
-                    override fun onEntryPositionChanged(chatroomPosition: Int, officialPosition: Int) {
-                        super.onEntryPositionChanged(chatroomPosition, officialPosition)
+            override fun onEntryPositionChanged(chatroomPosition: Int, officialPosition: Int) {
+                super.onEntryPositionChanged(chatroomPosition, officialPosition)
 
-                        if (firstOfficialPosition != officialPosition || firstChatRoomPosition != chatroomPosition) {
-                            firstChatRoomPosition = chatroomPosition
-                            firstOfficialPosition = officialPosition
-                        }
-                    }
+                if (firstOfficialPosition != officialPosition || firstChatRoomPosition != chatroomPosition) {
+                    firstChatRoomPosition = chatroomPosition
+                    firstOfficialPosition = officialPosition
+                }
+            }
 
 
-                })
+        })
     }
 
     fun setTextForNoMeasuredTextView(noMeasuredTextView: Any, charSequence: CharSequence) = XposedHelpers.callMethod(noMeasuredTextView, "setText", charSequence)

@@ -117,18 +117,71 @@ object WXClassParser {
             val conversationWithCacheAdapter = getConversationWithCacheAdapter(classes)!!
             val beanClass = (conversationWithCacheAdapter.genericSuperclass as ParameterizedType).actualTypeArguments[1]
 
-            return classes.filter { Modifier.isFinal(it.modifiers) }
+            return classes
+                    .filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.plugin.messenger.foundation") }
+                    .filter { Modifier.isFinal(it.modifiers) }
                     .firstOrNull { it ->
-                        it.methods.any { method ->
-                            method.parameterTypes.size == 3 &&
-                                    Modifier.isStatic(method.modifiers) &&
-                                    method.parameterTypes[0] == beanClass &&
-                                    method.parameterTypes[1] == Int::class.java &&
-                                    method.parameterTypes[2] == Long::class.java &&
-                                    method.returnType == Long::class.java
+                        try {
+                            it.methods.any { method ->
+                                method.parameterTypes.size == 3 &&
+                                        Modifier.isStatic(method.modifiers) &&
+                                        method.parameterTypes[0] == beanClass &&
+                                        method.parameterTypes[1] == Int::class.java &&
+                                        method.parameterTypes[2] == Long::class.java &&
+                                        method.returnType == Long::class.java
+                            }
+                        } catch (t: Throwable) {
+                            t.printStackTrace()
+                            false
                         }
                     }
         }
 
+
+        fun getConversationItemHighLightSelectorBackGroundInt(classes: MutableList<Class<*>>): Int? {
+
+            val backgroundClass = classes
+                    // .filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.plugin") }
+                    .first {
+                        try {
+                            it.fields.any { field ->
+                                field.name == "comm_item_highlight_selector" &&
+                                        Modifier.isFinal(field.modifiers) &&
+                                        Modifier.isStatic(field.modifiers) &&
+                                        Modifier.isPublic(field.modifiers) &&
+                                        field.type == Int::class.java
+                            }
+                        } catch (t: Throwable) {
+                            t.printStackTrace()
+                            false
+                        }
+                    }
+
+            val field = backgroundClass.getField("comm_item_highlight_selector")
+            return field.getInt(null)
+        }
+
+        fun getConversationItemSelectorBackGroundInt(classes: MutableList<Class<*>>): Int? {
+
+            val backgroundClass = classes
+                    // .filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.plugin") }
+                   .first {
+                        try {
+                            it.fields.any { field ->
+                                field.name == "comm_list_item_selector" &&
+                                        Modifier.isFinal(field.modifiers) &&
+                                        Modifier.isStatic(field.modifiers) &&
+                                        Modifier.isPublic(field.modifiers) &&
+                                        field.type == Int::class.java
+                            }
+                        } catch (t: Throwable) {
+                            t.printStackTrace()
+                            false
+                        }
+                    }
+
+            val field = backgroundClass.getField("comm_list_item_selector")
+            return field.getInt(null)
+        }
     }
 }

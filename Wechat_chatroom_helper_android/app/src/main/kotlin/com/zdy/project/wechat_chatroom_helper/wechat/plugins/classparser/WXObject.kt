@@ -62,12 +62,14 @@ object WXObject {
             var ConversationMenuItemSelectedListener = ""
             var ConversationStickyHeaderHandler = ""
 
-
             const val NoMeasuredTextView = "com.tencent.mm.ui.base.NoMeasuredTextView"
         }
 
+        object F{
+            var ConversationItemHighLightSelectorBackGroundInt = 0
+            var ConversationItemSelectorBackGroundInt = 0
+        }
     }
-
 
 
     object Tool {
