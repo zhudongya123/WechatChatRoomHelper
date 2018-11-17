@@ -15,6 +15,8 @@ import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
+import de.robv.android.xposed.XposedHelpers
 import java.util.*
 
 
@@ -65,7 +67,6 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
             })
         else holder.unread.background = BitmapDrawable(mContext.resources)
 
-        holder.itemView.background = ChatRoomViewFactory.getItemViewBackground(mContext)
 
         if (!item.field_username.isEmpty()) {
             ConversationReflectFunction.getConversationAvatar(item.field_username.toString(), holder.avatar)
@@ -82,7 +83,17 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
         holder.time.setTextColor(Color.parseColor("#" + AppSaveInfo.timeColorInfo()))
         holder.divider.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.dividerColorInfo()))
 
+        val obj = ConversationReflectFunction.beanConstructor.newInstance("")
+        ConversationReflectFunction.beanClass.getField("field_flag").set(obj, item.field_flag)
 
+        val backgroundFlag = XposedHelpers.callStaticMethod(ConversationReflectFunction.conversationStickyHeaderHandler, "a", obj, 4, 0) as Long
+
+        if (backgroundFlag != 0L) {
+            holder.itemView.background = ChatRoomViewFactory.getItemViewBackgroundSticky(mContext)
+
+        } else {
+            holder.itemView.background = ChatRoomViewFactory.getItemViewBackground(mContext)
+        }
     }
 
 
@@ -112,6 +123,7 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
             else holder.unread.background = BitmapDrawable(mContext.resources)
         }
     }
+
     override fun getItemCount(): Int {
         return data.size
     }

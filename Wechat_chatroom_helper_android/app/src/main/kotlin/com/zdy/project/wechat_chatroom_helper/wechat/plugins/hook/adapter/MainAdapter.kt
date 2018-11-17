@@ -116,15 +116,6 @@ object MainAdapter {
                         }
                     }
 
-                    private fun getSimpleBackground(context: Context): Drawable {
-                        val typedValue = TypedValue()
-                        context.theme.resolveAttribute(android.R.attr.selectableItemBackground, typedValue, true)
-                        val attribute = intArrayOf(android.R.attr.selectableItemBackground)
-                        val typedArray = context.theme.obtainStyledAttributes(typedValue.resourceId, attribute)
-                        val drawable = typedArray.getDrawable(0)
-                        typedArray.recycle()
-                        return drawable
-                    }
 
                     private fun refreshEntryView(view: View?, position: Int, param: MethodHookParam) {
                         LogUtils.log("MessageHooker2.6,position = $position, position = $position, " +
@@ -154,17 +145,17 @@ object MainAdapter {
                             val allChatRoom = MessageFactory.getSpecChatRoom()
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
                             val totalUnReadCount = MessageFactory.getUnReadCount(allChatRoom)
+                            LogUtils.log("getUnReadCountItemChatRoom " + allChatRoom.joinToString { "unReadCount = ${it.unReadCount}" })
 
-                            itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt)
+                            val chatInfoModel = allChatRoom.sortedBy { -it.field_conversationTime }.first()
 
-                            setTextForNoMeasuredTextView(nickname, "群消息")
-                            setTextForNoMeasuredTextView(time, allChatRoom.first().conversationTime)
+                            setTextForNoMeasuredTextView(nickname, "群聊消息")
+                            setTextForNoMeasuredTextView(time, chatInfoModel.conversationTime)
                             avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar.context, PageType.CHAT_ROOMS))
 
                             sendStatus.visibility = View.GONE
                             muteImage.visibility = View.GONE
 
-                            LogUtils.log("getUnReadCountItemChatRoom " + allChatRoom.joinToString { "unReadCount = ${it.unReadCount}" })
 
                             if (unReadCountItem > 0) {
                                 setTextForNoMeasuredTextView(content, "[有 $unReadCountItem 个群聊收到 $totalUnReadCount 条新消息]")
@@ -172,7 +163,7 @@ object MainAdapter {
                                 unMuteReadIndicators.visibility = View.VISIBLE
                             } else {
                                 setTextColorForNoMeasuredTextView(content, 0xFF999999.toInt())
-                                setTextForNoMeasuredTextView(content, "${allChatRoom.first().nickname}：${allChatRoom.first().content}")
+                                setTextForNoMeasuredTextView(content, "${chatInfoModel.nickname}：${chatInfoModel.content}")
                                 unMuteReadIndicators.visibility = View.GONE
                             }
 
@@ -187,23 +178,23 @@ object MainAdapter {
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)
                             val totalUnReadCount = MessageFactory.getUnReadCount(allOfficial)
 
-                            itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemSelectorBackGroundInt)
+                            LogUtils.log("getUnReadCountItemChatRoom " + allOfficial.joinToString { "unReadCount = ${it.unReadCount}" })
 
                             sendStatus.visibility = View.GONE
                             muteImage.visibility = View.GONE
 
-                            setTextForNoMeasuredTextView(nickname, "服务号")
-                            setTextForNoMeasuredTextView(time, allOfficial.first().conversationTime)
-                            avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar.context, PageType.OFFICIAL))
+                            val chatInfoModel = allOfficial.sortedBy { -it.field_conversationTime }.first()
 
-                            LogUtils.log("getUnReadCountItemChatRoom " + allOfficial.joinToString { "unReadCount = ${it.unReadCount}" })
+                            setTextForNoMeasuredTextView(nickname, "服务号消息")
+                            setTextForNoMeasuredTextView(time, chatInfoModel.conversationTime)
+                            avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar.context, PageType.OFFICIAL))
 
                             if (unReadCountItem > 0) {
                                 setTextForNoMeasuredTextView(content, "[有 $unReadCountItem 个服务号收到 $totalUnReadCount 条新消息]")
                                 setTextColorForNoMeasuredTextView(content, 0xFFF57C00.toInt())
                                 unMuteReadIndicators.visibility = View.VISIBLE
                             } else {
-                                setTextForNoMeasuredTextView(content, "${allOfficial.first().nickname}：${allOfficial.first().content}")
+                                setTextForNoMeasuredTextView(content, "${chatInfoModel.nickname}：${chatInfoModel.content}")
                                 setTextColorForNoMeasuredTextView(content, 0xFF999999.toInt())
                                 unMuteReadIndicators.visibility = View.GONE
                             }

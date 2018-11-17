@@ -15,6 +15,7 @@ object ConversationReflectFunction {
     val conversationClickListener = XposedHelpers.findClass(WXObject.Adapter.C.ConversationClickListener, RuntimeInfo.classloader)
     val conversationStickyHeaderHandler = XposedHelpers.findClass(WXObject.Adapter.C.ConversationStickyHeaderHandler, RuntimeInfo.classloader)
 
+
     private val conversationTimeStringMethod = conversationWithCacheAdapter.declaredMethods
             .filter { !it.isAccessible }.filter { it.returnType == CharSequence::class.java }
             .first { it.parameterTypes.size == 1 }
@@ -23,12 +24,11 @@ object ConversationReflectFunction {
             .first { it.parameterTypes.isNotEmpty() && it.parameterTypes[0].name == ImageView::class.java.name }
 
     val beanClass = ((conversationWithCacheAdapter.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>)
-    private val beanConstructor = beanClass.constructors.filter { it.parameterTypes.size == 1 }.firstOrNull { it.parameterTypes[0] == String::class.java }
+    val beanConstructor = beanClass.constructors.filter { it.parameterTypes.size == 1 }.first { it.parameterTypes[0] == String::class.java }
 
     val stickyHeaderHandlerMethod = conversationStickyHeaderHandler.methods.first { it.parameterTypes.size == 3 }
 
-    
-    
+
     fun getConversationTimeString(adapter: Any, conversationTime: Long): CharSequence {
 
         conversationTimeStringMethod.let { _ ->

@@ -18,13 +18,13 @@ object MessageHandler {
     private const val MessageDBName = "EnMicroMsg.db"
 
     //查询当前第一个服务号的会话信息
-    private const val SqlForGetFirstOfficial = "select rconversation.username, flag from rconversation,rcontact " +
+    private const val SqlForGetFirstOfficial = "select rconversation.username, flag, rconversation.conversationTime from rconversation,rcontact " +
             "where ( rcontact.username = rconversation.username and rcontact.verifyFlag != 0) and ( parentRef is null  or parentRef = '' )  " +
             "and ( 1 !=1 or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  " +
-            "and rconversation.username != 'qmessage' order by flag desc limit 1"
+            "and rconversation.username != 'qmessage' order by conversationTime desc limit 1"
 
     //查询当前第一个群聊的会话信息
-    private const val SqlForGetFirstChatroom = "select username, flag from rconversation where  username like '%@chatroom' order by flag desc limit 1"
+    private const val SqlForGetFirstChatroom = "select username, flag, conversationTime from rconversation where  username like '%@chatroom' order by conversationTime desc limit 1"
 
     //查询除去服务号和群聊的sql语句，可以通过拼接添加自定义名单
     private var SqlForNewAllContactConversation = arrayOf("select unReadCount, status, isSend, conversationTime, rconversation.username, ",
@@ -240,12 +240,12 @@ object MessageHandler {
                         try {
                             if (cursorForOfficial.count > 0) {
                                 cursorForOfficial.moveToNext()
-                                firstOfficialConversationTime = cursorForOfficial.getLong(cursorForOfficial.getColumnIndex("flag"))
+                                firstOfficialConversationTime = cursorForOfficial.getLong(cursorForOfficial.getColumnIndex("conversationTime"))
                             }
 
                             if (cursorForChatRoom.count > 0) {
                                 cursorForChatRoom.moveToNext()
-                                firstChatRoomConversationTime = cursorForChatRoom.getLong(cursorForChatRoom.getColumnIndex("flag"))
+                                firstChatRoomConversationTime = cursorForChatRoom.getLong(cursorForChatRoom.getColumnIndex("conversationTime"))
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()
@@ -260,7 +260,7 @@ object MessageHandler {
                         //遍历每一条回话，比较会话时间
                         while (cursor.moveToNext()) {
 
-                            val conversationTime = cursor.getLong(cursor.columnNames.indexOf("flag"))
+                            val conversationTime = cursor.getLong(cursor.columnNames.indexOf("conversationTime"))
 
                             if (conversationTime < firstOfficialConversationTime && officialPosition == -1) {
                                 officialPosition = cursor.position
