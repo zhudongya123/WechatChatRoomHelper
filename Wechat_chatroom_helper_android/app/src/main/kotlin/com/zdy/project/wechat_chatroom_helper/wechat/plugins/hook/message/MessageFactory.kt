@@ -121,6 +121,11 @@ object MessageFactory {
             field_unReadCount = cursor.getInt(cursor.getColumnIndex("unReadCount"))
 
 
+            val obj = ConversationReflectFunction.beanConstructor.newInstance("")
+            ConversationReflectFunction.beanClass.getField("field_flag").set(obj, field_flag)
+            backgroundFlag = XposedHelpers.callStaticMethod(ConversationReflectFunction.conversationStickyHeaderHandler, "a", obj, 4, 0) as Long
+
+
             nickname = if (field_nickname.isEmpty()) "群聊" else field_nickname
             val conversationContent = ConversationReflectFunction.getConversationContent(MainAdapter.originAdapter, this)
 

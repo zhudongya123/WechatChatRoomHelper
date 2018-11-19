@@ -243,8 +243,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
                     PageType.OFFICIAL -> RuntimeInfo.officialViewPresenter.refreshList(false, Any())
                     PageType.CHAT_ROOMS -> RuntimeInfo.chatRoomViewPresenter.refreshList(false, Any())
                 }
-
-                MainAdapter.originAdapter.notifyDataSetChanged()
+                MainAdapter.notifyDataSetChangedForOriginAdapter()
             }
         }
 

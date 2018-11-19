@@ -32,6 +32,8 @@ class ChatInfoModel {
     var unReadMuteCount: Int = 0
     var unReadCount: Int = 0
 
+    var backgroundFlag: Long = 0
+
 
     override fun equals(other: Any?): Boolean {
         if (other == null) return false

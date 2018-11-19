@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ListView
 import com.zdy.project.wechat_chatroom_helper.LogUtils
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageFactory
@@ -22,13 +23,17 @@ object MainAdapterLongClick {
     var onCreateContextMenuMethodInvokeGetChatRoomFlag = false
     var onCreateContextMenuMethodInvokeGetOfficialFlag = false
 
+    var chatRoomStickyValue = 0
+    var officialStickyValue = 0
 
     const val MENU_ITEM_CLEAR_UNREAD_CHATROOM = 1024
     const val MENU_ITEM_CLEAR_UNREAD_OFFICIAL = 1025
 
-    const val MENU_ITEM_STICK_HEADER_CHATROOM = 1034
-    const val MENU_ITEM_STICK_HEADER_OFFICIAL = 1035
+    const val MENU_ITEM_STICK_HEADER_CHATROOM_ENABLE = 1034
+    const val MENU_ITEM_STICK_HEADER_OFFICIAL_ENABLE = 1035
 
+    const val MENU_ITEM_STICK_HEADER_CHATROOM_DISABLE = 1044
+    const val MENU_ITEM_STICK_HEADER_OFFICIAL_DISABLE = 1045
 
     val CoordinateField = XposedHelpers.findClass(WXObject.Adapter.C.ConversationLongClickListener, RuntimeInfo.classloader).declaredFields.firstOrNull { it.type == IntArray::class.java }!!
 
@@ -37,8 +42,27 @@ object MainAdapterLongClick {
         return longClickClass.getConstructor(MainAdapter.originAdapter::class.java, ListView::class.java, Activity::class.java, IntArray::class.java)
     }
 
+    fun parseStickyInfo(value: Int, function: (Pair<Int, Int>) -> Unit) {
+
+        val chatRoomSticky = value shr 16
+
+        val officialSticky = value and 65535
+
+        function(Pair(chatRoomSticky, officialSticky))
+
+
+    }
+
+    fun saveStickyInfo(chatRoomValue: Int, officialValue: Int, function: (Int) -> Unit) {
+        function((chatRoomValue shl 16) + officialValue)
+        LogUtils.log("saveStickyInfo, ${(chatRoomValue shl 16) + officialValue}")
+    }
+
 
     fun executeHook() {
+
+        AppSaveInfo.getHelperStickyInfo()
+
 
         val conversationLongClickListener = XposedHelpers.findClass(WXObject.Adapter.C.ConversationLongClickListener, RuntimeInfo.classloader)
         val conversationMenuItemSelectedListener = XposedHelpers.findClass(WXObject.Adapter.C.ConversationMenuItemSelectedListener, RuntimeInfo.classloader)
@@ -51,7 +75,6 @@ object MainAdapterLongClick {
 
                 val longClickListener = param.thisObject
                 currentLongClickUsername = XposedHelpers.getObjectField(longClickListener, "talker") as String
-
 
 
                 //当在助手里的长按事件
@@ -99,7 +122,10 @@ object MainAdapterLongClick {
 
                     XposedHelpers.callMethod(contextMenu, "clear")
                     XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_CLEAR_UNREAD_CHATROOM, 0, "所有群聊标为已读")
-                    XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_CHATROOM, 0, "群聊助手置顶")
+                    if (chatRoomStickyValue > 0)
+                        XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_CHATROOM_DISABLE, 0, "取消群聊助手置顶")
+                    else
+                        XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_CHATROOM_ENABLE, 0, "群聊助手置顶")
 
                 }
 
@@ -109,7 +135,10 @@ object MainAdapterLongClick {
 
                     XposedHelpers.callMethod(contextMenu, "clear")
                     XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_CLEAR_UNREAD_OFFICIAL, 0, "所有服务号标为已读")
-                    XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_OFFICIAL, 0, "服务号助手置顶")
+                    if (officialStickyValue > 0)
+                        XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_OFFICIAL_DISABLE, 0, "取消服务号助手置顶")
+                    else
+                        XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_OFFICIAL_ENABLE, 0, "服务号助手置顶")
 
                 }
             }
@@ -130,20 +159,76 @@ object MainAdapterLongClick {
                     MENU_ITEM_CLEAR_UNREAD_CHATROOM -> {
                         MessageFactory.clearSpecChatRoomUnRead()
                         RuntimeInfo.chatRoomViewPresenter.refreshList(false, Any())
-                        MainAdapter.originAdapter.notifyDataSetChanged()
+                        MainAdapter.notifyDataSetChangedForOriginAdapter()
                         param.result = null
                     }
                     MENU_ITEM_CLEAR_UNREAD_OFFICIAL -> {
                         MessageFactory.clearSpecOfficialUnRead()
                         RuntimeInfo.officialViewPresenter.refreshList(false, Any())
-                        MainAdapter.originAdapter.notifyDataSetChanged()
+                        MainAdapter.notifyDataSetChangedForOriginAdapter()
                         param.result = null
                     }
-                    MENU_ITEM_STICK_HEADER_CHATROOM -> {
+                    MENU_ITEM_STICK_HEADER_CHATROOM_ENABLE -> {
+                        if (officialStickyValue > 0) {
+                            saveStickyInfo(officialStickyValue + 1, officialStickyValue) {
+                                AppSaveInfo.setHelperStickyInfo(it)
+                            }
+                        } else {
+                            saveStickyInfo(1, 0) {
+                                AppSaveInfo.setHelperStickyInfo(it)
+                            }
+                        }
+                        parseStickyInfo(AppSaveInfo.getHelperStickyInfo()) {
+                            chatRoomStickyValue = it.first
+                            officialStickyValue = it.second
+                        }
+
+                        MainAdapter.notifyDataSetChangedForOriginAdapter()
+
                         param.result = null
                     }
-                    MENU_ITEM_STICK_HEADER_OFFICIAL -> {
+                    MENU_ITEM_STICK_HEADER_OFFICIAL_ENABLE -> {
+                        if (chatRoomStickyValue > 0) {
+                            saveStickyInfo(chatRoomStickyValue, chatRoomStickyValue + 1) {
+                                AppSaveInfo.setHelperStickyInfo(it)
+                            }
+                        } else {
+                            saveStickyInfo(0, 1) {
+                                AppSaveInfo.setHelperStickyInfo(it)
+                            }
+                        }
+
+                        parseStickyInfo(AppSaveInfo.getHelperStickyInfo()) {
+                            chatRoomStickyValue = it.first
+                            officialStickyValue = it.second
+                        }
+
+                        MainAdapter.notifyDataSetChangedForOriginAdapter()
                         param.result = null
+                    }
+
+                    MENU_ITEM_STICK_HEADER_CHATROOM_DISABLE -> {
+                        saveStickyInfo(0, officialStickyValue) {
+                            AppSaveInfo.setHelperStickyInfo(it)
+                        }
+                        parseStickyInfo(AppSaveInfo.getHelperStickyInfo()) {
+                            chatRoomStickyValue = it.first
+                            officialStickyValue = it.second
+                        }
+
+                        MainAdapter.notifyDataSetChangedForOriginAdapter()
+                    }
+
+                    MENU_ITEM_STICK_HEADER_OFFICIAL_DISABLE -> {
+                        saveStickyInfo(chatRoomStickyValue, 0) {
+                            AppSaveInfo.setHelperStickyInfo(it)
+                        }
+                        parseStickyInfo(AppSaveInfo.getHelperStickyInfo()) {
+                            chatRoomStickyValue = it.first
+                            officialStickyValue = it.second
+                        }
+
+                        MainAdapter.notifyDataSetChangedForOriginAdapter()
                     }
                 }
             }

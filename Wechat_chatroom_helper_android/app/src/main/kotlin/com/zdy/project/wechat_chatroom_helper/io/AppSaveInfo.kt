@@ -39,6 +39,17 @@ object AppSaveInfo {
 
     private const val API_RECORD_TIME = "api_record_time"//上次请求的时间
 
+    private const val HELPER_STICKY_INFO = "helper_sticky_info"
+
+    fun getHelperStickyInfo(): Int {
+        return WechatJsonUtils.getJsonValue(HELPER_STICKY_INFO, 0)
+    }
+
+    fun setHelperStickyInfo(value: Int) {
+        WechatJsonUtils.putJsonValue(HELPER_STICKY_INFO, value)
+        WechatJsonUtils.putFileString()
+    }
+
     fun apiRecordTimeInfo(): Int {
         return WechatJsonUtils.getJsonValue(API_RECORD_TIME, (System.currentTimeMillis() / 1000).toInt())
     }
@@ -64,8 +75,7 @@ object AppSaveInfo {
     }
 
     fun openInfo(): Boolean {
-//        return WechatJsonUtils.getJsonValue(OPEN, true)
-        return false
+        return WechatJsonUtils.getJsonValue(OPEN, true)
     }
 
     fun setOpen(value: Boolean) {

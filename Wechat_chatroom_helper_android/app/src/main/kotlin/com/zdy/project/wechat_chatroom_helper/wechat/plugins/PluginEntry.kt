@@ -26,6 +26,9 @@ class PluginEntry : IXposedHookLoadPackage {
 
         if (p0.processName == Constants.WECHAT_PACKAGE_NAME) {
 
+            /**
+             * 验证微信数据环境
+             */
             try {
                 XposedHelpers.findClass(WXObject.Message.C.SQLiteDatabase, p0.classLoader)
             } catch (e: Throwable) {
@@ -33,6 +36,9 @@ class PluginEntry : IXposedHookLoadPackage {
                 return
             }
 
+            /**
+             * 初始化配置项和数据
+             */
             RuntimeInfo.classloader = p0.classLoader
 
             WechatJsonUtils.init(null)
@@ -51,7 +57,14 @@ class PluginEntry : IXposedHookLoadPackage {
 
             WXObject.Tool.C.Logcat = configJson.get("logcat").asString
 
+            MainAdapterLongClick.parseStickyInfo(AppSaveInfo.getHelperStickyInfo()) {
+                MainAdapterLongClick.chatRoomStickyValue = it.first
+                MainAdapterLongClick.officialStickyValue = it.second
+            }
 
+            /**
+             * 注入Hook
+             */
             try {
                 MessageHandler.executeHook()
                 MainAdapter.executeHook()

@@ -3,6 +3,7 @@ package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.TypedArray
+import android.database.DataSetObservable
 import android.graphics.drawable.Drawable
 import android.util.TypedValue
 import android.view.View
@@ -26,6 +27,8 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
+import net.dongliu.apk.parser.Main
+import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 
 @SuppressLint("StaticFieldLeak")
@@ -42,6 +45,7 @@ object MainAdapter {
 
     fun executeHook() {
         ConversationReflectFunction
+
 
         val conversationWithCacheAdapterGetItem = conversationWithCacheAdapter.superclass.declaredMethods
                 .filter { it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java }
@@ -167,6 +171,13 @@ object MainAdapter {
                                 unMuteReadIndicators.visibility = View.GONE
                             }
 
+
+                            if (MainAdapterLongClick.chatRoomStickyValue > 0) {
+                                itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt)
+                            } else {
+                                itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemSelectorBackGroundInt)
+                            }
+
                             param.result = view
 
                         }
@@ -197,6 +208,12 @@ object MainAdapter {
                                 setTextForNoMeasuredTextView(content, "${chatInfoModel.nickname}：${chatInfoModel.content}")
                                 setTextColorForNoMeasuredTextView(content, 0xFF999999.toInt())
                                 unMuteReadIndicators.visibility = View.GONE
+                            }
+
+                            if (MainAdapterLongClick.officialStickyValue > 0) {
+                                itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt)
+                            } else {
+                                itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemSelectorBackGroundInt)
                             }
 
                             param.result = view
@@ -263,7 +280,6 @@ object MainAdapter {
                             when (index) {
                                 in 0 until min -> index
                                 min -> {
-
                                     //param.result = getSpecItemForPlaceHolder(" ",param)//填充空数据
                                     //return
                                     0
@@ -279,9 +295,9 @@ object MainAdapter {
                             }
                         }
 
-                param.args[0] = newIndex
-
                 LogUtils.log("MessageHooker2.7, size = ${originAdapter.count}, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
+
+                param.args[0] = newIndex
             }
 
 
@@ -322,8 +338,40 @@ object MainAdapter {
                     firstChatRoomPosition = chatroomPosition
                     firstOfficialPosition = officialPosition
                 }
-            }
 
+                LogUtils.log("onEntryPositionChanged, firstChatRoomPosition = ${firstChatRoomPosition}, firstOfficialPosition = ${firstOfficialPosition}")
+
+                LogUtils.log("MainAdapterLongClick, chatRoomStickyValue = ${MainAdapterLongClick.chatRoomStickyValue}, firstOfficialPosition = ${MainAdapterLongClick.officialStickyValue}")
+
+                /**
+                 * 粘性头部~（置顶）
+                 */
+                if (MainAdapterLongClick.chatRoomStickyValue > 0 && MainAdapterLongClick.officialStickyValue == 0) {
+                    if (firstChatRoomPosition > firstOfficialPosition) {
+                        firstOfficialPosition += 1
+                    }
+                    firstChatRoomPosition = 0
+                }
+                if (MainAdapterLongClick.chatRoomStickyValue == 0 && MainAdapterLongClick.officialStickyValue > 0) {
+                    if (firstOfficialPosition > firstChatRoomPosition) {
+                        firstChatRoomPosition += 1
+                    }
+                    firstOfficialPosition = 0
+                }
+                if (MainAdapterLongClick.chatRoomStickyValue > 0 && MainAdapterLongClick.officialStickyValue > 0) {
+
+                    if (MainAdapterLongClick.chatRoomStickyValue > MainAdapterLongClick.officialStickyValue) {
+                        firstChatRoomPosition = 0
+                        firstOfficialPosition = 1
+                    }
+                    if (MainAdapterLongClick.chatRoomStickyValue < MainAdapterLongClick.officialStickyValue) {
+                        firstChatRoomPosition = 1
+                        firstOfficialPosition = 0
+                    }
+                }
+
+                LogUtils.log("onEntryPositionChanged2, firstChatRoomPosition = ${firstChatRoomPosition}, firstOfficialPosition = ${firstOfficialPosition}")
+            }
 
         })
     }
@@ -335,5 +383,41 @@ object MainAdapter {
         val mTextField = XposedHelpers.findField(XposedHelpers.findClass(WXObject.Adapter.C.NoMeasuredTextView, RuntimeInfo.classloader), "mText")
         mTextField.isAccessible = true
         return mTextField.get(noMeasuredTextView) as CharSequence
+    }
+
+    fun notifyDataSetChangedForOriginAdapter() {
+        notifyDataSetChanged(originAdapter)
+    }
+
+    fun notifyDataSetChanged(adapter: BaseAdapter) {
+        val dataSetObservable = XposedHelpers.getObjectField(adapter, "mDataSetObservable") as DataSetObservable
+        dataSetObservable.notifyChanged()
+
+        val field = originAdapter::class.java.declaredFields
+                .first {
+                    try {
+                        if (it.type.genericSuperclass != null &&
+                                (it.type.genericSuperclass as ParameterizedType).actualTypeArguments != null
+                                && (it.type.genericSuperclass as ParameterizedType).actualTypeArguments.size == 2) {
+                            LogUtils.log("notifyDataSetChangedForOriginAdapter, isPrivate = ${Modifier.isPrivate(it.modifiers)}" +
+                                    ",name = ${it.name}, type = ${it.type.name} and ${HashMap::class.java.name}, " +
+                                    (it.type.genericSuperclass as ParameterizedType).actualTypeArguments.joinToString { it.toString() })
+                        }
+                        !Modifier.isPrivate(it.modifiers) &&
+                                it.type.genericSuperclass != null &&
+                                (it.type.genericSuperclass as ParameterizedType).actualTypeArguments != null &&
+                                (it.type.genericSuperclass as ParameterizedType).actualTypeArguments.size == 2 &&
+                                ((it.type.genericSuperclass as ParameterizedType).actualTypeArguments[0] as Class<*>).name == String::class.java.name &&
+                                ((it.type.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>).name == Int::class.java.name
+                    } catch (t: Throwable) {
+                        t.printStackTrace()
+                        false
+                    }
+                }
+
+        LogUtils.log("notifyDataSetChangedForOriginAdapter222")
+        val hashMap = XposedHelpers.getObjectField(originAdapter, field.name) as HashMap<*, *>
+        hashMap.clear()
+
     }
 }

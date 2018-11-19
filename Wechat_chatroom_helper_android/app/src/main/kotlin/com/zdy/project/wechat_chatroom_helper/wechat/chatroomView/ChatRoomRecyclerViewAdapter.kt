@@ -83,14 +83,8 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
         holder.time.setTextColor(Color.parseColor("#" + AppSaveInfo.timeColorInfo()))
         holder.divider.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.dividerColorInfo()))
 
-        val obj = ConversationReflectFunction.beanConstructor.newInstance("")
-        ConversationReflectFunction.beanClass.getField("field_flag").set(obj, item.field_flag)
-
-        val backgroundFlag = XposedHelpers.callStaticMethod(ConversationReflectFunction.conversationStickyHeaderHandler, "a", obj, 4, 0) as Long
-
-        if (backgroundFlag != 0L) {
+        if (item.backgroundFlag != 0L) {
             holder.itemView.background = ChatRoomViewFactory.getItemViewBackgroundSticky(mContext)
-
         } else {
             holder.itemView.background = ChatRoomViewFactory.getItemViewBackground(mContext)
         }
