@@ -32,8 +32,6 @@ object WXClassParser {
         fun getConversationWithCacheAdapter(classes: MutableList<Class<*>>): Class<*>? {
             val clazz = classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }
                     .firstOrNull { it.methods.any { it.name == "clearCache" } }!!
-
-
             return clazz
         }
 

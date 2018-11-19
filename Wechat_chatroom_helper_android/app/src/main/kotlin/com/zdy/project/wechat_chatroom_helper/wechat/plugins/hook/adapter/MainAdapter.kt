@@ -341,7 +341,7 @@ object MainAdapter {
 
                 LogUtils.log("onEntryPositionChanged, firstChatRoomPosition = ${firstChatRoomPosition}, firstOfficialPosition = ${firstOfficialPosition}")
 
-                LogUtils.log("MainAdapterLongClick, chatRoomStickyValue = ${MainAdapterLongClick.chatRoomStickyValue}, firstOfficialPosition = ${MainAdapterLongClick.officialStickyValue}")
+                LogUtils.log("onEntryPositionChanged, chatRoomStickyValue = ${MainAdapterLongClick.chatRoomStickyValue}, firstOfficialPosition = ${MainAdapterLongClick.officialStickyValue}")
 
                 /**
                  * 粘性头部~（置顶）
@@ -393,31 +393,26 @@ object MainAdapter {
         val dataSetObservable = XposedHelpers.getObjectField(adapter, "mDataSetObservable") as DataSetObservable
         dataSetObservable.notifyChanged()
 
-        val field = originAdapter::class.java.declaredFields
-                .first {
-                    try {
-                        if (it.type.genericSuperclass != null &&
-                                (it.type.genericSuperclass as ParameterizedType).actualTypeArguments != null
-                                && (it.type.genericSuperclass as ParameterizedType).actualTypeArguments.size == 2) {
-                            LogUtils.log("notifyDataSetChangedForOriginAdapter, isPrivate = ${Modifier.isPrivate(it.modifiers)}" +
-                                    ",name = ${it.name}, type = ${it.type.name} and ${HashMap::class.java.name}, " +
-                                    (it.type.genericSuperclass as ParameterizedType).actualTypeArguments.joinToString { it.toString() })
-                        }
-                        !Modifier.isPrivate(it.modifiers) &&
-                                it.type.genericSuperclass != null &&
-                                (it.type.genericSuperclass as ParameterizedType).actualTypeArguments != null &&
-                                (it.type.genericSuperclass as ParameterizedType).actualTypeArguments.size == 2 &&
-                                ((it.type.genericSuperclass as ParameterizedType).actualTypeArguments[0] as Class<*>).name == String::class.java.name &&
-                                ((it.type.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>).name == Int::class.java.name
-                    } catch (t: Throwable) {
-                        t.printStackTrace()
-                        false
-                    }
-                }
-
-        LogUtils.log("notifyDataSetChangedForOriginAdapter222")
-        val hashMap = XposedHelpers.getObjectField(originAdapter, field.name) as HashMap<*, *>
-        hashMap.clear()
+//        val field = originAdapter::class.java.declaredFields
+//                .filter { !Modifier.isPrivate(it.modifiers) && HashMap::class.java.name == it.type.name }
+//                .filter { it.genericType != null }
+//                .first {
+//                    try {
+//                        it.genericType.toString() == "java.util.HashMap<java.lang.String, java.lang.Integer>"
+////                            it.genericType is ParameterizedType &&
+////                                    (it.genericType as ParameterizedType).actualTypeArguments != null &&
+////                                    (it.genericType as ParameterizedType).actualTypeArguments.size == 2 &&
+////                                    ((it.genericType as ParameterizedType).actualTypeArguments[0] as Class<*>).name == String::class.java.name &&
+////                                    ((it.genericType as ParameterizedType).actualTypeArguments[1] as Class<*>).name == Int::class.java.name
+//
+//                    } catch (t: Throwable) {
+//                        t.printStackTrace()
+//                        false
+//                    }
+//                }
+//
+//        val hashMap = XposedHelpers.getObjectField(originAdapter, field.name) as HashMap<*, *>
+//        hashMap.clear()
 
     }
 }

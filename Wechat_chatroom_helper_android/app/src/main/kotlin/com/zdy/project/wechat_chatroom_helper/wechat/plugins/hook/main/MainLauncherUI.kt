@@ -2,6 +2,7 @@ package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.view.KeyEvent
@@ -218,5 +219,15 @@ object MainLauncherUI {
                 })
     }
 
+
+    fun refreshListMainUI() {
+        val activity = launcherUI
+        activity.finish()
+        activity.startActivity(Intent(activity, activity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addFlags(Intent.FLAG_ACTIVITY_TASK_ON_HOME)
+        })
+        activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+    }
 
 }

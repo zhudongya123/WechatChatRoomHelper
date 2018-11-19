@@ -25,6 +25,7 @@ object AppSaveInfo {
     private const val CONTENT_COLOR = "content_color"
     private const val TIME_COLOR = "time_color"
     private const val DIVIDER_COLOR = "divider_color"
+    private const val HIGHLIGHT_COLOR = "highlight_color"
 
 
     private const val HAS_SUIT_WECHAT_DATA = "has_suit_wechat_data"
@@ -160,6 +161,14 @@ object AppSaveInfo {
 
     fun setDividerColorInfo(value: String) {
         WechatJsonUtils.putJsonValue(DIVIDER_COLOR, value)
+    }
+
+    fun highLightColorInfo(): String {
+        return WechatJsonUtils.getJsonValue(HIGHLIGHT_COLOR, Constants.DEFAULT_HIGHLIGHT_COLOR)
+    }
+
+    fun setHighLightColorInfo(value: String) {
+        WechatJsonUtils.putJsonValue(HIGHLIGHT_COLOR, value)
     }
 
     fun hasSuitWechatDataInfo(): Boolean {

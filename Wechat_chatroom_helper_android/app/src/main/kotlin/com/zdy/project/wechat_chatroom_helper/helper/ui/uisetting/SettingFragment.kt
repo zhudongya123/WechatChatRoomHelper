@@ -23,9 +23,9 @@ class SettingFragment : Fragment() {
     private lateinit var thisActivity: UISettingActivity
     private lateinit var contentLayout: LinearLayout
 
-    private var titles = arrayOf("助手ToolBar颜色", "助手背景颜色", "会话列表标题颜色", "会话列表内容颜色", "会话列表时间颜色", "会话列表分割线颜色")
+    private var titles = arrayOf("助手ToolBar颜色", "助手背景颜色", "会话列表标题颜色", "会话列表内容颜色", "会话列表时间颜色", "会话列表分割线颜色", "会话列表置顶项背景颜色")
     private var types = arrayOf(ChooseColorDialogHelper.ColorType.Toolbar, ChooseColorDialogHelper.ColorType.Helper, ChooseColorDialogHelper.ColorType.Nickname,
-            ChooseColorDialogHelper.ColorType.Content, ChooseColorDialogHelper.ColorType.Time, ChooseColorDialogHelper.ColorType.Divider)
+            ChooseColorDialogHelper.ColorType.Content, ChooseColorDialogHelper.ColorType.Time, ChooseColorDialogHelper.ColorType.Divider, ChooseColorDialogHelper.ColorType.HighLight)
 
 
     override fun onAttach(context: Context?) {
@@ -80,6 +80,9 @@ class SettingFragment : Fragment() {
         })
         settingViewHolder.dividerColor.observe(thisActivity, Observer<String> {
             setItemColor(5, it)
+        })
+        settingViewHolder.highlightColor.observe(thisActivity, Observer<String> {
+            setItemColor(6, it)
         })
     }
 

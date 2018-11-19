@@ -10,6 +10,7 @@ import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageFactory
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
@@ -84,9 +85,6 @@ object MainAdapterLongClick {
 
                 val index = param.args[2]
 
-                /**
-                 * 当在主页面的助手入口时，修改下标为0，这样会以为是headerView，没有长按事件
-                 */
                 if (MainAdapter.firstChatRoomPosition != -1 && (MainAdapter.firstChatRoomPosition + MainAdapter.listView.headerViewsCount) == index) {
                     onCreateContextMenuMethodInvokeGetChatRoomFlag = true
                 }
@@ -109,10 +107,6 @@ object MainAdapterLongClick {
                 val contextMenuInfo = param.args[2]
 
                 LogUtils.log("OnCreateContextMenu, contextMenu = $contextMenu, view = $view, contextMenuInfo = $contextMenuInfo")
-
-                for (method in contextMenu::class.java.methods) {
-                    LogUtils.log("OnCreateContextMenu, method = $method")
-                }
 
                 val position = XposedHelpers.getIntField(contextMenuInfo, "position")
 
@@ -153,7 +147,6 @@ object MainAdapterLongClick {
 
                 val menuItem = param.args[0] as MenuItem
 
-
                 when (menuItem.itemId) {
 
                     MENU_ITEM_CLEAR_UNREAD_CHATROOM -> {
@@ -183,8 +176,8 @@ object MainAdapterLongClick {
                             officialStickyValue = it.second
                         }
 
-                        MainAdapter.notifyDataSetChangedForOriginAdapter()
-
+                        //MainAdapter.notifyDataSetChangedForOriginAdapter()
+                        MainLauncherUI.refreshListMainUI()
                         param.result = null
                     }
                     MENU_ITEM_STICK_HEADER_OFFICIAL_ENABLE -> {
@@ -203,7 +196,8 @@ object MainAdapterLongClick {
                             officialStickyValue = it.second
                         }
 
-                        MainAdapter.notifyDataSetChangedForOriginAdapter()
+                        //MainAdapter.notifyDataSetChangedForOriginAdapter()
+                        MainLauncherUI.refreshListMainUI()
                         param.result = null
                     }
 
@@ -216,7 +210,10 @@ object MainAdapterLongClick {
                             officialStickyValue = it.second
                         }
 
-                        MainAdapter.notifyDataSetChangedForOriginAdapter()
+                        //MainAdapter.notifyDataSetChangedForOriginAdapter()
+                        MainLauncherUI.refreshListMainUI()
+                        param.result = null
+
                     }
 
                     MENU_ITEM_STICK_HEADER_OFFICIAL_DISABLE -> {
@@ -228,7 +225,10 @@ object MainAdapterLongClick {
                             officialStickyValue = it.second
                         }
 
-                        MainAdapter.notifyDataSetChangedForOriginAdapter()
+                        //MainAdapter.notifyDataSetChangedForOriginAdapter()
+                        MainLauncherUI.refreshListMainUI()
+                        param.result = null
+
                     }
                 }
             }

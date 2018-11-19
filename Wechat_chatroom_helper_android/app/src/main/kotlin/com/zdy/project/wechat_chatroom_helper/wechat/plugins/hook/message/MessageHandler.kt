@@ -148,6 +148,9 @@ object MessageHandler {
                 //如果本次查询是查询全部回话时，修改返回结果为全部联系人回话（不包括服务号和群聊）
                 when {
                     isQueryOriginAllConversation(sql) -> {
+
+                        LogUtils.log("MessageHandler, refreshAllConversation")
+
                         try {
                             val (firstOfficialUsername, firstChatRoomUsername) = refreshEntryUsername(thisObject)
                             iMainAdapterRefreshes.forEach { it.onEntryInit(firstChatRoomUsername, firstOfficialUsername) }
@@ -192,6 +195,8 @@ object MessageHandler {
                     }
                     isQueryOriginAllUnReadCount(sql) -> {
 
+                        LogUtils.log("MessageHandler, refreshAllConversationUnreadcount")
+
                         val list = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
 
                         val prefix = SqlForNewAllUnreadCount
@@ -228,7 +233,7 @@ object MessageHandler {
                 //确定服务号和群聊的入口位置
                     isQueryNewAllConversation(sql) -> {
 
-                        //      LogUtils.log("MessageHooker2.17,size = $SqlForNewAllContactConversation")
+                        LogUtils.log("MessageHooker2.17,size = $SqlForNewAllContactConversation")
 
                         //额外查询两次，找到当前最新的服务号和群聊的最近消息时间
                         val cursorForOfficial = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, SqlForGetFirstOfficial, null, null) as Cursor
@@ -240,12 +245,12 @@ object MessageHandler {
                         try {
                             if (cursorForOfficial.count > 0) {
                                 cursorForOfficial.moveToNext()
-                                firstOfficialConversationTime = cursorForOfficial.getLong(cursorForOfficial.getColumnIndex("conversationTime"))
+                                firstOfficialConversationTime = cursorForOfficial.getLong(cursorForOfficial.getColumnIndex("flag"))
                             }
 
                             if (cursorForChatRoom.count > 0) {
                                 cursorForChatRoom.moveToNext()
-                                firstChatRoomConversationTime = cursorForChatRoom.getLong(cursorForChatRoom.getColumnIndex("conversationTime"))
+                                firstChatRoomConversationTime = cursorForChatRoom.getLong(cursorForChatRoom.getColumnIndex("flag"))
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()
@@ -260,7 +265,7 @@ object MessageHandler {
                         //遍历每一条回话，比较会话时间
                         while (cursor.moveToNext()) {
 
-                            val conversationTime = cursor.getLong(cursor.columnNames.indexOf("conversationTime"))
+                            val conversationTime = cursor.getLong(cursor.columnNames.indexOf("flag"))
 
                             if (conversationTime < firstOfficialConversationTime && officialPosition == -1) {
                                 officialPosition = cursor.position

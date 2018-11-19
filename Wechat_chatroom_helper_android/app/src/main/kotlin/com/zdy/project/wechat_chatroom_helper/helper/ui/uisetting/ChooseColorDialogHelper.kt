@@ -13,8 +13,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import com.zdy.project.wechat_chatroom_helper.helper.utils.ColorUtils
-import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 
 /**
  * Created by zhudo on 2017/11/14.
@@ -22,7 +22,7 @@ import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 object ChooseColorDialogHelper {
 
     enum class ColorType {
-        Toolbar, Helper, Nickname, Content, Time, Divider
+        Toolbar, Helper, Nickname, Content, Time, Divider, HighLight
     }
 
 
@@ -40,6 +40,7 @@ object ChooseColorDialogHelper {
                         ColorType.Content -> AppSaveInfo.contentColorInfo()
                         ColorType.Time -> AppSaveInfo.timeColorInfo()
                         ColorType.Divider -> AppSaveInfo.dividerColorInfo()
+                        ColorType.HighLight -> AppSaveInfo.highLightColorInfo()
                     }
 
                     backgroundTintList = ColorStateList.valueOf(ColorUtils.getColorInt(color))
@@ -59,6 +60,7 @@ object ChooseColorDialogHelper {
                     ColorType.Content -> "会话列表内容颜色"
                     ColorType.Time -> "会话列表时间颜色"
                     ColorType.Divider -> "会话列表分割线颜色"
+                    ColorType.HighLight -> "置顶会话颜色"
                 })
                 .setMessage("请输入6位颜色值代码，示例：FF0000（红色），不支持alpha通道（透明度）")
                 .setView(subView)
@@ -74,6 +76,7 @@ object ChooseColorDialogHelper {
                         ColorType.Content -> AppSaveInfo.setContentColorInfo(value)
                         ColorType.Time -> AppSaveInfo.setTimeColorInfo(value)
                         ColorType.Divider -> AppSaveInfo.setDividerColorInfo(value)
+                       ColorType.HighLight -> AppSaveInfo.setHighLightColorInfo(value)
                     }
 
                 }
