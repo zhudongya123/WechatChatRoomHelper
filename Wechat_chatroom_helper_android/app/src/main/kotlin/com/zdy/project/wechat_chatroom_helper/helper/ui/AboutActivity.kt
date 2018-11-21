@@ -71,7 +71,7 @@ class AboutActivity : BaseActivity() {
             when (title) {
                 getString(R.string.sub_title_about_item_1) -> {
                     itemView.setOnClickListener {
-                        thisActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("http://carfielder.club:8080/wechat")))
+                        thisActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("http://122.152.202.233:8080/wechat/")))
                     }
                 }
 
