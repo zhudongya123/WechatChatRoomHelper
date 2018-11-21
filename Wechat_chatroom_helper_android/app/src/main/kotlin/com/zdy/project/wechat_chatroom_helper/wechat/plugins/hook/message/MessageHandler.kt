@@ -62,8 +62,7 @@ object MessageHandler {
                     "1 != 1  or rconversation.username like",
                     "rconversation.username like '%@chatroom'",
                     "( type & 512 ) == 0",
-                    "rcontact.username != 'officialaccounts'",
-                    "rconversation.username != 'notifymessage'")
+                    "rcontact.username != 'officialaccounts'")
 
     private const val FilterListForOriginAllUnread2 = "rcontact.verifyFlag == 0"
 
