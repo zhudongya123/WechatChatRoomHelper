@@ -1,21 +1,34 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.res.TypedArray
+import android.database.DataSetObservable
+import android.graphics.drawable.Drawable
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.interfaces.MessageEventNotifyListener
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.conversationClickListener
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.conversationStickyHeaderHandler
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.conversationWithAppBrandListView
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.conversationWithCacheAdapter
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageFactory
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageHandler
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.interfaces.MessageEventNotifyListener
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
+import net.dongliu.apk.parser.Main
+import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 
 @SuppressLint("StaticFieldLeak")
@@ -25,20 +38,18 @@ import java.lang.reflect.ParameterizedType
 object MainAdapter {
 
     lateinit var originAdapter: BaseAdapter
-    private lateinit var listView: ListView
+    lateinit var listView: ListView
 
-    private var firstChatRoomPosition = -1
-    private var firstOfficialPosition = -1
+    var firstChatRoomPosition = -1
+    var firstOfficialPosition = -1
 
     fun executeHook() {
-        ConversationItemHandler
-        val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithCacheAdapter, RuntimeInfo.classloader)
-        val conversationWithAppBrandListView = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithAppBrandListView, RuntimeInfo.classloader)
-        val conversationClickListener = XposedHelpers.findClass(WXObject.Adapter.C.ConversationClickListener, RuntimeInfo.classloader)
+        ConversationReflectFunction
+
+
         val conversationWithCacheAdapterGetItem = conversationWithCacheAdapter.superclass.declaredMethods
                 .filter { it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java }
                 .first { it.name != "getItem" && it.name != "getItemId" }.name
-
 
         hookAllConstructors(conversationWithCacheAdapter, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -95,35 +106,20 @@ object MainAdapter {
                 Int::class.java, View::class.java, ViewGroup::class.java,
                 object : XC_MethodHook() {
 
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-
-                        val position = param.args[0] as Int
-                        val view = param.args[1] as View?
-
-                        LogUtils.log("MMBaseAdapter_getView, beforeHookedMethod, index = " + position + ", view = $view")
-
-                        if (view == null) {
-                            /**
-                             * 此时为第一次刷新，处理逻辑放在{@link XC_MethodHook.afterHookedMethod}
-                             */
-                        } else {
-                            /**
-                             * 后续刷新
-                             * 一旦符合条件，只做相应自定义UI刷新，跳过微信处理逻辑
-                             */
-                            refreshEntryView(view, position, param)
-                        }
-                    }
-
                     override fun afterHookedMethod(param: MethodHookParam) {
                         val position = param.args[0] as Int
-                        val view = param.args[1] as View?
+                        val view = param.result as View?
 
                         LogUtils.log("MMBaseAdapter_getView, afterHookedMethod, index = $position, view = $view")
 
-                        if (view != null)
-                            refreshEntryView(view, position, param)
+                        if (position == firstChatRoomPosition || position == firstOfficialPosition) {
+
+                            if (view != null) {
+                                refreshEntryView(view, position, param)
+                            }
+                        }
                     }
+
 
                     private fun refreshEntryView(view: View?, position: Int, param: MethodHookParam) {
                         LogUtils.log("MessageHooker2.6,position = $position, position = $position, " +
@@ -132,16 +128,19 @@ object MainAdapter {
                         val itemView = view as ViewGroup
 
                         val avatarContainer = itemView.getChildAt(0) as ViewGroup
-                        val contentContainer = itemView.getChildAt(1) as ViewGroup
+                        val textContainer = itemView.getChildAt(1) as ViewGroup
 
                         val avatar = avatarContainer.getChildAt(0) as ImageView
                         val unReadCount = avatarContainer.getChildAt(1) as TextView
                         val unMuteReadIndicators = avatarContainer.getChildAt(2) as ImageView
 
-                        val nickname = ((contentContainer.getChildAt(0) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(0)
-                        val time = (contentContainer.getChildAt(0) as ViewGroup).getChildAt(1)
+                        val nickname = ((textContainer.getChildAt(0) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(0)
+                        val time = (textContainer.getChildAt(0) as ViewGroup).getChildAt(1)
 
-                        val content = ((contentContainer.getChildAt(1) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(1)
+                        val sendStatus = ((textContainer.getChildAt(1) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(0)
+                        val content = ((textContainer.getChildAt(1) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(1)
+                        val muteImage = ((textContainer.getChildAt(1) as ViewGroup).getChildAt(1) as ViewGroup).getChildAt(1)
+
 
                         if (position == firstChatRoomPosition) {
                             unReadCount.visibility = View.GONE
@@ -150,13 +149,17 @@ object MainAdapter {
                             val allChatRoom = MessageFactory.getSpecChatRoom()
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
                             val totalUnReadCount = MessageFactory.getUnReadCount(allChatRoom)
+                            LogUtils.log("getUnReadCountItemChatRoom " + allChatRoom.joinToString { "unReadCount = ${it.unReadCount}" })
 
+                            val chatInfoModel = allChatRoom.sortedBy { -it.field_conversationTime }.first()
 
-                            setTextForNoMeasuredTextView(nickname, "群消息")
-                            setTextForNoMeasuredTextView(time, allChatRoom.first().conversationTime)
+                            setTextForNoMeasuredTextView(nickname, "群聊消息")
+                            setTextForNoMeasuredTextView(time, chatInfoModel.conversationTime)
                             avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar.context, PageType.CHAT_ROOMS))
 
-                            LogUtils.log("getUnReadCountItemChatRoom " + allChatRoom.joinToString { "unReadCount = ${it.unReadCount}" })
+                            sendStatus.visibility = View.GONE
+                            muteImage.visibility = View.GONE
+
 
                             if (unReadCountItem > 0) {
                                 setTextForNoMeasuredTextView(content, "[有 $unReadCountItem 个群聊收到 $totalUnReadCount 条新消息]")
@@ -164,11 +167,19 @@ object MainAdapter {
                                 unMuteReadIndicators.visibility = View.VISIBLE
                             } else {
                                 setTextColorForNoMeasuredTextView(content, 0xFF999999.toInt())
-                                setTextForNoMeasuredTextView(content, "${allChatRoom.first().nickname}：${allChatRoom.first().content}")
+                                setTextForNoMeasuredTextView(content, "${chatInfoModel.nickname}：${chatInfoModel.content}")
                                 unMuteReadIndicators.visibility = View.GONE
                             }
 
+
+                            if (MainAdapterLongClick.chatRoomStickyValue > 0) {
+                                itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt)
+                            } else {
+                                itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemSelectorBackGroundInt)
+                            }
+
                             param.result = view
+
                         }
                         if (position == firstOfficialPosition) {
                             unReadCount.visibility = View.GONE
@@ -178,25 +189,36 @@ object MainAdapter {
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)
                             val totalUnReadCount = MessageFactory.getUnReadCount(allOfficial)
 
-
-                            setTextForNoMeasuredTextView(nickname, "服务号")
-                            setTextForNoMeasuredTextView(time, allOfficial.first().conversationTime)
-                            avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar.context, PageType.OFFICIAL))
-
                             LogUtils.log("getUnReadCountItemChatRoom " + allOfficial.joinToString { "unReadCount = ${it.unReadCount}" })
+
+                            sendStatus.visibility = View.GONE
+                            muteImage.visibility = View.GONE
+
+                            val chatInfoModel = allOfficial.sortedBy { -it.field_conversationTime }.first()
+
+                            setTextForNoMeasuredTextView(nickname, "服务号消息")
+                            setTextForNoMeasuredTextView(time, chatInfoModel.conversationTime)
+                            avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar.context, PageType.OFFICIAL))
 
                             if (unReadCountItem > 0) {
                                 setTextForNoMeasuredTextView(content, "[有 $unReadCountItem 个服务号收到 $totalUnReadCount 条新消息]")
                                 setTextColorForNoMeasuredTextView(content, 0xFFF57C00.toInt())
                                 unMuteReadIndicators.visibility = View.VISIBLE
                             } else {
-                                setTextForNoMeasuredTextView(content, "${allOfficial.first().nickname}：${allOfficial.first().content}")
+                                setTextForNoMeasuredTextView(content, "${chatInfoModel.nickname}：${chatInfoModel.content}")
                                 setTextColorForNoMeasuredTextView(content, 0xFF999999.toInt())
                                 unMuteReadIndicators.visibility = View.GONE
                             }
 
+                            if (MainAdapterLongClick.officialStickyValue > 0) {
+                                itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt)
+                            } else {
+                                itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemSelectorBackGroundInt)
+                            }
+
                             param.result = view
                         }
+
                     }
                 })
 
@@ -212,77 +234,146 @@ object MainAdapter {
 
                 if (param.thisObject::class.simpleName != conversationWithCacheAdapter.simpleName) return
 
+                /**
+                 * 附加长按逻辑
+                 *
+                 * 在 onItemLongClick 内会调用 getItem 方法来获取 bean ，使用 flag 来判断是否有必要拦截
+                 */
+                if (MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlagNickName != "") {
+                    param.result = getSpecItemForPlaceHolder(MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlagNickName, param)
+                    MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlagNickName = ""
+                    return
+                }
+                /**
+                 * 长按逻辑结束
+                 */
+
                 val index = param.args[0] as Int
 
+                /**
+                 * 比较两个入口的先后并确定位置
+                 */
                 val min = Math.min(firstChatRoomPosition, firstOfficialPosition)
                 val max = Math.max(firstChatRoomPosition, firstOfficialPosition)
 
 
                 val newIndex =
+                //如果没有群助手和公众号
                         if (min == -1 && max == -1) {
                             index
-                        } else if (min == -1 || max == -1) {
+                        }
+                        //群助手和公众号只有一个
+                        else if (min == -1 || max == -1) {
                             when (index) {
                                 in 0 until max -> index
                                 max -> {
-                                    param.result = getBlankItemForPlaceHolder(param)
-                                    return
+                                    //param.result = getSpecItemForPlaceHolder(" ",param)//填充空数据
+                                    //return
+                                    0
                                 }
                                 in max + 1 until Int.MAX_VALUE -> index - 1
                                 else -> index //TODO
                             }
-                        } else {
+                        }
+                        //群助手和公众号都存在
+                        else {
                             when (index) {
                                 in 0 until min -> index
                                 min -> {
-                                    param.result = getBlankItemForPlaceHolder(param)
-                                    return
+                                    //param.result = getSpecItemForPlaceHolder(" ",param)//填充空数据
+                                    //return
+                                    0
                                 }
                                 in min + 1 until max -> index - 1
                                 max -> {
-                                    param.result = getBlankItemForPlaceHolder(param)
-                                    return
+                                    //param.result = getSpecItemForPlaceHolder(" ",param)//填充空数据
+                                    //return
+                                    0
                                 }
                                 in max + 1 until Int.MAX_VALUE -> index - 2
                                 else -> index //TODO
                             }
                         }
 
-                param.args[0] = newIndex
-
                 LogUtils.log("MessageHooker2.7, size = ${originAdapter.count}, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
+
+                param.args[0] = newIndex
             }
 
 
-            fun getBlankItemForPlaceHolder(param: MethodHookParam): Any {
+            fun getSpecItemForPlaceHolder(username: CharSequence, param: MethodHookParam): Any {
                 val beanClass = (param.thisObject::class.java.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>
 
                 val constructor = beanClass.getConstructor(String::class.java)
-                val newInstance = constructor.newInstance(" ")
+                val newInstance = constructor.newInstance(username)
 
                 return newInstance
             }
 
         })
 
-        MessageHandler.addMessageEventNotifyListener(
-                object : MessageEventNotifyListener {
 
-                    override fun onNewMessageCreate(talker: String, createTime: Long, content: Any) {
-                        super.onNewMessageCreate(talker, createTime, content)
+        findAndHookMethod(conversationStickyHeaderHandler, ConversationReflectFunction.stickyHeaderHandlerMethod.name,
+                ConversationReflectFunction.beanClass, Int::class.java, Long::class.java, object : XC_MethodHook() {
+
+            override fun afterHookedMethod(param: MethodHookParam) {
+
+                val bean = param.args[0] as Any
+                val result = param.result as Long
+
+                LogUtils.log("conversationStickyHeaderHandler, username = ${XposedHelpers.getObjectField(bean, "field_username")}, result = ${result}")
+            }
+
+        })
+        MessageHandler.addMessageEventNotifyListener(object : MessageEventNotifyListener {
+
+            override fun onNewMessageCreate(talker: String, createTime: Long, content: Any) {
+                super.onNewMessageCreate(talker, createTime, content)
+            }
+
+            override fun onEntryPositionChanged(chatroomPosition: Int, officialPosition: Int) {
+                super.onEntryPositionChanged(chatroomPosition, officialPosition)
+
+                if (firstOfficialPosition != officialPosition || firstChatRoomPosition != chatroomPosition) {
+                    firstChatRoomPosition = chatroomPosition
+                    firstOfficialPosition = officialPosition
+                }
+
+                LogUtils.log("onEntryPositionChanged, firstChatRoomPosition = ${firstChatRoomPosition}, firstOfficialPosition = ${firstOfficialPosition}")
+
+                LogUtils.log("onEntryPositionChanged, chatRoomStickyValue = ${MainAdapterLongClick.chatRoomStickyValue}, firstOfficialPosition = ${MainAdapterLongClick.officialStickyValue}")
+
+                /**
+                 * 粘性头部~（置顶）
+                 */
+                if (MainAdapterLongClick.chatRoomStickyValue > 0 && MainAdapterLongClick.officialStickyValue == 0) {
+                    if (firstChatRoomPosition > firstOfficialPosition) {
+                        firstOfficialPosition += 1
                     }
-
-                    override fun onEntryPositionChanged(chatroomPosition: Int, officialPosition: Int) {
-                        super.onEntryPositionChanged(chatroomPosition, officialPosition)
-
-                        if (firstOfficialPosition != officialPosition || firstChatRoomPosition != chatroomPosition) {
-                            firstChatRoomPosition = chatroomPosition
-                            firstOfficialPosition = officialPosition
-                        }
+                    firstChatRoomPosition = 0
+                }
+                if (MainAdapterLongClick.chatRoomStickyValue == 0 && MainAdapterLongClick.officialStickyValue > 0) {
+                    if (firstOfficialPosition > firstChatRoomPosition) {
+                        firstChatRoomPosition += 1
                     }
+                    firstOfficialPosition = 0
+                }
+                if (MainAdapterLongClick.chatRoomStickyValue > 0 && MainAdapterLongClick.officialStickyValue > 0) {
 
+                    if (MainAdapterLongClick.chatRoomStickyValue > MainAdapterLongClick.officialStickyValue) {
+                        firstChatRoomPosition = 0
+                        firstOfficialPosition = 1
+                    }
+                    if (MainAdapterLongClick.chatRoomStickyValue < MainAdapterLongClick.officialStickyValue) {
+                        firstChatRoomPosition = 1
+                        firstOfficialPosition = 0
+                    }
+                }
 
-                })
+                LogUtils.log("onEntryPositionChanged2, firstChatRoomPosition = ${firstChatRoomPosition}, firstOfficialPosition = ${firstOfficialPosition}")
+            }
+
+        })
     }
 
     fun setTextForNoMeasuredTextView(noMeasuredTextView: Any, charSequence: CharSequence) = XposedHelpers.callMethod(noMeasuredTextView, "setText", charSequence)
@@ -292,5 +383,36 @@ object MainAdapter {
         val mTextField = XposedHelpers.findField(XposedHelpers.findClass(WXObject.Adapter.C.NoMeasuredTextView, RuntimeInfo.classloader), "mText")
         mTextField.isAccessible = true
         return mTextField.get(noMeasuredTextView) as CharSequence
+    }
+
+    fun notifyDataSetChangedForOriginAdapter() {
+        notifyDataSetChanged(originAdapter)
+    }
+
+    fun notifyDataSetChanged(adapter: BaseAdapter) {
+        val dataSetObservable = XposedHelpers.getObjectField(adapter, "mDataSetObservable") as DataSetObservable
+        dataSetObservable.notifyChanged()
+
+//        val field = originAdapter::class.java.declaredFields
+//                .filter { !Modifier.isPrivate(it.modifiers) && HashMap::class.java.name == it.type.name }
+//                .filter { it.genericType != null }
+//                .first {
+//                    try {
+//                        it.genericType.toString() == "java.util.HashMap<java.lang.String, java.lang.Integer>"
+////                            it.genericType is ParameterizedType &&
+////                                    (it.genericType as ParameterizedType).actualTypeArguments != null &&
+////                                    (it.genericType as ParameterizedType).actualTypeArguments.size == 2 &&
+////                                    ((it.genericType as ParameterizedType).actualTypeArguments[0] as Class<*>).name == String::class.java.name &&
+////                                    ((it.genericType as ParameterizedType).actualTypeArguments[1] as Class<*>).name == Int::class.java.name
+//
+//                    } catch (t: Throwable) {
+//                        t.printStackTrace()
+//                        false
+//                    }
+//                }
+//
+//        val hashMap = XposedHelpers.getObjectField(originAdapter, field.name) as HashMap<*, *>
+//        hashMap.clear()
+
     }
 }

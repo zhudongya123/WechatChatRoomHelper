@@ -1,9 +1,13 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser
 
+import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ImageView
 import com.zdy.project.wechat_chatroom_helper.Constants
+import com.zdy.project.wechat_chatroom_helper.LogUtils
+import java.lang.reflect.Modifier
+import java.lang.reflect.ParameterizedType
 
 object WXClassParser {
 
@@ -26,14 +30,9 @@ object WXClassParser {
     object Adapter {
 
         fun getConversationWithCacheAdapter(classes: MutableList<Class<*>>): Class<*>? {
-            return classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }
-                    .firstOrNull {
-                        try {
-                            return@firstOrNull it.getMethod("clearCache") != null
-                        } catch (e: Throwable) {
-                            return@firstOrNull false
-                        }
-                    }
+            val clazz = classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }
+                    .firstOrNull { it.methods.any { it.name == "clearCache" } }!!
+            return clazz
         }
 
         fun getConversationWithAppBrandListView(classes: MutableList<Class<*>>): Class<*>? {
@@ -43,20 +42,62 @@ object WXClassParser {
         fun getConversationClickListener(classes: MutableList<Class<*>>): Class<*>? {
             return classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }
                     .filterNot { it.name.contains("$") }
-                    .filter filter1@{
-                        try {
-                            return@filter1 it.getMethod("onItemClick", AdapterView::class.java, View::class.java, Int::class.java, Long::class.java) != null
-                        } catch (e: Throwable) {
-                            return@filter1 false
+                    .filter {
+                        it.methods.any {
+                            it.name == "onItemClick" &&
+                                    it.parameterTypes.size == 4 &&
+                                    it.parameterTypes[0] == AdapterView::class.java &&
+                                    it.parameterTypes[1] == View::class.java &&
+                                    it.parameterTypes[2] == Int::class.java &&
+                                    it.parameterTypes[3] == Long::class.java
                         }
                     }
                     .filter { it.interfaces.size == 1 }
                     .firstOrNull { it.enclosingClass == null }
         }
 
+        fun getConversationLongClickListener(classes: MutableList<Class<*>>): Class<*>? {
+            return classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }
+                    .filterNot { it.name.contains("$") }
+                    .filter {
+                        it.methods.any {
+                            it.name == "onItemLongClick" && it.parameterTypes.size == 4 &&
+                                    it.parameterTypes[0] == AdapterView::class.java &&
+                                    it.parameterTypes[1] == View::class.java &&
+                                    it.parameterTypes[2] == Int::class.java &&
+                                    it.parameterTypes[3] == Long::class.java
+                        }
+                    }
+                    .firstOrNull { it.constructors.any { it.parameterTypes.size == 4 } }
+
+        }
+
+        fun getConversationMenuItemSelectedListener(classes: MutableList<Class<*>>): Class<*>? {
+            return classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }
+                    .filter { it.name.split("$").size == 2 }
+                    .filter {
+                        it.methods.any {
+                            it.name == "onMMMenuItemSelected" &&
+                                    it.parameterTypes.size == 2 &&
+                                    it.parameterTypes[0] == MenuItem::class.java &&
+                                    it.parameterTypes[1] == Int::class.java
+                        }
+                    }
+                    .firstOrNull {
+                        try {
+                            LogUtils.log(it.declaredConstructors.first().toString())
+                            it.declaredConstructors.size == 1 && it.declaredConstructors.any { it.parameterTypes.size == 1 }
+                        } catch (t: Throwable) {
+                            t.printStackTrace()
+                            false
+                        }
+                    }
+
+        }
 
         fun getConversationAvatar(classes: MutableList<Class<*>>): Class<*>? {
-            return classes.filter { it.name.contains("com.tencent.mm.pluginsdk.ui") }
+            return classes
+                    .filter { it.name.contains("com.tencent.mm.pluginsdk.ui") }
                     .filter { it.declaredClasses.isNotEmpty() }
                     .firstOrNull { it.declaredClasses.any { it.methods.map { it.name }.contains("doInvalidate") } }!!
                     .declaredClasses!!
@@ -69,5 +110,76 @@ object WXClassParser {
         }
 
 
+        fun getConversationStickyHeaderHandler(classes: MutableList<Class<*>>): Class<*>? {
+
+            val conversationWithCacheAdapter = getConversationWithCacheAdapter(classes)!!
+            val beanClass = (conversationWithCacheAdapter.genericSuperclass as ParameterizedType).actualTypeArguments[1]
+
+            return classes
+                    .filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.plugin.messenger.foundation") }
+                    .filter { Modifier.isFinal(it.modifiers) }
+                    .firstOrNull { it ->
+                        try {
+                            it.methods.any { method ->
+                                method.parameterTypes.size == 3 &&
+                                        Modifier.isStatic(method.modifiers) &&
+                                        method.parameterTypes[0] == beanClass &&
+                                        method.parameterTypes[1] == Int::class.java &&
+                                        method.parameterTypes[2] == Long::class.java &&
+                                        method.returnType == Long::class.java
+                            }
+                        } catch (t: Throwable) {
+                            t.printStackTrace()
+                            false
+                        }
+                    }
+        }
+
+
+        fun getConversationItemHighLightSelectorBackGroundInt(classes: MutableList<Class<*>>): Int? {
+
+            val backgroundClass = classes
+                    // .filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.plugin") }
+                    .first {
+                        try {
+                            it.fields.any { field ->
+                                field.name == "comm_item_highlight_selector" &&
+                                        Modifier.isFinal(field.modifiers) &&
+                                        Modifier.isStatic(field.modifiers) &&
+                                        Modifier.isPublic(field.modifiers) &&
+                                        field.type == Int::class.java
+                            }
+                        } catch (t: Throwable) {
+                            t.printStackTrace()
+                            false
+                        }
+                    }
+
+            val field = backgroundClass.getField("comm_item_highlight_selector")
+            return field.getInt(null)
+        }
+
+        fun getConversationItemSelectorBackGroundInt(classes: MutableList<Class<*>>): Int? {
+
+            val backgroundClass = classes
+                    // .filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.plugin") }
+                   .first {
+                        try {
+                            it.fields.any { field ->
+                                field.name == "comm_list_item_selector" &&
+                                        Modifier.isFinal(field.modifiers) &&
+                                        Modifier.isStatic(field.modifiers) &&
+                                        Modifier.isPublic(field.modifiers) &&
+                                        field.type == Int::class.java
+                            }
+                        } catch (t: Throwable) {
+                            t.printStackTrace()
+                            false
+                        }
+                    }
+
+            val field = backgroundClass.getField("comm_list_item_selector")
+            return field.getInt(null)
+        }
     }
 }

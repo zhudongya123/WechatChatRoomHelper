@@ -1,7 +1,10 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 
 import android.content.Context
+import android.graphics.PorterDuff
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.StateListDrawable
 import android.support.annotation.IdRes
 import android.text.TextUtils
 import android.util.TypedValue
@@ -144,6 +147,13 @@ object ChatRoomViewFactory {
         val typedArray = context.obtainStyledAttributes(attr)
         val drawable = typedArray.getDrawable(0)
         typedArray.recycle()
+        return drawable
+    }
+
+    fun getItemViewBackgroundSticky(context: Context): Drawable? {
+
+        val drawable = StateListDrawable()
+        drawable.addState(intArrayOf(), ColorDrawable(0xFFF0F0F0.toInt()))
         return drawable
     }
 

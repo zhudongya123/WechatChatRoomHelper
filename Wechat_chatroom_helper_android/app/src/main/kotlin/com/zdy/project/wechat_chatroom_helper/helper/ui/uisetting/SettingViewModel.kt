@@ -17,6 +17,7 @@ class SettingViewModel(context: Application) : AndroidViewModel(context) {
     var contentColor = MutableLiveData<String>()
     var timeColor = MutableLiveData<String>()
     var dividerColor = MutableLiveData<String>()
+    var highlightColor = MutableLiveData<String>()
 
     fun start() {
         refreshColorInfo()
@@ -29,5 +30,6 @@ class SettingViewModel(context: Application) : AndroidViewModel(context) {
         contentColor.value = AppSaveInfo.contentColorInfo()
         timeColor.value = AppSaveInfo.timeColorInfo()
         dividerColor.value = AppSaveInfo.dividerColorInfo()
+        highlightColor.value = AppSaveInfo.highLightColorInfo()
     }
 }

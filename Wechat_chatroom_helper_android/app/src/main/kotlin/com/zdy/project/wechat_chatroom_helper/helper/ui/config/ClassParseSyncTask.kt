@@ -77,7 +77,12 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
             configData["conversationWithCacheAdapter"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
             configData["conversationWithAppBrandListView"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithAppBrandListView(classes))
             configData["conversationAvatar"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
+            configData["conversationLongClickListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationLongClickListener(classes))
             configData["conversationClickListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
+            configData["conversationMenuItemSelectedListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationMenuItemSelectedListener(classes))
+            configData["conversationStickyHeaderHandler"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationStickyHeaderHandler(classes))
+            configData["conversationItemHighLightSelectorBackGroundInt"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationItemHighLightSelectorBackGroundInt(classes))
+            configData["conversationItemSelectorBackGroundInt"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationItemSelectorBackGroundInt(classes))
             configData["logcat"] = parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
 
             writeNewConfig()
@@ -88,9 +93,9 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                     apkFile.apkMeta.versionCode.toString())
         } catch (e: Throwable) {
             CrashReport.postCatchedException(e)
-            e.printStackTrace()
             sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_ERROR),
-                    e.toString())
+                    e.toString() + "\n" + e.stackTrace.joinToString("\n") { it.toString() })
+            e.printStackTrace()
         }
     }
 
@@ -120,6 +125,12 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                 else -> ""
             }
         }
+    }
+
+    @Throws(Exception::class)
+    private fun parseAnnotatedElementToName(element: Int?): String {
+        sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_NORMAL), weakA.get()!!.getString(R.string.config_step3_text4), element.toString())
+        return element.toString()
     }
 
     private fun writeNewConfig() {

@@ -12,6 +12,8 @@ import android.widget.Button;
 import com.zdy.project.wechat_chatroom_helper.R;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 
+import java.util.ArrayList;
+
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout;
 
 /**

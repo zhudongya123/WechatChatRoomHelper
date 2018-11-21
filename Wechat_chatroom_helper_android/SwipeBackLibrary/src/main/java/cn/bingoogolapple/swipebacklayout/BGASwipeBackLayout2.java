@@ -1031,6 +1031,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
     }
 
     private boolean closePane(View pane, int initialVelocity) {
+        Log.v("TrackHelperCan'tOpen", "BGASwipeBackLayout2 -> closePane, pane = "+pane+", initialVelocity = "+initialVelocity);
         if (mFirstLayout || smoothSlideTo(0.f, initialVelocity)) {
             mPreservedOpenState = false;
             return true;
@@ -1079,6 +1080,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      * @return true if the pane was slideable and is now closed/in the process of closing
      */
     public boolean closePane() {
+        Log.v("TrackHelperCan'tOpen", "BGASwipeBackLayout2 -> closePane");
         return closePane(mSlideableView, 0);
     }
 
@@ -1226,6 +1228,8 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      * @param velocity    initial velocity in case of fling, or 0.
      */
     boolean smoothSlideTo(float slideOffset, int velocity) {
+        Log.v("TrackHelperCan'tOpen", "BGASwipeBackLayout2 -> smoothSlideTo, slideOffset = "+slideOffset+", velocity = "+velocity+", mCanSlide = "+mCanSlide);
+
         if (!mCanSlide) {
             // Nothing to do.
             return false;

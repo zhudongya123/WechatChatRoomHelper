@@ -14,10 +14,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.zdy.project.wechat_chatroom_helper.R
-import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
-import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomRecyclerViewAdapter
-import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
+import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomRecyclerViewAdapter
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -136,6 +136,7 @@ class PreviewFragment : Fragment() {
                             conversationTime = timeString
                             unReadCount = 1
                             field_username = ""
+                            backgroundFlag = 1
                         })
                 it.add(ChatInfoModel()
                         .apply {

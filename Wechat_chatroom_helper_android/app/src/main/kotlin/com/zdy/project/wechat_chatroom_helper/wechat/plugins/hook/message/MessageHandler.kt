@@ -4,8 +4,8 @@ import android.content.ContentValues
 import android.database.Cursor
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.interfaces.MessageEventNotifyListener
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
@@ -18,13 +18,13 @@ object MessageHandler {
     private const val MessageDBName = "EnMicroMsg.db"
 
     //查询当前第一个服务号的会话信息
-    private const val SqlForGetFirstOfficial = "select rconversation.username, flag from rconversation,rcontact " +
+    private const val SqlForGetFirstOfficial = "select rconversation.username, flag, rconversation.conversationTime from rconversation,rcontact " +
             "where ( rcontact.username = rconversation.username and rcontact.verifyFlag != 0) and ( parentRef is null  or parentRef = '' )  " +
             "and ( 1 !=1 or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  " +
-            "and rconversation.username != 'qmessage' order by flag desc limit 1"
+            "and rconversation.username != 'qmessage' order by conversationTime desc limit 1"
 
     //查询当前第一个群聊的会话信息
-    private const val SqlForGetFirstChatroom = "select username, flag from rconversation where  username like '%@chatroom' order by flag desc limit 1"
+    private const val SqlForGetFirstChatroom = "select username, flag, conversationTime from rconversation where  username like '%@chatroom' order by conversationTime desc limit 1"
 
     //查询除去服务号和群聊的sql语句，可以通过拼接添加自定义名单
     private var SqlForNewAllContactConversation = arrayOf("select unReadCount, status, isSend, conversationTime, rconversation.username, ",
@@ -62,10 +62,9 @@ object MessageHandler {
                     "1 != 1  or rconversation.username like",
                     "rconversation.username like '%@chatroom'",
                     "( type & 512 ) == 0",
-                    "rcontact.username != 'officialaccounts'",
-                    "rconversation.username != 'notifymessage'")
+                    "rcontact.username != 'officialaccounts'")
 
-    private const val FilterListForOriginAllUnread2 = "rcontact.verifyFlag != 24"
+    private const val FilterListForOriginAllUnread2 = "rcontact.verifyFlag == 0"
 
     //判断当前sql语句是否为微信原始的未读数逻辑
     private fun isQueryOriginAllUnReadCount(sql: String) = FilterListForOriginAllUnread1.all { sql.contains(it) } && !sql.contains(FilterListForOriginAllUnread2)
@@ -115,7 +114,6 @@ object MessageHandler {
         }
 
     }
-
     fun executeHook() {
 
         val database =
@@ -149,11 +147,14 @@ object MessageHandler {
                 //如果本次查询是查询全部回话时，修改返回结果为全部联系人回话（不包括服务号和群聊）
                 when {
                     isQueryOriginAllConversation(sql) -> {
+
+                        LogUtils.log("MessageHandler, refreshAllConversation")
+
                         try {
                             val (firstOfficialUsername, firstChatRoomUsername) = refreshEntryUsername(thisObject)
                             iMainAdapterRefreshes.forEach { it.onEntryInit(firstChatRoomUsername, firstOfficialUsername) }
 
-                            RuntimeInfo.chatRoomViewPresenter.refreshList(false,Any())
+                            RuntimeInfo.chatRoomViewPresenter.refreshList(false, Any())
                             RuntimeInfo.officialViewPresenter.refreshList(false, Any())
 
                             val list = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_CHAT_ROOM).apply { addAll(AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)) }
@@ -193,17 +194,19 @@ object MessageHandler {
                     }
                     isQueryOriginAllUnReadCount(sql) -> {
 
+                        LogUtils.log("MessageHandler, refreshAllConversationUnreadcount")
+
                         val list = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
 
                         val prefix = SqlForNewAllUnreadCount
 
                         val sqlForAllUnReadCount = if (list.size == 0) {
-                            val postfix = " and rcontact.verifyFlag != 24 "
+                            val postfix = " and rcontact.verifyFlag == 0 "
 
                             prefix + postfix
                         } else {
 
-                            val postfix = " or rcontact.verifyFlag != 24 )) "
+                            val postfix = " or rcontact.verifyFlag == 0 )) "
                             var addition = " and ( rconversation.username = rcontact.username and ( "
 
                             list.forEachIndexed { index, username ->
@@ -229,7 +232,7 @@ object MessageHandler {
                 //确定服务号和群聊的入口位置
                     isQueryNewAllConversation(sql) -> {
 
-                        //      LogUtils.log("MessageHooker2.17,size = $SqlForNewAllContactConversation")
+                        LogUtils.log("MessageHooker2.17,size = $SqlForNewAllContactConversation")
 
                         //额外查询两次，找到当前最新的服务号和群聊的最近消息时间
                         val cursorForOfficial = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, SqlForGetFirstOfficial, null, null) as Cursor
@@ -309,7 +312,6 @@ object MessageHandler {
                         val nullColumnHack = param.args[1] as String?
                         val initialValues = param.args[2] as ContentValues?
                         val conflictAlgorithm = param.args[3] as Int
-                        val result = param.result as Long
 
 
                         if (table == "message") {

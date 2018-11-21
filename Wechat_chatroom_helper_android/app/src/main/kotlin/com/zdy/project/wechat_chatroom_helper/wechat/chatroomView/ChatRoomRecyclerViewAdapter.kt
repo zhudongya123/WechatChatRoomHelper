@@ -9,13 +9,13 @@ import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.Shape
 import android.os.Bundle
 import android.support.v7.widget.RecyclerView
+import android.view.View
 import android.view.ViewGroup
-import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.ConversationItemHandler
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
 import de.robv.android.xposed.XposedHelpers
 import java.util.*
 
@@ -28,12 +28,12 @@ import java.util.*
 class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : RecyclerView.Adapter<ChatRoomViewHolder>() {
 
 
-    private lateinit var onDialogItemClickListener: OnDialogItemClickListener
+    private lateinit var onItemActionListener: OnItemActionListener
 
     var data = ArrayList<ChatInfoModel>()
 
-    fun setOnDialogItemClickListener(onDialogItemClickListener: OnDialogItemClickListener) {
-        this.onDialogItemClickListener = onDialogItemClickListener
+    fun setOnItemActionListener(onDialogItemActionListener: OnItemActionListener) {
+        this.onItemActionListener = onDialogItemActionListener
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatRoomViewHolder {
@@ -67,15 +67,14 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
             })
         else holder.unread.background = BitmapDrawable(mContext.resources)
 
-        holder.itemView.background = ChatRoomViewFactory.getItemViewBackground(mContext)
 
         if (!item.field_username.isEmpty()) {
-            ConversationItemHandler.getConversationAvatar(item.field_username.toString(), holder.avatar)
+            ConversationReflectFunction.getConversationAvatar(item.field_username.toString(), holder.avatar)
             holder.itemView.setOnClickListener {
-                XposedHelpers.callMethod(MainLauncherUI.launcherUI, WXObject.MainUI.M.StartChattingOfLauncherUI, item.field_username, null, true)
+                onItemActionListener.onItemClick(holder.itemView, position, item)
             }
             holder.itemView.setOnLongClickListener {
-                return@setOnLongClickListener true
+                onItemActionListener.onItemLongClick(holder.itemView, position, item)
             }
         }
 
@@ -83,6 +82,12 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
         holder.content.setTextColor(Color.parseColor("#" + AppSaveInfo.contentColorInfo()))
         holder.time.setTextColor(Color.parseColor("#" + AppSaveInfo.timeColorInfo()))
         holder.divider.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.dividerColorInfo()))
+
+        if (item.backgroundFlag != 0L) {
+            holder.itemView.background = ChatRoomViewFactory.getItemViewBackgroundSticky(mContext)
+        } else {
+            holder.itemView.background = ChatRoomViewFactory.getItemViewBackground(mContext)
+        }
     }
 
 
@@ -112,14 +117,15 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
             else holder.unread.background = BitmapDrawable(mContext.resources)
         }
     }
+
     override fun getItemCount(): Int {
         return data.size
     }
 
-    interface OnDialogItemClickListener {
-        fun onItemClick(relativePosition: Int)
+    interface OnItemActionListener {
+        fun onItemClick(view: View, relativePosition: Int, chatInfoModel: ChatInfoModel)
 
-        fun onItemLongClick(relativePosition: Int)
+        fun onItemLongClick(view: View, relativePosition: Int, chatInfoModel: ChatInfoModel): Boolean
     }
 
 

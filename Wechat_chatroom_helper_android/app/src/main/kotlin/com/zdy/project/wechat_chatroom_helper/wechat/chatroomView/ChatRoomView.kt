@@ -1,31 +1,34 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.os.Build
-import android.os.Bundle
-import android.support.v7.util.DiffUtil
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.TypedValue
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout
-import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialogBuilder
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapterLongClick
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageFactory
+import de.robv.android.xposed.XposedHelpers
 import network.ApiManager
-import java.util.*
 
 
 /**
@@ -33,6 +36,9 @@ import java.util.*
  */
 
 class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private val pageType: Int) : ChatRoomContract.View {
+
+
+    private lateinit var mLongClickListener: Any
 
     private lateinit var mPresenter: ChatRoomContract.Presenter
     private lateinit var swipeBackLayout: MySwipeBackLayout
@@ -58,7 +64,18 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
                 ViewGroup.LayoutParams.MATCH_PARENT)
         mainView.orientation = LinearLayout.VERTICAL
 
-        mRecyclerView = RecyclerView(mContext)
+
+        mRecyclerView = object : RecyclerView(mContext) {
+            override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+
+                val rawX = event.rawX
+                val rawY = event.rawY
+                val coordinate = intArrayOf(rawX.toInt(), rawY.toInt())
+                XposedHelpers.setObjectField(mLongClickListener, MainAdapterLongClick.CoordinateField.name, coordinate)
+
+                return super.dispatchTouchEvent(event)
+            }
+        }
         mRecyclerView.id = android.R.id.list
         mRecyclerView.layoutManager = LinearLayoutManager(mContext)
 
@@ -83,7 +100,6 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         swipeBackLayout.attachToView(mainView, mContext)
         swipeBackLayout.setPanelSlideListener(object : BGASwipeBackLayout2.PanelSlideListener {
             override fun onPanelSlide(panel: View, slideOffset: Float) {
-
             }
 
             override fun onPanelOpened(panel: View) {
@@ -96,8 +112,8 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
     }
 
 
-    override fun setOnDialogItemClickListener(listener: ChatRoomRecyclerViewAdapter.OnDialogItemClickListener) {
-        mAdapter.setOnDialogItemClickListener(listener)
+    override fun setOnItemActionListener(listener: ChatRoomRecyclerViewAdapter.OnItemActionListener) {
+        mAdapter.setOnItemActionListener(listener)
     }
 
 
@@ -119,11 +135,33 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         swipeBackLayout.openPane()
     }
 
+    override fun getCurrentData(): ArrayList<ChatInfoModel> {
+        return mAdapter.data
+    }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun init() {
         mAdapter = ChatRoomRecyclerViewAdapter(mContext)
         LogUtils.log("mRecyclerView = $mRecyclerView, mAdapter = $mAdapter")
         mRecyclerView.adapter = mAdapter
+
+        mLongClickListener = MainAdapterLongClick.getConversationLongClickClassConstructor()
+                .newInstance(MainAdapter.originAdapter, MainAdapter.listView, MainLauncherUI.launcherUI, intArrayOf(300, 300))
+        setOnItemActionListener(object : ChatRoomRecyclerViewAdapter.OnItemActionListener {
+            override fun onItemClick(view: View, relativePosition: Int, chatInfoModel: ChatInfoModel) {
+                XposedHelpers.callMethod(MainLauncherUI.launcherUI, WXObject.MainUI.M.StartChattingOfLauncherUI, chatInfoModel.field_username, null, true)
+            }
+
+            override fun onItemLongClick(view: View, relativePosition: Int, chatInfoModel: ChatInfoModel): Boolean {
+                MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlagNickName = chatInfoModel.field_username.toString()
+                XposedHelpers.callMethod(mLongClickListener, "onItemLongClick",
+                        arrayOf(AdapterView::class.java, View::class.java, Int::class.java, Long::class.java),
+                        MainAdapter.listView, view, 100000 + relativePosition + MainAdapter.listView.headerViewsCount, 0)
+                return true
+            }
+        })
+
+
     }
 
 
@@ -133,56 +171,12 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
                     if (pageType == PageType.CHAT_ROOMS) MessageFactory.getSpecChatRoom()
                     else MessageFactory.getSpecOfficial()
 
-//            val oldDatas = mAdapter.data
-//            val diffResult = DiffUtil.calculateDiff(DiffCallBack(oldDatas, newDatas), true)
-//            diffResult.dispatchUpdatesTo(mAdapter)
             mAdapter.data = newDatas
-
             mAdapter.notifyDataSetChanged()
         }
         LogUtils.log("showMessageRefresh for all recycler view , pageType = " + PageType.printPageType(pageType))
     }
 
-    class DiffCallBack(private var mOldDatas: ArrayList<ChatInfoModel>,
-                       private var mNewDatas: ArrayList<ChatInfoModel>) : DiffUtil.Callback() {
-
-        init {
-            if (mOldDatas.size != 0 && mNewDatas.size != 0) {
-
-                LogUtils.log("DiffCallBack, oldData = ${mOldDatas.joinToString { it.content.toString() + "\n" }}")
-                LogUtils.log("DiffCallBack, newData = ${mNewDatas.joinToString { it.content.toString() + "\n" }}")
-            }
-        }
-
-        override fun getOldListSize() = mOldDatas.size
-
-        override fun getNewListSize() = mNewDatas.size
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-                mOldDatas[oldItemPosition].field_username == mNewDatas[newItemPosition].field_username
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int) =
-                mOldDatas[oldItemPosition] == mNewDatas[newItemPosition]
-
-        override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-
-            val oldItem = mOldDatas[oldItemPosition]
-            val newItem = mNewDatas[newItemPosition]
-
-            LogUtils.log("getChangePayload, oldItem = $oldItem, newItem = $newItem")
-
-            return if (oldItem == newItem) null
-            else {
-                val bundle = Bundle()
-                if (oldItem.content != newItem.content) bundle.putCharSequence("content", newItem.content)
-                if (oldItem.conversationTime != newItem.conversationTime) bundle.putCharSequence("conversationTime", newItem.conversationTime)
-                if (oldItem.unReadMuteCount != newItem.unReadMuteCount) bundle.putInt("unReadMuteCount", newItem.unReadMuteCount)
-                if (oldItem.unReadCount != newItem.unReadCount) bundle.putInt("unReadCount", newItem.unReadCount)
-
-                if (bundle.isEmpty) null else bundle
-            }
-        }
-    }
 
     private fun initToolbar(): View {
         mToolbarContainer = RelativeLayout(mContext)
@@ -249,8 +243,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
                     PageType.OFFICIAL -> RuntimeInfo.officialViewPresenter.refreshList(false, Any())
                     PageType.CHAT_ROOMS -> RuntimeInfo.chatRoomViewPresenter.refreshList(false, Any())
                 }
-
-                MainAdapter.originAdapter.notifyDataSetChanged()
+                MainAdapter.notifyDataSetChangedForOriginAdapter()
             }
         }
 

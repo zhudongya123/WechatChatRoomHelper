@@ -2,6 +2,7 @@ package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.view.KeyEvent
@@ -13,9 +14,9 @@ import android.widget.LinearLayout
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
@@ -89,6 +90,7 @@ object MainLauncherUI {
 
                 if (param.thisObject::class.java.name == WXObject.MainUI.C.LauncherUI) {
 
+                    LogUtils.log("MainLauncherUI, ChatRoomViewPresenter init")
                     launcherUI = param.thisObject as Activity
 
                     RuntimeInfo.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
@@ -217,5 +219,15 @@ object MainLauncherUI {
                 })
     }
 
+
+    fun refreshListMainUI() {
+        val activity = launcherUI
+        activity.finish()
+        activity.startActivity(Intent(activity, activity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addFlags(Intent.FLAG_ACTIVITY_TASK_ON_HOME)
+        })
+        activity.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+    }
 
 }

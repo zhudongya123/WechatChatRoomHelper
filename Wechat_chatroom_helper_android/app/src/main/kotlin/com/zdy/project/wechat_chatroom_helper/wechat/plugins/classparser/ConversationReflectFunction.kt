@@ -1,17 +1,20 @@
-package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter
+package com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser
 
 import android.widget.ImageView
 import com.blankj.utilcode.util.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import de.robv.android.xposed.XposedHelpers
 import java.lang.reflect.ParameterizedType
 
-object ConversationItemHandler {
+object ConversationReflectFunction {
 
-    private val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithCacheAdapter, RuntimeInfo.classloader)
-    private val conversationAvatar = XposedHelpers.findClass(WXObject.Adapter.C.ConversationAvatar, RuntimeInfo.classloader)
+    val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithCacheAdapter, RuntimeInfo.classloader)
+    val conversationAvatar = XposedHelpers.findClass(WXObject.Adapter.C.ConversationAvatar, RuntimeInfo.classloader)
+    val conversationWithAppBrandListView = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithAppBrandListView, RuntimeInfo.classloader)
+    val conversationClickListener = XposedHelpers.findClass(WXObject.Adapter.C.ConversationClickListener, RuntimeInfo.classloader)
+    val conversationStickyHeaderHandler = XposedHelpers.findClass(WXObject.Adapter.C.ConversationStickyHeaderHandler, RuntimeInfo.classloader)
+
 
     private val conversationTimeStringMethod = conversationWithCacheAdapter.declaredMethods
             .filter { !it.isAccessible }.filter { it.returnType == CharSequence::class.java }
@@ -20,13 +23,15 @@ object ConversationItemHandler {
     private val conversationAvatarMethod = conversationAvatar.methods
             .first { it.parameterTypes.isNotEmpty() && it.parameterTypes[0].name == ImageView::class.java.name }
 
-    private val beanClass = ((conversationWithCacheAdapter.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>)
-    private val beanConstructor = beanClass.constructors.filter { it.parameterTypes.size == 1 }.firstOrNull { it.parameterTypes[0] == String::class.java }
+    val beanClass = ((conversationWithCacheAdapter.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>)
+    val beanConstructor = beanClass.constructors.filter { it.parameterTypes.size == 1 }.first { it.parameterTypes[0] == String::class.java }
+
+    val stickyHeaderHandlerMethod = conversationStickyHeaderHandler.methods.first { it.parameterTypes.size == 3 }
 
 
     fun getConversationTimeString(adapter: Any, conversationTime: Long): CharSequence {
 
-        conversationTimeStringMethod.let {
+        conversationTimeStringMethod.let { _ ->
 
             beanConstructor?.let {
                 val obj = beanConstructor.newInstance("")
@@ -39,6 +44,7 @@ object ConversationItemHandler {
         }
         return ""
     }
+
 
     fun getConversationAvatar(field_username: String, imageView: ImageView) =
             XposedHelpers.callStaticMethod(conversationAvatar, conversationAvatarMethod.name, imageView, field_username)
@@ -94,5 +100,6 @@ object ConversationItemHandler {
 //        com.zdy.project.wechat_chatroom_helper.LogUtils.log("getConversationContent = $fieldString")
         return if (content.isEmpty()) chatInfoModel.field_content else content
     }
+
 
 }

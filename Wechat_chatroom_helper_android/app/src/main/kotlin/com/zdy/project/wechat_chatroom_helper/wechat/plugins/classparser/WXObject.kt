@@ -16,6 +16,8 @@ object WXObject {
             const val QUERY = "rawQueryWithFactory"
             const val INSERT = "insertWithOnConflict"
             const val UPDATE = "updateWithOnConflict"
+            const val EXECSQL = "execSQL"
+
         }
     }
 
@@ -43,8 +45,12 @@ object WXObject {
             const val SetAdapter = "setAdapter"
             const val GetCount = "getCount"
             const val OnItemClick = "onItemClick"
-            const val GetView = "getView"
+            const val OnItemLongClick = "onItemLongClick"
+            const val OnCreateContextMenu = "onCreateContextMenu"
+            const val OnMMMenuItemSelected = "onMMMenuItemSelected"
 
+
+            const val GetView = "getView"
         }
 
         object C {
@@ -52,17 +58,23 @@ object WXObject {
             var ConversationWithAppBrandListView = ""
             var ConversationAvatar = ""
             var ConversationClickListener = ""
+            var ConversationLongClickListener = ""
+            var ConversationMenuItemSelectedListener = ""
+            var ConversationStickyHeaderHandler = ""
+
             const val NoMeasuredTextView = "com.tencent.mm.ui.base.NoMeasuredTextView"
         }
 
-
+        object F{
+            var ConversationItemHighLightSelectorBackGroundInt = 0
+            var ConversationItemSelectorBackGroundInt = 0
+        }
     }
 
 
     object Tool {
 
         object C {
-
             var Logcat = ""
         }
 

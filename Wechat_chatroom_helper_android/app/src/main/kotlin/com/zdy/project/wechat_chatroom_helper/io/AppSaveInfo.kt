@@ -25,6 +25,7 @@ object AppSaveInfo {
     private const val CONTENT_COLOR = "content_color"
     private const val TIME_COLOR = "time_color"
     private const val DIVIDER_COLOR = "divider_color"
+    private const val HIGHLIGHT_COLOR = "highlight_color"
 
 
     private const val HAS_SUIT_WECHAT_DATA = "has_suit_wechat_data"
@@ -38,6 +39,17 @@ object AppSaveInfo {
     const val WHITE_LIST_OFFICIAL = "white_list_official"
 
     private const val API_RECORD_TIME = "api_record_time"//上次请求的时间
+
+    private const val HELPER_STICKY_INFO = "helper_sticky_info"
+
+    fun getHelperStickyInfo(): Int {
+        return WechatJsonUtils.getJsonValue(HELPER_STICKY_INFO, 0)
+    }
+
+    fun setHelperStickyInfo(value: Int) {
+        WechatJsonUtils.putJsonValue(HELPER_STICKY_INFO, value)
+        WechatJsonUtils.putFileString()
+    }
 
     fun apiRecordTimeInfo(): Int {
         return WechatJsonUtils.getJsonValue(API_RECORD_TIME, (System.currentTimeMillis() / 1000).toInt())
@@ -64,8 +76,7 @@ object AppSaveInfo {
     }
 
     fun openInfo(): Boolean {
-//        return WechatJsonUtils.getJsonValue(OPEN, true)
-        return false
+        return WechatJsonUtils.getJsonValue(OPEN, true)
     }
 
     fun setOpen(value: Boolean) {
@@ -150,6 +161,14 @@ object AppSaveInfo {
 
     fun setDividerColorInfo(value: String) {
         WechatJsonUtils.putJsonValue(DIVIDER_COLOR, value)
+    }
+
+    fun highLightColorInfo(): String {
+        return WechatJsonUtils.getJsonValue(HIGHLIGHT_COLOR, Constants.DEFAULT_HIGHLIGHT_COLOR)
+    }
+
+    fun setHighLightColorInfo(value: String) {
+        WechatJsonUtils.putJsonValue(HIGHLIGHT_COLOR, value)
     }
 
     fun hasSuitWechatDataInfo(): Boolean {

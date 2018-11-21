@@ -1,6 +1,7 @@
 package ui
 
 import android.content.*
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.SwitchCompat
@@ -17,6 +18,7 @@ import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActiv
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import manager.PermissionHelper
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import java.util.HashMap
 
 
 class MainActivity : BaseActivity() {
@@ -33,6 +35,7 @@ class MainActivity : BaseActivity() {
         //加載佈局
         setContentView(R.layout.activity_main)
         listContent = findViewById(R.id.list_content)
+
     }
 
 
@@ -47,7 +50,7 @@ class MainActivity : BaseActivity() {
                     initSetting(arrayOf("群消息助手状态",
                             getString(R.string.title_function_setting_string),
                             getString(R.string.title_ui_setting_string),
-                             getString(R.string.title_question_string),
+                            getString(R.string.title_question_string),
                             /*   getString(R.string.title_other_setting_string),*/
                             getString(R.string.title_about_string)))
                 }

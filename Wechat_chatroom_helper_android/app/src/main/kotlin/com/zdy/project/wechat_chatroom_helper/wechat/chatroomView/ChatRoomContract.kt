@@ -1,7 +1,7 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 
 import android.view.ViewGroup
-import java.util.*
+import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 
 /**
  * Created by Mr.Zdy on 2017/8/27.
@@ -22,6 +22,8 @@ interface ChatRoomContract {
         fun show()
 
         fun dismiss()
+
+        fun getCurrentData(): ArrayList<ChatInfoModel>
     }
 
     interface View {
@@ -30,7 +32,7 @@ interface ChatRoomContract {
 
         val isShowing: Boolean
 
-        fun setOnDialogItemClickListener(listener: ChatRoomRecyclerViewAdapter.OnDialogItemClickListener)
+        fun setOnItemActionListener(listener: ChatRoomRecyclerViewAdapter.OnItemActionListener)
 
         fun show()
 
@@ -43,5 +45,7 @@ interface ChatRoomContract {
         fun refreshList(isForce: Boolean, data: Any?)
 
         fun setPresenter(presenter: Presenter)
+
+        fun getCurrentData(): ArrayList<ChatInfoModel>
     }
 }

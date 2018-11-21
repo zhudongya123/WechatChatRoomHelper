@@ -16,6 +16,7 @@ class ChatInfoModel {
 
     var field_conversationTime: Long = 0L
 
+    var field_flag: Long = 0L
     var field_isSend: Int = 0
     var field_status: Int = 0
     var field_attrflag: Int = 0
@@ -30,6 +31,8 @@ class ChatInfoModel {
     var conversationTime: CharSequence = ""
     var unReadMuteCount: Int = 0
     var unReadCount: Int = 0
+
+    var backgroundFlag: Long = 0
 
 
     override fun equals(other: Any?): Boolean {
