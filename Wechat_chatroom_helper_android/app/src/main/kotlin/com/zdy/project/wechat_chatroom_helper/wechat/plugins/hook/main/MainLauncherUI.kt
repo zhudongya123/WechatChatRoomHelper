@@ -87,6 +87,7 @@ object MainLauncherUI {
 
         findAndHookMethod(Activity::class.java, WXObject.MainUI.M.OnCreate, Bundle::class.java, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
+                LogUtils.log("MainLauncherUI, activity onCreate, ${param.thisObject::class.java.name}")
 
                 if (param.thisObject::class.java.name == WXObject.MainUI.C.LauncherUI) {
 
@@ -96,6 +97,37 @@ object MainLauncherUI {
                     RuntimeInfo.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
                     RuntimeInfo.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
                 }
+            }
+        })
+
+        findAndHookMethod(Activity::class.java, WXObject.MainUI.M.OnResume, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                LogUtils.log("MainLauncherUI, activity onResume, ${param.thisObject::class.java.name}")
+
+
+//                if (param.thisObject::class.java.name == WXObject.MainUI.C.LauncherUI) {
+//
+//                    LogUtils.log("MainLauncherUI, ChatRoomViewPresenter init")
+//                    launcherUI = param.thisObject as Activity
+//
+//                    RuntimeInfo.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
+//                    RuntimeInfo.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
+//                }
+            }
+        })
+
+        findAndHookMethod(Activity::class.java, "onPause", object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                LogUtils.log("MainLauncherUI, activity onPause, ${param.thisObject::class.java.name}")
+
+//                if (param.thisObject::class.java.name == WXObject.MainUI.C.LauncherUI) {
+//
+//                    LogUtils.log("MainLauncherUI, ChatRoomViewPresenter init")
+//                    launcherUI = param.thisObject as Activity
+//
+//                    RuntimeInfo.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
+//                    RuntimeInfo.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
+//                }
             }
         })
 
