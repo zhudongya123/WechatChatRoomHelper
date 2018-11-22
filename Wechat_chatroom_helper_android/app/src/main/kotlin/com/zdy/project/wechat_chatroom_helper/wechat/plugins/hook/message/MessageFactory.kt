@@ -123,7 +123,9 @@ object MessageFactory {
 
             val obj = ConversationReflectFunction.beanConstructor.newInstance("")
             ConversationReflectFunction.beanClass.getField("field_flag").set(obj, field_flag)
-            backgroundFlag = XposedHelpers.callStaticMethod(ConversationReflectFunction.conversationStickyHeaderHandler, "a", obj, 4, 0) as Long
+
+            backgroundFlag = XposedHelpers.callStaticMethod(ConversationReflectFunction.conversationStickyHeaderHandler,
+                    ConversationReflectFunction.stickyHeaderHandlerMethod.name, obj, 4, 0) as Long
 
 
             nickname = if (field_nickname.isEmpty()) "群聊" else field_nickname

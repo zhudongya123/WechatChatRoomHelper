@@ -313,18 +313,7 @@ object MainAdapter {
         })
 
 
-        findAndHookMethod(conversationStickyHeaderHandler, ConversationReflectFunction.stickyHeaderHandlerMethod.name,
-                ConversationReflectFunction.beanClass, Int::class.java, Long::class.java, object : XC_MethodHook() {
 
-            override fun afterHookedMethod(param: MethodHookParam) {
-
-                val bean = param.args[0] as Any
-                val result = param.result as Long
-
-                LogUtils.log("conversationStickyHeaderHandler, username = ${XposedHelpers.getObjectField(bean, "field_username")}, result = ${result}")
-            }
-
-        })
         MessageHandler.addMessageEventNotifyListener(object : MessageEventNotifyListener {
 
             override fun onNewMessageCreate(talker: String, createTime: Long, content: Any) {

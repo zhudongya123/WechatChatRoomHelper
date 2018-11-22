@@ -176,7 +176,6 @@ object MainAdapterLongClick {
                             officialStickyValue = it.second
                         }
 
-                        //MainAdapter.notifyDataSetChangedForOriginAdapter()
                         MainLauncherUI.refreshListMainUI()
                         param.result = null
                     }
@@ -196,7 +195,6 @@ object MainAdapterLongClick {
                             officialStickyValue = it.second
                         }
 
-                        //MainAdapter.notifyDataSetChangedForOriginAdapter()
                         MainLauncherUI.refreshListMainUI()
                         param.result = null
                     }
@@ -210,7 +208,6 @@ object MainAdapterLongClick {
                             officialStickyValue = it.second
                         }
 
-                        //MainAdapter.notifyDataSetChangedForOriginAdapter()
                         MainLauncherUI.refreshListMainUI()
                         param.result = null
 
@@ -225,7 +222,6 @@ object MainAdapterLongClick {
                             officialStickyValue = it.second
                         }
 
-                        //MainAdapter.notifyDataSetChangedForOriginAdapter()
                         MainLauncherUI.refreshListMainUI()
                         param.result = null
 
