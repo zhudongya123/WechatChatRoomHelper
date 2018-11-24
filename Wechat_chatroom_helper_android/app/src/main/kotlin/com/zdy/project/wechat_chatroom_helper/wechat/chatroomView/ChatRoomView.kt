@@ -3,6 +3,7 @@ package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -20,7 +21,7 @@ import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialogBuilder
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.DrawableMaker
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
@@ -186,6 +187,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         val height = ScreenUtils.dip2px(mContext, 48f)
 
         mToolbar.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
+        mToolbar.navigationIcon = BitmapDrawable(mContext.resources, DrawableMaker.getArrowBitMapForBack(Color.WHITE))
 
         mToolbar.setNavigationOnClickListener { dismiss() }
         mToolbar.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.toolbarColorInfo()))
@@ -210,7 +212,9 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             val imageButton = mNavButtonView.get(mToolbar) as ImageButton
             val layoutParams = imageButton.layoutParams
             layoutParams.height = height
+            layoutParams.width = ScreenUtils.dip2px(mContext,56f)
             imageButton.layoutParams = layoutParams
+            imageButton.scaleType = ImageView.ScaleType.FIT_CENTER
 
         } catch (e: ClassNotFoundException) {
             e.printStackTrace()
@@ -228,7 +232,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         imageView.layoutParams = params
         val padding = height / 8
         imageView.setPadding(padding, padding, padding, padding)
-        imageView.setImageDrawable(AvatarMaker.handleAvatarDrawable(mContext, pageType, 0x00000000))
+        imageView.setImageDrawable(DrawableMaker.handleAvatarDrawable(mContext, pageType, 0x00000000))
 
         imageView.setOnClickListener {
             val whiteListDialogBuilder = WhiteListDialogBuilder()

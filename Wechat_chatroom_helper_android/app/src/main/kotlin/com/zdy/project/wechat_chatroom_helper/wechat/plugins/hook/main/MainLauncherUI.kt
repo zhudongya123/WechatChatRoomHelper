@@ -37,38 +37,7 @@ object MainLauncherUI {
                 val fitSystemWindowLayoutView = param.thisObject as ViewGroup
                 fitSystemWindowLayoutView.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
                     override fun onChildViewAdded(parent: View, child: View) {
-
-                        val chattingView: View//聊天View
-                        val chattingViewPosition: Int//聊天View的下標
-                        var fitWindowChildCount = 0//fitSystemWindowLayoutView的 child 数量
-                        var chatRoomViewPosition = 0
-                        var officialViewPosition = 0
-
-                        /*
-                         * 微信在某个版本之后 View 数量发生变化，下标也要相应刷新
-                         **/
-                        if (isWechatHighVersion(1140)) {
-
-                            fitWindowChildCount = 3
-                            chattingViewPosition = 2
-                            chatRoomViewPosition = 2
-                            officialViewPosition = 3
-
-                        } else {
-
-                            fitWindowChildCount = 2
-                            chattingViewPosition = 1
-                            chatRoomViewPosition = 1
-                            officialViewPosition = 2
-
-                        }
-
-                        if (fitSystemWindowLayoutView.childCount != fitWindowChildCount) return
-                        if (fitSystemWindowLayoutView.getChildAt(0) !is LinearLayout) return
-                        chattingView = fitSystemWindowLayoutView.getChildAt(chattingViewPosition)
-                        if (chattingView.javaClass.simpleName != "TestTimeForChatting") return
-
-                        onFitSystemWindowLayoutViewReady(chatRoomViewPosition, officialViewPosition, fitSystemWindowLayoutView)
+                        handleAddView(fitSystemWindowLayoutView)
                     }
 
                     override fun onChildViewRemoved(parent: View?, child: View?) {}
@@ -166,6 +135,41 @@ object MainLauncherUI {
                         }
                     }
                 })
+    }
+
+    fun handleAddView(fitSystemWindowLayoutView: ViewGroup) {
+        val chattingView: View//聊天View
+        val chattingViewPosition: Int//聊天View的下標
+
+        var fitWindowChildCount = 0//fitSystemWindowLayoutView的 child 数量
+        var chatRoomViewPosition = 0
+        var officialViewPosition = 0
+
+        /*
+         * 微信在某个版本之后 View 数量发生变化，下标也要相应刷新
+         **/
+        if (isWechatHighVersion(1140)) {
+
+            fitWindowChildCount = 3
+            chattingViewPosition = 2
+            chatRoomViewPosition = 2
+            officialViewPosition = 3
+
+        } else {
+
+            fitWindowChildCount = 2
+            chattingViewPosition = 1
+            chatRoomViewPosition = 1
+            officialViewPosition = 2
+
+        }
+
+        if (fitSystemWindowLayoutView.childCount != fitWindowChildCount) return
+        if (fitSystemWindowLayoutView.getChildAt(0) !is LinearLayout) return
+        chattingView = fitSystemWindowLayoutView.getChildAt(chattingViewPosition)
+        if (chattingView.javaClass.simpleName != "TestTimeForChatting") return
+
+        onFitSystemWindowLayoutViewReady(chatRoomViewPosition, officialViewPosition, fitSystemWindowLayoutView)
     }
 
     /**

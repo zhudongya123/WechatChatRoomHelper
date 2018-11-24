@@ -3,6 +3,7 @@ package com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting
 import android.content.Context
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
@@ -18,6 +19,7 @@ import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomRecyclerViewAdapter
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.DrawableMaker
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -70,7 +72,9 @@ class PreviewFragment : Fragment() {
             layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
             title = "群消息助手"
         }.also {
-            it.setNavigationIcon(R.drawable.arrow_icon)
+            //            it.setNavigationIcon(R.drawable.arrow_icon)
+            it.navigationIcon = BitmapDrawable(thisActivity.resources, DrawableMaker.getArrowBitMapForBack(Color.WHITE))
+
             it.setTitleTextColor(0xFFFFFFFF.toInt())
         }
 
@@ -78,16 +82,19 @@ class PreviewFragment : Fragment() {
         val mTitleTextView = clazz.getDeclaredField("mTitleTextView").apply { isAccessible = true }
         (mTitleTextView.get(mToolbar) as TextView).setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
 
-        (clazz.getDeclaredField("mNavButtonView").apply { isAccessible = true }
-                .get(mToolbar) as ImageButton)
+        val imageButton = clazz.getDeclaredField("mNavButtonView").apply { isAccessible = true }
+                .get(mToolbar) as ImageButton
+        imageButton
                 .also {
                     (it.layoutParams as Toolbar.LayoutParams)
                             .also {
                                 it.height = height
+                                it.width = ScreenUtils.dip2px(thisActivity,56f)
                                 it.gravity = Gravity.CENTER
                             }
                     it.requestLayout()
                 }
+        imageButton.scaleType = ImageView.ScaleType.FIT_CENTER
 
         val imageView = ImageView(thisActivity)
                 .also {

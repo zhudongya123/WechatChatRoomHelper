@@ -12,7 +12,7 @@ import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
  * Created by Mr.Zdy on 2018/3/2.
  */
 
-object AvatarMaker {
+object DrawableMaker {
 
     private const val AVATAR_BLUE = 0xFF12B7F6.toInt()
     private const val AVATAR_AMBER = 0xFFF5CB00.toInt()
@@ -225,5 +225,42 @@ object AvatarMaker {
         return bitmap
     }
 
+    fun getArrowBitMapForBack(@ColorInt color: Int): Bitmap {
+
+        val height = 240
+        val width = 240
+
+        val paint = Paint()
+                .also {
+                    it.color = color
+                    it.style = Paint.Style.FILL_AND_STROKE
+                }
+
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        canvas.concat(Matrix().apply {
+            setScale(0.5f, 0.5f)
+            postTranslate(width * 0.25f, height * 0.25f)
+        })
+
+        val path = Path()
+
+        path.moveTo(200f, 110f)
+        path.lineTo(78.3f, 110f)
+        path.rLineTo(55.9f, -55.9f)
+        path.lineTo(120f, 40f)
+        path.rLineTo(-80f, 80f)
+        path.rLineTo(80f, 80f)
+        path.rLineTo(14.1f, -14.1f)
+        path.lineTo(78.3f, 130f)
+        path.lineTo(200f, 130f)
+        path.lineTo(200f, 110f)
+        path.close()
+
+
+        canvas.drawPath(path, paint)
+
+        return bitmap
+    }
 
 }
