@@ -73,15 +73,6 @@ object MainLauncherUI {
             override fun afterHookedMethod(param: MethodHookParam) {
                 LogUtils.log("MainLauncherUI, activity onResume, ${param.thisObject::class.java.name}")
 
-
-//                if (param.thisObject::class.java.name == WXObject.MainUI.C.LauncherUI) {
-//
-//                    LogUtils.log("MainLauncherUI, ChatRoomViewPresenter init")
-//                    launcherUI = param.thisObject as Activity
-//
-//                    RuntimeInfo.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
-//                    RuntimeInfo.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
-//                }
             }
         })
 
@@ -89,14 +80,6 @@ object MainLauncherUI {
             override fun afterHookedMethod(param: MethodHookParam) {
                 LogUtils.log("MainLauncherUI, activity onPause, ${param.thisObject::class.java.name}")
 
-//                if (param.thisObject::class.java.name == WXObject.MainUI.C.LauncherUI) {
-//
-//                    LogUtils.log("MainLauncherUI, ChatRoomViewPresenter init")
-//                    launcherUI = param.thisObject as Activity
-//
-//                    RuntimeInfo.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
-//                    RuntimeInfo.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
-//                }
             }
         })
 

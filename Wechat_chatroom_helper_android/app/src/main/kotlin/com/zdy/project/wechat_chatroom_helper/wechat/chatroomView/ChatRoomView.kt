@@ -30,6 +30,7 @@ import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLaunc
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageFactory
 import de.robv.android.xposed.XposedHelpers
 import network.ApiManager
+import android.view.ViewTreeObserver
 
 
 /**
@@ -92,6 +93,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
         uuid = DeviceUtils.getIMELCode(mContext)
         ApiManager.sendRequestForUserStatistics("init", uuid, Build.MODEL)
+
 
     }
 
@@ -168,6 +170,16 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
     override fun refreshList(isForce: Boolean, data: Any?) {
         mainView.post {
+
+            mRecyclerView
+                    .viewTreeObserver
+                    .addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+                        override fun onGlobalLayout() {
+                            LogUtils.log("showMessageRefresh, RecyclerView notify finish")
+                            mRecyclerView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                        }
+                    })
+
             val newDatas =
                     if (pageType == PageType.CHAT_ROOMS) MessageFactory.getSpecChatRoom()
                     else MessageFactory.getSpecOfficial()
@@ -212,7 +224,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             val imageButton = mNavButtonView.get(mToolbar) as ImageButton
             val layoutParams = imageButton.layoutParams
             layoutParams.height = height
-            layoutParams.width = ScreenUtils.dip2px(mContext,56f)
+            layoutParams.width = ScreenUtils.dip2px(mContext, 56f)
             imageButton.layoutParams = layoutParams
             imageButton.scaleType = ImageView.ScaleType.FIT_CENTER
 
