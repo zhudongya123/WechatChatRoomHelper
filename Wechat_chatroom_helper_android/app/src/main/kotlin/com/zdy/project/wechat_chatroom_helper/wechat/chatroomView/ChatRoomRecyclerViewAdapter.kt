@@ -91,32 +91,32 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
     }
 
 
-    override fun onBindViewHolder(holder: ChatRoomViewHolder, position: Int, payloads: MutableList<Any>) {
-        if (payloads.isEmpty()) {
-            onBindViewHolder(holder, position)
-        } else {
-            val bundle = payloads[0] as Bundle
-            val content = bundle.getCharSequence("content")
-            val conversationTime = bundle.getCharSequence("conversationTime")
-            val unReadMuteCount = bundle.getInt("unReadMuteCount")
-            val unReadCount = bundle.getInt("unReadCount")
-
-            if (content != null) holder.content.text = content
-            if (conversationTime != null) holder.time.text = conversationTime
-            if (unReadCount > 0)
-                holder.unread.background = ShapeDrawable(object : Shape() {
-                    override fun draw(canvas: Canvas, paint: Paint) {
-                        val size = (canvas.width / 2).toFloat()
-
-                        paint.isAntiAlias = true
-                        paint.color = -0x10000
-                        paint.style = Paint.Style.FILL_AND_STROKE
-                        canvas.drawCircle(size, size, size, paint)
-                    }
-                })
-            else holder.unread.background = BitmapDrawable(mContext.resources)
-        }
-    }
+//    override fun onBindViewHolder(holder: ChatRoomViewHolder, position: Int, payloads: MutableList<Any>) {
+//        if (payloads.isEmpty()) {
+//            onBindViewHolder(holder, position)
+//        } else {
+//            val bundle = payloads[0] as Bundle
+//            val content = bundle.getCharSequence("content")
+//            val conversationTime = bundle.getCharSequence("conversationTime")
+//            val unReadMuteCount = bundle.getInt("unReadMuteCount")
+//            val unReadCount = bundle.getInt("unReadCount")
+//
+//            if (content != null) holder.content.text = content
+//            if (conversationTime != null) holder.time.text = conversationTime
+//            if (unReadCount > 0)
+//                holder.unread.background = ShapeDrawable(object : Shape() {
+//                    override fun draw(canvas: Canvas, paint: Paint) {
+//                        val size = (canvas.width / 2).toFloat()
+//
+//                        paint.isAntiAlias = true
+//                        paint.color = -0x10000
+//                        paint.style = Paint.Style.FILL_AND_STROKE
+//                        canvas.drawCircle(size, size, size, paint)
+//                    }
+//                })
+//            else holder.unread.background = BitmapDrawable(mContext.resources)
+//        }
+//    }
 
     override fun getItemCount(): Int {
         return data.size
