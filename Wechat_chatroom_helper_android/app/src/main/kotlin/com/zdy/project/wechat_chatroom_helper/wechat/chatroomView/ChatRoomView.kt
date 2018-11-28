@@ -11,6 +11,7 @@ import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.*
 import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout
@@ -30,7 +31,6 @@ import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLaunc
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageFactory
 import de.robv.android.xposed.XposedHelpers
 import network.ApiManager
-import android.view.ViewTreeObserver
 
 
 /**
@@ -38,7 +38,6 @@ import android.view.ViewTreeObserver
  */
 
 class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private val pageType: Int) : ChatRoomContract.View {
-
 
     private lateinit var mLongClickListener: Any
 
@@ -54,10 +53,10 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
     private var uuid = "0"
 
+
     override val isShowing: Boolean get() = !swipeBackLayout.isOpen
 
     init {
-
         val params = ViewGroup.MarginLayoutParams(
                 ViewGroup.MarginLayoutParams.MATCH_PARENT, ViewGroup.MarginLayoutParams.MATCH_PARENT)
 
@@ -106,6 +105,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             }
 
             override fun onPanelOpened(panel: View) {
+                RuntimeInfo.currentPage = PageType.MAIN
             }
 
             override fun onPanelClosed(panel: View) {
@@ -131,7 +131,17 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
     override fun show(offest: Int) {
         LogUtils.log("TrackHelperCan'tOpen, ChatRoomView -> show, offest = ${offest}, swipeBackLayout = ${swipeBackLayout}")
-        swipeBackLayout.closePane()
+
+        mRecyclerView
+                .viewTreeObserver
+                .addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+                    override fun onGlobalLayout() {
+                        LogUtils.log("showMessageRefresh RecyclerView notify finish , pageType = " + PageType.printPageType(pageType))
+                        mRecyclerView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                        swipeBackLayout.closePane()
+                    }
+                })
+        refreshInner()
     }
 
     override fun dismiss(offest: Int) {
@@ -169,17 +179,21 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
 
     override fun refreshList(isForce: Boolean, data: Any?) {
+        if (isForce) {
+            refreshInner()
+            return
+        }
+
+        LogUtils.log("showMessageRefresh for all recycler view, RuntimeInfo.currentPage = ${PageType.printPageType(RuntimeInfo.currentPage)}")
+
+        if (RuntimeInfo.currentPage == PageType.MAIN) return
+
+        refreshInner()
+    }
+
+    private fun refreshInner() {
+        LogUtils.log("showMessageRefresh for all recycler view , pageType = " + PageType.printPageType(pageType))
         mainView.post {
-
-            mRecyclerView
-                    .viewTreeObserver
-                    .addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-                        override fun onGlobalLayout() {
-                            LogUtils.log("showMessageRefresh, RecyclerView notify finish")
-                            mRecyclerView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                        }
-                    })
-
             val newDatas =
                     if (pageType == PageType.CHAT_ROOMS) MessageFactory.getSpecChatRoom()
                     else MessageFactory.getSpecOfficial()
@@ -187,7 +201,6 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             mAdapter.data = newDatas
             mAdapter.notifyDataSetChanged()
         }
-        LogUtils.log("showMessageRefresh for all recycler view , pageType = " + PageType.printPageType(pageType))
     }
 
 
@@ -201,7 +214,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         mToolbar.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
         mToolbar.navigationIcon = BitmapDrawable(mContext.resources, DrawableMaker.getArrowBitMapForBack(Color.WHITE))
 
-        mToolbar.setNavigationOnClickListener { dismiss() }
+        mToolbar.setNavigationOnClickListener { mPresenter.dismiss() }
         mToolbar.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.toolbarColorInfo()))
         mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo()))
 
