@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -28,6 +29,9 @@ import de.robv.android.xposed.XposedHelpers.findAndHookMethod
 object MainLauncherUI {
 
     lateinit var launcherUI: Activity
+
+    lateinit var decorView: ViewGroup
+    lateinit var fitSystemWindowLayoutView: ViewGroup
 
     fun executeHook() {
 
@@ -55,6 +59,25 @@ object MainLauncherUI {
         })
 
         findAndHookMethod(Activity::class.java, WXObject.MainUI.M.OnCreate, Bundle::class.java, object : XC_MethodHook() {
+
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                if (param.thisObject::class.java.name == WXObject.MainUI.C.LauncherUI) {
+
+                    launcherUI = param.thisObject as Activity
+                    decorView = launcherUI.window.decorView as ViewGroup
+
+                    decorView.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
+                        override fun onChildViewRemoved(parent: View?, child: View?) {
+                            LogUtils.log("MainLauncherUI, onChildViewRemoved, parent = $parent, child = $child")
+                        }
+
+                        override fun onChildViewAdded(parent: View?, child: View?) {
+                            LogUtils.log("MainLauncherUI, onChildViewAdded, parent = $parent, child = $child")
+                        }
+                    })
+                }
+            }
+
             override fun afterHookedMethod(param: MethodHookParam) {
                 LogUtils.log("MainLauncherUI, activity onCreate, ${param.thisObject::class.java.name}")
 
