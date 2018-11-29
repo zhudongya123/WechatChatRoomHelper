@@ -152,7 +152,6 @@ object MainAdapter {
                             sendStatus.visibility = View.GONE
                             muteImage.visibility = View.GONE
 
-
                             if (unReadCountItem > 0) {
                                 setTextForNoMeasuredTextView(content, "[有 $unReadCountItem 个群聊收到 $totalUnReadCount 条新消息]")
                                 setTextColorForNoMeasuredTextView(content, 0xFFF57C00.toInt())

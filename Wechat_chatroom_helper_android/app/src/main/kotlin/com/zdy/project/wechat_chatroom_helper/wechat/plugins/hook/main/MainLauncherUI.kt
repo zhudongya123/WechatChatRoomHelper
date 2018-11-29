@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -19,7 +18,6 @@ import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPr
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
 
 @SuppressLint("StaticFieldLeak")
@@ -31,23 +29,23 @@ object MainLauncherUI {
     lateinit var launcherUI: Activity
 
     lateinit var decorView: ViewGroup
-    lateinit var fitSystemWindowLayoutView: ViewGroup
+    var fitSystemWindowLayoutView: ViewGroup? = null
 
     fun executeHook() {
 
-        hookAllConstructors(RuntimeInfo.classloader.loadClass(WXObject.MainUI.C.FitSystemWindowLayoutView), object : XC_MethodHook() {
-
-            override fun afterHookedMethod(param: MethodHookParam) {
-                val fitSystemWindowLayoutView = param.thisObject as ViewGroup
-                fitSystemWindowLayoutView.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
-                    override fun onChildViewAdded(parent: View, child: View) {
-                        handleAddView(fitSystemWindowLayoutView)
-                    }
-
-                    override fun onChildViewRemoved(parent: View?, child: View?) {}
-                })
-            }
-        })
+//        hookAllConstructors(RuntimeInfo.classloader.loadClass(WXObject.MainUI.C.FitSystemWindowLayoutView), object : XC_MethodHook() {
+//
+//            override fun afterHookedMethod(param: MethodHookParam) {
+//                val fitSystemWindowLayoutView = param.thisObject as ViewGroup
+//                fitSystemWindowLayoutView.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
+//                    override fun onChildViewAdded(parent: View, child: View) {
+//                        handleAddView(fitSystemWindowLayoutView)
+//                    }
+//
+//                    override fun onChildViewRemoved(parent: View?, child: View?) {}
+//                })
+//            }
+//        })
 
 
         findAndHookMethod(WXObject.MainUI.C.LauncherUI, RuntimeInfo.classloader,
@@ -71,8 +69,21 @@ object MainLauncherUI {
                             LogUtils.log("MainLauncherUI, onChildViewRemoved, parent = $parent, child = $child")
                         }
 
-                        override fun onChildViewAdded(parent: View?, child: View?) {
+                        override fun onChildViewAdded(parent: View?, child: View) {
                             LogUtils.log("MainLauncherUI, onChildViewAdded, parent = $parent, child = $child")
+
+                            if (child::class.java.name == WXObject.MainUI.C.FitSystemWindowLayoutView) {
+                                fitSystemWindowLayoutView = child as ViewGroup
+                                handleAddView(fitSystemWindowLayoutView)
+                                fitSystemWindowLayoutView?.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
+                                    override fun onChildViewAdded(parent: View, child: View) {
+                                        handleAddView(fitSystemWindowLayoutView)
+                                    }
+
+                                    override fun onChildViewRemoved(parent: View?, child: View?) {}
+                                })
+                            }
+
                         }
                     })
                 }
@@ -95,7 +106,7 @@ object MainLauncherUI {
         findAndHookMethod(Activity::class.java, WXObject.MainUI.M.OnResume, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 LogUtils.log("MainLauncherUI, activity onResume, ${param.thisObject::class.java.name}")
-
+                handleAddView(fitSystemWindowLayoutView)
             }
         })
 
@@ -143,7 +154,10 @@ object MainLauncherUI {
                 })
     }
 
-    fun handleAddView(fitSystemWindowLayoutView: ViewGroup) {
+    fun handleAddView(fitSystemWindowLayoutView: ViewGroup?) {
+
+        if (fitSystemWindowLayoutView == null) return
+
         val chattingView: View//聊天View
         val chattingViewPosition: Int//聊天View的下標
 

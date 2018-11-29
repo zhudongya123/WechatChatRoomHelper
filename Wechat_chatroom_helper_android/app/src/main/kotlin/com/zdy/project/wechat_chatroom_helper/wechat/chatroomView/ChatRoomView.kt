@@ -237,7 +237,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             val imageButton = mNavButtonView.get(mToolbar) as ImageButton
             val layoutParams = imageButton.layoutParams
             layoutParams.height = height
-            layoutParams.width = ScreenUtils.dip2px(mContext, 56f)
+            layoutParams.width = ScreenUtils.dip2px(mContext, 48f)
             imageButton.layoutParams = layoutParams
             imageButton.scaleType = ImageView.ScaleType.FIT_CENTER
 
