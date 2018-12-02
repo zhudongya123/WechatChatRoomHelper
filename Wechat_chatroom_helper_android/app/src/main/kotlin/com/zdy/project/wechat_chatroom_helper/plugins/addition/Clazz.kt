@@ -6,6 +6,8 @@ class Clazz(classLoader: ClassLoader) {
     val m = XposedHelpers.findClass("com.tencent.mm.pluginsdk.model.m", classLoader)
     val au = XposedHelpers.findClass("com.tencent.mm.model.au", classLoader)
     val NearbySayHiListUI = XposedHelpers.findClass("com.tencent.mm.plugin.nearby.ui.NearbySayHiListUI", classLoader)
+    val ShakeSayHiListUI = XposedHelpers.findClass("com.tencent.mm.plugin.shake.ui.ShakeSayHiListUI", classLoader)
+
     val c = XposedHelpers.findClass("com.tencent.mm.model.c", classLoader)
 
 

@@ -1,9 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.plugins.addition
 
-import com.zdy.project.wechat_chatroom_helper.plugins.addition.hook.DataBaseHook
-import com.zdy.project.wechat_chatroom_helper.plugins.addition.hook.FConversationHook
-import com.zdy.project.wechat_chatroom_helper.plugins.addition.hook.LBSFriendHook
-import com.zdy.project.wechat_chatroom_helper.plugins.addition.hook.LogHook
+import com.zdy.project.wechat_chatroom_helper.plugins.addition.hook.*
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
@@ -56,12 +53,14 @@ class SpecialPluginEntry : IXposedHookLoadPackage {
             DataBaseHook.C = C
             FConversationHook.C = C
             LBSFriendHook.C = C
+            ShakeHook.C = C
 
 
             LogHook.hook(classLoader)
             DataBaseHook.hook(classLoader)
             FConversationHook.hook(classLoader)
             LBSFriendHook.hook(classLoader)
+            ShakeHook.hook(classLoader)
 
 
         } catch (e: Exception) {

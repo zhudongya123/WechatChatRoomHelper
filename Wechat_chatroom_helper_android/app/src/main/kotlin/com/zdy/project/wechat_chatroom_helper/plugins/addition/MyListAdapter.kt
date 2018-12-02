@@ -110,9 +110,13 @@ class MyListAdapter(val mContext: Activity, val data: MutableList<DataModel>, va
                 val auDF = XposedHelpers.callStaticMethod(C.au, "DF")
                 XposedHelpers.callMethod(auDF, "a", m, 0)
 
-                Handler(mContext.mainLooper).post { Toast.makeText(mContext, "当前第${position} 个，共${data.size}个, 当前间隔 ${SpecialPluginEntry.time} 毫秒", Toast.LENGTH_SHORT).show() }
+                Handler(mContext.mainLooper).post {
+                    position++
+                    Toast.makeText(mContext, "当前第${position} 个，共${data.size}个, 当前间隔 ${SpecialPluginEntry.time} 毫秒", Toast.LENGTH_SHORT).show()
 
-                position++
+                }
+
+
             }
         }
         timer.schedule(timerTask, 0, SpecialPluginEntry.time)
@@ -143,8 +147,6 @@ class MyListAdapter(val mContext: Activity, val data: MutableList<DataModel>, va
         }, 500)
 
     }
-
-
 
 
     companion object {
