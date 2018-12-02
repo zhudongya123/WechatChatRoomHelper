@@ -28,66 +28,11 @@ object MainLauncherUI {
 
     lateinit var launcherUI: Activity
 
-    lateinit var decorView: ViewGroup
     var fitSystemWindowLayoutView: ViewGroup? = null
 
     fun executeHook() {
 
-//        hookAllConstructors(RuntimeInfo.classloader.loadClass(WXObject.MainUI.C.FitSystemWindowLayoutView), object : XC_MethodHook() {
-//
-//            override fun afterHookedMethod(param: MethodHookParam) {
-//                val fitSystemWindowLayoutView = param.thisObject as ViewGroup
-//                fitSystemWindowLayoutView.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
-//                    override fun onChildViewAdded(parent: View, child: View) {
-//                        handleAddView(fitSystemWindowLayoutView)
-//                    }
-//
-//                    override fun onChildViewRemoved(parent: View?, child: View?) {}
-//                })
-//            }
-//        })
-
-
-        findAndHookMethod(WXObject.MainUI.C.LauncherUI, RuntimeInfo.classloader,
-                WXObject.MainUI.M.DispatchKeyEventOfLauncherUI, KeyEvent::class.java, object : XC_MethodHook() {
-            @Throws(Throwable::class)
-            override fun beforeHookedMethod(param: XC_MethodHook.MethodHookParam) {
-                hookDispatchKeyEvent(param)
-            }
-        })
-
         findAndHookMethod(Activity::class.java, WXObject.MainUI.M.OnCreate, Bundle::class.java, object : XC_MethodHook() {
-
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                if (param.thisObject::class.java.name == WXObject.MainUI.C.LauncherUI) {
-
-                    launcherUI = param.thisObject as Activity
-                    decorView = launcherUI.window.decorView as ViewGroup
-
-                    decorView.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
-                        override fun onChildViewRemoved(parent: View?, child: View?) {
-                            LogUtils.log("MainLauncherUI, onChildViewRemoved, parent = $parent, child = $child")
-                        }
-
-                        override fun onChildViewAdded(parent: View?, child: View) {
-                            LogUtils.log("MainLauncherUI, onChildViewAdded, parent = $parent, child = $child")
-
-                            if (child::class.java.name == WXObject.MainUI.C.FitSystemWindowLayoutView) {
-                                fitSystemWindowLayoutView = child as ViewGroup
-                                handleAddView(fitSystemWindowLayoutView)
-                                fitSystemWindowLayoutView?.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
-                                    override fun onChildViewAdded(parent: View, child: View) {
-                                        handleAddView(fitSystemWindowLayoutView)
-                                    }
-
-                                    override fun onChildViewRemoved(parent: View?, child: View?) {}
-                                })
-                            }
-
-                        }
-                    })
-                }
-            }
 
             override fun afterHookedMethod(param: MethodHookParam) {
                 LogUtils.log("MainLauncherUI, activity onCreate, ${param.thisObject::class.java.name}")
@@ -99,23 +44,32 @@ object MainLauncherUI {
 
                     RuntimeInfo.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
                     RuntimeInfo.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
+
+                    handleDetectFitWindowView(launcherUI)
                 }
             }
         })
 
         findAndHookMethod(Activity::class.java, WXObject.MainUI.M.OnResume, object : XC_MethodHook() {
+
             override fun afterHookedMethod(param: MethodHookParam) {
-                LogUtils.log("MainLauncherUI, activity onResume, ${param.thisObject::class.java.name}")
-                handleAddView(fitSystemWindowLayoutView)
+                if (param.thisObject::class.java.name == WXObject.MainUI.C.LauncherUI) {
+
+                    launcherUI = param.thisObject as Activity
+
+                    handleDetectFitWindowView(launcherUI)
+                }
             }
         })
 
-        findAndHookMethod(Activity::class.java, "onPause", object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                LogUtils.log("MainLauncherUI, activity onPause, ${param.thisObject::class.java.name}")
-
+        findAndHookMethod(WXObject.MainUI.C.LauncherUI, RuntimeInfo.classloader,
+                WXObject.MainUI.M.DispatchKeyEventOfLauncherUI, KeyEvent::class.java, object : XC_MethodHook() {
+            @Throws(Throwable::class)
+            override fun beforeHookedMethod(param: XC_MethodHook.MethodHookParam) {
+                hookDispatchKeyEvent(param)
             }
         })
+
 
         findAndHookMethod(WXObject.MainUI.C.LauncherUI, RuntimeInfo.classloader,
                 WXObject.MainUI.M.StartChattingOfLauncherUI, String::class.java, Bundle::class.java, Boolean::class.java,
@@ -152,6 +106,35 @@ object MainLauncherUI {
                         }
                     }
                 })
+    }
+
+    fun handleDetectFitWindowView(activity: Activity) {
+        val decorView = activity.window.decorView as ViewGroup
+
+        decorView.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
+            override fun onChildViewRemoved(parent: View?, child: View?) {}
+
+            override fun onChildViewAdded(parent: View?, child: View) {
+
+                if (child::class.java.name == WXObject.MainUI.C.FitSystemWindowLayoutView) {
+
+                    fitSystemWindowLayoutView = child as ViewGroup
+
+                    handleAddView(fitSystemWindowLayoutView)
+
+                    fitSystemWindowLayoutView?.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
+                        override fun onChildViewAdded(parent: View, child: View) {
+                            handleAddView(fitSystemWindowLayoutView)
+                        }
+
+                        override fun onChildViewRemoved(parent: View?, child: View?) {}
+                    })
+                }
+
+            }
+        })
+
+        handleAddView(fitSystemWindowLayoutView)
     }
 
     fun handleAddView(fitSystemWindowLayoutView: ViewGroup?) {

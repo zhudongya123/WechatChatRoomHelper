@@ -5,6 +5,9 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.TypedValue
@@ -50,6 +53,9 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
     private lateinit var mToolbar: Toolbar
 
     private lateinit var mAdapter: ChatRoomRecyclerViewAdapter
+
+    private val notifyHandler = NotifyHandler(mContext.mainLooper)
+    private var refreshFlag = 0L
 
     private var uuid = "0"
 
@@ -179,30 +185,48 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
 
     override fun refreshList(isForce: Boolean, data: Any?) {
+        //强制刷新 直接刷新
         if (isForce) {
             refreshInner()
             return
         }
 
-        LogUtils.log("showMessageRefresh for all recycler view, RuntimeInfo.currentPage = ${PageType.printPageType(RuntimeInfo.currentPage)}")
-
+        //在主页的时候不刷
         if (RuntimeInfo.currentPage == PageType.MAIN) return
 
-        refreshInner()
+
+        val currentTimeMillis = System.currentTimeMillis()
+
+        //上次刷新距离现在的时间间隔
+        val interval = currentTimeMillis - refreshFlag
+
+        //刷新小于三秒，安排三秒后刷新
+        if (interval < 3000) {
+            notifyHandler.removeCallbacksAndMessages(null)//先清空之前的安排消息
+            notifyHandler.sendEmptyMessageDelayed(1, 3000 - interval)
+        } else {
+            refreshInner()
+        }
+
     }
 
     private fun refreshInner() {
-        LogUtils.log("showMessageRefresh for all recycler view , pageType = " + PageType.printPageType(pageType))
         mainView.post {
-            val newDatas =
+            val newData =
                     if (pageType == PageType.CHAT_ROOMS) MessageFactory.getSpecChatRoom()
                     else MessageFactory.getSpecOfficial()
 
-            mAdapter.data = newDatas
+            mAdapter.data = newData
             mAdapter.notifyDataSetChanged()
+            refreshFlag = System.currentTimeMillis()
         }
     }
 
+    inner class NotifyHandler(looper: Looper) : Handler(looper) {
+        override fun handleMessage(msg: Message) {
+            refreshList(false, null)
+        }
+    }
 
     private fun initToolbar(): View {
         mToolbarContainer = RelativeLayout(mContext)
@@ -237,7 +261,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             val imageButton = mNavButtonView.get(mToolbar) as ImageButton
             val layoutParams = imageButton.layoutParams
             layoutParams.height = height
-            layoutParams.width = ScreenUtils.dip2px(mContext, 48f)
+            layoutParams.width = ScreenUtils.dip2px(mContext, 56f)
             imageButton.layoutParams = layoutParams
             imageButton.scaleType = ImageView.ScaleType.FIT_CENTER
 
