@@ -43,7 +43,7 @@ object ShakeHook {
 
                         while (cursor.moveToNext()) {
                             val content = cursor.getString(cursor.getColumnIndex("content"))
-                            val talker = cursor.getString(cursor.getColumnIndex("sayhiuser"))
+                            val sayhi = cursor.getString(cursor.getColumnIndex("sayhiuser"))
 
                             LogUtils.log("shakeverifymessage , fmsgContent = $content")
 
@@ -52,12 +52,15 @@ object ShakeHook {
                             val sr = StringReader(content)
                             val doc = db.parse(InputSource(sr))
 
+                            val fromnickname = doc.getElementsByTagName("msg").item(0).attributes.getNamedItem("fromnickname").nodeValue
+
+                            if (data.any { it.sayhiuser == sayhi }) continue
 
                             data.add(DataModel().apply {
                                 ticket = doc.getElementsByTagName("msg").item(0).attributes.getNamedItem("ticket").nodeValue
-                                sayhiuser = talker
-                                isAdd = 0
-                                username = doc.getElementsByTagName("msg").item(0).attributes.getNamedItem("fromnickname").nodeValue
+                                sayhiuser = sayhi
+                                isAdd = if (isUserYourFriend(sayhi)) 1 else 0
+                                username = fromnickname
                             })
 
                         }
@@ -91,6 +94,27 @@ object ShakeHook {
             }
         })
 
+    }
 
+    fun isUserYourFriend(username: String): Boolean {
+
+        val cursor: Cursor = XposedHelpers.callMethod(DataBaseHook.msgDataBase, "rawQueryWithFactory",
+                DataBaseHook.msgDataBaseFactory, "SELECT * FROM rcontact where username = '$username'", null, null) as Cursor
+
+        if (cursor.count == 0) {
+            return false
+        }
+
+        if (cursor.count == 1) {
+
+            while (cursor.moveToNext()) {
+                val type = cursor.getInt(cursor.getColumnIndex("type"))
+
+                if (type != 0) {
+                    return true
+                }
+            }
+        }
+        return false
     }
 }
