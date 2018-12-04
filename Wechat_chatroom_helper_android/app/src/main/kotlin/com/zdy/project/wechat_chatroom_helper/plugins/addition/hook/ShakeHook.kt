@@ -7,7 +7,6 @@ import android.database.Cursor
 import android.view.MenuItem
 import android.widget.EditText
 import android.widget.ListView
-import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.plugins.addition.Clazz
 import com.zdy.project.wechat_chatroom_helper.plugins.addition.DataModel
 import com.zdy.project.wechat_chatroom_helper.plugins.addition.MyListAdapter
@@ -17,10 +16,15 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import org.xml.sax.InputSource
 import java.io.StringReader
+import de.robv.android.xposed.XposedBridge
+import java.util.*
+
 
 object ShakeHook {
 
     lateinit var C: Clazz
+
+    var sensorFlag = false
 
     fun hook(classLoader: ClassLoader) {
 
@@ -29,7 +33,6 @@ object ShakeHook {
 
 
             override fun afterHookedMethod(param: MethodHookParam) {
-                super.afterHookedMethod(param)
 
                 val thisObject = param.thisObject as Activity
 
@@ -44,9 +47,6 @@ object ShakeHook {
                         while (cursor.moveToNext()) {
                             val content = cursor.getString(cursor.getColumnIndex("content"))
                             val sayhi = cursor.getString(cursor.getColumnIndex("sayhiuser"))
-
-                            LogUtils.log("shakeverifymessage , fmsgContent = $content")
-
 
                             val db = dbf.newDocumentBuilder()
                             val sr = StringReader(content)
@@ -94,6 +94,38 @@ object ShakeHook {
             }
         })
 
+        XposedHelpers.findAndHookMethod(C.ShakeReportUI, "initView", object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+
+                val thisObject = param.thisObject as Activity
+
+                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 702, "给我摇", object : MenuItem.OnMenuItemClickListener {
+                    override fun onMenuItemClick(item: MenuItem?): Boolean {
+                        sensorFlag = true
+
+                        return true
+                    }
+                })
+            }
+
+        })
+
+        XposedBridge.hookAllMethods(XposedHelpers.findClass("android.hardware.SystemSensorManager\$SensorEventQueue", classLoader),
+                "dispatchSensorEvent", object : XC_MethodHook() {
+
+
+            override fun beforeHookedMethod(param: MethodHookParam) {
+
+                if (sensorFlag) {
+
+                    (param.args[1] as FloatArray)[0] = (Random().nextFloat() - 0.5f) * 10f + 12f
+                    (param.args[1] as FloatArray)[1] = (Random().nextFloat() - 0.5f) * 10f + 12f
+
+                    sensorFlag = false
+
+                }
+            }
+        })
     }
 
     fun isUserYourFriend(username: String): Boolean {

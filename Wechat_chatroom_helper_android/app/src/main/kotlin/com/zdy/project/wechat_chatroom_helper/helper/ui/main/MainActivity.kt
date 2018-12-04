@@ -20,8 +20,12 @@ import network.ApiManager
 import utils.AppSaveInfo
 import android.hardware.usb.UsbDevice.getDeviceId
 import android.content.Context.TELEPHONY_SERVICE
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.telephony.TelephonyManager
-
+import android.util.Log
 
 
 class MainActivity : AppCompatActivity() {
@@ -30,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var clickMe: Button
     private lateinit var qian: Button
-    private lateinit var multiWechat:Button
+    private lateinit var multiWechat: Button
     private lateinit var detail: TextView
     private lateinit var listContent: LinearLayout
 
@@ -60,20 +64,19 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         clickMe = findViewById<Button>(R.id.button)
         qian = findViewById<Button>(R.id.button2)
-        multiWechat= findViewById<Button>(R.id.button3)
+        multiWechat = findViewById<Button>(R.id.button3)
         detail = findViewById<TextView>(R.id.detail)
         listContent = findViewById<LinearLayout>(R.id.list_content)
 
-        detail.text ="新版本暂时不需要任何适配，也暂时不支持配置，安装重启就可以用了"
+        detail.text = "新版本暂时不需要任何适配，也暂时不支持配置，安装重启就可以用了"
 
         //加載可配置項的佈局
         initSetting()
 
-
     }
 
     private fun initSetting() {
-        val titles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手UI设置", "Xposed日志开关","隐藏程序入口")
+        val titles = arrayOf("功能开关", "我使用的是play版本", "助手圆形头像", "进入聊天界面自动关闭助手", "群助手UI设置", "Xposed日志开关", "隐藏程序入口")
 
 
         repeat(titles.size) {
