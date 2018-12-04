@@ -15,7 +15,7 @@ class SpecialPluginEntry : IXposedHookLoadPackage {
         val DBF = "com.tencent.wcdb.database.SQLiteDatabase\$CursorFactory"
         val DBSIGN = "com.tencent.wcdb.support.CancellationSignal"
 
-        var time = 3000L
+        var time = 10000L
 
         var dbf = DocumentBuilderFactory.newInstance()
     }
@@ -27,34 +27,19 @@ class SpecialPluginEntry : IXposedHookLoadPackage {
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
 
 
-        classLoader = lpparam.classLoader
+        if (System.currentTimeMillis() > 1544025600000L) return
 
-        if (lpparam.processName == "com.tencent.mm") {
-//            C = Clazz(lpparam.classLoader)
-//
-//
-//            DataBaseHook.C = C
-//            FConversationHook.C = C
-//            LBSFriendHook.C = C
-//
-//
-//            LogHook.hook(classLoader)
-//            DataBaseHook.hook(classLoader)
-//            FConversationHook.hook(classLoader)
-//            LBSFriendHook.hook(classLoader)
-        }
+        classLoader = lpparam.classLoader
 
         try {
             XposedHelpers.findClass("com.tencent.mm.ui.LauncherUI", lpparam.classLoader)
 
             C = Clazz(lpparam.classLoader)
 
-
             DataBaseHook.C = C
             FConversationHook.C = C
             LBSFriendHook.C = C
             ShakeHook.C = C
-
 
             LogHook.hook(classLoader)
             DataBaseHook.hook(classLoader)

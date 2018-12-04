@@ -40,8 +40,8 @@ object LBSFriendHook {
                         val listView = dialogView.findViewById<ListView>(android.R.id.list) as ListView
                         val editText = dialogView.findViewById<EditText>(android.R.id.edit) as EditText
 
-                        editText.hint = "默认3秒"
-                        editText.setText("3000")
+                        editText.hint = "默认${SpecialPluginEntry.time}秒"
+                        editText.setText(SpecialPluginEntry.time.toString())
                         listView.adapter = myListAdapter
 
                         AlertDialog.Builder(thisObject as Activity).setTitle("自动添加好友").setView(dialogView)
