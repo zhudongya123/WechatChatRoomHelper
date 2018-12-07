@@ -3,13 +3,18 @@ package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.*
 import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout
@@ -20,7 +25,7 @@ import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialogBuilder
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.DrawableMaker
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
@@ -37,7 +42,6 @@ import network.ApiManager
 
 class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private val pageType: Int) : ChatRoomContract.View {
 
-
     private lateinit var mLongClickListener: Any
 
     private lateinit var mPresenter: ChatRoomContract.Presenter
@@ -50,12 +54,15 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
     private lateinit var mAdapter: ChatRoomRecyclerViewAdapter
 
+    private val notifyHandler = NotifyHandler(mContext.mainLooper)
+    private var refreshFlag = 0L
+
     private var uuid = "0"
+
 
     override val isShowing: Boolean get() = !swipeBackLayout.isOpen
 
     init {
-
         val params = ViewGroup.MarginLayoutParams(
                 ViewGroup.MarginLayoutParams.MATCH_PARENT, ViewGroup.MarginLayoutParams.MATCH_PARENT)
 
@@ -92,6 +99,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         uuid = DeviceUtils.getIMELCode(mContext)
         ApiManager.sendRequestForUserStatistics("init", uuid, Build.MODEL)
 
+
     }
 
 
@@ -103,6 +111,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             }
 
             override fun onPanelOpened(panel: View) {
+                RuntimeInfo.currentPage = PageType.MAIN
             }
 
             override fun onPanelClosed(panel: View) {
@@ -128,7 +137,17 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
     override fun show(offest: Int) {
         LogUtils.log("TrackHelperCan'tOpen, ChatRoomView -> show, offest = ${offest}, swipeBackLayout = ${swipeBackLayout}")
-        swipeBackLayout.closePane()
+
+        mRecyclerView
+                .viewTreeObserver
+                .addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+                    override fun onGlobalLayout() {
+                        LogUtils.log("showMessageRefresh RecyclerView notify finish , pageType = " + PageType.printPageType(pageType))
+                        mRecyclerView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                        swipeBackLayout.closePane()
+                    }
+                })
+        refreshInner()
     }
 
     override fun dismiss(offest: Int) {
@@ -166,17 +185,48 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
 
     override fun refreshList(isForce: Boolean, data: Any?) {
+        //强制刷新 直接刷新
+        if (isForce) {
+            refreshInner()
+            return
+        }
+
+        //在主页的时候不刷
+        if (RuntimeInfo.currentPage == PageType.MAIN) return
+
+
+        val currentTimeMillis = System.currentTimeMillis()
+
+        //上次刷新距离现在的时间间隔
+        val interval = currentTimeMillis - refreshFlag
+
+        //刷新小于三秒，安排三秒后刷新
+        if (interval < 3000) {
+            notifyHandler.removeCallbacksAndMessages(null)//先清空之前的安排消息
+            notifyHandler.sendEmptyMessageDelayed(1, 3000 - interval)
+        } else {
+            refreshInner()
+        }
+
+    }
+
+    private fun refreshInner() {
         mainView.post {
-            val newDatas =
+            val newData =
                     if (pageType == PageType.CHAT_ROOMS) MessageFactory.getSpecChatRoom()
                     else MessageFactory.getSpecOfficial()
 
-            mAdapter.data = newDatas
+            mAdapter.data = newData
             mAdapter.notifyDataSetChanged()
+            refreshFlag = System.currentTimeMillis()
         }
-        LogUtils.log("showMessageRefresh for all recycler view , pageType = " + PageType.printPageType(pageType))
     }
 
+    inner class NotifyHandler(looper: Looper) : Handler(looper) {
+        override fun handleMessage(msg: Message) {
+            refreshList(false, null)
+        }
+    }
 
     private fun initToolbar(): View {
         mToolbarContainer = RelativeLayout(mContext)
@@ -186,8 +236,9 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         val height = ScreenUtils.dip2px(mContext, 48f)
 
         mToolbar.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
+        mToolbar.navigationIcon = BitmapDrawable(mContext.resources, DrawableMaker.getArrowBitMapForBack(Color.WHITE))
 
-        mToolbar.setNavigationOnClickListener { dismiss() }
+        mToolbar.setNavigationOnClickListener { mPresenter.dismiss() }
         mToolbar.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.toolbarColorInfo()))
         mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo()))
 
@@ -210,7 +261,9 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             val imageButton = mNavButtonView.get(mToolbar) as ImageButton
             val layoutParams = imageButton.layoutParams
             layoutParams.height = height
+            layoutParams.width = ScreenUtils.dip2px(mContext, 56f)
             imageButton.layoutParams = layoutParams
+            imageButton.scaleType = ImageView.ScaleType.FIT_CENTER
 
         } catch (e: ClassNotFoundException) {
             e.printStackTrace()
@@ -228,7 +281,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         imageView.layoutParams = params
         val padding = height / 8
         imageView.setPadding(padding, padding, padding, padding)
-        imageView.setImageDrawable(AvatarMaker.handleAvatarDrawable(mContext, pageType, 0x00000000))
+        imageView.setImageDrawable(DrawableMaker.handleAvatarDrawable(mContext, pageType, 0x00000000))
 
         imageView.setOnClickListener {
             val whiteListDialogBuilder = WhiteListDialogBuilder()

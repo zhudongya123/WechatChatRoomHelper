@@ -49,7 +49,6 @@ class ChatRoomViewPresenter(mContext: Context, var pageType: Int) : ChatRoomCont
 
     override fun dismiss() {
         mView.dismiss()
-        RuntimeInfo.currentPage = PageType.MAIN
     }
 
     override fun start() {

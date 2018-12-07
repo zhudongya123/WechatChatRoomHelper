@@ -27,6 +27,8 @@ object WXObject {
         object M {
             const val DispatchKeyEventOfLauncherUI = "dispatchKeyEvent"
             const val OnCreate = "onCreate"
+            const val OnResume = "onResume"
+
             const val StartChattingOfLauncherUI = "startChatting"
             const val CloseChattingOfLauncherUI = "closeChatting"
         }

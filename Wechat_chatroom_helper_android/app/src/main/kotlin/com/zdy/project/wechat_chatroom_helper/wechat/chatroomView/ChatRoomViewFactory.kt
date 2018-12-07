@@ -15,6 +15,8 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import com.zdy.project.wechat_chatroom_helper.helper.utils.ColorUtils
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 
 /**
@@ -153,7 +155,7 @@ object ChatRoomViewFactory {
     fun getItemViewBackgroundSticky(context: Context): Drawable? {
 
         val drawable = StateListDrawable()
-        drawable.addState(intArrayOf(), ColorDrawable(0xFFF0F0F0.toInt()))
+        drawable.addState(intArrayOf(), ColorDrawable(ColorUtils.getColorInt(AppSaveInfo.highLightColorInfo())))
         return drawable
     }
 

@@ -1,22 +1,16 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.res.TypedArray
 import android.database.DataSetObservable
-import android.graphics.drawable.Drawable
-import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.AvatarMaker
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.DrawableMaker
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.conversationClickListener
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.conversationStickyHeaderHandler
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.conversationWithAppBrandListView
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.conversationWithCacheAdapter
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
@@ -27,8 +21,6 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
-import net.dongliu.apk.parser.Main
-import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 
 @SuppressLint("StaticFieldLeak")
@@ -155,11 +147,10 @@ object MainAdapter {
 
                             setTextForNoMeasuredTextView(nickname, "群聊消息")
                             setTextForNoMeasuredTextView(time, chatInfoModel.conversationTime)
-                            avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar.context, PageType.CHAT_ROOMS))
+                            avatar.setImageDrawable(DrawableMaker.handleAvatarDrawable(avatar.context, PageType.CHAT_ROOMS))
 
                             sendStatus.visibility = View.GONE
                             muteImage.visibility = View.GONE
-
 
                             if (unReadCountItem > 0) {
                                 setTextForNoMeasuredTextView(content, "[有 $unReadCountItem 个群聊收到 $totalUnReadCount 条新消息]")
@@ -198,7 +189,7 @@ object MainAdapter {
 
                             setTextForNoMeasuredTextView(nickname, "服务号消息")
                             setTextForNoMeasuredTextView(time, chatInfoModel.conversationTime)
-                            avatar.setImageDrawable(AvatarMaker.handleAvatarDrawable(avatar.context, PageType.OFFICIAL))
+                            avatar.setImageDrawable(DrawableMaker.handleAvatarDrawable(avatar.context, PageType.OFFICIAL))
 
                             if (unReadCountItem > 0) {
                                 setTextForNoMeasuredTextView(content, "[有 $unReadCountItem 个服务号收到 $totalUnReadCount 条新消息]")
@@ -313,18 +304,7 @@ object MainAdapter {
         })
 
 
-        findAndHookMethod(conversationStickyHeaderHandler, ConversationReflectFunction.stickyHeaderHandlerMethod.name,
-                ConversationReflectFunction.beanClass, Int::class.java, Long::class.java, object : XC_MethodHook() {
 
-            override fun afterHookedMethod(param: MethodHookParam) {
-
-                val bean = param.args[0] as Any
-                val result = param.result as Long
-
-                LogUtils.log("conversationStickyHeaderHandler, username = ${XposedHelpers.getObjectField(bean, "field_username")}, result = ${result}")
-            }
-
-        })
         MessageHandler.addMessageEventNotifyListener(object : MessageEventNotifyListener {
 
             override fun onNewMessageCreate(talker: String, createTime: Long, content: Any) {
@@ -392,27 +372,5 @@ object MainAdapter {
     fun notifyDataSetChanged(adapter: BaseAdapter) {
         val dataSetObservable = XposedHelpers.getObjectField(adapter, "mDataSetObservable") as DataSetObservable
         dataSetObservable.notifyChanged()
-
-//        val field = originAdapter::class.java.declaredFields
-//                .filter { !Modifier.isPrivate(it.modifiers) && HashMap::class.java.name == it.type.name }
-//                .filter { it.genericType != null }
-//                .first {
-//                    try {
-//                        it.genericType.toString() == "java.util.HashMap<java.lang.String, java.lang.Integer>"
-////                            it.genericType is ParameterizedType &&
-////                                    (it.genericType as ParameterizedType).actualTypeArguments != null &&
-////                                    (it.genericType as ParameterizedType).actualTypeArguments.size == 2 &&
-////                                    ((it.genericType as ParameterizedType).actualTypeArguments[0] as Class<*>).name == String::class.java.name &&
-////                                    ((it.genericType as ParameterizedType).actualTypeArguments[1] as Class<*>).name == Int::class.java.name
-//
-//                    } catch (t: Throwable) {
-//                        t.printStackTrace()
-//                        false
-//                    }
-//                }
-//
-//        val hashMap = XposedHelpers.getObjectField(originAdapter, field.name) as HashMap<*, *>
-//        hashMap.clear()
-
     }
 }
