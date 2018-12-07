@@ -171,6 +171,9 @@ class MyListAdapter(val mContext: Activity, val data: MutableList<DataModel>, va
             container.addView(listView)
             container.addView(editText)
 
+            editText.hint = "默认${SpecialPluginEntry.time}秒"
+            editText.setText(SpecialPluginEntry.time.toString())
+
             return container
         }
     }

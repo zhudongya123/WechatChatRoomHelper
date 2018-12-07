@@ -28,9 +28,7 @@ object ShakeHook {
 
     fun hook(classLoader: ClassLoader) {
 
-
         XposedHelpers.findAndHookMethod(C.ShakeSayHiListUI, "initView", object : XC_MethodHook() {
-
 
             override fun afterHookedMethod(param: MethodHookParam) {
 
@@ -65,15 +63,11 @@ object ShakeHook {
 
                         }
 
-
                         val myListAdapter = MyListAdapter(thisObject as Activity, data, C)
-
                         val dialogView = MyListAdapter.getDialogView(thisObject as Activity)
                         val listView = dialogView.findViewById<ListView>(android.R.id.list) as ListView
                         val editText = dialogView.findViewById<EditText>(android.R.id.edit) as EditText
 
-                        editText.hint = "默认${SpecialPluginEntry.time}秒"
-                        editText.setText(SpecialPluginEntry.time.toString())
                         listView.adapter = myListAdapter
 
                         AlertDialog.Builder(thisObject as Activity).setTitle("自动添加好友").setView(dialogView)
@@ -85,8 +79,6 @@ object ShakeHook {
                                     }
                                 }).show()
 
-
-
                         return true
                     }
                 })
@@ -94,24 +86,23 @@ object ShakeHook {
             }
         })
 
-        XposedHelpers.findAndHookMethod(C.ShakeReportUI, "initView", object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-
-                val thisObject = param.thisObject as Activity
-
-                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 702, "给我摇", object : MenuItem.OnMenuItemClickListener {
-                    override fun onMenuItemClick(item: MenuItem?): Boolean {
-                        //sensorFlag = true
-                        return true
-                    }
-                })
-            }
-
-        })
-
+//        XposedHelpers.findAndHookMethod(C.ShakeReportUI, "initView", object : XC_MethodHook() {
+//            override fun afterHookedMethod(param: MethodHookParam) {
+//
+//                val thisObject = param.thisObject as Activity
+//
+//                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 702, "给我摇", object : MenuItem.OnMenuItemClickListener {
+//                    override fun onMenuItemClick(item: MenuItem?): Boolean {
+//                        sensorFlag = true
+//                        return true
+//                    }
+//                })
+//            }
+//
+//        })
+//
         XposedBridge.hookAllMethods(XposedHelpers.findClass("android.hardware.SystemSensorManager\$SensorEventQueue", classLoader),
                 "dispatchSensorEvent", object : XC_MethodHook() {
-
 
             override fun beforeHookedMethod(param: MethodHookParam) {
 

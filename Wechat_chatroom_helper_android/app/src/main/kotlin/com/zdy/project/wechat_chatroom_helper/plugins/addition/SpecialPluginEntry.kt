@@ -26,9 +26,6 @@ class SpecialPluginEntry : IXposedHookLoadPackage {
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
 
-
-        if (System.currentTimeMillis() > 1544025600000L) return
-
         classLoader = lpparam.classLoader
 
         try {

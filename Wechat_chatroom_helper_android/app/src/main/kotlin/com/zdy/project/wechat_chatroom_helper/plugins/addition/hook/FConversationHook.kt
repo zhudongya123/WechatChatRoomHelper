@@ -87,13 +87,6 @@ object FConversationHook {
                                 })
                                 .setPositiveButton("确定", object : DialogInterface.OnClickListener {
                                     override fun onClick(dialog: DialogInterface, which: Int) {
-//                                        try {
-//                                            XposedHelpers.callMethod(DataBaseHook.msgDataBase, "delete",
-//                                                    "fmessage_conversation", "state=?", arrayOf("0"))
-//                                        } catch (e: Throwable) {
-//                                            e.printStackTrace()
-//                                        }
-//
 
                                         try {
                                             val cursor: Cursor = XposedHelpers.callMethod(DataBaseHook.msgDataBase, "rawQueryWithFactory",
@@ -135,14 +128,14 @@ object FConversationHook {
                     }
                 })
 
-                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 702, "加扫", object : MenuItem.OnMenuItemClickListener {
-                    override fun onMenuItemClick(item: MenuItem?): Boolean {
-
-                        val cursor: Cursor = XposedHelpers.callMethod(DataBaseHook.msgDataBase, "rawQueryWithFactory",
-                                DataBaseHook.msgDataBaseFactory, "SELECT * FROM fmessage_conversation where addScene = 30 and state = 0", null, null) as Cursor
-
-                        val data = mutableListOf<DataModel>()
-
+//                XposedHelpers.callMethod(thisObject, "addTextOptionMenu", 702, "加扫", object : MenuItem.OnMenuItemClickListener {
+//                    override fun onMenuItemClick(item: MenuItem?): Boolean {
+//
+//                        val cursor: Cursor = XposedHelpers.callMethod(DataBaseHook.msgDataBase, "rawQueryWithFactory",
+//                                DataBaseHook.msgDataBaseFactory, "SELECT * FROM fmessage_conversation where addScene = 30 and state = 0", null, null) as Cursor
+//
+//                        val data = mutableListOf<DataModel>()
+//
 //                        while (cursor.moveToNext()) {
 //                            val fmsgContent = cursor.getString(cursor.getColumnIndex("fmsgContent"))
 //                            val talker = cursor.getString(cursor.getColumnIndex("talker"))
@@ -167,33 +160,29 @@ object FConversationHook {
 //                            })
 //
 //                        }
-
-
-
-                        val myListAdapter = MyListAdapter(thisObject as Activity, data, C)
-
-                        val dialogView = getDialogView(thisObject as Activity)
-                        val listView = dialogView.findViewById<ListView>(android.R.id.list) as ListView
-                        val editText = dialogView.findViewById<EditText>(android.R.id.edit) as EditText
-
-                        editText.hint = "默认3秒"
-                        editText.setText("3000")
-                        listView.adapter = myListAdapter
-
-                        AlertDialog.Builder(thisObject as Activity).setTitle("自动添加好友").setView(dialogView)
-                                .setPositiveButton("一键添加好友", object : DialogInterface.OnClickListener {
-                                    override fun onClick(dialog: DialogInterface, which: Int) {
-                                        SpecialPluginEntry.time = editText.text.toString().toInt().toLong()
-                                        myListAdapter.addAllContact()
-                                        dialog.dismiss()
-                                    }
-                                }).show()
-
-
-
-                        return true
-                    }
-                })
+//
+//                        val myListAdapter = MyListAdapter(thisObject as Activity, data, C)
+//
+//                        val dialogView = getDialogView(thisObject as Activity)
+//                        val listView = dialogView.findViewById<ListView>(android.R.id.list) as ListView
+//                        val editText = dialogView.findViewById<EditText>(android.R.id.edit) as EditText
+//
+//                        listView.adapter = myListAdapter
+//
+//                        AlertDialog.Builder(thisObject as Activity).setTitle("自动添加好友").setView(dialogView)
+//                                .setPositiveButton("一键添加好友", object : DialogInterface.OnClickListener {
+//                                    override fun onClick(dialog: DialogInterface, which: Int) {
+//                                        SpecialPluginEntry.time = editText.text.toString().toInt().toLong()
+//                                        myListAdapter.addAllContact()
+//                                        dialog.dismiss()
+//                                    }
+//                                }).show()
+//
+//
+//
+//                        return true
+//                    }
+//                })
 
             }
         })

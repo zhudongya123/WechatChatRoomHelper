@@ -9,7 +9,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.sdkVersion
         versionCode 35
-        versionName "3.0"
+        versionName "3.2"
     }
     buildTypes {
         release {
