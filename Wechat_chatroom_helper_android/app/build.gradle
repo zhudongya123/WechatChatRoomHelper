@@ -9,7 +9,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.sdkVersion
         versionCode 37
-        versionName "1.4.0beta"
+        versionName "1.4.1"
     }
     buildTypes {
         release {
