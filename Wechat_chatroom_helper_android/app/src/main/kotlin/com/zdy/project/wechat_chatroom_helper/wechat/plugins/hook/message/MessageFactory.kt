@@ -12,14 +12,14 @@ import de.robv.android.xposed.XposedHelpers
 object MessageFactory {
 
     private const val SqlForGetAllOfficial = "select unReadCount, status, isSend, flag, conversationTime," +
-            "rconversation.username, rcontact.nickname, content, msgType ,digest, digestUser, attrflag, editingMsg, " +
+            "rconversation.username, rcontact.nickname, rcontact.lvbuff, content, msgType ,digest, digestUser, attrflag, editingMsg, " +
             "atCount, unReadMuteCount, UnReadInvite from rconversation, rcontact " +
             "where ( rcontact.username = rconversation.username and rcontact.verifyFlag != 0) and ( parentRef is null  or parentRef = '' )  " +
             "and ( 1 !=1 or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  " +
             "and rconversation.username != 'qmessage' order by flag desc"
 
     private const val SqlForGetAllChatRoom = "select unReadCount, status, isSend, flag, conversationTime, " +
-            "rconversation.username, rcontact.nickname, content, msgType, digest, digestUser, attrflag, editingMsg, " +
+            "rconversation.username, rcontact.nickname, rcontact.lvbuff, content, msgType, digest, digestUser, attrflag, editingMsg, " +
             "atCount, unReadMuteCount, UnReadInvite from rconversation, rcontact " +
             "where  rcontact.username = rconversation.username and  rconversation.username like '%@chatroom' order by flag desc"
 
@@ -119,7 +119,7 @@ object MessageFactory {
             field_unReadMuteCount = cursor.getInt(cursor.getColumnIndex("unReadMuteCount"))
             field_UnReadInvite = cursor.getInt(cursor.getColumnIndex("UnReadInvite"))
             field_unReadCount = cursor.getInt(cursor.getColumnIndex("unReadCount"))
-
+            field_lvbuff = cursor.getBlob(cursor.getColumnIndex("lvbuff"))
 
             val obj = ConversationReflectFunction.beanConstructor.newInstance("")
             ConversationReflectFunction.beanClass.getField("field_flag").set(obj, field_flag)

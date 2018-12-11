@@ -13,6 +13,7 @@ class ChatInfoModel {
     var field_digestUser: CharSequence = ""
     var field_editingMsg: CharSequence = ""
     var field_msgType: CharSequence = ""
+    var field_lvbuff = byteArrayOf()
 
     var field_conversationTime: Long = 0L
 
