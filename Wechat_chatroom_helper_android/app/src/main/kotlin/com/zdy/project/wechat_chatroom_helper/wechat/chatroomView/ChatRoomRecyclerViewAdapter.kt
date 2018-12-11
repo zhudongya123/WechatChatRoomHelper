@@ -16,6 +16,10 @@ import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction
 import de.robv.android.xposed.XposedHelpers
+import java.nio.ByteBuffer
+import java.nio.CharBuffer
+import java.nio.charset.Charset
+import java.nio.charset.CharsetDecoder
 import java.util.*
 
 
@@ -88,34 +92,12 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
             holder.itemView.background = ChatRoomViewFactory.getItemViewBackground(mContext)
         }
 
-
-        try {
-
-            val clazz = XposedHelpers.findClass("com.tencent.mm.sdk.platformtools.v", RuntimeInfo.classloader)
-
-            val newInstance = clazz.getConstructor().newInstance()
-            XposedHelpers.callMethod(newInstance, "bA", item.field_lvbuff)
-
-            LogUtils.log("MessageMute, nickname = ${item.nickname}, lvbuff = " +
-                    "${XposedHelpers.callMethod(newInstance, "getInt")}," +
-                    "${XposedHelpers.callMethod(newInstance, "getInt")}," +
-                    "${XposedHelpers.callMethod(newInstance, "getString")}," +
-                    "${XposedHelpers.callMethod(newInstance, "getLong")}," +
-                    "${XposedHelpers.callMethod(newInstance, "getInt")}," +
-                    "${XposedHelpers.callMethod(newInstance, "getString")}," +
-                    "${XposedHelpers.callMethod(newInstance, "getString")}," +
-                    "${XposedHelpers.callMethod(newInstance, "getInt")}," +
-                    "${XposedHelpers.callMethod(newInstance, "getInt")}," +
-                    "${XposedHelpers.callMethod(newInstance, "getString")}," +
-                    "${XposedHelpers.callMethod(newInstance, "getString")}," +
-                    "ccy = ${XposedHelpers.callMethod(newInstance, "getInt")}," +
-                    "")
-
-            LogUtils.log("MessageMute, getBuffer, ${String(XposedHelpers.callMethod(newInstance, "getBuffer") as ByteArray)}")
-
-        } catch (e: Throwable) {
-            e.printStackTrace()
+        if (item.chatRoomMuteFlag) {
+            holder.mute.visibility = View.GONE
+        } else {
+            holder.mute.visibility = View.VISIBLE
         }
+
     }
 
 

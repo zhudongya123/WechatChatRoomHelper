@@ -8,6 +8,7 @@ import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.Convers
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
 import de.robv.android.xposed.XposedHelpers
+import java.nio.ByteBuffer
 
 object MessageFactory {
 
@@ -127,10 +128,10 @@ object MessageFactory {
             backgroundFlag = XposedHelpers.callStaticMethod(ConversationReflectFunction.conversationStickyHeaderHandler,
                     ConversationReflectFunction.stickyHeaderHandlerMethod.name, obj, 4, 0) as Long
 
-
             nickname = if (field_nickname.isEmpty()) "群聊" else field_nickname
             val conversationContent = ConversationReflectFunction.getConversationContent(MainAdapter.originAdapter, this)
 
+            chatRoomMuteFlag = ByteBuffer.wrap(field_lvbuff).apply { position(1) }.getInt(39) > 0
 
             content = conversationContent
             conversationTime = ConversationReflectFunction.getConversationTimeString(MainAdapter.originAdapter, field_conversationTime)

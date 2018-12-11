@@ -147,6 +147,58 @@ object DrawableMaker {
 
     }
 
+    fun getMuteBitMap(): Bitmap {
+
+        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+
+        val canvas = Canvas(bitmap)
+
+        val paint = Paint().apply {
+            color = 0xFFD9D9D9.toInt()
+            style = Paint.Style.FILL_AND_STROKE
+        }
+
+        val width = canvas.width.toFloat()
+        val height = canvas.height.toFloat()
+
+        val path1 = Path()
+
+        path1.moveTo(22f, 24f)
+        path1.quadTo(19.0f, 17.0f, 27.6f, 19f)
+        path1.lineTo(38.6f, 30.1f)
+        path1.quadTo(41.6f, 26.7f, 47.8f, 27.1f)
+        path1.lineTo(47.8f, 24.1f)
+        path1.quadTo(50.8f, 17.7f, 55.3f, 24.1f)
+        path1.lineTo(55.3f, 27.3f)
+        path1.quadTo(70f, 33.3f, 70f, 44.1f)
+        path1.lineTo(70f, 61f)
+        path1.lineTo(80.8f, 72.7f)
+        path1.quadTo(83f, 79f, 76.6f, 77.3f)
+        path1.close()
+
+        canvas.drawPath(path1, paint)
+
+        val path2 = Path()
+
+        path2.moveTo(29.3f, 72f)
+        path2.quadTo(24.4f,68f,32f,64f)
+        path2.lineTo(32.1f, 40.6f)
+        path2.lineTo(63.7f, 72f)
+        path2.close()
+
+        canvas.drawPath(path2, paint)
+
+        val path3 = Path()
+
+        path3.moveTo(44.4f, 76.8f)
+        path3.quadTo(51.3f,88.2f,58f,76.8f)
+        path3.lineTo(58f, 76f)
+        path3.lineTo(44.4f, 76f)
+        path3.close()
+
+        canvas.drawPath(path3, paint)
+        return bitmap
+    }
 
     private fun singleHeaderBitMap(): Bitmap {
 

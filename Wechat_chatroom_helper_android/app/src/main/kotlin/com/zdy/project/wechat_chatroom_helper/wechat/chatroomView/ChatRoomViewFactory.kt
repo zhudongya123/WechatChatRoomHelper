@@ -18,6 +18,7 @@ import android.widget.TextView
 import com.zdy.project.wechat_chatroom_helper.helper.utils.ColorUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.DrawableMaker
 
 /**
  * Created by Mr.Zdy on 2017/8/27.
@@ -41,6 +42,8 @@ object ChatRoomViewFactory {
     val id_unread = 6
     @IdRes
     val id_divider = 8
+    @IdRes
+    val id_mute = 9
 
 
     fun getItemView(mContext: Context): View {
@@ -56,8 +59,8 @@ object ChatRoomViewFactory {
         val msgState = ImageView(mContext)
         val content = TextView(mContext)
         val unread = TextView(mContext)
-
         val divider = View(mContext)
+        val mute = ImageView(mContext)
 
         avatar.id = id_avatar
         avatarContainer.id = id_avatar_container
@@ -67,12 +70,13 @@ object ChatRoomViewFactory {
         content.id = id_content
         unread.id = id_unread
         divider.id = id_divider
+        mute.id = id_mute
 
-        nickName.setTextColor(0xFF353535.toInt())
-        content.setTextColor(0xFFAAAAAA.toInt())
-        time.setTextColor(0xFFAAAAAA.toInt())
-        unread.setTextColor(0xFFFFFFFF.toInt())
-        //divider.setBackgroundColor(0xFFDADADA);
+//        nickName.setTextColor(0xFF353535.toInt())
+//        content.setTextColor(0xFFAAAAAA.toInt())
+//        time.setTextColor(0xFFAAAAAA.toInt())
+//        unread.setTextColor(0xFFFFFFFF.toInt())
+//        divider.setBackgroundColor(0xFFDADADA.toInt())
 
         nickName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
         content.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
@@ -129,12 +133,20 @@ object ChatRoomViewFactory {
                 RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
         dividerParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
 
+        mute.setImageBitmap(DrawableMaker.getMuteBitMap())
+
+        val muteParams = RelativeLayout.LayoutParams(ScreenUtils.dip2px(mContext, 20f), ScreenUtils.dip2px(mContext, 20f))
+        muteParams.addRule(RelativeLayout.ALIGN_BOTTOM, avatarContainer.id)
+        muteParams.addRule(RelativeLayout.ALIGN_END, time.id)
+        muteParams.setMargins(0, 0, 0, ScreenUtils.dip2px(mContext, 8f))
+
         contentView.addView(avatarContainer, avatarContainerParams)
         contentView.addView(nickName, nickNameParams)
         contentView.addView(time, timeParams)
         contentView.addView(contentContainer, contentContainerParams)
         contentView.addView(unread, unReadParams)
         contentView.addView(divider, dividerParams)
+        contentView.addView(mute, muteParams)
 
         itemView.addView(contentView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT))

@@ -32,6 +32,7 @@ class ChatInfoModel {
     var conversationTime: CharSequence = ""
     var unReadMuteCount: Int = 0
     var unReadCount: Int = 0
+    var chatRoomMuteFlag = false
 
     var backgroundFlag: Long = 0
 
