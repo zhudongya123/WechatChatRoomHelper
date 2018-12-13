@@ -1,7 +1,7 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 
 import android.content.Context
-import android.graphics.PorterDuff
+import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.StateListDrawable
@@ -39,11 +39,13 @@ object ChatRoomViewFactory {
     @IdRes
     val id_content = 5
     @IdRes
-    val id_unread = 6
+    val id_unread_mark = 6
     @IdRes
     val id_divider = 8
     @IdRes
     val id_mute = 9
+    @IdRes
+    val id_unread_count = 10
 
 
     fun getItemView(mContext: Context): View {
@@ -58,7 +60,8 @@ object ChatRoomViewFactory {
         val contentContainer = LinearLayout(mContext)
         val msgState = ImageView(mContext)
         val content = TextView(mContext)
-        val unread = TextView(mContext)
+        val unreadMark = View(mContext)
+        val unreadCount = TextView(mContext)
         val divider = View(mContext)
         val mute = ImageView(mContext)
 
@@ -68,9 +71,10 @@ object ChatRoomViewFactory {
         time.id = id_time
         msgState.id = id_msg_state
         content.id = id_content
-        unread.id = id_unread
+        unreadMark.id = id_unread_mark
         divider.id = id_divider
         mute.id = id_mute
+        unreadCount.id = id_unread_count
 
 //        nickName.setTextColor(0xFF353535.toInt())
 //        content.setTextColor(0xFFAAAAAA.toInt())
@@ -81,10 +85,14 @@ object ChatRoomViewFactory {
         nickName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
         content.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
         time.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
-        unread.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+        unreadCount.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
 
         nickName.ellipsize = TextUtils.TruncateAt.END
         nickName.setSingleLine()
+
+        unreadCount.gravity = Gravity.CENTER
+        unreadCount.setTextColor(Color.WHITE)
+        unreadCount.paint.isFakeBoldText = true
 
         contentContainer.orientation = LinearLayout.HORIZONTAL
 
@@ -124,10 +132,14 @@ object ChatRoomViewFactory {
         contentContainer.addView(msgState, msgStateParams)
         contentContainer.addView(content, RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ScreenUtils.dip2px(mContext, 18f)))
 
-        val unReadParams = RelativeLayout.LayoutParams(ScreenUtils.dip2px(mContext, 10f), ScreenUtils.dip2px(mContext, 10f))
-        unReadParams.addRule(RelativeLayout.ALIGN_RIGHT, avatarContainer.id)
-        unReadParams.addRule(RelativeLayout.ALIGN_TOP, avatarContainer.id)
-        unReadParams.setMargins(0, ScreenUtils.dip2px(mContext, 5f), ScreenUtils.dip2px(mContext, 7f), 0)
+        val unReadMarkParams = RelativeLayout.LayoutParams(ScreenUtils.dip2px(mContext, 10f), ScreenUtils.dip2px(mContext, 10f))
+        unReadMarkParams.addRule(RelativeLayout.ALIGN_RIGHT, avatarContainer.id)
+        unReadMarkParams.addRule(RelativeLayout.ALIGN_TOP, avatarContainer.id)
+        unReadMarkParams.setMargins(0, ScreenUtils.dip2px(mContext, 5f), ScreenUtils.dip2px(mContext, 7f), 0)
+
+        val unReadCountParams = RelativeLayout.LayoutParams(ScreenUtils.dip2px(mContext, 18f), ScreenUtils.dip2px(mContext, 18f))
+        unReadCountParams.addRule(RelativeLayout.ALIGN_RIGHT, unreadMark.id)
+        unReadCountParams.addRule(RelativeLayout.ALIGN_TOP, unreadMark.id)
 
         val dividerParams =
                 RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
@@ -135,16 +147,17 @@ object ChatRoomViewFactory {
 
         mute.setImageBitmap(DrawableMaker.getMuteBitMap())
 
-        val muteParams = RelativeLayout.LayoutParams(ScreenUtils.dip2px(mContext, 20f), ScreenUtils.dip2px(mContext, 20f))
+        val muteParams = RelativeLayout.LayoutParams(ScreenUtils.dip2px(mContext, 24f), ScreenUtils.dip2px(mContext, 24f))
         muteParams.addRule(RelativeLayout.ALIGN_BOTTOM, avatarContainer.id)
-        muteParams.addRule(RelativeLayout.ALIGN_END, time.id)
-        muteParams.setMargins(0, 0, 0, ScreenUtils.dip2px(mContext, 8f))
+        muteParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
+        muteParams.setMargins(0, 0, ScreenUtils.dip2px(mContext, 8f), ScreenUtils.dip2px(mContext, 8f))
 
         contentView.addView(avatarContainer, avatarContainerParams)
         contentView.addView(nickName, nickNameParams)
         contentView.addView(time, timeParams)
         contentView.addView(contentContainer, contentContainerParams)
-        contentView.addView(unread, unReadParams)
+        contentView.addView(unreadMark, unReadMarkParams)
+        contentView.addView(unreadCount, unReadCountParams)
         contentView.addView(divider, dividerParams)
         contentView.addView(mute, muteParams)
 
@@ -164,8 +177,7 @@ object ChatRoomViewFactory {
         return drawable
     }
 
-    fun getItemViewBackgroundSticky(context: Context): Drawable? {
-
+    fun getItemViewBackgroundSticky(): Drawable? {
         val drawable = StateListDrawable()
         drawable.addState(intArrayOf(), ColorDrawable(ColorUtils.getColorInt(AppSaveInfo.highLightColorInfo())))
         return drawable

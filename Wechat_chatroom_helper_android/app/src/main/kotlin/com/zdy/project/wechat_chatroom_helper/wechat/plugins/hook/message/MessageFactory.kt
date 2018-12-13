@@ -93,7 +93,11 @@ object MessageFactory {
 
     fun getUnReadCountItem(list: ArrayList<ChatInfoModel>) = list.count { it.unReadCount > 0 }
 
+    fun getUnMuteUnReadCount(list: ArrayList<ChatInfoModel>) = list.filter { it.chatRoomMuteFlag }.sumBy { it.unReadCount }
+
     fun getUnReadCount(list: ArrayList<ChatInfoModel>) = list.sumBy { it.unReadCount }
+
+    fun getUnMuteChatRoomList(list: ArrayList<ChatInfoModel>) = list.filter { it.chatRoomMuteFlag }
 
     fun getSingle(field_username: String) =
             buildChatInfoModelByCursor((XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject,

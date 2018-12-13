@@ -1,25 +1,16 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 
 import android.content.Context
-import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.ShapeDrawable
-import android.graphics.drawable.shapes.Shape
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.DrawableMaker
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction
-import de.robv.android.xposed.XposedHelpers
-import java.nio.ByteBuffer
-import java.nio.CharBuffer
-import java.nio.charset.Charset
-import java.nio.charset.CharsetDecoder
 import java.util.*
 
 
@@ -57,19 +48,6 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
         holder.content.text = item.content
         holder.time.text = item.conversationTime
 
-        if (item.unReadCount > 0)
-            holder.unread.background = ShapeDrawable(object : Shape() {
-                override fun draw(canvas: Canvas, paint: Paint) {
-                    val size = (canvas.width / 2).toFloat()
-
-                    paint.isAntiAlias = true
-                    paint.color = -0x10000
-                    paint.style = Paint.Style.FILL_AND_STROKE
-                    canvas.drawCircle(size, size, size, paint)
-                }
-            })
-        else holder.unread.background = BitmapDrawable(mContext.resources)
-
 
         if (!item.field_username.isEmpty()) {
             ConversationReflectFunction.getConversationAvatar(item.field_username.toString(), holder.avatar)
@@ -87,16 +65,39 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
         holder.divider.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.dividerColorInfo()))
 
         if (item.backgroundFlag != 0L) {
-            holder.itemView.background = ChatRoomViewFactory.getItemViewBackgroundSticky(mContext)
+            holder.itemView.background = ChatRoomViewFactory.getItemViewBackgroundSticky()
         } else {
             holder.itemView.background = ChatRoomViewFactory.getItemViewBackground(mContext)
         }
 
-        if (item.chatRoomMuteFlag) {
+        //不是免打扰的群（正常群或者服务号）
+        if (item.chatRoomMuteFlag || !item.field_username.contains("@chatroom")) {
+
             holder.mute.visibility = View.GONE
+
+            holder.unreadMark.background = BitmapDrawable(mContext.resources)
+
+            if (item.unReadCount > 0) {
+                holder.unreadCount.background = DrawableMaker.getRedCircleDrawable()
+                if (item.unReadCount > 99) holder.unreadCount.text = "…"
+                else holder.unreadCount.text = item.unReadCount.toString()
+            } else {
+                holder.unreadCount.background = BitmapDrawable(mContext.resources)
+                holder.unreadCount.text = ""
+            }
+
+
         } else {
             holder.mute.visibility = View.VISIBLE
+
+            holder.unreadCount.background = BitmapDrawable(mContext.resources)
+            holder.unreadCount.text = ""
+
+            if (item.unReadCount > 0) holder.unreadMark.background = DrawableMaker.getRedCircleDrawable()
+            else holder.unreadMark.background = BitmapDrawable(mContext.resources)
+
         }
+
 
     }
 

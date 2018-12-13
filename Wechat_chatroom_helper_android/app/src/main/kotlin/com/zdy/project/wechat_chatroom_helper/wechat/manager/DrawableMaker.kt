@@ -3,6 +3,8 @@ package com.zdy.project.wechat_chatroom_helper.wechat.manager
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.Shape
 import android.support.annotation.ColorInt
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
@@ -314,5 +316,16 @@ object DrawableMaker {
 
         return bitmap
     }
+
+    fun getRedCircleDrawable() = ShapeDrawable(object : Shape() {
+        override fun draw(canvas: Canvas, paint: Paint) {
+            val size = (canvas.width / 2).toFloat()
+
+            paint.isAntiAlias = true
+            paint.color = 0xFFFF3D3D.toInt()
+            paint.style = Paint.Style.FILL_AND_STROKE
+            canvas.drawCircle(size, size, size, paint)
+        }
+    })
 
 }

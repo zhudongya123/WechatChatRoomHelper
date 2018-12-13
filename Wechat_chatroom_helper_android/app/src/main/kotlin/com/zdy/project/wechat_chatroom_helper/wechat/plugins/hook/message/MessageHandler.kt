@@ -149,7 +149,6 @@ object MessageHandler {
                     isQueryOriginAllConversation(sql) -> {
 
                         LogUtils.log("MessageHandler, refreshAllConversation")
-
                         try {
                             val (firstOfficialUsername, firstChatRoomUsername) = refreshEntryUsername(thisObject)
                             iMainAdapterRefreshes.forEach { it.onEntryInit(firstChatRoomUsername, firstOfficialUsername) }
@@ -196,29 +195,31 @@ object MessageHandler {
 
                         LogUtils.log("MessageHandler, refreshAllConversationUnreadcount")
 
-                        val list = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
+                        val officialList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
+                        val unMuteChatRoomList = MessageFactory.getUnMuteChatRoomList(MessageFactory.getSpecChatRoom()).map { it.field_username }
 
                         val prefix = SqlForNewAllUnreadCount
 
-                        val sqlForAllUnReadCount = if (list.size == 0) {
-                            val postfix = " and rcontact.verifyFlag == 0 "
-
-                            prefix + postfix
-                        } else {
-
-                            val postfix = " or rcontact.verifyFlag == 0 )) "
-                            var addition = " and ( rconversation.username = rcontact.username and ( "
-
-                            list.forEachIndexed { index, username ->
-                                if (index == 0) {
-                                    addition += " rconversation.username = '$username' "
+                        val sqlForAllUnReadCount =
+                                if (officialList.size == 0) {
+                                    val postfix = " and rcontact.verifyFlag == 0 "
+                                    prefix + postfix
                                 } else {
-                                    addition += " or rconversation.username = '$username' "
-                                }
-                            }
+                                    val postfix = " or rcontact.verifyFlag == 0 )) "
+                                    var addition = " and ( rconversation.username = rcontact.username and ( "
 
-                            prefix + addition + postfix
-                        }
+                                    officialList.forEachIndexed { index, username ->
+                                        if (index == 0) {
+                                            addition += " rconversation.username = '$username' "
+                                        } else {
+                                            addition += " or rconversation.username = '$username' "
+                                        }
+                                    }
+                                    prefix + addition + postfix
+                                }
+
+
+
 
                         LogUtils.log("sqlForAllUnReadCount =  $sqlForAllUnReadCount")
 
