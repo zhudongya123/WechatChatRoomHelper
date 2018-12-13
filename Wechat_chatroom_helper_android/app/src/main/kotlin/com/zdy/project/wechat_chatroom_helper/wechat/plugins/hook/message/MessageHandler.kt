@@ -114,6 +114,7 @@ object MessageHandler {
         }
 
     }
+
     fun executeHook() {
 
         val database =
@@ -198,27 +199,22 @@ object MessageHandler {
                         val officialList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
                         val unMuteChatRoomList = MessageFactory.getUnMuteChatRoomList(MessageFactory.getSpecChatRoom()).map { it.field_username }
 
-                        val prefix = SqlForNewAllUnreadCount
 
-                        val sqlForAllUnReadCount =
+                        var sqlForAllUnReadCount =
                                 if (officialList.size == 0) {
-                                    val postfix = " and rcontact.verifyFlag == 0 "
-                                    prefix + postfix
+                                    "$SqlForNewAllUnreadCount and rcontact.verifyFlag == 0 "
                                 } else {
-                                    val postfix = " or rcontact.verifyFlag == 0 )) "
-                                    var addition = " and ( rconversation.username = rcontact.username and ( "
-
-                                    officialList.forEachIndexed { index, username ->
-                                        if (index == 0) {
-                                            addition += " rconversation.username = '$username' "
-                                        } else {
-                                            addition += " or rconversation.username = '$username' "
-                                        }
-                                    }
-                                    prefix + addition + postfix
+                                    SqlForNewAllUnreadCount +
+                                            officialList.joinToString(
+                                                    "' or rconversation.username = '",
+                                                    " and ( rconversation.username = rcontact.username and ( rconversation.username = '",
+                                                    "' or rcontact.verifyFlag == 0 ))"
+                                            ) { it }
                                 }
 
-
+                        if (unMuteChatRoomList.isNotEmpty()) {
+                            sqlForAllUnReadCount += unMuteChatRoomList.joinToString("' and rconversation.username != '", " and rconversation.username != '", "' ") { it }
+                        }
 
 
                         LogUtils.log("sqlForAllUnReadCount =  $sqlForAllUnReadCount")
