@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.support.v7.widget.RecyclerView
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.view.ViewGroup
 import com.zdy.project.wechat_chatroom_helper.LogUtils
@@ -44,6 +46,15 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
 
         LogUtils.log("onBindViewHolder, position = $position, " + item.toString())
 
+//        val spannableStringBuilder = SpannableStringBuilder()
+//        spannableStringBuilder.append("[${item.field_unReadCount}条]")
+//        val firstLength = spannableStringBuilder.length
+//        spannableStringBuilder.setSpan(ForegroundColorSpan(0xFFF44336.toInt()), 0, firstLength, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE)
+//        spannableStringBuilder.append("[${item.field_unReadMuteCount}条]")
+//        spannableStringBuilder.setSpan(ForegroundColorSpan(0xFFFFA726.toInt()), firstLength, spannableStringBuilder.length, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE)
+//        spannableStringBuilder.append(item.content)
+
+
         holder.nickname.text = item.nickname
         holder.content.text = item.content
         holder.time.text = item.conversationTime
@@ -74,7 +85,6 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
         if (item.chatRoomMuteFlag || !item.field_username.contains("@chatroom")) {
 
             holder.mute.visibility = View.GONE
-
             holder.unreadMark.background = BitmapDrawable(mContext.resources)
 
             if (item.unReadCount > 0) {
@@ -89,7 +99,6 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
 
         } else {
             holder.mute.visibility = View.VISIBLE
-
             holder.unreadCount.background = BitmapDrawable(mContext.resources)
             holder.unreadCount.text = ""
 

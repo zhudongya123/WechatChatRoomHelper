@@ -222,7 +222,6 @@ object MessageHandler {
                         try {
                             param.result = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, sqlForAllUnReadCount, selectionArgs, editTable, cancellation)
                         } catch (e: Exception) {
-                            e.printStackTrace()
                         }
                     }
                 //当请求全部联系人回话时
