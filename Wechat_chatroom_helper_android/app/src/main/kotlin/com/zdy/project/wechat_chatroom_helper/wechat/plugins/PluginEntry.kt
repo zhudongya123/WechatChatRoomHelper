@@ -62,6 +62,8 @@ class PluginEntry : IXposedHookLoadPackage {
                 MainAdapterLongClick.officialStickyValue = it.second
             }
 
+            Constants.defaultValue = Constants.DefaultValue(AppSaveInfo.getWechatVersionName().startsWith("7"))
+
             /**
              * 注入Hook
              */

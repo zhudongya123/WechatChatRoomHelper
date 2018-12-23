@@ -45,7 +45,6 @@ class WhiteListDialogBuilder {
                 .setTitle("请选择不需要显示在助手中的条目")
                 .setPositiveButton("确认") { dialog, which ->
                     WechatJsonUtils.putFileString()
-                    Toast.makeText(mContext, "效果将在收到一条新消息时生效", Toast.LENGTH_SHORT).show()
                     dialog.dismiss()
                 }
                 .setAdapter(whiteListAdapter) { _, _ -> }
@@ -77,7 +76,7 @@ class WhiteListDialogBuilder {
                 viewHolder = convertView.tag as WhiteItemViewHolder
             }
 
-            val nickname = getItem(position).field_nickname.toString()
+            val nickname = getItem(position).nickname.toString()
             val username = getItem(position).field_username.toString()
 
             viewHolder.text1.text = nickname

@@ -6,6 +6,7 @@ import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.interfaces.MessageEventNotifyListener
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
@@ -114,6 +115,7 @@ object MessageHandler {
         }
 
     }
+
     fun executeHook() {
 
         val database =
@@ -144,92 +146,83 @@ object MessageHandler {
                 LogUtils.log("MessageHandler, queryHook, sql = $sql")
                 if (!sql.contains("unReadCount")) return
 
-                //如果本次查询是查询全部回话时，修改返回结果为全部联系人回话（不包括服务号和群聊）
                 when {
+
+                //如果本次查询是查询全部回话时
+                //修改返回结果为全部联系人回话（不包括服务号和群聊）
                     isQueryOriginAllConversation(sql) -> {
 
                         LogUtils.log("MessageHandler, refreshAllConversation")
 
-                        try {
-                            val (firstOfficialUsername, firstChatRoomUsername) = refreshEntryUsername(thisObject)
+                        //先获取两个助手的 username
+                        refreshEntryUsername(thisObject).let {
+                            val firstChatRoomUsername = it.first
+                            val firstOfficialUsername = it.second
                             iMainAdapterRefreshes.forEach { it.onEntryInit(firstChatRoomUsername, firstOfficialUsername) }
-
-                            RuntimeInfo.chatRoomViewPresenter.refreshList(false, Any())
-                            RuntimeInfo.officialViewPresenter.refreshList(false, Any())
-
-                            val list = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_CHAT_ROOM).apply { addAll(AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)) }
-
-                            val sqlForAllConversation = if (list.size == 0) {
-                                SqlForNewAllContactConversation.joinToString("", "", "", -1, "") { it }
-                            } else {
-                                val mutableList = SqlForNewAllContactConversation.toMutableList()
-
-                                val postfix = mutableList.last()
-                                val prefix = mutableList
-                                        .apply { removeAt(SqlForNewAllContactConversation.size - 1) }
-                                        .joinToString("", "", "", -1, "") { it }
-
-                                var addition = "or ( rconversation.username = rcontact.username and ( "
-
-                                list.forEachIndexed { index, username ->
-                                    if (index == 0) {
-                                        addition += " rconversation.username = '$username' "
-                                    } else {
-                                        addition += " or rconversation.username = '$username' "
-                                    }
-                                }
-                                addition += " ) ) "
-
-                                prefix + addition + postfix
-                            }
-
-                            LogUtils.log("sqlForAllConversation =  $sqlForAllConversation")
-
-                            val result = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, sqlForAllConversation, selectionArgs, editTable, cancellation)
-
-                            param.result = result
-                        } catch (e: Exception) {
-                            e.printStackTrace()
                         }
+
+                        //刷新两个助手的列表
+                        RuntimeInfo.chatRoomViewPresenter.refreshList(false, Any())
+                        RuntimeInfo.officialViewPresenter.refreshList(false, Any())
+
+                        //获取两个群聊和服务号的白名单
+                        val list = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_CHAT_ROOM).plus(AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL))
+
+                        //sqlForAllConversation 这个变量是新的sql查询语句，用来过滤主页的群聊和服务号
+
+                        val sqlForAllConversation =
+
+                        //没有白名单，直接全部拼起来就完事
+                                if (list.isEmpty()) {
+                                    SqlForNewAllContactConversation.joinToString("") { it }
+                                }
+
+                                //有白名单就需要将白名单列表也在 sql 中拼起来
+                                else {
+                                    val mutableList = SqlForNewAllContactConversation.toMutableList()
+
+                                    val postfix = mutableList.last()//最后一个
+                                    val prefix = mutableList.dropLast(1).joinToString("") { it }//除去最后一个拼接字符串
+
+                                    //组合字符串
+                                    prefix + list.joinToString("' or rconversation.username = '", "or ( rconversation.username = rcontact.username and ( rconversation.username = '", "' )) ") { it } + postfix
+                                }
+
+                        LogUtils.log("sqlForAllConversation =  $sqlForAllConversation")
+
+                        val result = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, sqlForAllConversation, selectionArgs, editTable, cancellation)
+                        param.result = result
                     }
+
+                //当查询未读数时的修改逻辑
                     isQueryOriginAllUnReadCount(sql) -> {
 
-                        LogUtils.log("MessageHandler, refreshAllConversationUnreadcount")
+                        LogUtils.log("MessageHandler, refreshAllConversationUnReadCount")
 
-                        val list = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
+                        val officialList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
 
-                        val prefix = SqlForNewAllUnreadCount
-
-                        val sqlForAllUnReadCount = if (list.size == 0) {
-                            val postfix = " and rcontact.verifyFlag == 0 "
-
-                            prefix + postfix
-                        } else {
-
-                            val postfix = " or rcontact.verifyFlag == 0 )) "
-                            var addition = " and ( rconversation.username = rcontact.username and ( "
-
-                            list.forEachIndexed { index, username ->
-                                if (index == 0) {
-                                    addition += " rconversation.username = '$username' "
+                        var sqlForAllUnReadCount =
+                                if (officialList.size == 0) {
+                                    "$SqlForNewAllUnreadCount and rcontact.verifyFlag == 0 "
                                 } else {
-                                    addition += " or rconversation.username = '$username' "
+                                    SqlForNewAllUnreadCount +
+                                            officialList.joinToString("' or rconversation.username = '", " and ( rconversation.username = rcontact.username and ( rconversation.username = '", "' or rcontact.verifyFlag == 0 ))") { it }
                                 }
-                            }
 
-                            prefix + addition + postfix
+
+                        try {
+                            val unMuteChatRoomList = MessageFactory.getUnMuteChatRoomList(MessageFactory.getSpecChatRoom()).map { it.field_username }
+                            if (unMuteChatRoomList.isNotEmpty()) {
+                                sqlForAllUnReadCount += unMuteChatRoomList.joinToString("' and rconversation.username != '", " and rconversation.username != '", "' ") { it }
+                            }
+                        } catch (e: Throwable) {
+                            e.printStackTrace()
                         }
 
                         LogUtils.log("sqlForAllUnReadCount =  $sqlForAllUnReadCount")
-
-                        try {
-                            param.result = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, sqlForAllUnReadCount, selectionArgs, editTable, cancellation)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
+                        param.result = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, sqlForAllUnReadCount, selectionArgs, editTable, cancellation)
                     }
-                //当请求全部联系人回话时
-                //确定服务号和群聊的入口位置
+                //当请求全部联系人回话时（就是去除群聊和服务号的情况）
                     isQueryNewAllConversation(sql) -> {
 
                         LogUtils.log("MessageHooker2.17,size = $SqlForNewAllContactConversation")
@@ -288,7 +281,6 @@ object MessageHandler {
 
                         LogUtils.log("MessageHooker2.17, chatRoomPosition = $chatRoomPosition, officialPosition = $officialPosition")
 
-
                         iMainAdapterRefreshes.forEach { it.onEntryPositionChanged(chatRoomPosition, officialPosition) }
 
                         //恢复数据库游标为起始位置
@@ -298,9 +290,15 @@ object MessageHandler {
 
             }
         }
-        XposedHelpers.findAndHookMethod(database, WXObject.Message.M.QUERY, databaseFactory,
-                String::class.java, Array<String>::class.java, String::class.java,
-                databaseCancellationSignal, queryHook)
+        try {
+            XposedHelpers.findAndHookMethod(database, WXObject.Message.M.QUERY, databaseFactory,
+                    String::class.java, Array<String>::class.java, String::class.java,
+                    databaseCancellationSignal, queryHook)
+        } catch (e: NoSuchMethodError) {
+            XposedHelpers.findAndHookMethod(database, WXObject.Message.M.QUERY, databaseFactory,
+                    String::class.java, Array<Any>::class.java, String::class.java,
+                    databaseCancellationSignal, queryHook)
+        }
 
         XposedHelpers.findAndHookMethod(database, WXObject.Message.M.INSERT,
                 String::class.java, String::class.java, ContentValues::class.java, Int::class.java,
@@ -312,7 +310,6 @@ object MessageHandler {
                         val nullColumnHack = param.args[1] as String?
                         val initialValues = param.args[2] as ContentValues?
                         val conflictAlgorithm = param.args[3] as Int
-
 
                         if (table == "message") {
 

@@ -18,11 +18,19 @@ import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActiv
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import manager.PermissionHelper
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import java.util.HashMap
 
 
 class MainActivity : BaseActivity() {
 
+    companion object {
+        @JvmStatic
+        val WRITE_EXTERNAL_STORAGE_RESULT_CODE = 124
+
+        @JvmStatic
+        val FILE_INIT_SUCCESS = "file_init_success"
+    }
 
     private lateinit var listContent: LinearLayout
 
@@ -92,18 +100,20 @@ class MainActivity : BaseActivity() {
                         PermissionHelper.ALLOW -> {
                             if (AppSaveInfo.hasSuitWechatDataInfo()) {
                                 val saveWechatVersionInfo = AppSaveInfo.wechatVersionInfo()
+                                val saveWechatVersionName = AppSaveInfo.getWechatVersionName()
                                 val saveHelpVersionInfo = AppSaveInfo.helpVersionCodeInfo()
-                                val currentWechatVersionInfo = MyApplication.get().getWechatVersionCode().toString()
+                                val currentWechatVersionInfo = DeviceUtils.getWechatVersionCode(MyApplication.get()).toString()
+                                val currentWechatVersionName = DeviceUtils.getWechatVersionName(MyApplication.get())
                                 val currentHelperVersionInfo = MyApplication.get().getHelperVersionCode().toString()
 
-                                if (saveWechatVersionInfo == currentWechatVersionInfo) {
+                                if (saveWechatVersionInfo == currentWechatVersionInfo && currentWechatVersionName == saveWechatVersionName) {
                                     if (currentHelperVersionInfo == saveHelpVersionInfo) {
-                                        setSuccessText(text2, "本地适配文件适用于 $saveWechatVersionInfo 版本微信，已适配。")
+                                        setSuccessText(text2, "本地适配文件适用于 $saveWechatVersionName ($saveWechatVersionInfo) 版本微信，已适配。")
                                     } else {
                                         setWarmText(text2, "本地适配文件由老版本的助手生成，请点击生成新版本的适配文件。")
                                     }
                                 } else {
-                                    setFailText(text2, "本地适配文件适用于 $saveWechatVersionInfo 版本微信，当前微信版本：$currentWechatVersionInfo， 点击获取新的适配文件。")
+                                    setFailText(text2, "本地适配文件适用于 $saveWechatVersionName ($saveWechatVersionInfo) 版本微信，当前微信版本：$currentWechatVersionName ($currentWechatVersionInfo)， 点击获取新的适配文件。")
                                 }
                             } else {
                                 setFailText(text2, "本地未发现适配文件， 点击获取新的适配文件。")

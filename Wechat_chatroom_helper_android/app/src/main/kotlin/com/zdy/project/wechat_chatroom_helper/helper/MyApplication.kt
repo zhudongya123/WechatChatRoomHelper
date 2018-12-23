@@ -1,10 +1,8 @@
 package ui
 
 import android.app.Application
-import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import com.tencent.bugly.Bugly
 import com.tencent.bugly.crashreport.CrashReport
 import com.zdy.project.wechat_chatroom_helper.Constants
 
@@ -24,24 +22,7 @@ class MyApplication : Application() {
 
 
 
-    fun getWechatVersionCode(): Int {
-        val list = packageManager.getInstalledPackages(0) as List<PackageInfo>
 
-        var wechatVersionCode = -1
-
-        try {
-            for (packageInfo in list) {
-                if (packageInfo.packageName == Constants.WECHAT_PACKAGE_NAME) {
-                    wechatVersionCode = packageInfo.versionCode
-                    break
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-        return wechatVersionCode
-    }
 
     fun getHelperVersionCode(): Int {
         val packageManager = packageManager as PackageManager
@@ -59,6 +40,7 @@ class MyApplication : Application() {
     companion object {
         private var instance: MyApplication? = null
 
+        @JvmStatic
         fun get(): MyApplication {
             return instance!!
         }

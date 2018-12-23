@@ -16,7 +16,9 @@ class ChatRoomViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     var time: TextView = itemView.findViewById(ChatRoomViewFactory.id_time)
     var msgState: ImageView = itemView.findViewById(ChatRoomViewFactory.id_msg_state)
     var content: TextView = itemView.findViewById(ChatRoomViewFactory.id_content)
-    var unread: TextView = itemView.findViewById(ChatRoomViewFactory.id_unread)
+    var unreadMark: View = itemView.findViewById(ChatRoomViewFactory.id_unread_mark)
+    var unreadCount: TextView = itemView.findViewById(ChatRoomViewFactory.id_unread_count)
     var divider: View = itemView.findViewById(ChatRoomViewFactory.id_divider)
+    var mute: View = itemView.findViewById(ChatRoomViewFactory.id_mute)
 
 }

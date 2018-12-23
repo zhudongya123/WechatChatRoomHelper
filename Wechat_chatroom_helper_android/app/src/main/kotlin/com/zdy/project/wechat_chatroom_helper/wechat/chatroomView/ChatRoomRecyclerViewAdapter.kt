@@ -1,22 +1,18 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 
 import android.content.Context
-import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.ShapeDrawable
-import android.graphics.drawable.shapes.Shape
-import android.os.Bundle
 import android.support.v7.widget.RecyclerView
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.view.ViewGroup
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.DrawableMaker
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
-import de.robv.android.xposed.XposedHelpers
 import java.util.*
 
 
@@ -50,22 +46,18 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
 
         LogUtils.log("onBindViewHolder, position = $position, " + item.toString())
 
+//        val spannableStringBuilder = SpannableStringBuilder()
+//        spannableStringBuilder.append("[${item.field_unReadCount}条]")
+//        val firstLength = spannableStringBuilder.length
+//        spannableStringBuilder.setSpan(ForegroundColorSpan(0xFFF44336.toInt()), 0, firstLength, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE)
+//        spannableStringBuilder.append("[${item.field_unReadMuteCount}条]")
+//        spannableStringBuilder.setSpan(ForegroundColorSpan(0xFFFFA726.toInt()), firstLength, spannableStringBuilder.length, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE)
+//        spannableStringBuilder.append(item.content)
+
+
         holder.nickname.text = item.nickname
         holder.content.text = item.content
         holder.time.text = item.conversationTime
-
-        if (item.unReadCount > 0)
-            holder.unread.background = ShapeDrawable(object : Shape() {
-                override fun draw(canvas: Canvas, paint: Paint) {
-                    val size = (canvas.width / 2).toFloat()
-
-                    paint.isAntiAlias = true
-                    paint.color = -0x10000
-                    paint.style = Paint.Style.FILL_AND_STROKE
-                    canvas.drawCircle(size, size, size, paint)
-                }
-            })
-        else holder.unread.background = BitmapDrawable(mContext.resources)
 
 
         if (!item.field_username.isEmpty()) {
@@ -84,10 +76,38 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
         holder.divider.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.dividerColorInfo()))
 
         if (item.backgroundFlag != 0L) {
-            holder.itemView.background = ChatRoomViewFactory.getItemViewBackgroundSticky(mContext)
+            holder.itemView.background = ChatRoomViewFactory.getItemViewBackgroundSticky()
         } else {
             holder.itemView.background = ChatRoomViewFactory.getItemViewBackground(mContext)
         }
+
+        //不是免打扰的群（正常群或者服务号）
+        if (item.chatRoomMuteFlag || !item.field_username.contains("@chatroom")) {
+
+            holder.mute.visibility = View.GONE
+            holder.unreadMark.background = BitmapDrawable(mContext.resources)
+
+            if (item.unReadCount > 0) {
+                holder.unreadCount.background = DrawableMaker.getRedCircleDrawable()
+                if (item.unReadCount > 99) holder.unreadCount.text = "…"
+                else holder.unreadCount.text = item.unReadCount.toString()
+            } else {
+                holder.unreadCount.background = BitmapDrawable(mContext.resources)
+                holder.unreadCount.text = ""
+            }
+
+
+        } else {
+            holder.mute.visibility = View.VISIBLE
+            holder.unreadCount.background = BitmapDrawable(mContext.resources)
+            holder.unreadCount.text = ""
+
+            if (item.unReadCount > 0) holder.unreadMark.background = DrawableMaker.getRedCircleDrawable()
+            else holder.unreadMark.background = BitmapDrawable(mContext.resources)
+
+        }
+
+
     }
 
 

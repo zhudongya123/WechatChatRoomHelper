@@ -8,18 +8,19 @@ import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.Convers
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
 import de.robv.android.xposed.XposedHelpers
+import java.nio.ByteBuffer
 
 object MessageFactory {
 
     private const val SqlForGetAllOfficial = "select unReadCount, status, isSend, flag, conversationTime," +
-            "rconversation.username, rcontact.nickname, content, msgType ,digest, digestUser, attrflag, editingMsg, " +
+            "rconversation.username, rcontact.nickname, rcontact.lvbuff, content, msgType ,digest, digestUser, attrflag, editingMsg, " +
             "atCount, unReadMuteCount, UnReadInvite from rconversation, rcontact " +
             "where ( rcontact.username = rconversation.username and rcontact.verifyFlag != 0) and ( parentRef is null  or parentRef = '' )  " +
             "and ( 1 !=1 or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  " +
             "and rconversation.username != 'qmessage' order by flag desc"
 
     private const val SqlForGetAllChatRoom = "select unReadCount, status, isSend, flag, conversationTime, " +
-            "rconversation.username, rcontact.nickname, content, msgType, digest, digestUser, attrflag, editingMsg, " +
+            "rconversation.username, rcontact.nickname, rcontact.lvbuff, content, msgType, digest, digestUser, attrflag, editingMsg, " +
             "atCount, unReadMuteCount, UnReadInvite from rconversation, rcontact " +
             "where  rcontact.username = rconversation.username and  rconversation.username like '%@chatroom' order by flag desc"
 
@@ -92,7 +93,11 @@ object MessageFactory {
 
     fun getUnReadCountItem(list: ArrayList<ChatInfoModel>) = list.count { it.unReadCount > 0 }
 
+    fun getUnMuteUnReadCount(list: ArrayList<ChatInfoModel>) = list.filter { it.chatRoomMuteFlag }.sumBy { it.unReadCount }
+
     fun getUnReadCount(list: ArrayList<ChatInfoModel>) = list.sumBy { it.unReadCount }
+
+    fun getUnMuteChatRoomList(list: ArrayList<ChatInfoModel>) = list.filter { it.chatRoomMuteFlag }
 
     fun getSingle(field_username: String) =
             buildChatInfoModelByCursor((XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject,
@@ -119,7 +124,7 @@ object MessageFactory {
             field_unReadMuteCount = cursor.getInt(cursor.getColumnIndex("unReadMuteCount"))
             field_UnReadInvite = cursor.getInt(cursor.getColumnIndex("UnReadInvite"))
             field_unReadCount = cursor.getInt(cursor.getColumnIndex("unReadCount"))
-
+            field_lvbuff = cursor.getBlob(cursor.getColumnIndex("lvbuff"))
 
             val obj = ConversationReflectFunction.beanConstructor.newInstance("")
             ConversationReflectFunction.beanClass.getField("field_flag").set(obj, field_flag)
@@ -127,10 +132,10 @@ object MessageFactory {
             backgroundFlag = XposedHelpers.callStaticMethod(ConversationReflectFunction.conversationStickyHeaderHandler,
                     ConversationReflectFunction.stickyHeaderHandlerMethod.name, obj, 4, 0) as Long
 
-
             nickname = if (field_nickname.isEmpty()) "群聊" else field_nickname
             val conversationContent = ConversationReflectFunction.getConversationContent(MainAdapter.originAdapter, this)
 
+            chatRoomMuteFlag = ByteBuffer.wrap(field_lvbuff).apply { position(1) }.getInt(39) > 0
 
             content = conversationContent
             conversationTime = ConversationReflectFunction.getConversationTimeString(MainAdapter.originAdapter, field_conversationTime)

@@ -2,6 +2,8 @@ package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter
 
 import android.annotation.SuppressLint
 import android.database.DataSetObservable
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -141,6 +143,7 @@ object MainAdapter {
                             val allChatRoom = MessageFactory.getSpecChatRoom()
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
                             val totalUnReadCount = MessageFactory.getUnReadCount(allChatRoom)
+                            val unMuteUnReadCount = MessageFactory.getUnMuteUnReadCount(allChatRoom)
                             LogUtils.log("getUnReadCountItemChatRoom " + allChatRoom.joinToString { "unReadCount = ${it.unReadCount}" })
 
                             val chatInfoModel = allChatRoom.sortedBy { -it.field_conversationTime }.first()
@@ -152,9 +155,22 @@ object MainAdapter {
                             sendStatus.visibility = View.GONE
                             muteImage.visibility = View.GONE
 
+
+
                             if (unReadCountItem > 0) {
-                                setTextForNoMeasuredTextView(content, "[有 $unReadCountItem 个群聊收到 $totalUnReadCount 条新消息]")
-                                setTextColorForNoMeasuredTextView(content, 0xFFF57C00.toInt())
+
+                                val spannableStringBuilder = SpannableStringBuilder()
+
+                                var firstLength = 0
+                                if (unMuteUnReadCount > 0) {
+                                    spannableStringBuilder.append("[${unMuteUnReadCount}条] ")
+                                    firstLength = spannableStringBuilder.length
+                                    spannableStringBuilder.setSpan(ForegroundColorSpan(0xFFF44336.toInt()), 0, firstLength, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE)
+                                }
+                                spannableStringBuilder.append("[ ${unReadCountItem} 个群聊收到 ${totalUnReadCount} 条新消息]")
+                                spannableStringBuilder.setSpan(ForegroundColorSpan(0xFFF57C00.toInt()), firstLength, spannableStringBuilder.length, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                                setTextForNoMeasuredTextView(content, spannableStringBuilder)
                                 unMuteReadIndicators.visibility = View.VISIBLE
                             } else {
                                 setTextColorForNoMeasuredTextView(content, 0xFF999999.toInt())
@@ -192,7 +208,7 @@ object MainAdapter {
                             avatar.setImageDrawable(DrawableMaker.handleAvatarDrawable(avatar.context, PageType.OFFICIAL))
 
                             if (unReadCountItem > 0) {
-                                setTextForNoMeasuredTextView(content, "[有 $unReadCountItem 个服务号收到 $totalUnReadCount 条新消息]")
+                                setTextForNoMeasuredTextView(content, "[ ${unReadCountItem} 个服务号收到 ${totalUnReadCount} 条新消息]")
                                 setTextColorForNoMeasuredTextView(content, 0xFFF57C00.toInt())
                                 unMuteReadIndicators.visibility = View.VISIBLE
                             } else {

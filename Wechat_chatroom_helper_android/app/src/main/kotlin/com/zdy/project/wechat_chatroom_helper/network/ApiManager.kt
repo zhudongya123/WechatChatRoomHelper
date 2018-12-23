@@ -26,6 +26,7 @@ object ApiManager {
                 .add("model", model)
                 .add("version", AppSaveInfo.helpVersionCodeInfo())
                 .add("wechat_version", AppSaveInfo.wechatVersionInfo())
+                .add("wechat_version_name", AppSaveInfo.getWechatVersionName())
                 .add("android_version", Build.VERSION.SDK)
                 .build()
 
