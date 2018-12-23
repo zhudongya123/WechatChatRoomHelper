@@ -32,6 +32,8 @@ object AppSaveInfo {
     private const val IS_PLAY_VERSION = "is_play_version"//
     private const val HELPER_VERSIONCODE = "helper_versionCode"
     private const val WECHAT_VERSION = "wechat_version"
+    private const val WECHAT_VERSION_NAME = "wechat_version_name"
+
     private const val JSON = "json"
     private const val CHAT_ROOM_TYPE = "chatRoom_type"
 
@@ -40,7 +42,8 @@ object AppSaveInfo {
 
     private const val API_RECORD_TIME = "api_record_time"//上次请求的时间
 
-    private const val HELPER_STICKY_INFO = "helper_sticky_info"
+    private const val HELPER_STICKY_INFO = "helper_sticky_info"//助手置顶位置
+
 
     fun getHelperStickyInfo(): Int {
         return WechatJsonUtils.getJsonValue(HELPER_STICKY_INFO, 0)
@@ -116,7 +119,7 @@ object AppSaveInfo {
     }
 
     fun toolbarColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(TOOLBAR_COLOR, Constants.DEFAULT_TOOLBAR_COLOR)
+        return WechatJsonUtils.getJsonValue(TOOLBAR_COLOR, Constants.defaultValue.DEFAULT_TOOLBAR_COLOR)
     }
 
     fun setToolbarColorInfo(value: String) {
@@ -124,7 +127,7 @@ object AppSaveInfo {
     }
 
     fun helperColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(HELPER_COLOR, Constants.DEFAULT_HELPER_COLOR)
+        return WechatJsonUtils.getJsonValue(HELPER_COLOR, Constants.defaultValue.DEFAULT_HELPER_COLOR)
     }
 
     fun setHelperColorInfo(value: String) {
@@ -132,7 +135,7 @@ object AppSaveInfo {
     }
 
     fun nicknameColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(NICKNAME_COLOR, Constants.DEFAULT_NICKNAME_COLOR)
+        return WechatJsonUtils.getJsonValue(NICKNAME_COLOR, Constants.defaultValue.DEFAULT_NICKNAME_COLOR)
     }
 
     fun setNicknameColorInfo(value: String) {
@@ -140,7 +143,7 @@ object AppSaveInfo {
     }
 
     fun contentColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(CONTENT_COLOR, Constants.DEFAULT_CONTENT_COLOR)
+        return WechatJsonUtils.getJsonValue(CONTENT_COLOR, Constants.defaultValue.DEFAULT_CONTENT_COLOR)
     }
 
     fun setContentColorInfo(value: String) {
@@ -148,7 +151,7 @@ object AppSaveInfo {
     }
 
     fun timeColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(TIME_COLOR, Constants.DEFAULT_TIME_COLOR)
+        return WechatJsonUtils.getJsonValue(TIME_COLOR, Constants.defaultValue.DEFAULT_TIME_COLOR)
     }
 
     fun setTimeColorInfo(value: String) {
@@ -156,7 +159,7 @@ object AppSaveInfo {
     }
 
     fun dividerColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(DIVIDER_COLOR, Constants.DEFAULT_DIVIDER_COLOR)
+        return WechatJsonUtils.getJsonValue(DIVIDER_COLOR, Constants.defaultValue.DEFAULT_DIVIDER_COLOR)
     }
 
     fun setDividerColorInfo(value: String) {
@@ -164,7 +167,7 @@ object AppSaveInfo {
     }
 
     fun highLightColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(HIGHLIGHT_COLOR, Constants.DEFAULT_HIGHLIGHT_COLOR)
+        return WechatJsonUtils.getJsonValue(HIGHLIGHT_COLOR, Constants.defaultValue.DEFAULT_HIGHLIGHT_COLOR)
     }
 
     fun setHighLightColorInfo(value: String) {
@@ -197,6 +200,14 @@ object AppSaveInfo {
 
     fun wechatVersionInfo(): String {
         return WechatJsonUtils.getJsonValue(WECHAT_VERSION, "0")
+    }
+
+
+    fun getWechatVersionName() = WechatJsonUtils.getJsonValue(WECHAT_VERSION_NAME, "")
+
+    fun setWechatVersionName(string: String) {
+        WechatJsonUtils.putJsonValue(WECHAT_VERSION_NAME, string)
+        WechatJsonUtils.putFileString()
     }
 
     fun setWechatVersionInfo(value: String) {

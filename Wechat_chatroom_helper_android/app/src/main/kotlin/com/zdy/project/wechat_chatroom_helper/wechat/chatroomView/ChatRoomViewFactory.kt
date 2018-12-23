@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.StateListDrawable
+import android.provider.SyncStateContract
 import android.support.annotation.IdRes
 import android.text.TextUtils
 import android.util.TypedValue
@@ -15,6 +16,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.helper.utils.ColorUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
@@ -76,11 +78,6 @@ object ChatRoomViewFactory {
         mute.id = id_mute
         unreadCount.id = id_unread_count
 
-//        nickName.setTextColor(0xFF353535.toInt())
-//        content.setTextColor(0xFFAAAAAA.toInt())
-//        time.setTextColor(0xFFAAAAAA.toInt())
-//        unread.setTextColor(0xFFFFFFFF.toInt())
-//        divider.setBackgroundColor(0xFFDADADA.toInt())
 
         nickName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
         content.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
@@ -106,7 +103,7 @@ object ChatRoomViewFactory {
 
         val nickNameParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams
                 .WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        nickNameParams.setMargins(0, ScreenUtils.dip2px(mContext, 10f), 0, 0)
+        nickNameParams.setMargins(0, ScreenUtils.dip2px(mContext, Constants.defaultValue.CONVERSATION_ITEM_NICKNAME_PADDING_TOP), 0, 0)
         nickNameParams.addRule(RelativeLayout.RIGHT_OF, avatarContainer.id)
         nickNameParams.addRule(RelativeLayout.LEFT_OF, time.id)
 
@@ -119,7 +116,7 @@ object ChatRoomViewFactory {
         val contentContainerParams = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         contentContainerParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
         contentContainerParams.addRule(RelativeLayout.RIGHT_OF, avatarContainer.id)
-        contentContainer.setPadding(0, 0, ScreenUtils.dip2px(mContext, 48f), ScreenUtils.dip2px(mContext, 12f))
+        contentContainer.setPadding(0, 0, ScreenUtils.dip2px(mContext, 48f), ScreenUtils.dip2px(mContext, Constants.defaultValue.CONVERSATION_ITEM_CONTENT_PADDING_BOTTOM))
 
         val msgStateParams = LinearLayout.LayoutParams(ScreenUtils.dip2px(mContext, 20f), ScreenUtils.dip2px(mContext, 20f))
 
@@ -144,6 +141,9 @@ object ChatRoomViewFactory {
         val dividerParams =
                 RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1)
         dividerParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+        if (Constants.defaultValue.isWechatUpdate7) {
+            dividerParams.addRule(RelativeLayout.RIGHT_OF, avatarContainer.id)
+        }
 
         mute.setImageBitmap(DrawableMaker.getMuteBitMap())
 
@@ -164,7 +164,7 @@ object ChatRoomViewFactory {
         itemView.addView(contentView, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT))
 
-        itemView.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ScreenUtils.dip2px(mContext, 64f))
+        itemView.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ScreenUtils.dip2px(mContext, Constants.defaultValue.CONVERSATION_ITEM_HEIGHT))
         return itemView
     }
 

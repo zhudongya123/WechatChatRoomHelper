@@ -6,9 +6,9 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.Shape
 import android.support.annotation.ColorInt
+import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
-import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 
 /**
  * Created by Mr.Zdy on 2018/3/2.
@@ -20,41 +20,51 @@ object DrawableMaker {
     private const val AVATAR_AMBER = 0xFFF5CB00.toInt()
 
 
+    private const val DrawableSize = 512f
+    private const val ContentSize = 256f
+
     fun handleAvatarDrawable(context: Context, type: Int): BitmapDrawable {
         return when (type) {
-            PageType.OFFICIAL -> handleAvatarDrawable(context, type, AVATAR_AMBER)
-            PageType.CHAT_ROOMS -> handleAvatarDrawable(context, type, AVATAR_BLUE)
+            PageType.OFFICIAL -> handleAvatarDrawable(context, type, AVATAR_AMBER, Color.WHITE)
+            PageType.CHAT_ROOMS -> handleAvatarDrawable(context, type, AVATAR_BLUE, Color.WHITE)
             else -> throw IllegalStateException("Error type = $type")
         }
     }
 
-    fun handleAvatarDrawable(context: Context, type: Int, @ColorInt color: Int): BitmapDrawable {
-        val fullSize = ScreenUtils.dip2px(context, 96f)
-        val contentSize = fullSize / 2
+    fun handleAvatarDrawable(context: Context, type: Int, @ColorInt backgroundColor: Int, @ColorInt foregroundColor: Int): BitmapDrawable {
+        val drawableSize = DrawableSize
+        val contentSize = ContentSize
 
         val paint = Paint()
-        val drawableBitmap = Bitmap.createBitmap(fullSize, fullSize, Bitmap.Config.ARGB_8888)
+        val drawableBitmap = Bitmap.createBitmap(drawableSize.toInt(), drawableSize.toInt(), Bitmap.Config.ARGB_8888)
         val canvas = Canvas(drawableBitmap)
+
+
+        paint.apply {
+            color = backgroundColor
+            strokeWidth = 0f
+            style = Paint.Style.FILL_AND_STROKE
+            paint.isAntiAlias = true
+        }
+        if (AppSaveInfo.isCircleAvatarInfo()) {
+            canvas.drawCircle(contentSize, contentSize, contentSize, paint)
+        } else {
+            if (Constants.defaultValue.isWechatUpdate7) {
+                val radius = drawableSize / 12f
+                canvas.drawRoundRect(RectF(0f, 0f, drawableSize, drawableSize), radius, radius, paint)
+            } else {
+                canvas.drawColor(backgroundColor)
+            }
+        }
 
         when (type) {
             PageType.CHAT_ROOMS -> {
-                canvas.run {
-                    if (AppSaveInfo.isCircleAvatarInfo())
-                        drawCircle(contentSize.toFloat(), contentSize.toFloat(), contentSize.toFloat(),
-                                paint.apply {
-                                    setColor(color)
-                                    strokeWidth = 0f
-                                    style = Paint.Style.FILL_AND_STROKE
-                                })
-                    else drawColor(color)
-                }
 
-                paint.color = 0xFFFFFFFF.toInt()
-                paint.isAntiAlias = true
+                paint.color = foregroundColor
 
                 val size = canvas.width.toFloat()
 
-                val singleHeaderBitMap = singleHeaderBitMap()
+                val singleHeaderBitMap = singleHeaderBitMap(foregroundColor)
 
                 val smallHead = Bitmap.createScaledBitmap(singleHeaderBitMap, (size * 0.3f).toInt(), (size * 0.3f).toInt(), false)
                 val bigHead = Bitmap.createScaledBitmap(singleHeaderBitMap, (size * 0.4f).toInt(), (size * 0.4f).toInt(), false)
@@ -81,22 +91,23 @@ object DrawableMaker {
 
             }
 
-
             PageType.OFFICIAL ->
-                makeAvatarBitmap(canvas, paint, color) {
-                    val rawDrawable = Bitmap.createBitmap(contentSize, contentSize, Bitmap.Config.ARGB_8888)
-                    val logoCanvas = Canvas(rawDrawable)
+            {
+                val circleBitmap = Bitmap.createBitmap(contentSize.toInt(), contentSize.toInt(), Bitmap.Config.ARGB_8888)
+                val logoCanvas = Canvas(circleBitmap)
 
-                    with(paint) {
-                        strokeWidth = contentSize.toFloat() / 10f
-                        style = Paint.Style.STROKE
-                        setColor(-0x60d761)  //随机颜色
-                    }
-
-                    logoCanvas.drawCircle((contentSize / 4 + contentSize / 10).toFloat(), (contentSize / 2).toFloat(), (contentSize / 4).toFloat(), paint)
-                    logoCanvas.drawCircle((contentSize - contentSize / 4 - contentSize / 10).toFloat(), (contentSize / 2).toFloat(), (contentSize / 4).toFloat(), paint)
-                    rawDrawable
+                paint.apply {
+                    strokeWidth = contentSize / 10f
+                    style = Paint.Style.STROKE
+                    color = foregroundColor  //随机颜色
                 }
+
+                logoCanvas.drawCircle((contentSize / 4 + contentSize / 10), (contentSize / 2), (contentSize / 4), paint)
+                logoCanvas.drawCircle((contentSize - contentSize / 4 - contentSize / 10), (contentSize / 2), (contentSize / 4), paint)
+
+                canvas.drawBitmap(circleBitmap, 0.25f * drawableSize, 0.25f * drawableSize, paint)
+            }
+
             else -> {
             }
 
@@ -105,49 +116,7 @@ object DrawableMaker {
     }
 
 
-    /**
-     * 图片分为背景区域和内容区域
-     *
-     * 内容区域染成白色，背景區域為純色
-     */
-    private fun makeAvatarBitmap(canvas: Canvas, paint: Paint, backgroundColor: Int, block: () -> Bitmap) {
 
-        val iconSize = canvas.width
-        val contentSize = canvas.width / 2
-
-        //創建内部内容區域，尺寸為icon尺寸的一半
-        val contentDrawable = block()
-
-        //内容區域染色布
-        val whiteMask = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.WHITE) }
-
-        //生成最终图
-        val result = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888)
-        val drawResult = Canvas(result)
-
-        //绘制logo，区域是icon尺寸的一半
-        drawResult.drawBitmap(contentDrawable, (contentSize / 2).toFloat(), (contentSize / 2).toFloat(), paint)
-
-        //给logo染色
-        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-        drawResult.drawBitmap(whiteMask, 0f, 0f, paint)
-        paint.xfermode = null
-
-        //填充背景
-        canvas.run {
-            if (AppSaveInfo.isCircleAvatarInfo())
-                drawCircle(contentSize.toFloat(), contentSize.toFloat(), contentSize.toFloat(),
-                        paint.apply {
-                            color = backgroundColor
-                            strokeWidth = 0f
-                            style = Paint.Style.FILL_AND_STROKE
-                        })
-            else drawColor(backgroundColor)
-
-            drawBitmap(result, 0f, 0f, paint)
-        }
-
-    }
 
     fun getMuteBitMap(): Bitmap {
 
@@ -183,7 +152,7 @@ object DrawableMaker {
         val path2 = Path()
 
         path2.moveTo(29.3f, 72f)
-        path2.quadTo(24.4f,68f,32f,64f)
+        path2.quadTo(24.4f, 68f, 32f, 64f)
         path2.lineTo(32.1f, 40.6f)
         path2.lineTo(63.7f, 72f)
         path2.close()
@@ -193,7 +162,7 @@ object DrawableMaker {
         val path3 = Path()
 
         path3.moveTo(44.4f, 76.8f)
-        path3.quadTo(51.3f,88.2f,58f,76.8f)
+        path3.quadTo(51.3f, 88.2f, 58f, 76.8f)
         path3.lineTo(58f, 76f)
         path3.lineTo(44.4f, 76f)
         path3.close()
@@ -202,7 +171,7 @@ object DrawableMaker {
         return bitmap
     }
 
-    private fun singleHeaderBitMap(): Bitmap {
+    private fun singleHeaderBitMap(foregroundColor: Int): Bitmap {
 
         val leftBottomPoint = Pair(0.067f, 1f)//左·底部基点
         val leftBottomAnchor = Pair(-0.01f, 1.01f)//左·底部锚点
@@ -238,7 +207,7 @@ object DrawableMaker {
         val canvas = Canvas(bitmap)
 
         val paint = Paint().apply {
-            color = 0xFFFFFFFF.toInt()
+            color = foregroundColor
             style = Paint.Style.FILL_AND_STROKE
         }
 

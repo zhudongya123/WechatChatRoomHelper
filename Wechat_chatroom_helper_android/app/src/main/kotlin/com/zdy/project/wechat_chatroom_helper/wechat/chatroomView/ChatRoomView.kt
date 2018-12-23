@@ -18,6 +18,7 @@ import android.view.ViewTreeObserver
 import android.widget.*
 import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout
+import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
@@ -85,12 +86,14 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         }
         mRecyclerView.id = android.R.id.list
         mRecyclerView.layoutManager = LinearLayoutManager(mContext)
+        mRecyclerView.layoutParams = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo()))
+
 
         mainView.addView(initToolbar())
         mainView.addView(mRecyclerView)
         mainView.isClickable = true
-
-        mainView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo()))
+        mainView.setPadding(0, if (Constants.defaultValue.isWechatUpdate7) ScreenUtils.getStatusHeight(mContext) else 0, 0, 0)
 
         initSwipeBack()
 
@@ -234,13 +237,13 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         mToolbar = Toolbar(mContext)
 
         val height = ScreenUtils.dip2px(mContext, 48f)
+        val tintColor = Constants.defaultValue.DEFAULT_TOOLBAR_TINT_COLOR
 
         mToolbar.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
-        mToolbar.navigationIcon = BitmapDrawable(mContext.resources, DrawableMaker.getArrowBitMapForBack(Color.WHITE))
+        mToolbar.navigationIcon = BitmapDrawable(mContext.resources, DrawableMaker.getArrowBitMapForBack(tintColor))
 
         mToolbar.setNavigationOnClickListener { mPresenter.dismiss() }
         mToolbar.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.toolbarColorInfo()))
-        mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo()))
 
         when (pageType) {
             PageType.CHAT_ROOMS -> mToolbar.title = "群消息助手"
@@ -255,6 +258,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             mTitleTextView.isAccessible = true
             val textView = mTitleTextView.get(mToolbar) as TextView
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+            textView.setTextColor(tintColor)
 
             val mNavButtonView = clazz.getDeclaredField("mNavButtonView")
             mNavButtonView.isAccessible = true
@@ -281,7 +285,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         imageView.layoutParams = params
         val padding = height / 8
         imageView.setPadding(padding, padding, padding, padding)
-        imageView.setImageDrawable(DrawableMaker.handleAvatarDrawable(mContext, pageType, 0x00000000))
+        imageView.setImageDrawable(DrawableMaker.handleAvatarDrawable(mContext, pageType, 0x00000000, tintColor))
 
         imageView.setOnClickListener {
             val whiteListDialogBuilder = WhiteListDialogBuilder()

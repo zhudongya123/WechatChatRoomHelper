@@ -27,6 +27,8 @@ class UISettingActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_ui_setting)
 
+        Constants.defaultValue = Constants.DefaultValue(AppSaveInfo.getWechatVersionName().startsWith("7"))
+
         setupViewFragment()
 
         setupToolbar()
@@ -95,11 +97,11 @@ class UISettingActivity : AppCompatActivity() {
                 true
             }
             R.id.ui_setting_reset -> {
-                AppSaveInfo.setToolbarColorInfo(Constants.DEFAULT_TOOLBAR_COLOR)
-                AppSaveInfo.setHelperColorInfo(Constants.DEFAULT_HELPER_COLOR)
-                AppSaveInfo.setNicknameColorInfo(Constants.DEFAULT_NICKNAME_COLOR)
-                AppSaveInfo.setContentColorInfo(Constants.DEFAULT_CONTENT_COLOR)
-                AppSaveInfo.setDividerColorInfo(Constants.DEFAULT_DIVIDER_COLOR)
+                AppSaveInfo.setToolbarColorInfo(Constants.defaultValue.DEFAULT_TOOLBAR_COLOR)
+                AppSaveInfo.setHelperColorInfo(Constants.defaultValue.DEFAULT_HELPER_COLOR)
+                AppSaveInfo.setNicknameColorInfo(Constants.defaultValue.DEFAULT_NICKNAME_COLOR)
+                AppSaveInfo.setContentColorInfo(Constants.defaultValue.DEFAULT_CONTENT_COLOR)
+                AppSaveInfo.setDividerColorInfo(Constants.defaultValue.DEFAULT_DIVIDER_COLOR)
 
                 settingViewModel!!.refreshColorInfo()
                 (supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()
