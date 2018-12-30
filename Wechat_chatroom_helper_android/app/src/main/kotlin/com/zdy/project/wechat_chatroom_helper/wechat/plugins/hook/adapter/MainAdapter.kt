@@ -139,6 +139,7 @@ object MainAdapter {
                         if (position == firstChatRoomPosition) {
                             unReadCount.visibility = View.GONE
                             unMuteReadIndicators.visibility = View.GONE
+                            XposedHelpers.callMethod(content, "setDrawLeftDrawable", false)
 
                             val allChatRoom = MessageFactory.getSpecChatRoom()
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
@@ -154,8 +155,6 @@ object MainAdapter {
 
                             sendStatus.visibility = View.GONE
                             muteImage.visibility = View.GONE
-
-
 
                             if (unReadCountItem > 0) {
 
@@ -191,6 +190,8 @@ object MainAdapter {
                         if (position == firstOfficialPosition) {
                             unReadCount.visibility = View.GONE
                             unMuteReadIndicators.visibility = View.GONE
+                            XposedHelpers.callMethod(content, "setDrawLeftDrawable", false)
+
 
                             val allOfficial = MessageFactory.getSpecOfficial()
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)
