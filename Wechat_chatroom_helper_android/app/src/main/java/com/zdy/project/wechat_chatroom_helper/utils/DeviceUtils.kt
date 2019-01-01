@@ -2,9 +2,9 @@ package com.zdy.project.wechat_chatroom_helper.utils
 
 import android.content.Context
 import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.telephony.TelephonyManager
 import com.zdy.project.wechat_chatroom_helper.Constants
-import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 
 /**
  * Created by Mr.Zdy on 2017/9/24.
@@ -53,6 +53,17 @@ object DeviceUtils {
         }
         return wechatVersionName
     }
+
+    fun getMetaDataFromApp(context: Context, key: String): String {
+        return try {
+            val appInfo = context.packageManager.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
+            appInfo.metaData.getInt(key).toString()
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+            ""
+        }
+    }
+
 
     fun isWechatUpdate7(context: Context) = getWechatVersionName(context).startsWith("7")
 }

@@ -10,6 +10,7 @@ import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAd
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.log.LogRecord
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageHandler
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.other.OtherHook
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
@@ -75,6 +76,7 @@ class PluginEntry : IXposedHookLoadPackage {
                 if (AppSaveInfo.openLogInfo()) {
                     LogRecord.executeHook()
                 }
+                OtherHook.executeHook()
             } catch (e: Throwable) {
                 e.printStackTrace()
             }

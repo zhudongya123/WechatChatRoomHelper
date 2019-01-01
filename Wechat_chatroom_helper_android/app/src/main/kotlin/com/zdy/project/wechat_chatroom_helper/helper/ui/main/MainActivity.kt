@@ -14,6 +14,7 @@ import com.zdy.project.wechat_chatroom_helper.helper.ui.BaseActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.QuestionActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.ConfigActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.functionsetting.FunctionSettingActivity
+import com.zdy.project.wechat_chatroom_helper.helper.ui.more.MoreSettingActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActivity
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import manager.PermissionHelper
@@ -59,7 +60,7 @@ class MainActivity : BaseActivity() {
                             getString(R.string.title_function_setting_string),
                             getString(R.string.title_ui_setting_string),
                             getString(R.string.title_question_string),
-                            /*   getString(R.string.title_other_setting_string),*/
+                            getString(R.string.title_other_setting_string),
                             getString(R.string.title_about_string)))
                 }
                 PermissionHelper.ASK -> {
@@ -147,6 +148,11 @@ class MainActivity : BaseActivity() {
                         thisActivity.startActivity(Intent(thisActivity, FunctionSettingActivity::class.java))
                     }
                     text2.setText(R.string.sub_title_function_setting_string)
+                }
+                getString(R.string.title_other_setting_string) -> {
+                    itemView.setOnClickListener {
+                        thisActivity.startActivity(Intent(thisActivity, MoreSettingActivity::class.java))
+                    }
                 }
                 getString(R.string.title_about_string) -> {
                     itemView.setOnClickListener {

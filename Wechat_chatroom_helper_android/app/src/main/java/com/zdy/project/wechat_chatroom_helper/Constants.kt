@@ -1,9 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper
 
 import android.graphics.Color
-import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
-import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
-import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 
 /**
  * Created by zhudo on 2017/7/2.

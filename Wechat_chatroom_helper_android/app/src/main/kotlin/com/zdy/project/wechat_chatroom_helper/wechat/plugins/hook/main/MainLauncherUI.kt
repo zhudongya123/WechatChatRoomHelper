@@ -17,14 +17,18 @@ import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
+import java.lang.reflect.Modifier
 
 @SuppressLint("StaticFieldLeak")
 /**
  * Created by Mr.Zdy on 2018/4/1.
  */
 object MainLauncherUI {
+
+    var NOTIFY_MAIN_LAUNCHERUI_LISTVIEW_FLAG = false
 
     lateinit var launcherUI: Activity
 
@@ -260,6 +264,21 @@ object MainLauncherUI {
 
 
     fun refreshListMainUI() {
+
+        val adapterClass = MainAdapter.originAdapter::class.java
+        val adapterSuperclass = adapterClass.superclass
+
+        //其实筛选有两个方法，混淆之后刚好在前面的那个是 notify 方法
+        val notifyMethod = adapterSuperclass.methods.filter { it.parameterTypes.size == 1 }
+                .filter { Modifier.isFinal(it.modifiers) }
+                .first { it.parameterTypes[0].name == Boolean::class.java.name }
+
+        NOTIFY_MAIN_LAUNCHERUI_LISTVIEW_FLAG = true
+        notifyMethod.invoke(MainAdapter.originAdapter, false)
+
+    }
+
+    fun restartMainActivity() {
         val activity = launcherUI
         activity.finish()
         activity.startActivity(Intent(activity, activity::class.java).apply {
