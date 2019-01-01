@@ -60,7 +60,6 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
     private var uuid = "0"
 
-
     override val isShowing: Boolean get() = !swipeBackLayout.isOpen
 
     init {
@@ -147,7 +146,11 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
                     override fun onGlobalLayout() {
                         LogUtils.log("showMessageRefresh RecyclerView notify finish , pageType = " + PageType.printPageType(pageType))
                         mRecyclerView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                        swipeBackLayout.closePane()
+                        if (swipeBackLayout.mSlideableView == null) {
+                            MainLauncherUI.restartMainActivity()
+                        } else {
+                            swipeBackLayout.closePane()
+                        }
                     }
                 })
         refreshInner()
@@ -300,7 +303,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
                     PageType.OFFICIAL -> RuntimeInfo.officialViewPresenter.refreshList(false, Any())
                     PageType.CHAT_ROOMS -> RuntimeInfo.chatRoomViewPresenter.refreshList(false, Any())
                 }
-                MainAdapter.notifyDataSetChangedForOriginAdapter()
+                MainLauncherUI.refreshListMainUI()
             }
         }
 

@@ -16,6 +16,7 @@ import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.Convers
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.conversationWithAppBrandListView
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.conversationWithCacheAdapter
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageFactory
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageHandler
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.interfaces.MessageEventNotifyListener
@@ -320,6 +321,16 @@ object MainAdapter {
 
         })
 
+        findAndHookMethod(conversationWithCacheAdapter.superclass, "getChangeType", object : XC_MethodHook() {
+
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                if (MainLauncherUI.NOTIFY_MAIN_LAUNCHERUI_LISTVIEW_FLAG) {
+                    MainLauncherUI.NOTIFY_MAIN_LAUNCHERUI_LISTVIEW_FLAG = false
+                    param.result = 2
+                }
+            }
+        })
+
 
 
         MessageHandler.addMessageEventNotifyListener(object : MessageEventNotifyListener {
@@ -380,14 +391,5 @@ object MainAdapter {
         val mTextField = XposedHelpers.findField(XposedHelpers.findClass(WXObject.Adapter.C.NoMeasuredTextView, RuntimeInfo.classloader), "mText")
         mTextField.isAccessible = true
         return mTextField.get(noMeasuredTextView) as CharSequence
-    }
-
-    fun notifyDataSetChangedForOriginAdapter() {
-        notifyDataSetChanged(originAdapter)
-    }
-
-    fun notifyDataSetChanged(adapter: BaseAdapter) {
-        val dataSetObservable = XposedHelpers.getObjectField(adapter, "mDataSetObservable") as DataSetObservable
-        dataSetObservable.notifyChanged()
     }
 }
