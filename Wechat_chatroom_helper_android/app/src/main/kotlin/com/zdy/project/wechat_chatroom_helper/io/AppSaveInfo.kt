@@ -16,6 +16,8 @@ object AppSaveInfo {
     private const val IS_AUTO_CLOSE = "is_auto_close"//返回自动关闭群助手，默认否
     private const val IS_OPEN_LOG = "is_open_log"//日志开关
     private const val IS_LAUNCHER_ENTRY = "is_hide_launcher_entry"//launcher 入口开关，默认为否
+    private const val IS_BIZ_USE_OLD_STYLE = "is_biz_use_old_style"//开启旧版订阅号样式
+
 
     private const val SHOW_INFO = "show_info"//适配信息
 
@@ -26,7 +28,6 @@ object AppSaveInfo {
     private const val TIME_COLOR = "time_color"
     private const val DIVIDER_COLOR = "divider_color"
     private const val HIGHLIGHT_COLOR = "highlight_color"
-
 
     private const val HAS_SUIT_WECHAT_DATA = "has_suit_wechat_data"
     private const val IS_PLAY_VERSION = "is_play_version"//
@@ -41,9 +42,16 @@ object AppSaveInfo {
     const val WHITE_LIST_OFFICIAL = "white_list_official"
 
     private const val API_RECORD_TIME = "api_record_time"//上次请求的时间
-
     private const val HELPER_STICKY_INFO = "helper_sticky_info"//助手置顶位置
 
+
+    fun isBizUseOldStyle(): Boolean {
+        return WechatJsonUtils.getJsonValue(IS_BIZ_USE_OLD_STYLE, true)
+    }
+
+    fun setBizUseOldStyle(value: Boolean) {
+        WechatJsonUtils.putJsonValue(IS_BIZ_USE_OLD_STYLE, value)
+    }
 
     fun getHelperStickyInfo(): Int {
         return WechatJsonUtils.getJsonValue(HELPER_STICKY_INFO, 0)

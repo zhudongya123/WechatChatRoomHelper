@@ -56,6 +56,9 @@
         <activity android:name=".helper.ui.AboutActivity"
             android:label="@string/title_about_string" />
 
+        <activity android:name=".helper.ui.more.MoreSettingActivity"
+            android:label="@string/title_other_setting_string"/>
+
         <activity
             android:name=".helper.ui.config.ConfigActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"

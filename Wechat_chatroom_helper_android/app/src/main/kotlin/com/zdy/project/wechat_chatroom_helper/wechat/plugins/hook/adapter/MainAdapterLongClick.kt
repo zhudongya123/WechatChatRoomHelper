@@ -253,7 +253,7 @@ object MainAdapterLongClick {
                     }
                 }
 
-                if (menuItem.itemId in (MENU_ITEM_CLEAR_UNREAD_CHATROOM + 1)..(MENU_ITEM_ADD_OFFICIAL - 1)) {
+                if (menuItem.itemId in MENU_ITEM_CLEAR_UNREAD_CHATROOM..MENU_ITEM_ADD_OFFICIAL) {
                     MainLauncherUI.refreshListMainUI()
                     param.result = null
                 }
