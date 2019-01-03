@@ -1,5 +1,6 @@
 # （微信群消息助手）WechatChatroomHelper
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3d5206b20875422f969a0068b36746bf)](https://app.codacy.com/app/zhudongya123/WechatChatRoomHelper?utm_source=github.com&utm_medium=referral&utm_content=zhudongya123/WechatChatRoomHelper&utm_campaign=Badge_Grade_Dashboard)
 [![](https://img.shields.io/github/tag/zhudongya123/WechatChatroomHelper.svg?style=flat-square)](https://github.com/zhudongya123/WechatChatroomHelper/tags)
 [![](https://img.shields.io/github/release/zhudongya123/WechatChatroomHelper.svg?style=flat-square)](https://github.com/zhudongya123/WechatChatroomHelper/releases)
 ![](https://img.shields.io/github/forks/zhudongya123/WechatChatroomHelper.svg?style=flat-square)
