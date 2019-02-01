@@ -15,7 +15,7 @@ object Constants {
 
     class DefaultValue(val isWechatUpdate7: Boolean) {
 
-        val DEFAULT_TOOLBAR_COLOR = if (!isWechatUpdate7) "303030" else "F2F2F2"
+        val DEFAULT_TOOLBAR_COLOR = if (!isWechatUpdate7) "303030" else "EEEEEE"
         val DEFAULT_HELPER_COLOR = "FFFFFF"
         val DEFAULT_NICKNAME_COLOR = "353535"
         val DEFAULT_CONTENT_COLOR = "999999"

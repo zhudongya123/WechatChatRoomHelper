@@ -148,8 +148,8 @@ object MessageHandler {
 
                 when {
 
-                //如果本次查询是查询全部回话时
-                //修改返回结果为全部联系人回话（不包括服务号和群聊）
+                    //如果本次查询是查询全部回话时
+                    //修改返回结果为全部联系人回话（不包括服务号和群聊）
                     isQueryOriginAllConversation(sql) -> {
 
                         LogUtils.log("MessageHandler, refreshAllConversation")
@@ -194,7 +194,7 @@ object MessageHandler {
                         param.result = result
                     }
 
-                //当查询未读数时的修改逻辑
+                    //当查询未读数时的修改逻辑
                     isQueryOriginAllUnReadCount(sql) -> {
 
                         LogUtils.log("MessageHandler, refreshAllConversationUnReadCount")
@@ -222,7 +222,7 @@ object MessageHandler {
                         LogUtils.log("sqlForAllUnReadCount =  $sqlForAllUnReadCount")
                         param.result = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, sqlForAllUnReadCount, selectionArgs, editTable, cancellation)
                     }
-                //当请求全部联系人回话时（就是去除群聊和服务号的情况）
+                    //当请求全部联系人回话时（就是去除群聊和服务号的情况）
                     isQueryNewAllConversation(sql) -> {
 
                         LogUtils.log("MessageHooker2.17,size = $SqlForNewAllContactConversation")
@@ -231,21 +231,30 @@ object MessageHandler {
                         val cursorForOfficial = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, SqlForGetFirstOfficial, null, null) as Cursor
                         val cursorForChatRoom = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, SqlForGetFirstChatroom, null, null) as Cursor
 
-                        var firstOfficialConversationTime: Long = 0
-                        var firstChatRoomConversationTime: Long = 0
 
-                        try {
-                            if (cursorForOfficial.count > 0) {
+                        val firstOfficialConversationTime: Long = if (cursorForOfficial.count > 0) {
+                            try {
                                 cursorForOfficial.moveToNext()
-                                firstOfficialConversationTime = cursorForOfficial.getLong(cursorForOfficial.getColumnIndex("flag"))
+                                cursorForOfficial.getLong(cursorForOfficial.getColumnIndex("flag"))
+                            } catch (e: Throwable) {
+                                e.printStackTrace()
+                                0L
                             }
 
-                            if (cursorForChatRoom.count > 0) {
+                        } else {
+                            0L
+                        }
+
+                        val firstChatRoomConversationTime: Long = if (cursorForChatRoom.count > 0) {
+                            try {
                                 cursorForChatRoom.moveToNext()
-                                firstChatRoomConversationTime = cursorForChatRoom.getLong(cursorForChatRoom.getColumnIndex("flag"))
+                                cursorForChatRoom.getLong(cursorForChatRoom.getColumnIndex("flag"))
+                            } catch (e: Throwable) {
+                                e.printStackTrace()
+                                0L
                             }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
+                        } else {
+                            0L
                         }
 
                         val cursor = param.result as Cursor
@@ -256,7 +265,6 @@ object MessageHandler {
                         //根据时间先后排序，确定入口的位置
                         //遍历每一条回话，比较会话时间
                         while (cursor.moveToNext()) {
-
                             val conversationTime = cursor.getLong(cursor.columnNames.indexOf("flag"))
 
                             if (conversationTime < firstOfficialConversationTime && officialPosition == -1) {
@@ -277,6 +285,13 @@ object MessageHandler {
                             } else if (officialPosition == chatRoomPosition) {
                                 if (firstOfficialConversationTime > firstChatRoomConversationTime) chatRoomPosition += 1 else officialPosition += 1
                             }
+                        } else if (officialPosition == -1 && chatRoomPosition != -1) {
+                            officialPosition = cursor.count + 1
+                        } else if (officialPosition != -1 && chatRoomPosition == -1) {
+                            chatRoomPosition = cursor.count + 1
+                        } else {
+                            chatRoomPosition = cursor.count + 1
+                            officialPosition = cursor.count
                         }
 
                         LogUtils.log("MessageHooker2.17, chatRoomPosition = $chatRoomPosition, officialPosition = $officialPosition")

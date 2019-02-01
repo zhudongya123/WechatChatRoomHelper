@@ -1,5 +1,7 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser
 
+import com.zdy.project.wechat_chatroom_helper.Constants
+
 object WXObject {
 
 
@@ -57,7 +59,8 @@ object WXObject {
 
         object C {
             var ConversationWithCacheAdapter = ""
-            var ConversationWithAppBrandListView = ""
+            var ConversationWithAppBrandListView = "${Constants.WECHAT_PACKAGE_NAME}.ui.conversation.ConversationWithAppBrandListView"
+            var ConversationListView = "${Constants.WECHAT_PACKAGE_NAME}.ui.conversation.ConversationListView"
             var ConversationAvatar = ""
             var ConversationClickListener = ""
             var ConversationLongClickListener = ""
