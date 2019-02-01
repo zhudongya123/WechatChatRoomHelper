@@ -37,9 +37,7 @@ object WXClassParser {
             return clazz
         }
 
-        fun getConversationWithAppBrandListView(classes: MutableList<Class<*>>): Class<*>? {
-            return classes.firstOrNull { it.name == "${Constants.WECHAT_PACKAGE_NAME}.ui.conversation.ConversationWithAppBrandListView" }
-        }
+
 
         fun getConversationClickListener(classes: MutableList<Class<*>>): Class<*>? {
             return classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }

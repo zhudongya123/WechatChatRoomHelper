@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.database.DataSetObservable
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -41,7 +42,6 @@ object MainAdapter {
     fun executeHook() {
         ConversationReflectFunction
 
-
         val conversationWithCacheAdapterGetItem = conversationWithCacheAdapter.superclass.declaredMethods
                 .filter { it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java }
                 .first { it.name != "getItem" && it.name != "getItemId" }.name
@@ -53,18 +53,6 @@ object MainAdapter {
             }
         })
 
-        findAndHookMethod(conversationWithAppBrandListView, WXObject.Adapter.M.SetAdapter, ListAdapter::class.java, object : XC_MethodHook() {
-            override fun afterHookedMethod(param: MethodHookParam) {
-                listView = param.thisObject as ListView
-                val adapter = param.args[0]
-
-                RuntimeInfo.chatRoomViewPresenter.setAdapter(adapter)
-                RuntimeInfo.officialViewPresenter.setAdapter(adapter)
-
-                RuntimeInfo.chatRoomViewPresenter.start()
-                RuntimeInfo.officialViewPresenter.start()
-            }
-        })
 
 
         findAndHookMethod(conversationWithCacheAdapter.superclass, WXObject.Adapter.M.GetCount, object : XC_MethodHook() {
@@ -330,8 +318,6 @@ object MainAdapter {
                 }
             }
         })
-
-
 
         MessageHandler.addMessageEventNotifyListener(object : MessageEventNotifyListener {
 

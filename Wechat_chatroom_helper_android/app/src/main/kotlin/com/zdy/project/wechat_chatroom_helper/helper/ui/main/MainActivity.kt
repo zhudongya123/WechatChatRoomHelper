@@ -45,6 +45,7 @@ class MainActivity : BaseActivity() {
         setContentView(R.layout.activity_main)
         listContent = findViewById(R.id.list_content)
 
+
     }
 
 
