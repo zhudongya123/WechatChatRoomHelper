@@ -133,8 +133,8 @@ object MainLauncherUI {
 
 
         try {
-            findAndHookMethod(ConversationReflectFunction.conversationListView, "setActivity",
-                    XposedHelpers.findClass("com.tencent.mm.ui.MMFragmentActivity", RuntimeInfo.classloader), object : XC_MethodHook() {
+            findAndHookMethod(ConversationReflectFunction.conversationListView, WXObject.Adapter.M.SetActivity,
+                    XposedHelpers.findClass(WXObject.MainUI.C.MMFragmentActivity, RuntimeInfo.classloader), object : XC_MethodHook() {
 
                 override fun afterHookedMethod(param: MethodHookParam) {
 
