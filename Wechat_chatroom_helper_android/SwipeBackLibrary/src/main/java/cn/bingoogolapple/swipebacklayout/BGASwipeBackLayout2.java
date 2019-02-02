@@ -118,7 +118,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
     /**
      * The child view that can slide, if any.
      */
-    View mSlideableView;
+    public View mSlideableView;
 
     /**
      * How far the panel is offset from its closed position.
@@ -593,7 +593,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         // ======================== 新加的 START ========================
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         //       int widthSize = UIUtil.getRealScreenWidth(mActivity);
-       int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
         //        int heightSize = UIUtil.getRealScreenHeight(mActivity);
         // ======================== 新加的 END ========================
 
@@ -638,13 +638,13 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         }
 
         // ======================== 新加的 START ========================
-    //    if (!mIsNavigationBarOverlap && UIUtil.isPortrait(mActivity)) {
-     //       maxLayoutHeight -= UIUtil.getNavigationBarHeight(mActivity);
-    //    }
+        //    if (!mIsNavigationBarOverlap && UIUtil.isPortrait(mActivity)) {
+        //       maxLayoutHeight -= UIUtil.getNavigationBarHeight(mActivity);
+        //    }
 
-    //    if (mIsNavigationBarOverlap && !UIUtil.isPortrait(mActivity)) {
-    //        widthSize += UIUtil.getNavigationBarHeight(mActivity);
-     //   }
+        //    if (mIsNavigationBarOverlap && !UIUtil.isPortrait(mActivity)) {
+        //        widthSize += UIUtil.getNavigationBarHeight(mActivity);
+        //   }
         // ======================== 新加的 END ========================
 
         float weightSum = 0;
@@ -1031,6 +1031,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
     }
 
     private boolean closePane(View pane, int initialVelocity) {
+        Log.v("TrackHelperCan'tOpen", "BGASwipeBackLayout2 -> closePane, pane = " + pane + ", initialVelocity = " + initialVelocity);
         if (mFirstLayout || smoothSlideTo(0.f, initialVelocity)) {
             mPreservedOpenState = false;
             return true;
@@ -1079,6 +1080,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      * @return true if the pane was slideable and is now closed/in the process of closing
      */
     public boolean closePane() {
+        Log.v("TrackHelperCan'tOpen", "BGASwipeBackLayout2 -> closePane");
         return closePane(mSlideableView, 0);
     }
 
@@ -1128,7 +1130,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         final int startBound = paddingStart + lpMargin;
 
         mSlideOffset = (float) (newStart - startBound) / mSlideRange;
-     //   Log.v("mSlideOffset", mSlideOffset + "");
+        //   Log.v("mSlideOffset", mSlideOffset + "");
 
         if (mParallaxBy != 0) {
             parallaxOtherViews(mSlideOffset);
@@ -1226,6 +1228,8 @@ public class BGASwipeBackLayout2 extends ViewGroup {
      * @param velocity    initial velocity in case of fling, or 0.
      */
     boolean smoothSlideTo(float slideOffset, int velocity) {
+        Log.v("TrackHelperCan'tOpen", "BGASwipeBackLayout2 -> smoothSlideTo, slideOffset = " + slideOffset + ", velocity = " + velocity + ", mCanSlide = " + mCanSlide);
+
         if (!mCanSlide) {
             // Nothing to do.
             return false;

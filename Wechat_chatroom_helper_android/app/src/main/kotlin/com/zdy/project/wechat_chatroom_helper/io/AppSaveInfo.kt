@@ -5,6 +5,8 @@ import com.zdy.project.wechat_chatroom_helper.Constants
 
 
 /**
+ *
+ * 此类声明了所有需要存储的字段和相应的get set 方法
  * Created by zhudo on 2017/11/4.
  */
 object AppSaveInfo {
@@ -14,6 +16,8 @@ object AppSaveInfo {
     private const val IS_AUTO_CLOSE = "is_auto_close"//返回自动关闭群助手，默认否
     private const val IS_OPEN_LOG = "is_open_log"//日志开关
     private const val IS_LAUNCHER_ENTRY = "is_hide_launcher_entry"//launcher 入口开关，默认为否
+    private const val IS_BIZ_USE_OLD_STYLE = "is_biz_use_old_style"//开启旧版订阅号样式
+
 
     private const val SHOW_INFO = "show_info"//适配信息
 
@@ -23,12 +27,14 @@ object AppSaveInfo {
     private const val CONTENT_COLOR = "content_color"
     private const val TIME_COLOR = "time_color"
     private const val DIVIDER_COLOR = "divider_color"
-
+    private const val HIGHLIGHT_COLOR = "highlight_color"
 
     private const val HAS_SUIT_WECHAT_DATA = "has_suit_wechat_data"
     private const val IS_PLAY_VERSION = "is_play_version"//
     private const val HELPER_VERSIONCODE = "helper_versionCode"
     private const val WECHAT_VERSION = "wechat_version"
+    private const val WECHAT_VERSION_NAME = "wechat_version_name"
+
     private const val JSON = "json"
     private const val CHAT_ROOM_TYPE = "chatRoom_type"
 
@@ -36,6 +42,25 @@ object AppSaveInfo {
     const val WHITE_LIST_OFFICIAL = "white_list_official"
 
     private const val API_RECORD_TIME = "api_record_time"//上次请求的时间
+    private const val HELPER_STICKY_INFO = "helper_sticky_info"//助手置顶位置
+
+
+    fun isBizUseOldStyle(): Boolean {
+        return WechatJsonUtils.getJsonValue(IS_BIZ_USE_OLD_STYLE, true)
+    }
+
+    fun setBizUseOldStyle(value: Boolean) {
+        WechatJsonUtils.putJsonValue(IS_BIZ_USE_OLD_STYLE, value)
+    }
+
+    fun getHelperStickyInfo(): Int {
+        return WechatJsonUtils.getJsonValue(HELPER_STICKY_INFO, 0)
+    }
+
+    fun setHelperStickyInfo(value: Int) {
+        WechatJsonUtils.putJsonValue(HELPER_STICKY_INFO, value)
+        WechatJsonUtils.putFileString()
+    }
 
     fun apiRecordTimeInfo(): Int {
         return WechatJsonUtils.getJsonValue(API_RECORD_TIME, (System.currentTimeMillis() / 1000).toInt())
@@ -62,8 +87,7 @@ object AppSaveInfo {
     }
 
     fun openInfo(): Boolean {
-//        return WechatJsonUtils.getJsonValue(OPEN, true)
-        return false
+        return WechatJsonUtils.getJsonValue(OPEN, true)
     }
 
     fun setOpen(value: Boolean) {
@@ -103,7 +127,7 @@ object AppSaveInfo {
     }
 
     fun toolbarColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(TOOLBAR_COLOR, Constants.DEFAULT_TOOLBAR_COLOR)
+        return WechatJsonUtils.getJsonValue(TOOLBAR_COLOR, Constants.defaultValue.DEFAULT_TOOLBAR_COLOR)
     }
 
     fun setToolbarColorInfo(value: String) {
@@ -111,7 +135,7 @@ object AppSaveInfo {
     }
 
     fun helperColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(HELPER_COLOR, Constants.DEFAULT_HELPER_COLOR)
+        return WechatJsonUtils.getJsonValue(HELPER_COLOR, Constants.defaultValue.DEFAULT_HELPER_COLOR)
     }
 
     fun setHelperColorInfo(value: String) {
@@ -119,7 +143,7 @@ object AppSaveInfo {
     }
 
     fun nicknameColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(NICKNAME_COLOR, Constants.DEFAULT_NICKNAME_COLOR)
+        return WechatJsonUtils.getJsonValue(NICKNAME_COLOR, Constants.defaultValue.DEFAULT_NICKNAME_COLOR)
     }
 
     fun setNicknameColorInfo(value: String) {
@@ -127,7 +151,7 @@ object AppSaveInfo {
     }
 
     fun contentColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(CONTENT_COLOR, Constants.DEFAULT_CONTENT_COLOR)
+        return WechatJsonUtils.getJsonValue(CONTENT_COLOR, Constants.defaultValue.DEFAULT_CONTENT_COLOR)
     }
 
     fun setContentColorInfo(value: String) {
@@ -135,7 +159,7 @@ object AppSaveInfo {
     }
 
     fun timeColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(TIME_COLOR, Constants.DEFAULT_TIME_COLOR)
+        return WechatJsonUtils.getJsonValue(TIME_COLOR, Constants.defaultValue.DEFAULT_TIME_COLOR)
     }
 
     fun setTimeColorInfo(value: String) {
@@ -143,11 +167,19 @@ object AppSaveInfo {
     }
 
     fun dividerColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(DIVIDER_COLOR, Constants.DEFAULT_DIVIDER_COLOR)
+        return WechatJsonUtils.getJsonValue(DIVIDER_COLOR, Constants.defaultValue.DEFAULT_DIVIDER_COLOR)
     }
 
     fun setDividerColorInfo(value: String) {
         WechatJsonUtils.putJsonValue(DIVIDER_COLOR, value)
+    }
+
+    fun highLightColorInfo(): String {
+        return WechatJsonUtils.getJsonValue(HIGHLIGHT_COLOR, Constants.defaultValue.DEFAULT_HIGHLIGHT_COLOR)
+    }
+
+    fun setHighLightColorInfo(value: String) {
+        WechatJsonUtils.putJsonValue(HIGHLIGHT_COLOR, value)
     }
 
     fun hasSuitWechatDataInfo(): Boolean {
@@ -176,6 +208,14 @@ object AppSaveInfo {
 
     fun wechatVersionInfo(): String {
         return WechatJsonUtils.getJsonValue(WECHAT_VERSION, "0")
+    }
+
+
+    fun getWechatVersionName() = WechatJsonUtils.getJsonValue(WECHAT_VERSION_NAME, "")
+
+    fun setWechatVersionName(string: String) {
+        WechatJsonUtils.putJsonValue(WECHAT_VERSION_NAME, string)
+        WechatJsonUtils.putFileString()
     }
 
     fun setWechatVersionInfo(value: String) {

@@ -1,6 +1,5 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.interfaces
 
-import android.util.Log
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 
 interface MessageEventNotifyListener {

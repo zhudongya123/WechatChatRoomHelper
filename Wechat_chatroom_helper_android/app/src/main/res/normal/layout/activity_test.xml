@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout  xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    tools:context="com.zdy.project.wechat_chatroom_helper.kt.MainActivity">
+    android:orientation="vertical">
 
 
     <Button
@@ -19,4 +17,16 @@
         android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
+    <ImageView
+        android:id="@+id/image_1"
+        android:layout_margin="56dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp" />
+
+    <ImageView
+        android:id="@+id/image_2"
+        android:layout_margin="156dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp" />
 </FrameLayout>

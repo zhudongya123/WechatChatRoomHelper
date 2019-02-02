@@ -14,9 +14,10 @@ import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Compa
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.TEXT_COLOR_PASS
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.getType
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.makeTypeSpec
-import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
-import com.zdy.project.wechat_chatroom_helper.wechat.WXClassParser
+import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
+import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXClassParser
 import dalvik.system.DexClassLoader
 import net.dongliu.apk.parser.ApkFile
 import ui.MyApplication
@@ -74,17 +75,15 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                         }
                     }
 
-
-            configData["conversationWithCacheAdapter"] =
-                    parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
-            configData["conversationWithAppBrandListView"] =
-                    parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithAppBrandListView(classes))
-            configData["conversationAvatar"] =
-                    parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
-            configData["conversationClickListener"] =
-                    parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
-            configData["logcat"] =
-                    parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
+            configData["conversationWithCacheAdapter"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
+            configData["conversationAvatar"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
+            configData["conversationLongClickListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationLongClickListener(classes))
+            configData["conversationClickListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
+            configData["conversationMenuItemSelectedListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationMenuItemSelectedListener(classes))
+            configData["conversationStickyHeaderHandler"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationStickyHeaderHandler(classes))
+            configData["conversationItemHighLightSelectorBackGroundInt"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationItemHighLightSelectorBackGroundInt(classes))
+            configData["conversationItemSelectorBackGroundInt"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationItemSelectorBackGroundInt(classes))
+            configData["logcat"] = parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
 
             writeNewConfig()
 
@@ -94,9 +93,9 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                     apkFile.apkMeta.versionCode.toString())
         } catch (e: Throwable) {
             CrashReport.postCatchedException(e)
-            e.printStackTrace()
             sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_ERROR),
-                    e.toString())
+                    e.toString() + "\n" + e.stackTrace.joinToString("\n") { it.toString() })
+            e.printStackTrace()
         }
     }
 
@@ -110,7 +109,8 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
     override fun onPostExecute(result: Unit?) {
         sendMessageToHandler(makeTypeSpec(HANDLER_SHOW_NEXT_BUTTON, TEXT_COLOR_NORMAL), String())
         AppSaveInfo.setSuitWechatDataInfo(true)
-        AppSaveInfo.setWechatVersionInfo(MyApplication.get().getWechatVersionCode().toString())
+        AppSaveInfo.setWechatVersionInfo(DeviceUtils.getWechatVersionCode(MyApplication.get()).toString())
+        AppSaveInfo.setWechatVersionName(DeviceUtils.getWechatVersionName(MyApplication.get()).toString())
         AppSaveInfo.setHelpVersionCodeInfo(MyApplication.get().getHelperVersionCode().toString())
         WechatJsonUtils.putFileString()
     }
@@ -128,11 +128,21 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
         }
     }
 
+    @Throws(Exception::class)
+    private fun parseAnnotatedElementToName(element: Int?): String {
+        sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_NORMAL), weakA.get()!!.getString(R.string.config_step3_text4), element.toString())
+        return element.toString()
+    }
+
     private fun writeNewConfig() {
-        configData.forEach { key, value ->
+        configData.entries.forEach {
+            val key = it.key
+            val value = it.value
+
             AppSaveInfo.addConfigItem(key, value)
             sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_NORMAL), weakA.get()!!.getString(R.string.config_step3_text5), key, value)
         }
+
     }
 
     private fun sendMessageToHandler(type: Int, text: String, vararg args: Any) {

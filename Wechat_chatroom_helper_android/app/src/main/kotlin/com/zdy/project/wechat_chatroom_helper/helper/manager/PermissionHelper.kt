@@ -12,6 +12,7 @@ import android.support.v4.content.ContextCompat
 import com.blankj.utilcode.util.SPUtils
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
+import ui.MainActivity
 
 /**
  * Created by Mr.Zdy on 2017/11/3.
@@ -82,7 +83,7 @@ class PermissionHelper(private var activity: Activity) {
             SPUtils.getInstance().put("Permission_Flag", true)
             ActivityCompat.requestPermissions(activity,
                     arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    Constants.WRITE_EXTERNAL_STORAGE_RESULT_CODE)
+                    MainActivity.WRITE_EXTERNAL_STORAGE_RESULT_CODE)
         }
 
         @JvmStatic
@@ -103,7 +104,7 @@ class PermissionHelper(private var activity: Activity) {
             .setPositiveButton("授权") { dialog, _ ->
                 ActivityCompat.requestPermissions(activity,
                         arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                        Constants.WRITE_EXTERNAL_STORAGE_RESULT_CODE)
+                        MainActivity.WRITE_EXTERNAL_STORAGE_RESULT_CODE)
                 dialog.dismiss()
             }
             .setCancelable(false)
@@ -121,7 +122,7 @@ class PermissionHelper(private var activity: Activity) {
 
 
     fun onRequestPermissionsResult(requestCode: Int, grantResults: IntArray) {
-        if (Constants.WRITE_EXTERNAL_STORAGE_RESULT_CODE == requestCode) {
+        if (MainActivity.WRITE_EXTERNAL_STORAGE_RESULT_CODE == requestCode) {
             //回调中获得了权限
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 WechatJsonUtils.init(activity)

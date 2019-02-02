@@ -3,9 +3,9 @@ package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 import android.content.Context
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import com.zdy.project.wechat_chatroom_helper.PageType
-import com.zdy.project.wechat_chatroom_helper.wechat.manager.RuntimeInfo
-import java.util.*
+import com.zdy.project.wechat_chatroom_helper.LogUtils
+import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 
 /**
  * Created by Mr.Zdy on 2017/8/25.
@@ -13,6 +13,8 @@ import java.util.*
 
 class ChatRoomViewPresenter(mContext: Context, var pageType: Int) : ChatRoomContract.Presenter {
 
+
+    private var isStarted = false
     override val presenterView: ViewGroup
     override lateinit var originAdapter: Any
 
@@ -31,37 +33,32 @@ class ChatRoomViewPresenter(mContext: Context, var pageType: Int) : ChatRoomCont
         mView.setPresenter(this)
     }
 
-
-    fun setOnDialogItemClickListener(listener: ChatRoomRecyclerViewAdapter.OnDialogItemClickListener) {
-        mView.setOnDialogItemClickListener(listener)
-    }
-
     fun setAdapter(mAdapter: Any) {
         this.originAdapter = mAdapter
     }
 
-    fun setListInAdapterPositions(listInAdapterPositions: ArrayList<Int>) {
-        mView.showMessageRefresh(listInAdapterPositions)
-    }
-
-    override fun setMessageRefresh(targetUserName: String) {
-        mView.showMessageRefresh(targetUserName)
+    override fun refreshList(isForce: Boolean, data: Any?) {
+        mView.refreshList(isForce, data)
     }
 
     override fun show() {
+        LogUtils.log("TrackHelperCan'tOpen, ChatRoomViewPresenter -> show, mView = ${mView}")
         mView.show()
         RuntimeInfo.currentPage = pageType
     }
 
     override fun dismiss() {
         mView.dismiss()
-        RuntimeInfo.currentPage = PageType.MAIN
     }
 
     override fun start() {
+        isStarted = true
         mView.init()
     }
 
+    override fun isStarted() = isStarted
 
-
+    override fun getCurrentData(): ArrayList<ChatInfoModel> {
+        return mView.getCurrentData()
+    }
 }

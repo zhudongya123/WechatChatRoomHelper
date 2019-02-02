@@ -8,9 +8,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsoluteLayout;
 import android.widget.Button;
+import android.widget.ImageView;
 
+import com.zdy.project.wechat_chatroom_helper.PageType;
 import com.zdy.project.wechat_chatroom_helper.R;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
+import com.zdy.project.wechat_chatroom_helper.wechat.manager.DrawableMaker;
+
+import java.util.ArrayList;
 
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout;
 
@@ -57,6 +62,8 @@ public class TestActivity extends Activity {
         content.addView(swipeBackLayout, params);
 
 
+        ((ImageView) findViewById(R.id.image_1)).setImageDrawable(DrawableMaker.INSTANCE.handleAvatarDrawable(this, PageType.CHAT_ROOMS,0xF0f2B7F6,0xFF0FF000));
+        ((ImageView) findViewById(R.id.image_2)).setImageDrawable(DrawableMaker.INSTANCE.handleAvatarDrawable(this, PageType.OFFICIAL,0xFF05CB00,0xFF000000));
 
     }
 
