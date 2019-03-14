@@ -6,6 +6,8 @@ import android.widget.AdapterView
 import android.widget.ImageView
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.LogUtils
+import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
+import ui.MyApplication
 import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 
@@ -35,9 +37,7 @@ object WXClassParser {
             return clazz
         }
 
-        fun getConversationWithAppBrandListView(classes: MutableList<Class<*>>): Class<*>? {
-            return classes.firstOrNull { it.name == "${Constants.WECHAT_PACKAGE_NAME}.ui.conversation.ConversationWithAppBrandListView" }
-        }
+
 
         fun getConversationClickListener(classes: MutableList<Class<*>>): Class<*>? {
             return classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }
@@ -74,7 +74,8 @@ object WXClassParser {
 
         fun getConversationMenuItemSelectedListener(classes: MutableList<Class<*>>): Class<*>? {
             return classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }
-                    .filter { it.name.split("$").size == 2 }
+//                    .filter { it.name.split("$").size == 2 }
+                    .filter { it.name.split(".").none { it.contains("UI") } }
                     .filter {
                         it.methods.any {
                             it.name == "onMMMenuItemSelected" &&
@@ -83,6 +84,7 @@ object WXClassParser {
                                     it.parameterTypes[1] == Int::class.java
                         }
                     }
+                    .filter { it.declaredFields.size == 1 }
                     .firstOrNull {
                         try {
                             LogUtils.log(it.declaredConstructors.first().toString())
@@ -163,7 +165,7 @@ object WXClassParser {
 
             val backgroundClass = classes
                     // .filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.plugin") }
-                   .first {
+                    .first {
                         try {
                             it.fields.any { field ->
                                 field.name == "comm_list_item_selector" &&
@@ -178,7 +180,11 @@ object WXClassParser {
                         }
                     }
 
-            val field = backgroundClass.getField("comm_list_item_selector")
+
+            val field =
+                    if (DeviceUtils.isWechatUpdate7(MyApplication.get()))
+                        backgroundClass.getField("white_list_item_selector")
+                    else backgroundClass.getField("comm_list_item_selector")
             return field.getInt(null)
         }
     }

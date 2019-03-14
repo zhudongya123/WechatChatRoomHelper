@@ -14,15 +14,24 @@ import com.zdy.project.wechat_chatroom_helper.helper.ui.BaseActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.QuestionActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.ConfigActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.functionsetting.FunctionSettingActivity
+import com.zdy.project.wechat_chatroom_helper.helper.ui.more.MoreSettingActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActivity
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import manager.PermissionHelper
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import java.util.HashMap
 
 
 class MainActivity : BaseActivity() {
 
+    companion object {
+        @JvmStatic
+        val WRITE_EXTERNAL_STORAGE_RESULT_CODE = 124
+
+        @JvmStatic
+        val FILE_INIT_SUCCESS = "file_init_success"
+    }
 
     private lateinit var listContent: LinearLayout
 
@@ -35,6 +44,7 @@ class MainActivity : BaseActivity() {
         //加載佈局
         setContentView(R.layout.activity_main)
         listContent = findViewById(R.id.list_content)
+
 
     }
 
@@ -51,7 +61,7 @@ class MainActivity : BaseActivity() {
                             getString(R.string.title_function_setting_string),
                             getString(R.string.title_ui_setting_string),
                             getString(R.string.title_question_string),
-                            /*   getString(R.string.title_other_setting_string),*/
+                            getString(R.string.title_other_setting_string),
                             getString(R.string.title_about_string)))
                 }
                 PermissionHelper.ASK -> {
@@ -92,18 +102,20 @@ class MainActivity : BaseActivity() {
                         PermissionHelper.ALLOW -> {
                             if (AppSaveInfo.hasSuitWechatDataInfo()) {
                                 val saveWechatVersionInfo = AppSaveInfo.wechatVersionInfo()
+                                val saveWechatVersionName = AppSaveInfo.getWechatVersionName()
                                 val saveHelpVersionInfo = AppSaveInfo.helpVersionCodeInfo()
-                                val currentWechatVersionInfo = MyApplication.get().getWechatVersionCode().toString()
+                                val currentWechatVersionInfo = DeviceUtils.getWechatVersionCode(MyApplication.get()).toString()
+                                val currentWechatVersionName = DeviceUtils.getWechatVersionName(MyApplication.get())
                                 val currentHelperVersionInfo = MyApplication.get().getHelperVersionCode().toString()
 
-                                if (saveWechatVersionInfo == currentWechatVersionInfo) {
+                                if (saveWechatVersionInfo == currentWechatVersionInfo && currentWechatVersionName == saveWechatVersionName) {
                                     if (currentHelperVersionInfo == saveHelpVersionInfo) {
-                                        setSuccessText(text2, "本地适配文件适用于 $saveWechatVersionInfo 版本微信，已适配。")
+                                        setSuccessText(text2, "本地适配文件适用于 $saveWechatVersionName ($saveWechatVersionInfo) 版本微信，已适配。")
                                     } else {
                                         setWarmText(text2, "本地适配文件由老版本的助手生成，请点击生成新版本的适配文件。")
                                     }
                                 } else {
-                                    setFailText(text2, "本地适配文件适用于 $saveWechatVersionInfo 版本微信，当前微信版本：$currentWechatVersionInfo， 点击获取新的适配文件。")
+                                    setFailText(text2, "本地适配文件适用于 $saveWechatVersionName ($saveWechatVersionInfo) 版本微信，当前微信版本：$currentWechatVersionName ($currentWechatVersionInfo)， 点击获取新的适配文件。")
                                 }
                             } else {
                                 setFailText(text2, "本地未发现适配文件， 点击获取新的适配文件。")
@@ -137,6 +149,11 @@ class MainActivity : BaseActivity() {
                         thisActivity.startActivity(Intent(thisActivity, FunctionSettingActivity::class.java))
                     }
                     text2.setText(R.string.sub_title_function_setting_string)
+                }
+                getString(R.string.title_other_setting_string) -> {
+                    itemView.setOnClickListener {
+                        thisActivity.startActivity(Intent(thisActivity, MoreSettingActivity::class.java))
+                    }
                 }
                 getString(R.string.title_about_string) -> {
                     itemView.setOnClickListener {

@@ -17,4 +17,16 @@
         android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
+    <ImageView
+        android:id="@+id/image_1"
+        android:layout_margin="56dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp" />
+
+    <ImageView
+        android:id="@+id/image_2"
+        android:layout_margin="156dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp" />
 </FrameLayout>

@@ -14,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
@@ -73,14 +74,17 @@ class PreviewFragment : Fragment() {
             title = "群消息助手"
         }.also {
             //            it.setNavigationIcon(R.drawable.arrow_icon)
-            it.navigationIcon = BitmapDrawable(thisActivity.resources, DrawableMaker.getArrowBitMapForBack(Color.WHITE))
+            it.navigationIcon = BitmapDrawable(thisActivity.resources, DrawableMaker.getArrowBitMapForBack(Constants.defaultValue.DEFAULT_TOOLBAR_TINT_COLOR))
 
             it.setTitleTextColor(0xFFFFFFFF.toInt())
         }
 
         val clazz: Class<*> = Toolbar::class.java
         val mTitleTextView = clazz.getDeclaredField("mTitleTextView").apply { isAccessible = true }
-        (mTitleTextView.get(mToolbar) as TextView).setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+        (mTitleTextView.get(mToolbar) as TextView).apply {
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+            setTextColor(Constants.defaultValue.DEFAULT_TOOLBAR_TINT_COLOR)
+        }
 
         val imageButton = clazz.getDeclaredField("mNavButtonView").apply { isAccessible = true }
                 .get(mToolbar) as ImageButton
@@ -89,7 +93,7 @@ class PreviewFragment : Fragment() {
                     (it.layoutParams as Toolbar.LayoutParams)
                             .also {
                                 it.height = height
-                                it.width = ScreenUtils.dip2px(thisActivity,56f)
+                                it.width = ScreenUtils.dip2px(thisActivity, 56f)
                                 it.gravity = Gravity.CENTER
                             }
                     it.requestLayout()
@@ -103,7 +107,7 @@ class PreviewFragment : Fragment() {
                 }
                 .apply {
                     layoutParams = RelativeLayout.LayoutParams(height, height).apply { addRule(RelativeLayout.ALIGN_PARENT_RIGHT) }
-                    drawable.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN)
+                    drawable.setColorFilter(Constants.defaultValue.DEFAULT_TOOLBAR_TINT_COLOR, PorterDuff.Mode.SRC_IN)
                 }
 
         mToolbarContainer.addView(mToolbar)

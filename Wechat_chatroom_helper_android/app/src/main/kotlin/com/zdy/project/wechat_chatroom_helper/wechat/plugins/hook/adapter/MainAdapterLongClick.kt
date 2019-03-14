@@ -7,7 +7,9 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ListView
 import com.zdy.project.wechat_chatroom_helper.LogUtils
+import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
@@ -36,6 +38,12 @@ object MainAdapterLongClick {
     const val MENU_ITEM_STICK_HEADER_CHATROOM_DISABLE = 1044
     const val MENU_ITEM_STICK_HEADER_OFFICIAL_DISABLE = 1045
 
+    const val MENU_ITEM_REMOVE_CHATROOM = 1054
+    const val MENU_ITEM_REMOVE_OFFICIAL = 1055
+
+    const val MENU_ITEM_ADD_CHATROOM = 1064
+    const val MENU_ITEM_ADD_OFFICIAL = 1065
+
     val CoordinateField = XposedHelpers.findClass(WXObject.Adapter.C.ConversationLongClickListener, RuntimeInfo.classloader).declaredFields.firstOrNull { it.type == IntArray::class.java }!!
 
     fun getConversationLongClickClassConstructor(): Constructor<*> {
@@ -50,7 +58,6 @@ object MainAdapterLongClick {
         val officialSticky = value and 65535
 
         function(Pair(chatRoomSticky, officialSticky))
-
 
     }
 
@@ -73,13 +80,14 @@ object MainAdapterLongClick {
 
             override fun beforeHookedMethod(param: MethodHookParam) {
 
-
                 val longClickListener = param.thisObject
+
                 currentLongClickUsername = XposedHelpers.getObjectField(longClickListener, "talker") as String
 
+                LogUtils.log("MainAdapterLongClick, OnItemLongClick = $currentLongClickUsername")
 
-                //当在助手里的长按事件
-                if (onItemLongClickMethodInvokeGetItemFlagNickName != "") {
+
+                if (RuntimeInfo.currentPage != PageType.MAIN) {
                     return
                 }
 
@@ -106,34 +114,47 @@ object MainAdapterLongClick {
                 val view = param.args[1]
                 val contextMenuInfo = param.args[2]
 
+                val longClickListener = param.thisObject
+
+                currentLongClickUsername = XposedHelpers.getObjectField(longClickListener, "talker") as String
+
+                LogUtils.log("MainAdapterLongClick, OnCreateContextMenu = $currentLongClickUsername")
                 LogUtils.log("OnCreateContextMenu, contextMenu = $contextMenu, view = $view, contextMenuInfo = $contextMenuInfo")
 
                 val position = XposedHelpers.getIntField(contextMenuInfo, "position")
 
                 if (onCreateContextMenuMethodInvokeGetChatRoomFlag) {
                     onCreateContextMenuMethodInvokeGetChatRoomFlag = false
-                    LogUtils.log("OnCreateContextMenu, method = onCreateContextMenuMethodInvokeGetChatRoomFlag")
-
                     XposedHelpers.callMethod(contextMenu, "clear")
                     XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_CLEAR_UNREAD_CHATROOM, 0, "所有群聊标为已读")
                     if (chatRoomStickyValue > 0)
                         XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_CHATROOM_DISABLE, 0, "取消群聊助手置顶")
                     else
                         XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_CHATROOM_ENABLE, 0, "群聊助手置顶")
-
                 }
 
                 if (onCreateContextMenuMethodInvokeGetOfficialFlag) {
                     onCreateContextMenuMethodInvokeGetOfficialFlag = false
-                    LogUtils.log("OnCreateContextMenu, method = onCreateContextMenuMethodInvokeGetOfficialFlag")
-
                     XposedHelpers.callMethod(contextMenu, "clear")
                     XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_CLEAR_UNREAD_OFFICIAL, 0, "所有服务号标为已读")
                     if (officialStickyValue > 0)
                         XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_OFFICIAL_DISABLE, 0, "取消服务号助手置顶")
                     else
                         XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_OFFICIAL_ENABLE, 0, "服务号助手置顶")
+                }
+                if (RuntimeInfo.chatRoomViewPresenter.getCurrentData().any { it.field_username == currentLongClickUsername }) {
+                    XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_REMOVE_CHATROOM, 0, "移出群聊消息")
+                }
+                if (RuntimeInfo.officialViewPresenter.getCurrentData().any { it.field_username == currentLongClickUsername }) {
+                    XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_REMOVE_OFFICIAL, 0, "移出服务号消息")
+                }
 
+                if (AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_CHAT_ROOM).contains(currentLongClickUsername)) {
+                    XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_ADD_CHATROOM, 0, "添加到群聊消息")
+                }
+
+                if (AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL).contains(currentLongClickUsername)) {
+                    XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_ADD_OFFICIAL, 0, "添加到服务号消息")
                 }
             }
 
@@ -145,6 +166,8 @@ object MainAdapterLongClick {
 
             override fun beforeHookedMethod(param: MethodHookParam) {
 
+                LogUtils.log("MainAdapterLongClick, OnMMMenuItemSelected = $currentLongClickUsername")
+
                 val menuItem = param.args[0] as MenuItem
 
                 when (menuItem.itemId) {
@@ -152,14 +175,10 @@ object MainAdapterLongClick {
                     MENU_ITEM_CLEAR_UNREAD_CHATROOM -> {
                         MessageFactory.clearSpecChatRoomUnRead()
                         RuntimeInfo.chatRoomViewPresenter.refreshList(false, Any())
-                        MainAdapter.notifyDataSetChangedForOriginAdapter()
-                        param.result = null
                     }
                     MENU_ITEM_CLEAR_UNREAD_OFFICIAL -> {
                         MessageFactory.clearSpecOfficialUnRead()
                         RuntimeInfo.officialViewPresenter.refreshList(false, Any())
-                        MainAdapter.notifyDataSetChangedForOriginAdapter()
-                        param.result = null
                     }
                     MENU_ITEM_STICK_HEADER_CHATROOM_ENABLE -> {
                         if (officialStickyValue > 0) {
@@ -175,9 +194,6 @@ object MainAdapterLongClick {
                             chatRoomStickyValue = it.first
                             officialStickyValue = it.second
                         }
-
-                        MainLauncherUI.refreshListMainUI()
-                        param.result = null
                     }
                     MENU_ITEM_STICK_HEADER_OFFICIAL_ENABLE -> {
                         if (chatRoomStickyValue > 0) {
@@ -194,9 +210,6 @@ object MainAdapterLongClick {
                             chatRoomStickyValue = it.first
                             officialStickyValue = it.second
                         }
-
-                        MainLauncherUI.refreshListMainUI()
-                        param.result = null
                     }
 
                     MENU_ITEM_STICK_HEADER_CHATROOM_DISABLE -> {
@@ -207,10 +220,6 @@ object MainAdapterLongClick {
                             chatRoomStickyValue = it.first
                             officialStickyValue = it.second
                         }
-
-                        MainLauncherUI.refreshListMainUI()
-                        param.result = null
-
                     }
 
                     MENU_ITEM_STICK_HEADER_OFFICIAL_DISABLE -> {
@@ -221,11 +230,32 @@ object MainAdapterLongClick {
                             chatRoomStickyValue = it.first
                             officialStickyValue = it.second
                         }
-
-                        MainLauncherUI.refreshListMainUI()
-                        param.result = null
-
                     }
+
+                    MENU_ITEM_REMOVE_OFFICIAL -> {
+                        AppSaveInfo.setWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL, currentLongClickUsername)
+                        WechatJsonUtils.putFileString()
+                    }
+
+                    MENU_ITEM_REMOVE_CHATROOM -> {
+                        AppSaveInfo.setWhiteList(AppSaveInfo.WHITE_LIST_CHAT_ROOM, currentLongClickUsername)
+                        WechatJsonUtils.putFileString()
+                    }
+
+                    MENU_ITEM_ADD_OFFICIAL -> {
+                        AppSaveInfo.removeWhitList(AppSaveInfo.WHITE_LIST_OFFICIAL, currentLongClickUsername)
+                        WechatJsonUtils.putFileString()
+                    }
+
+                    MENU_ITEM_ADD_CHATROOM -> {
+                        AppSaveInfo.removeWhitList(AppSaveInfo.WHITE_LIST_CHAT_ROOM, currentLongClickUsername)
+                        WechatJsonUtils.putFileString()
+                    }
+                }
+
+                if (menuItem.itemId in MENU_ITEM_CLEAR_UNREAD_CHATROOM..MENU_ITEM_ADD_OFFICIAL) {
+                    MainLauncherUI.refreshListMainUI()
+                    param.result = null
                 }
             }
 

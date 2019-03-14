@@ -16,6 +16,7 @@ import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Compa
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.makeTypeSpec
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
+import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXClassParser
 import dalvik.system.DexClassLoader
 import net.dongliu.apk.parser.ApkFile
@@ -75,7 +76,6 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                     }
 
             configData["conversationWithCacheAdapter"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
-            configData["conversationWithAppBrandListView"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithAppBrandListView(classes))
             configData["conversationAvatar"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
             configData["conversationLongClickListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationLongClickListener(classes))
             configData["conversationClickListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
@@ -109,7 +109,8 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
     override fun onPostExecute(result: Unit?) {
         sendMessageToHandler(makeTypeSpec(HANDLER_SHOW_NEXT_BUTTON, TEXT_COLOR_NORMAL), String())
         AppSaveInfo.setSuitWechatDataInfo(true)
-        AppSaveInfo.setWechatVersionInfo(MyApplication.get().getWechatVersionCode().toString())
+        AppSaveInfo.setWechatVersionInfo(DeviceUtils.getWechatVersionCode(MyApplication.get()).toString())
+        AppSaveInfo.setWechatVersionName(DeviceUtils.getWechatVersionName(MyApplication.get()).toString())
         AppSaveInfo.setHelpVersionCodeInfo(MyApplication.get().getHelperVersionCode().toString())
         WechatJsonUtils.putFileString()
     }

@@ -24,6 +24,8 @@ interface ChatRoomContract {
         fun dismiss()
 
         fun getCurrentData(): ArrayList<ChatInfoModel>
+
+        fun isStarted(): Boolean
     }
 
     interface View {

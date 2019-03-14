@@ -5,26 +5,35 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.ListAdapter
+import android.widget.ListView
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewPresenter
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
 import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
+import java.lang.reflect.Modifier
 
 @SuppressLint("StaticFieldLeak")
 /**
  * Created by Mr.Zdy on 2018/4/1.
  */
 object MainLauncherUI {
+
+    var NOTIFY_MAIN_LAUNCHERUI_LISTVIEW_FLAG = false
 
     lateinit var launcherUI: Activity
 
@@ -105,7 +114,46 @@ object MainLauncherUI {
                             else RuntimeInfo.currentPage = PageType.MAIN
                         }
                     }
+
                 })
+
+
+        findAndHookMethod(ConversationReflectFunction.conversationWithAppBrandListView, WXObject.Adapter.M.SetAdapter, ListAdapter::class.java, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                MainAdapter.listView = param.thisObject as ListView
+                val adapter = param.args[0]
+
+                RuntimeInfo.chatRoomViewPresenter.setAdapter(adapter)
+                RuntimeInfo.officialViewPresenter.setAdapter(adapter)
+
+                RuntimeInfo.chatRoomViewPresenter.start()
+                RuntimeInfo.officialViewPresenter.start()
+            }
+        })
+
+
+        try {
+            findAndHookMethod(ConversationReflectFunction.conversationListView, WXObject.Adapter.M.SetActivity,
+                    XposedHelpers.findClass(WXObject.MainUI.C.MMFragmentActivity, RuntimeInfo.classloader), object : XC_MethodHook() {
+
+                override fun afterHookedMethod(param: MethodHookParam) {
+
+                    val adapter = param.args[0]
+                    MainAdapter.listView = param.thisObject as ListView
+
+                    if (RuntimeInfo.chatRoomViewPresenter.isStarted() || RuntimeInfo.officialViewPresenter.isStarted()) return
+
+                    RuntimeInfo.chatRoomViewPresenter.setAdapter(adapter)
+                    RuntimeInfo.officialViewPresenter.setAdapter(adapter)
+
+                    RuntimeInfo.chatRoomViewPresenter.start()
+                    RuntimeInfo.officialViewPresenter.start()
+                }
+            })
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
+
     }
 
     fun handleDetectFitWindowView(activity: Activity) {
@@ -260,6 +308,21 @@ object MainLauncherUI {
 
 
     fun refreshListMainUI() {
+
+        val adapterClass = MainAdapter.originAdapter::class.java
+        val adapterSuperclass = adapterClass.superclass
+
+        //其实筛选有两个方法，混淆之后刚好在前面的那个是 notify 方法
+        val notifyMethod = adapterSuperclass.methods.filter { it.parameterTypes.size == 1 }
+                .filter { Modifier.isFinal(it.modifiers) }
+                .first { it.parameterTypes[0].name == Boolean::class.java.name }
+
+        NOTIFY_MAIN_LAUNCHERUI_LISTVIEW_FLAG = true
+        notifyMethod.invoke(MainAdapter.originAdapter, false)
+
+    }
+
+    fun restartMainActivity() {
         val activity = launcherUI
         activity.finish()
         activity.startActivity(Intent(activity, activity::class.java).apply {

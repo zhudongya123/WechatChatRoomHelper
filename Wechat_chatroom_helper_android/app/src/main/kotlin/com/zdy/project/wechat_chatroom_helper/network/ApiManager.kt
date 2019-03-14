@@ -2,6 +2,8 @@ package network
 
 import android.os.Build
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
 import okhttp3.*
 import java.io.IOException
 
@@ -26,6 +28,8 @@ object ApiManager {
                 .add("model", model)
                 .add("version", AppSaveInfo.helpVersionCodeInfo())
                 .add("wechat_version", AppSaveInfo.wechatVersionInfo())
+                .add("wechat_version_name", AppSaveInfo.getWechatVersionName())
+                .add("wechat_client_version", DeviceUtils.getMetaDataFromApp(MainLauncherUI.launcherUI,"com.tencent.mm.BuildInfo.CLIENT_VERSION"))
                 .add("android_version", Build.VERSION.SDK)
                 .build()
 
