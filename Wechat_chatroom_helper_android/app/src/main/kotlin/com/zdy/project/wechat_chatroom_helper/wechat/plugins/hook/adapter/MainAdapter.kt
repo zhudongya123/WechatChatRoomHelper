@@ -168,9 +168,9 @@ object MainAdapter {
 
 
                             if (MainAdapterLongClick.chatRoomStickyValue > 0) {
-                                itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt)
+                                // itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt)
                             } else {
-                                itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemSelectorBackGroundInt)
+                                //  itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemSelectorBackGroundInt)
                             }
 
                             param.result = view
@@ -208,9 +208,9 @@ object MainAdapter {
                             }
 
                             if (MainAdapterLongClick.officialStickyValue > 0) {
-                                itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt)
+                                //   itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt)
                             } else {
-                                itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemSelectorBackGroundInt)
+                                // itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemSelectorBackGroundInt)
                             }
 
                             param.result = view
@@ -276,17 +276,9 @@ object MainAdapter {
                         else {
                             when (index) {
                                 in 0 until min -> index
-                                min -> {
-                                    //param.result = getSpecItemForPlaceHolder(" ",param)//填充空数据
-                                    //return
-                                    0
-                                }
+                                min -> 0
                                 in min + 1 until max -> index - 1
-                                max -> {
-                                    //param.result = getSpecItemForPlaceHolder(" ",param)//填充空数据
-                                    //return
-                                    0
-                                }
+                                max -> 0
                                 in max + 1 until Int.MAX_VALUE -> index - 2
                                 else -> index //TODO
                             }
@@ -297,6 +289,21 @@ object MainAdapter {
                 param.args[0] = newIndex
             }
 
+            override fun afterHookedMethod(param: MethodHookParam) {
+
+                val index = param.args[0] as Int
+                val result = param.result!!
+
+                if (firstChatRoomPosition == index) {
+                    if (MainAdapterLongClick.chatRoomStickyValue > 0) {
+
+                    }
+                }
+
+                if (firstOfficialPosition == index) {
+
+                }
+            }
 
             fun getSpecItemForPlaceHolder(username: CharSequence, param: MethodHookParam): Any {
                 val beanClass = (param.thisObject::class.java.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>

@@ -104,6 +104,9 @@ object MessageFactory {
                     WXObject.Message.M.QUERY, getDataBaseFactory(MessageHandler.MessageDatabaseObject!!),
                     SqlForByUsername(field_username), null, null) as Cursor).apply { moveToNext() })
 
+    fun getStickFlagInfo(obj: Any?) =
+            XposedHelpers.callStaticMethod(ConversationReflectFunction.conversationStickyHeaderHandler,
+                    ConversationReflectFunction.stickyHeaderHandlerMethod.name, obj, 4, 0) as Long
 
     private fun buildChatInfoModelByCursor(cursor: Cursor): ChatInfoModel {
 
@@ -129,8 +132,7 @@ object MessageFactory {
             val obj = ConversationReflectFunction.beanConstructor.newInstance("")
             ConversationReflectFunction.beanClass.getField("field_flag").set(obj, field_flag)
 
-            backgroundFlag = XposedHelpers.callStaticMethod(ConversationReflectFunction.conversationStickyHeaderHandler,
-                    ConversationReflectFunction.stickyHeaderHandlerMethod.name, obj, 4, 0) as Long
+            backgroundFlag = getStickFlagInfo(obj)
 
             nickname = if (field_nickname.isEmpty()) "群聊" else field_nickname
             val conversationContent = ConversationReflectFunction.getConversationContent(MainAdapter.originAdapter, this)
@@ -144,5 +146,6 @@ object MessageFactory {
             unReadMuteCount = field_unReadMuteCount
         }
     }
+
 
 }

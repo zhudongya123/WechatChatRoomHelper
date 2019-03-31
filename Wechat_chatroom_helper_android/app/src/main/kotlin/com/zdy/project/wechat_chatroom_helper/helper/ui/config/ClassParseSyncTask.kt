@@ -27,7 +27,7 @@ import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import java.util.*
 
-class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTask<String, Unit, Unit>() {
+class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTask<String, Unit, Boolean>() {
 
     private val weakH = WeakReference<SyncHandler>(syncHandler)
     private val weakA = WeakReference<Activity>(activity)
@@ -40,7 +40,7 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
     private var configData = hashMapOf<String, String>()
 
 
-    override fun doInBackground(vararg params: String) {
+    override fun doInBackground(vararg params: String): Boolean {
         val srcPath = params[0]
         val optimizedDirectory = params[1]
 
@@ -81,8 +81,8 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
             configData["conversationClickListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
             configData["conversationMenuItemSelectedListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationMenuItemSelectedListener(classes))
             configData["conversationStickyHeaderHandler"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationStickyHeaderHandler(classes))
-            configData["conversationItemHighLightSelectorBackGroundInt"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationItemHighLightSelectorBackGroundInt(classes))
-            configData["conversationItemSelectorBackGroundInt"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationItemSelectorBackGroundInt(classes))
+//            configData["conversationItemHighLightSelectorBackGroundInt"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationItemHighLightSelectorBackGroundInt(classes))
+//            configData["conversationItemSelectorBackGroundInt"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationItemSelectorBackGroundInt(classes))
             configData["logcat"] = parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
 
             writeNewConfig()
@@ -91,12 +91,16 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                     weakA.get()!!.getString(R.string.config_step3_text3),
                     WechatJsonUtils.configPath, apkFile.apkMeta.versionName,
                     apkFile.apkMeta.versionCode.toString())
+
+            return true
         } catch (e: Throwable) {
             CrashReport.postCatchedException(e)
             sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_ERROR),
                     e.toString() + "\n" + e.stackTrace.joinToString("\n") { it.toString() })
             e.printStackTrace()
+            return false
         }
+
     }
 
     override fun onPreExecute() {
@@ -106,13 +110,15 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                 weakA.get()!!.getString(R.string.config_step3_text2))
     }
 
-    override fun onPostExecute(result: Unit?) {
+    override fun onPostExecute(result: Boolean) {
         sendMessageToHandler(makeTypeSpec(HANDLER_SHOW_NEXT_BUTTON, TEXT_COLOR_NORMAL), String())
-        AppSaveInfo.setSuitWechatDataInfo(true)
-        AppSaveInfo.setWechatVersionInfo(DeviceUtils.getWechatVersionCode(MyApplication.get()).toString())
-        AppSaveInfo.setWechatVersionName(DeviceUtils.getWechatVersionName(MyApplication.get()).toString())
-        AppSaveInfo.setHelpVersionCodeInfo(MyApplication.get().getHelperVersionCode().toString())
-        WechatJsonUtils.putFileString()
+        if (result) {
+            AppSaveInfo.setSuitWechatDataInfo(true)
+            AppSaveInfo.setWechatVersionInfo(DeviceUtils.getWechatVersionCode(MyApplication.get()).toString())
+            AppSaveInfo.setWechatVersionName(DeviceUtils.getWechatVersionName(MyApplication.get()).toString())
+            AppSaveInfo.setHelpVersionCodeInfo(MyApplication.get().getHelperVersionCode().toString())
+            WechatJsonUtils.putFileString()
+        }
     }
 
     @Throws(Exception::class)
@@ -146,14 +152,15 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
     }
 
     private fun sendMessageToHandler(type: Int, text: String, vararg args: Any) {
+        val syncHandler = weakH.get()!!
         when (getType(type)) {
             HANDLER_TEXT_ADDITION,
             HANDLER_TEXT_CHANGE_LINE -> {
-                weakH.get()?.sendMessage(Message.obtain(weakH.get(), type,
+                syncHandler.sendMessage(Message.obtain(syncHandler, type,
                         String.format(Locale.CHINESE, text, *args)))
             }
             HANDLER_SHOW_NEXT_BUTTON -> {
-                weakH.get()?.sendMessage(Message.obtain(weakH.get(), type))
+                syncHandler.sendMessage(Message.obtain(syncHandler, type))
             }
         }
     }
