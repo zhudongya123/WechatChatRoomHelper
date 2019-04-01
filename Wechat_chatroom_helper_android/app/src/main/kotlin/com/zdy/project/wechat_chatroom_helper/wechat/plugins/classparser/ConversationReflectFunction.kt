@@ -2,6 +2,7 @@ package com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser
 
 import android.widget.ImageView
 import com.blankj.utilcode.util.ScreenUtils
+import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import de.robv.android.xposed.XposedHelpers
@@ -84,10 +85,12 @@ object ConversationReflectFunction {
         beanClass.getField("field_isSend").set(bean, chatInfoModel.field_isSend)
         beanClass.getField("field_UnReadInvite").set(bean, chatInfoModel.field_UnReadInvite)
         beanClass.getField("field_atCount").set(bean, chatInfoModel.field_atCount)
+        beanClass.getField("field_flag").set(bean, chatInfoModel.field_flag)
 
         val textSize = (ScreenUtils.getScreenDensity() * 13f).toInt()
         val content = XposedHelpers.callMethod(adapter, getContentMethod.name, bean, textSize, true) as CharSequence
 
+//        LogUtils.log("MessageHook2019-04-01 16:25:57, flag = ${chatInfoModel.field_flag}, username = ${chatInfoModel.field_username}")
 //        val secondBeanMethodName = conversationWithCacheAdapter.declaredMethods
 //                .filter { it.parameterTypes.size == 1 }
 //                .single {

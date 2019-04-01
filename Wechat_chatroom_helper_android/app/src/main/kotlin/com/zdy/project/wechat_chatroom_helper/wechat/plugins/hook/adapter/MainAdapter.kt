@@ -1,10 +1,8 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter
 
 import android.annotation.SuppressLint
-import android.database.DataSetObservable
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
@@ -14,7 +12,6 @@ import com.zdy.project.wechat_chatroom_helper.wechat.manager.DrawableMaker
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.conversationClickListener
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.conversationWithAppBrandListView
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.conversationWithCacheAdapter
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
@@ -226,6 +223,8 @@ object MainAdapter {
         findAndHookMethod(conversationWithCacheAdapter.superclass, conversationWithCacheAdapterGetItem,
                 Int::class.java, object : XC_MethodHook() {
 
+            private var helperEntryFlag = PageType.MAIN
+
             override fun beforeHookedMethod(param: MethodHookParam) {
                 LogUtils.log("MessageHooker2.7, size = ${originAdapter.count}")
 
@@ -264,8 +263,7 @@ object MainAdapter {
                             when (index) {
                                 in 0 until max -> index
                                 max -> {
-                                    //param.result = getSpecItemForPlaceHolder(" ",param)//填充空数据
-                                    //return
+                                    setHelperEntryFlag(max)
                                     0
                                 }
                                 in max + 1 until Int.MAX_VALUE -> index - 1
@@ -276,9 +274,15 @@ object MainAdapter {
                         else {
                             when (index) {
                                 in 0 until min -> index
-                                min -> 0
+                                min -> {
+                                    setHelperEntryFlag(min)
+                                    0
+                                }
                                 in min + 1 until max -> index - 1
-                                max -> 0
+                                max -> {
+                                    setHelperEntryFlag(max)
+                                    0
+                                }
                                 in max + 1 until Int.MAX_VALUE -> index - 2
                                 else -> index //TODO
                             }
@@ -289,20 +293,40 @@ object MainAdapter {
                 param.args[0] = newIndex
             }
 
+            private fun setHelperEntryFlag(currentPosition: Int) {
+                if (firstChatRoomPosition == currentPosition) {
+                    helperEntryFlag = PageType.CHAT_ROOMS
+                } else if (firstOfficialPosition == currentPosition) {
+                    helperEntryFlag = PageType.OFFICIAL
+                }
+            }
+
             override fun afterHookedMethod(param: MethodHookParam) {
 
                 val index = param.args[0] as Int
                 val result = param.result!!
 
-                if (firstChatRoomPosition == index) {
+                val field_flag = XposedHelpers.getLongField(result, "field_flag")
+
+                if (helperEntryFlag == PageType.CHAT_ROOMS) {
                     if (MainAdapterLongClick.chatRoomStickyValue > 0) {
+                        XposedHelpers.setLongField(result, "field_flag", 1024L + (1L shl 62))
+                    }
+                    helperEntryFlag = PageType.MAIN
+                }
+
+                if (helperEntryFlag == PageType.OFFICIAL) {
+                    if (MainAdapterLongClick.officialStickyValue > 0) {
+                        XposedHelpers.setLongField(result, "field_flag", 1024L + (1L shl 62))
 
                     }
+                    helperEntryFlag = PageType.MAIN
                 }
+                val stickFlagInfo = MessageFactory.getStickFlagInfo(result)
 
-                if (firstOfficialPosition == index) {
+                LogUtils.log("MessageHook2019-04-01 16:25:57, stickFlagInfo = ${stickFlagInfo}, index = $index, flag = $field_flag, username = ${XposedHelpers.getObjectField(result, "field_username")}")
 
-                }
+                param.result = result
             }
 
             fun getSpecItemForPlaceHolder(username: CharSequence, param: MethodHookParam): Any {
