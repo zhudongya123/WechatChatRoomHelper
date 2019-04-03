@@ -65,6 +65,8 @@ object MainAdapter {
                 AdapterView::class.java, View::class.java, Int::class.java, Long::class.java,
                 object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
+
+                        val view = param.result as View?
                         val position = (param.args[2] as Int) - listView.headerViewsCount
 
                         LogUtils.log("TrackHelperCan'tOpen, MainAdapter -> HookItemClickListener -> onItemClick ")
@@ -223,10 +225,9 @@ object MainAdapter {
         findAndHookMethod(conversationWithCacheAdapter.superclass, conversationWithCacheAdapterGetItem,
                 Int::class.java, object : XC_MethodHook() {
 
-            private var helperEntryFlag = PageType.MAIN
+//            private var helperEntryFlag = PageType.MAIN
 
             override fun beforeHookedMethod(param: MethodHookParam) {
-                LogUtils.log("MessageHooker2.7, size = ${originAdapter.count}")
 
                 if (param.thisObject::class.simpleName != conversationWithCacheAdapter.simpleName) return
 
@@ -236,7 +237,7 @@ object MainAdapter {
                  * 在 onItemLongClick 内会调用 getItem 方法来获取 bean ，使用 flag 来判断是否有必要拦截
                  */
                 if (MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlagNickName != "") {
-                    param.result = getSpecItemForPlaceHolder(MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlagNickName, param)
+                    param.result = getSpecItemForPlaceHolder(MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlagNickName)
                     MainAdapterLongClick.onItemLongClickMethodInvokeGetItemFlagNickName = ""
                     return
                 }
@@ -253,6 +254,8 @@ object MainAdapter {
                 val max = Math.max(firstChatRoomPosition, firstOfficialPosition)
 
 
+                LogUtils.log("MessageHooker 2019-04-02 09:18:31, size = ${originAdapter.count}, firstChatRoomPosition = $firstChatRoomPosition, firstOfficialPosition = $firstOfficialPosition")
+
                 val newIndex =
                 //如果没有群助手和公众号
                         if (min == -1 && max == -1) {
@@ -260,77 +263,166 @@ object MainAdapter {
                         }
                         //群助手和公众号只有一个
                         else if (min == -1 || max == -1) {
-                            when (index) {
-                                in 0 until max -> index
-                                max -> {
-                                    setHelperEntryFlag(max)
-                                    0
+//                            when (index) {
+//                                in 0 until max -> index
+//                                max -> {
+//                                }
+//                                in max + 1 until Int.MAX_VALUE ->
+//                                else -> index //TODO
+//                            }
+
+                            when {
+                                index < max -> {
+                                    index
                                 }
-                                in max + 1 until Int.MAX_VALUE -> index - 1
-                                else -> index //TODO
+                                index == max -> {
+                                    param.result = getCustomItemForEntry(max)
+                                    return
+                                }
+                                index > max -> {
+                                    index - 1
+                                }
+                                else -> {
+                                    index
+                                }
                             }
                         }
                         //群助手和公众号都存在
                         else {
-                            when (index) {
-                                in 0 until min -> index
-                                min -> {
-                                    setHelperEntryFlag(min)
-                                    0
-                                }
-                                in min + 1 until max -> index - 1
-                                max -> {
-                                    setHelperEntryFlag(max)
-                                    0
-                                }
-                                in max + 1 until Int.MAX_VALUE -> index - 2
-                                else -> index //TODO
+
+                            if (index < min) {
+                                index
+                            } else if (index == min) {
+                                param.result = getCustomItemForEntry(min)
+                                return
+                            } else if (index > min && index < max) {
+                                index - 1
+                            } else if (index == max) {
+                                param.result = getCustomItemForEntry(max)
+                                return
+                            } else if (index > max) {
+                                index - 2
+                            } else {
+                                index
                             }
+//                            when (index) {
+//                                in 0 until min -> index
+//                                min -> {
+//                                    setHelperEntryFlag(min)
+//                                    0
+//                                }
+//                                in min + 1 until max -> index - 1
+//                                max -> {
+//                                    setHelperEntryFlag(max)
+//                                    0
+//                                }
+//                                in max + 1 until Int.MAX_VALUE -> index - 2
+//                                else -> index //TODO
+//                            }
                         }
 
-                LogUtils.log("MessageHooker2.7, size = ${originAdapter.count}, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
+                LogUtils.log("MessageHook 2019-04-03 15:30:00, size = ${originAdapter.count}, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
 
                 param.args[0] = newIndex
             }
 
-            private fun setHelperEntryFlag(currentPosition: Int) {
+//            private fun setHelperEntryFlag(currentPosition: Int) {
+//                LogUtils.log("MessageHook 2019-04-02 11:29:47, currentPosition = $currentPosition, firstChatRoomPosition = $firstChatRoomPosition, firstOfficialPosition = $firstOfficialPosition")
+//                if (firstChatRoomPosition == currentPosition) {
+//                    helperEntryFlag = PageType.CHAT_ROOMS
+//                } else if (firstOfficialPosition == currentPosition) {
+//                    helperEntryFlag = PageType.OFFICIAL
+//                }
+//            }
+
+            private fun getCustomItemForEntry(currentPosition: Int): Any {
+
+                var field_username: CharSequence = ""
+                var field_conversationTime: Long = 0L
+                var field_flag: Long = 0L
+
                 if (firstChatRoomPosition == currentPosition) {
-                    helperEntryFlag = PageType.CHAT_ROOMS
+                    field_username = "weixin1"
+                    field_conversationTime = MessageFactory.getSpecChatRoom().first().field_conversationTime
+                    field_flag = if (MainAdapterLongClick.chatRoomStickyValue > 0) {
+                        System.currentTimeMillis() + (1L shl 62)
+                    } else {
+                        field_conversationTime
+                    }
+
                 } else if (firstOfficialPosition == currentPosition) {
-                    helperEntryFlag = PageType.OFFICIAL
+                    field_username = "weixin2"
+                    field_conversationTime = MessageFactory.getSpecOfficial().first().field_conversationTime
+                    field_flag = if (MainAdapterLongClick.officialStickyValue > 0) {
+                        System.currentTimeMillis() + (1L shl 62)
+                    } else {
+                        field_conversationTime
+                    }
+                } else {
+                    return getSpecItemForPlaceHolder("weixin")
                 }
+
+                val item = MessageFactory.getWechatTeam()
+                XposedHelpers.setObjectField(item, "field_username", field_username)
+                XposedHelpers.setLongField(item, "field_flag", field_flag)
+                XposedHelpers.setLongField(item, "field_conversationTime", field_conversationTime)
+
+                return item
             }
 
             override fun afterHookedMethod(param: MethodHookParam) {
 
                 val index = param.args[0] as Int
                 val result = param.result!!
+//
+//                if (index == 0) {
+//                    if (helperEntryFlag == PageType.CHAT_ROOMS) {
+//                        val chatRoomEntryConversationTime = MessageFactory.getSpecChatRoom().first().field_conversationTime
+//                        LogUtils.log("MessageHook 2019-04-02 11:03:46, index = $index, flag = $field_flag, username = $field_username, chatRoomStickyValue = ${MainAdapterLongClick.chatRoomStickyValue}, helperEntryFlag = CHAT_ROOMS")
+//                        if (MainAdapterLongClick.chatRoomStickyValue > 0) {
+//                            XposedHelpers.setLongField(result, "field_flag", System.currentTimeMillis() + (1L shl 62))
+//                        } else {
+//                            XposedHelpers.setLongField(result, "field_flag", chatRoomEntryConversationTime)
+//                        }
+//                        XposedHelpers.setLongField(result, "field_conversationTime", chatRoomEntryConversationTime)
+//                    } else if (helperEntryFlag == PageType.OFFICIAL) {
+//                        val officialEntryConversationTime = MessageFactory.getSpecOfficial().first().field_conversationTime
+//                        LogUtils.log("MessageHook 2019-04-02 11:03:46, index = $index, flag = $field_flag, username = $field_username, officialStickyValue = ${MainAdapterLongClick.officialStickyValue}, helperEntryFlag = OFFICIAL")
+//                        if (MainAdapterLongClick.officialStickyValue > 0) {
+//                            XposedHelpers.setLongField(result, "field_flag", System.currentTimeMillis() + (1L shl 62))
+//                        } else {
+//                            XposedHelpers.setLongField(result, "field_flag", officialEntryConversationTime)
+//                        }
+//                        XposedHelpers.setLongField(result, "field_conversationTime", officialEntryConversationTime)
+//                    } else {
+//                        if (field_flag < System.currentTimeMillis())
+//                            XposedHelpers.setLongField(result, "field_flag", field_conversationTime)
+//                    }
+//                    helperEntryFlag = PageType.MAIN
+//                }
+//
+//                field_flag = XposedHelpers.getLongField(result, "field_flag")
+//                field_username = XposedHelpers.getObjectField(result, "field_username")
+//                field_conversationTime = XposedHelpers.getLongField(result, "field_conversationTime")
 
-                val field_flag = XposedHelpers.getLongField(result, "field_flag")
 
-                if (helperEntryFlag == PageType.CHAT_ROOMS) {
-                    if (MainAdapterLongClick.chatRoomStickyValue > 0) {
-                        XposedHelpers.setLongField(result, "field_flag", 1024L + (1L shl 62))
-                    }
-                    helperEntryFlag = PageType.MAIN
+
+                var field_flag = XposedHelpers.getLongField(result, "field_flag")
+                var field_username = XposedHelpers.getObjectField(result, "field_username")
+                var field_conversationTime = XposedHelpers.getLongField(result, "field_conversationTime")
+
+                if (field_username == "weixin1" || field_username == "weixin2") {
+                    XposedHelpers.setObjectField(result, "field_username", "weixin")
                 }
 
-                if (helperEntryFlag == PageType.OFFICIAL) {
-                    if (MainAdapterLongClick.officialStickyValue > 0) {
-                        XposedHelpers.setLongField(result, "field_flag", 1024L + (1L shl 62))
-
-                    }
-                    helperEntryFlag = PageType.MAIN
-                }
-                val stickFlagInfo = MessageFactory.getStickFlagInfo(result)
-
-                LogUtils.log("MessageHook2019-04-01 16:25:57, stickFlagInfo = ${stickFlagInfo}, index = $index, flag = $field_flag, username = ${XposedHelpers.getObjectField(result, "field_username")}")
+                LogUtils.log("MessageHook 2019-04-01 16:25:57, index = $index, flag = $field_flag, username = $field_username, field_conversationTime = $field_conversationTime")
 
                 param.result = result
             }
 
-            fun getSpecItemForPlaceHolder(username: CharSequence, param: MethodHookParam): Any {
-                val beanClass = (param.thisObject::class.java.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>
+            fun getSpecItemForPlaceHolder(username: CharSequence): Any {
+                val clazz = ConversationReflectFunction.conversationWithCacheAdapter
+                val beanClass = (clazz.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>
 
                 val constructor = beanClass.getConstructor(String::class.java)
                 val newInstance = constructor.newInstance(username)

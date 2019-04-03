@@ -45,6 +45,12 @@ object MessageFactory {
         return list
     }
 
+    fun getWechatTeam(): Any {
+        val cursor = XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, "rawQuery", SqlForByUsername("weixin"), null) as Cursor
+        cursor.moveToNext()
+        return buildChatInfoModelByCursor(cursor)
+    }
+
 
     fun getAllOfficial(): ArrayList<ChatInfoModel> {
         val cursor = XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, "rawQuery", SqlForGetAllOfficial, null) as Cursor
