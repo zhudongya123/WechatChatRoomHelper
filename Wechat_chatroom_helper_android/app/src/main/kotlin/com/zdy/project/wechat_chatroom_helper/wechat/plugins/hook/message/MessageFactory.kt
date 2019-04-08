@@ -22,12 +22,11 @@ object MessageFactory {
     private const val SqlForGetAllChatRoom = "select unReadCount, status, isSend, flag, conversationTime, " +
             "rconversation.username, rcontact.nickname, rcontact.lvbuff, content, msgType, digest, digestUser, attrflag, editingMsg, " +
             "atCount, unReadMuteCount, UnReadInvite from rconversation, rcontact " +
-            "where  rcontact.username = rconversation.username and  rconversation.username like '%@chatroom' order by flag desc"
+            "where rcontact.username = rconversation.username and  rconversation.username like '%@chatroom' order by flag desc"
 
-    private fun SqlForByUsername(field_username: String) = "select unReadCount, status, flag, isSend, " +
-            "conversationTime, rconversation.username, rcontact.nickname, content, msgType, digest," +
-            "digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite " +
-            "from rconversation, rcontact " +
+    private fun SqlForByUsername(field_username: String) = "select unReadCount, status, flag, isSend, conversationTime, " +
+            "rconversation.username, rcontact.nickname, rcontact.lvbuff, content, msgType, digest, digestUser, attrflag, editingMsg, " +
+            "atCount, unReadMuteCount, UnReadInvite from rconversation, rcontact " +
             "where rconversation.username = rcontact.username and rconversation.username = '$field_username'"
 
 

@@ -362,10 +362,12 @@ object MainAdapter {
                     return getSpecItemForPlaceHolder("weixin")
                 }
 
-                val item = MessageFactory.getWechatTeam()
+                val item = getSpecItemForPlaceHolder("weixin")
                 XposedHelpers.setObjectField(item, "field_username", field_username)
                 XposedHelpers.setLongField(item, "field_flag", field_flag)
                 XposedHelpers.setLongField(item, "field_conversationTime", field_conversationTime)
+
+                LogUtils.log("MessageHook 2019-04-05 14:11:46, index = $currentPosition, flag = $field_flag, username = $field_username, field_conversationTime = $field_conversationTime")
 
                 return item
             }
