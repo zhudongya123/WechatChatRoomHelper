@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -33,7 +32,7 @@ import java.lang.reflect.Modifier
  */
 object MainLauncherUI {
 
-    var NOTIFY_MAIN_LAUNCHERUI_LISTVIEW_FLAG = false
+    var NOTIFY_MAIN_LAUNCHER_UI_LIST_VIEW_FLAG = false
 
     lateinit var launcherUI: Activity
 
@@ -355,7 +354,7 @@ object MainLauncherUI {
                 .filter { Modifier.isFinal(it.modifiers) }
                 .first { it.parameterTypes[0].name == Boolean::class.java.name }
 
-        NOTIFY_MAIN_LAUNCHERUI_LISTVIEW_FLAG = true
+        NOTIFY_MAIN_LAUNCHER_UI_LIST_VIEW_FLAG = true
         notifyMethod.invoke(MainAdapter.originAdapter, false)
 
     }

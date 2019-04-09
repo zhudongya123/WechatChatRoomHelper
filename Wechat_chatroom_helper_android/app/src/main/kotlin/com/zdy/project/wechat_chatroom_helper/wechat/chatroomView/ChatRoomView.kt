@@ -249,8 +249,8 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         mToolbar.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.toolbarColorInfo()))
 
         when (pageType) {
-            PageType.CHAT_ROOMS -> mToolbar.title = "群消息助手"
-            PageType.OFFICIAL -> mToolbar.title = "服务号助手"
+            PageType.CHAT_ROOMS -> mToolbar.title = "群聊"
+            PageType.OFFICIAL -> mToolbar.title = "服务号"
         }
         mToolbar.setTitleTextColor(-0x50506)
 

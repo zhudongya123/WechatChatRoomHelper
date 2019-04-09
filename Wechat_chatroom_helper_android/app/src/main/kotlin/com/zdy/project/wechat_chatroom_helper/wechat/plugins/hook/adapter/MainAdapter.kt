@@ -22,6 +22,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
+import java.lang.RuntimeException
 import java.lang.reflect.ParameterizedType
 
 @SuppressLint("StaticFieldLeak")
@@ -137,7 +138,7 @@ object MainAdapter {
 
                             val chatInfoModel = allChatRoom.sortedBy { -it.field_conversationTime }.first()
 
-                            setTextForNoMeasuredTextView(nickname, "群聊消息")
+                            setTextForNoMeasuredTextView(nickname, "群聊消息" + (if (MainAdapterLongClick.chatRoomStickyValue > 0) " - 置顶" else ""))
                             setTextForNoMeasuredTextView(time, chatInfoModel.conversationTime)
                             avatar.setImageDrawable(DrawableMaker.handleAvatarDrawable(avatar.context, PageType.CHAT_ROOMS))
 
@@ -192,7 +193,7 @@ object MainAdapter {
 
                             val chatInfoModel = allOfficial.sortedBy { -it.field_conversationTime }.first()
 
-                            setTextForNoMeasuredTextView(nickname, "服务号消息")
+                            setTextForNoMeasuredTextView(nickname, "服务号消息" + (if (MainAdapterLongClick.officialStickyValue > 0) " - 置顶" else ""))
                             setTextForNoMeasuredTextView(time, chatInfoModel.conversationTime)
                             avatar.setImageDrawable(DrawableMaker.handleAvatarDrawable(avatar.context, PageType.OFFICIAL))
 
@@ -225,7 +226,8 @@ object MainAdapter {
         findAndHookMethod(conversationWithCacheAdapter.superclass, conversationWithCacheAdapterGetItem,
                 Int::class.java, object : XC_MethodHook() {
 
-//            private var helperEntryFlag = PageType.MAIN
+//            private var getItemChatRoomFlag = false
+//            private var getItemOfficialFlag = false
 
             override fun beforeHookedMethod(param: MethodHookParam) {
 
@@ -263,21 +265,12 @@ object MainAdapter {
                         }
                         //群助手和公众号只有一个
                         else if (min == -1 || max == -1) {
-//                            when (index) {
-//                                in 0 until max -> index
-//                                max -> {
-//                                }
-//                                in max + 1 until Int.MAX_VALUE ->
-//                                else -> index //TODO
-//                            }
-
                             when {
                                 index < max -> {
                                     index
                                 }
                                 index == max -> {
-                                    param.result = getCustomItemForEntry(max)
-                                    return
+                                    0
                                 }
                                 index > max -> {
                                     index - 1
@@ -293,32 +286,16 @@ object MainAdapter {
                             if (index < min) {
                                 index
                             } else if (index == min) {
-                                param.result = getCustomItemForEntry(min)
-                                return
+                                0
                             } else if (index > min && index < max) {
                                 index - 1
                             } else if (index == max) {
-                                param.result = getCustomItemForEntry(max)
-                                return
+                                0
                             } else if (index > max) {
                                 index - 2
                             } else {
                                 index
                             }
-//                            when (index) {
-//                                in 0 until min -> index
-//                                min -> {
-//                                    setHelperEntryFlag(min)
-//                                    0
-//                                }
-//                                in min + 1 until max -> index - 1
-//                                max -> {
-//                                    setHelperEntryFlag(max)
-//                                    0
-//                                }
-//                                in max + 1 until Int.MAX_VALUE -> index - 2
-//                                else -> index //TODO
-//                            }
                         }
 
                 LogUtils.log("MessageHook 2019-04-03 15:30:00, size = ${originAdapter.count}, min = $min, max = $max, oldIndex = ${param.args[0]}, newIndex = $newIndex")
@@ -326,102 +303,76 @@ object MainAdapter {
                 param.args[0] = newIndex
             }
 
-//            private fun setHelperEntryFlag(currentPosition: Int) {
-//                LogUtils.log("MessageHook 2019-04-02 11:29:47, currentPosition = $currentPosition, firstChatRoomPosition = $firstChatRoomPosition, firstOfficialPosition = $firstOfficialPosition")
-//                if (firstChatRoomPosition == currentPosition) {
-//                    helperEntryFlag = PageType.CHAT_ROOMS
-//                } else if (firstOfficialPosition == currentPosition) {
-//                    helperEntryFlag = PageType.OFFICIAL
-//                }
-//            }
+            /*            override fun afterHookedMethod(param: MethodHookParam) {
+                            val index: Int
 
-            private fun getCustomItemForEntry(currentPosition: Int): Any {
+                            when {
+                                getItemChatRoomFlag -> {
+                                    getItemChatRoomFlag = false
+                                    index = firstChatRoomPosition
+                                }
+                                getItemOfficialFlag -> {
+                                    getItemOfficialFlag = false
+                                    index = firstOfficialPosition
+                                }
+                                else -> return
+                            }
+                            val result = getCustomItemForEntry(index)
 
-                var field_username: CharSequence = ""
-                var field_conversationTime: Long = 0L
-                var field_flag: Long = 0L
+                            var field_flag = XposedHelpers.getLongField(result, "field_flag")
+                            var field_username = XposedHelpers.getObjectField(result, "field_username")
+                            var field_conversationTime = XposedHelpers.getLongField(result, "field_conversationTime")
 
-                if (firstChatRoomPosition == currentPosition) {
-                    field_username = "weixin1"
-                    field_conversationTime = MessageFactory.getSpecChatRoom().first().field_conversationTime
-                    field_flag = if (MainAdapterLongClick.chatRoomStickyValue > 0) {
-                        System.currentTimeMillis() + (1L shl 62)
-                    } else {
-                        field_conversationTime
-                    }
+                            LogUtils.log("MessageHook 2019-04-01 16:25:57, index = $index, flag = $field_flag, username = $field_username, field_conversationTime = $field_conversationTime")
 
-                } else if (firstOfficialPosition == currentPosition) {
-                    field_username = "weixin2"
-                    field_conversationTime = MessageFactory.getSpecOfficial().first().field_conversationTime
-                    field_flag = if (MainAdapterLongClick.officialStickyValue > 0) {
-                        System.currentTimeMillis() + (1L shl 62)
-                    } else {
-                        field_conversationTime
-                    }
-                } else {
-                    return getSpecItemForPlaceHolder("weixin")
-                }
+                            param.result = result
+                        }
 
-                val item = getSpecItemForPlaceHolder("weixin")
-                XposedHelpers.setObjectField(item, "field_username", field_username)
-                XposedHelpers.setLongField(item, "field_flag", field_flag)
-                XposedHelpers.setLongField(item, "field_conversationTime", field_conversationTime)
-
-                LogUtils.log("MessageHook 2019-04-05 14:11:46, index = $currentPosition, flag = $field_flag, username = $field_username, field_conversationTime = $field_conversationTime")
-
-                return item
-            }
-
-            override fun afterHookedMethod(param: MethodHookParam) {
-
-                val index = param.args[0] as Int
-                val result = param.result!!
-//
-//                if (index == 0) {
-//                    if (helperEntryFlag == PageType.CHAT_ROOMS) {
-//                        val chatRoomEntryConversationTime = MessageFactory.getSpecChatRoom().first().field_conversationTime
-//                        LogUtils.log("MessageHook 2019-04-02 11:03:46, index = $index, flag = $field_flag, username = $field_username, chatRoomStickyValue = ${MainAdapterLongClick.chatRoomStickyValue}, helperEntryFlag = CHAT_ROOMS")
-//                        if (MainAdapterLongClick.chatRoomStickyValue > 0) {
-//                            XposedHelpers.setLongField(result, "field_flag", System.currentTimeMillis() + (1L shl 62))
-//                        } else {
-//                            XposedHelpers.setLongField(result, "field_flag", chatRoomEntryConversationTime)
-//                        }
-//                        XposedHelpers.setLongField(result, "field_conversationTime", chatRoomEntryConversationTime)
-//                    } else if (helperEntryFlag == PageType.OFFICIAL) {
-//                        val officialEntryConversationTime = MessageFactory.getSpecOfficial().first().field_conversationTime
-//                        LogUtils.log("MessageHook 2019-04-02 11:03:46, index = $index, flag = $field_flag, username = $field_username, officialStickyValue = ${MainAdapterLongClick.officialStickyValue}, helperEntryFlag = OFFICIAL")
-//                        if (MainAdapterLongClick.officialStickyValue > 0) {
-//                            XposedHelpers.setLongField(result, "field_flag", System.currentTimeMillis() + (1L shl 62))
-//                        } else {
-//                            XposedHelpers.setLongField(result, "field_flag", officialEntryConversationTime)
-//                        }
-//                        XposedHelpers.setLongField(result, "field_conversationTime", officialEntryConversationTime)
-//                    } else {
-//                        if (field_flag < System.currentTimeMillis())
-//                            XposedHelpers.setLongField(result, "field_flag", field_conversationTime)
-//                    }
-//                    helperEntryFlag = PageType.MAIN
-//                }
-//
-//                field_flag = XposedHelpers.getLongField(result, "field_flag")
-//                field_username = XposedHelpers.getObjectField(result, "field_username")
-//                field_conversationTime = XposedHelpers.getLongField(result, "field_conversationTime")
+                        private fun handleEntryPosition(index: Int): Int {
+                            if (firstChatRoomPosition == index) {
+                                getItemChatRoomFlag = true
+                            } else if (firstOfficialPosition == index) {
+                                getItemOfficialFlag = true
+                            }
+                            return 0
+                        }
 
 
+                        private fun getCustomItemForEntry(currentPosition: Int): Any {
 
-                var field_flag = XposedHelpers.getLongField(result, "field_flag")
-                var field_username = XposedHelpers.getObjectField(result, "field_username")
-                var field_conversationTime = XposedHelpers.getLongField(result, "field_conversationTime")
+                            val field_conversationTime: Long
+                            val field_flag: Long
 
-                if (field_username == "weixin1" || field_username == "weixin2") {
-                    XposedHelpers.setObjectField(result, "field_username", "weixin")
-                }
+                            when {
+                                firstChatRoomPosition == currentPosition -> {
+                                    field_conversationTime = MessageFactory.getSpecChatRoom().first().field_conversationTime
+                                    field_flag = if (MainAdapterLongClick.chatRoomStickyValue > 0) {
+                                        System.currentTimeMillis() + (1L shl 62)
+                                    } else {
+                                        field_conversationTime
+                                    }
 
-                LogUtils.log("MessageHook 2019-04-01 16:25:57, index = $index, flag = $field_flag, username = $field_username, field_conversationTime = $field_conversationTime")
+                                }
+                                firstOfficialPosition == currentPosition -> {
+                                    field_conversationTime = MessageFactory.getSpecOfficial().first().field_conversationTime
+                                    field_flag = if (MainAdapterLongClick.officialStickyValue > 0) {
+                                        System.currentTimeMillis() + (1L shl 62)
+                                    } else {
+                                        field_conversationTime
+                                    }
+                                }
+                                else -> throw RuntimeException("wrong position currentPosition = $currentPosition, firstChatRoomPosition = $firstChatRoomPosition, firstOfficialPosition = $firstOfficialPosition")
+                            }
 
-                param.result = result
-            }
+                            val item = getSpecItemForPlaceHolder("weixin")
+                            XposedHelpers.setLongField(item, "field_flag", field_flag)
+                            XposedHelpers.setLongField(item, "field_conversationTime", field_conversationTime)
 
+                            LogUtils.log("MessageHook 2019-04-05 14:11:46, index = $currentPosition, flag = $field_flag, field_conversationTime = $field_conversationTime")
+
+                            return item
+                        }
+            */
             fun getSpecItemForPlaceHolder(username: CharSequence): Any {
                 val clazz = ConversationReflectFunction.conversationWithCacheAdapter
                 val beanClass = (clazz.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>
@@ -437,8 +388,8 @@ object MainAdapter {
         findAndHookMethod(conversationWithCacheAdapter.superclass, "getChangeType", object : XC_MethodHook() {
 
             override fun beforeHookedMethod(param: MethodHookParam) {
-                if (MainLauncherUI.NOTIFY_MAIN_LAUNCHERUI_LISTVIEW_FLAG) {
-                    MainLauncherUI.NOTIFY_MAIN_LAUNCHERUI_LISTVIEW_FLAG = false
+                if (MainLauncherUI.NOTIFY_MAIN_LAUNCHER_UI_LIST_VIEW_FLAG) {
+                    MainLauncherUI.NOTIFY_MAIN_LAUNCHER_UI_LIST_VIEW_FLAG = false
                     param.result = 2
                 }
             }
