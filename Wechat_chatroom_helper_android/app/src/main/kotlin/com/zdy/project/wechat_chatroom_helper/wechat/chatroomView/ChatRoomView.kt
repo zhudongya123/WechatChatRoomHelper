@@ -153,6 +153,11 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
                         }
                     }
                 })
+        if (swipeBackLayout.mSlideableView == null) {
+            MainLauncherUI.restartMainActivity()
+            return
+        }
+
         refreshInner()
     }
 

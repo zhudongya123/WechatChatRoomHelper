@@ -52,8 +52,8 @@ class PluginEntry : IXposedHookLoadPackage {
             WXObject.Adapter.C.ConversationMenuItemSelectedListener = configJson.get("conversationMenuItemSelectedListener").asString
             WXObject.Adapter.C.ConversationStickyHeaderHandler = configJson.get("conversationStickyHeaderHandler").asString
 
-            WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt = configJson.get("conversationItemHighLightSelectorBackGroundInt").asString.toInt()
-            WXObject.Adapter.F.ConversationItemSelectorBackGroundInt = configJson.get("conversationItemSelectorBackGroundInt").asString.toInt()
+//            WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt = configJson.get("conversationItemHighLightSelectorBackGroundInt").asString.toInt()
+//            WXObject.Adapter.F.ConversationItemSelectorBackGroundInt = configJson.get("conversationItemSelectorBackGroundInt").asString.toInt()
 
             WXObject.Tool.C.Logcat = configJson.get("logcat").asString
 

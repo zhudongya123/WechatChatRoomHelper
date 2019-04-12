@@ -166,9 +166,9 @@ object MainAdapterLongClick {
 
             override fun beforeHookedMethod(param: MethodHookParam) {
 
-                LogUtils.log("MainAdapterLongClick, OnMMMenuItemSelected = $currentLongClickUsername")
-
                 val menuItem = param.args[0] as MenuItem
+
+                LogUtils.log("MainAdapterLongClick, OnMMMenuItemSelected = $currentLongClickUsername, id = ${menuItem.itemId}")
 
                 when (menuItem.itemId) {
 

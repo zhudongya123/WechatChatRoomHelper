@@ -140,7 +140,12 @@ object MessageFactory {
             backgroundFlag = getStickFlagInfo(obj)
 
             nickname = if (field_nickname.isEmpty()) "群聊" else field_nickname
-            val conversationContent = ConversationReflectFunction.getConversationContent(MainAdapter.originAdapter, this)
+
+            val conversationContent = if (MainAdapter.isOriginAdapterIsInitialized()) {
+                ConversationReflectFunction.getConversationContent(MainAdapter.originAdapter, this)
+            } else {
+                field_content
+            }
 
             chatRoomMuteFlag = ByteBuffer.wrap(field_lvbuff).apply { position(1) }.getInt(39) > 0
 

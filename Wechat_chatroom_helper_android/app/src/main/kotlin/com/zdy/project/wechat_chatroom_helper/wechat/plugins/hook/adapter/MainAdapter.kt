@@ -24,6 +24,8 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
+import net.dongliu.apk.parser.Main
+import java.lang.Exception
 import java.lang.RuntimeException
 import java.lang.reflect.ParameterizedType
 
@@ -38,6 +40,9 @@ object MainAdapter {
 
     var firstChatRoomPosition = -1
     var firstOfficialPosition = -1
+
+
+    fun isOriginAdapterIsInitialized() = MainAdapter::originAdapter.isInitialized
 
     fun executeHook() {
         ConversationReflectFunction
@@ -174,7 +179,6 @@ object MainAdapter {
                                 // itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt)
                             } else {
                                 itemView.background = ColorDrawable(Color.rgb(255, 255, 255))
-
                                 //  itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemSelectorBackGroundInt)
                             }
 
@@ -238,7 +242,9 @@ object MainAdapter {
 
             override fun beforeHookedMethod(param: MethodHookParam) {
 
-                if (param.thisObject::class.simpleName != conversationWithCacheAdapter.simpleName) return
+                LogUtils.log("MessageHooker 2019-04-12 15:36:49, thisObject className = ${param.thisObject::class.java.name}, adapter className = ${conversationWithCacheAdapter.name}")
+
+                if (param.thisObject::class.java.name != conversationWithCacheAdapter.name) return
 
                 /**
                  * 附加长按逻辑
@@ -277,8 +283,7 @@ object MainAdapter {
                                     index
                                 }
                                 index == max -> {
-                                    0
-//                                    handleEntryPosition(index)
+                                    handleEntryPosition(index)
                                 }
                                 index > max -> {
                                     index - 1
@@ -290,17 +295,14 @@ object MainAdapter {
                         }
                         //群助手和公众号都存在
                         else {
-
                             if (index < min) {
                                 index
                             } else if (index == min) {
-                                0
-//                                    handleEntryPosition(index)
+                                handleEntryPosition(index)
                             } else if (index > min && index < max) {
                                 index - 1
                             } else if (index == max) {
-                                0
-//                                    handleEntryPosition(index)
+                                handleEntryPosition(index)
                             } else if (index > max) {
                                 index - 2
                             } else {
@@ -314,6 +316,9 @@ object MainAdapter {
             }
 
             override fun afterHookedMethod(param: MethodHookParam) {
+
+                if (param.thisObject::class.java.name != conversationWithCacheAdapter.name) return
+
                 var index = param.args[0] as Int
 
                 when {
@@ -326,15 +331,22 @@ object MainAdapter {
                         index = firstOfficialPosition
                     }
                     else -> {
-                        val result = param.result
+                        try {
+                            val result = param.result
 
-                        var field_flag = XposedHelpers.getLongField(result, "field_flag")
-                        var field_username = XposedHelpers.getObjectField(result, "field_username")
-                        var field_conversationTime = XposedHelpers.getLongField(result, "field_conversationTime")
+                            //返回了空的数据，此时getcount和getitem已经无法对应 所以直接刷新list
+                            if (result == null) {
+                                MainLauncherUI.restartMainActivity()
+                                return
+                            }
+                            var field_flag = XposedHelpers.getLongField(result, "field_flag")
+                            var field_username = XposedHelpers.getObjectField(result, "field_username")
+                            var field_conversationTime = XposedHelpers.getLongField(result, "field_conversationTime")
 
-                        LogUtils.log("MessageHook 2019-04-01 16:25:57, index = $index, flag = $field_flag, username = $field_username, field_conversationTime = $field_conversationTime")
-
-
+                            LogUtils.log("MessageHook 2019-04-01 16:25:57, index = $index, flag = $field_flag, username = $field_username, field_conversationTime = $field_conversationTime")
+                        } catch (e: Throwable) {
+                            e.printStackTrace()
+                        }
                         return
                     }
                 }
