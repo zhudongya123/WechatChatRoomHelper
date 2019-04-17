@@ -22,12 +22,11 @@ object MessageFactory {
     private const val SqlForGetAllChatRoom = "select unReadCount, status, isSend, flag, conversationTime, " +
             "rconversation.username, rcontact.nickname, rcontact.lvbuff, content, msgType, digest, digestUser, attrflag, editingMsg, " +
             "atCount, unReadMuteCount, UnReadInvite from rconversation, rcontact " +
-            "where  rcontact.username = rconversation.username and  rconversation.username like '%@chatroom' order by flag desc"
+            "where rcontact.username = rconversation.username and  rconversation.username like '%@chatroom' order by flag desc"
 
-    private fun SqlForByUsername(field_username: String) = "select unReadCount, status, flag, isSend, " +
-            "conversationTime, rconversation.username, rcontact.nickname, content, msgType, digest," +
-            "digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite " +
-            "from rconversation, rcontact " +
+    private fun SqlForByUsername(field_username: String) = "select unReadCount, status, flag, isSend, conversationTime, " +
+            "rconversation.username, rcontact.nickname, rcontact.lvbuff, content, msgType, digest, digestUser, attrflag, editingMsg, " +
+            "atCount, unReadMuteCount, UnReadInvite from rconversation, rcontact " +
             "where rconversation.username = rcontact.username and rconversation.username = '$field_username'"
 
 
@@ -43,6 +42,12 @@ object MessageFactory {
             list.add(buildChatInfoModelByCursor(cursor))
         }
         return list
+    }
+
+    fun getWechatTeam(): Any {
+        val cursor = XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, "rawQuery", SqlForByUsername("weixin"), null) as Cursor
+        cursor.moveToNext()
+        return buildChatInfoModelByCursor(cursor)
     }
 
 
@@ -104,6 +109,9 @@ object MessageFactory {
                     WXObject.Message.M.QUERY, getDataBaseFactory(MessageHandler.MessageDatabaseObject!!),
                     SqlForByUsername(field_username), null, null) as Cursor).apply { moveToNext() })
 
+    fun getStickFlagInfo(obj: Any?) =
+            XposedHelpers.callStaticMethod(ConversationReflectFunction.conversationStickyHeaderHandler,
+                    ConversationReflectFunction.stickyHeaderHandlerMethod.name, obj, 4, 0) as Long
 
     private fun buildChatInfoModelByCursor(cursor: Cursor): ChatInfoModel {
 
@@ -129,11 +137,15 @@ object MessageFactory {
             val obj = ConversationReflectFunction.beanConstructor.newInstance("")
             ConversationReflectFunction.beanClass.getField("field_flag").set(obj, field_flag)
 
-            backgroundFlag = XposedHelpers.callStaticMethod(ConversationReflectFunction.conversationStickyHeaderHandler,
-                    ConversationReflectFunction.stickyHeaderHandlerMethod.name, obj, 4, 0) as Long
+            backgroundFlag = getStickFlagInfo(obj)
 
             nickname = if (field_nickname.isEmpty()) "群聊" else field_nickname
-            val conversationContent = ConversationReflectFunction.getConversationContent(MainAdapter.originAdapter, this)
+
+            val conversationContent = if (MainAdapter.isOriginAdapterIsInitialized()) {
+                ConversationReflectFunction.getConversationContent(MainAdapter.originAdapter, this)
+            } else {
+                field_content
+            }
 
             chatRoomMuteFlag = ByteBuffer.wrap(field_lvbuff).apply { position(1) }.getInt(39) > 0
 
@@ -144,5 +156,6 @@ object MessageFactory {
             unReadMuteCount = field_unReadMuteCount
         }
     }
+
 
 }

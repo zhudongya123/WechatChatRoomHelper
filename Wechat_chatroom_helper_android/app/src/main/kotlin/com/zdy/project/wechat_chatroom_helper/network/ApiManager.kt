@@ -1,10 +1,10 @@
 package network
 
 import android.os.Build
-import okhttp3.*
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
+import okhttp3.*
 import java.io.IOException
 
 object ApiManager {
@@ -20,7 +20,7 @@ object ApiManager {
     fun sendRequestForUserStatistics(action: String, uuid: String, model: String) {
 
         val sendTime = AppSaveInfo.apiRecordTimeInfo()
-        if (System.currentTimeMillis() - sendTime < 60 * 60 * 22) return
+        if (System.currentTimeMillis() / 1000 - sendTime < 60 * 60 * 22) return
 
         val requestBody: RequestBody = FormBody.Builder()
                 .add("action", action)

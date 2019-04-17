@@ -225,7 +225,7 @@ object MessageHandler {
                     //当请求全部联系人回话时（就是去除群聊和服务号的情况）
                     isQueryNewAllConversation(sql) -> {
 
-                        LogUtils.log("MessageHooker2.17,size = $SqlForNewAllContactConversation")
+                        LogUtils.log("MessageHook 2019-04-12 16:05:53, size = ${SqlForNewAllContactConversation.joinToString { it }}")
 
                         //额外查询两次，找到当前最新的服务号和群聊的最近消息时间
                         val cursorForOfficial = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, SqlForGetFirstOfficial, null, null) as Cursor
@@ -294,7 +294,7 @@ object MessageHandler {
                             officialPosition = cursor.count
                         }
 
-                        LogUtils.log("MessageHooker2.17, chatRoomPosition = $chatRoomPosition, officialPosition = $officialPosition")
+                        LogUtils.log("MessageHook 2019-04-12 16:05:28, chatRoomPosition = $chatRoomPosition, officialPosition = $officialPosition")
 
                         iMainAdapterRefreshes.forEach { it.onEntryPositionChanged(chatRoomPosition, officialPosition) }
 

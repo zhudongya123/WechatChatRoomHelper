@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -33,7 +32,7 @@ import java.lang.reflect.Modifier
  */
 object MainLauncherUI {
 
-    var NOTIFY_MAIN_LAUNCHERUI_LISTVIEW_FLAG = false
+    var NOTIFY_MAIN_LAUNCHER_UI_LIST_VIEW_FLAG = false
 
     lateinit var launcherUI: Activity
 
@@ -116,6 +115,44 @@ object MainLauncherUI {
                     }
 
                 })
+
+
+        findAndHookMethod(ConversationReflectFunction.conversationWithAppBrandListView, WXObject.Adapter.M.SetAdapter, ListAdapter::class.java, object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                MainAdapter.listView = param.thisObject as ListView
+                val adapter = param.args[0]
+
+                RuntimeInfo.chatRoomViewPresenter.setAdapter(adapter)
+                RuntimeInfo.officialViewPresenter.setAdapter(adapter)
+
+                RuntimeInfo.chatRoomViewPresenter.start()
+                RuntimeInfo.officialViewPresenter.start()
+            }
+        })
+
+
+        try {
+            findAndHookMethod(ConversationReflectFunction.conversationListView, "setActivity",
+                    XposedHelpers.findClass("com.tencent.mm.ui.MMFragmentActivity", RuntimeInfo.classloader), object : XC_MethodHook() {
+
+                override fun afterHookedMethod(param: MethodHookParam) {
+
+                    val adapter = param.args[0]
+                    MainAdapter.listView = param.thisObject as ListView
+
+                    if (RuntimeInfo.chatRoomViewPresenter.isStarted() || RuntimeInfo.officialViewPresenter.isStarted()) return
+
+                    RuntimeInfo.chatRoomViewPresenter.setAdapter(adapter)
+                    RuntimeInfo.officialViewPresenter.setAdapter(adapter)
+
+                    RuntimeInfo.chatRoomViewPresenter.start()
+                    RuntimeInfo.officialViewPresenter.start()
+                }
+            })
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
+
 
 
         findAndHookMethod(ConversationReflectFunction.conversationWithAppBrandListView, WXObject.Adapter.M.SetAdapter, ListAdapter::class.java, object : XC_MethodHook() {
@@ -317,7 +354,7 @@ object MainLauncherUI {
                 .filter { Modifier.isFinal(it.modifiers) }
                 .first { it.parameterTypes[0].name == Boolean::class.java.name }
 
-        NOTIFY_MAIN_LAUNCHERUI_LISTVIEW_FLAG = true
+        NOTIFY_MAIN_LAUNCHER_UI_LIST_VIEW_FLAG = true
         notifyMethod.invoke(MainAdapter.originAdapter, false)
 
     }
