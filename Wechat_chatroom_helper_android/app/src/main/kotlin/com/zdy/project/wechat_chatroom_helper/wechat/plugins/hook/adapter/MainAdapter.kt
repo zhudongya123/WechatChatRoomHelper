@@ -371,6 +371,9 @@ object MainAdapter {
             }
 
 
+            private var chatRoomItemModel: Any? = null
+            private var officialItemModel: Any? = null
+
             private fun getCustomItemForEntry(currentPosition: Int): Any {
 
                 val field_conversationTime: Long
@@ -387,7 +390,11 @@ object MainAdapter {
                             field_conversationTime = MessageFactory.getSpecChatRoom().first().field_conversationTime
                             field_flag = field_conversationTime
                         }
-                        item = getSpecItemForPlaceHolder("chatRoomItem")
+
+                        if (chatRoomItemModel == null)
+                            chatRoomItemModel = getSpecItemForPlaceHolder("chatRoomItem")
+
+                        item = chatRoomItemModel as Any
 
                     }
                     firstOfficialPosition == currentPosition -> {
@@ -400,7 +407,11 @@ object MainAdapter {
                             field_flag = field_conversationTime
                         }
 
-                        item = getSpecItemForPlaceHolder("officialItem")
+
+                        if (officialItemModel == null)
+                            officialItemModel = getSpecItemForPlaceHolder("officialItem")
+
+                        item = officialItemModel as Any
                     }
                     else -> throw RuntimeException("wrong position currentPosition = $currentPosition, firstChatRoomPosition = $firstChatRoomPosition, firstOfficialPosition = $firstOfficialPosition")
                 }
