@@ -13,10 +13,15 @@
 
 本软件在微信（WeChat）中实现了类似于 QQ 中群消息助手的功能，可以将所有**群聊**和**服务号**从主界面收入至单独的二级界面进行统一管理，使得主界面更加清爽高效，同时也使得群消息管理起来更加方便快捷。
 
-
-下载地址：[酷安](https://www.coolapk.com/apk/com.zdy.project.wechat_chatroom_helper)
+下载地址：[酷安[已下架]](https://www.coolapk.com/apk/com.zdy.project.wechat_chatroom_helper)
+ | [手机乐园](https://soft.shouji.com.cn/down/168556.html)
+ | [GitHub Realase](https://github.com/zhudongya123/WechatChatRoomHelper/releases)
 
 项目主页及更多信息：[Site](http://122.152.202.233:8080/wechat/)
+
+## 博客
+开发历程和Xposed部分教程正在逐步编写中，访问：[WechatChatRoomHelper_Tutorial](https://github.com/zhudongya123/WechatChatRoomHelper_Tutorial)
+
 
 ## 功能
 
