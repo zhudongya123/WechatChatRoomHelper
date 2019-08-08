@@ -8,6 +8,13 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.sdkVersion
     }
+    buildTypes {
+        release {
+        }
+
+        debug {
+        }
+    }
 }
 
 dependencies {

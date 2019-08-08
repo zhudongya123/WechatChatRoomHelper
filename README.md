@@ -18,10 +18,15 @@
 下载地址：
 - [酷安](https://www.coolapk.com/apk/com.zdy.project.wechat_chatroom_helper)
 - [手机乐园 (历史版本)](https://soft.shouji.com.cn/down/168556.html)
+- [GitHub Realase](https://github.com/zhudongya123/WechatChatRoomHelper/releases)
 
 项目主页及更多信息：
 - [项目反馈地址](http://122.152.202.233:8080/wechat/wechat_download.jsp)
 - [每日用户统计](http://122.152.202.233:8080/wechat/user_stat.jsp)
+
+## 博客
+开发历程和Xposed部分教程正在逐步编写中，访问：[WechatChatRoomHelper_Tutorial](https://github.com/zhudongya123/WechatChatRoomHelper_Tutorial)
+
 
 ## 功能
 
