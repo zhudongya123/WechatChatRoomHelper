@@ -2,6 +2,11 @@ package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message
 
 import android.content.ContentValues
 import android.database.Cursor
+import android.support.v7.widget.RecyclerView
+import android.util.Log
+import android.widget.BaseAdapter
+import android.widget.ListAdapter
+import android.widget.ListView
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
@@ -363,6 +368,8 @@ object MessageHandler {
                         }
                     }
                 })
+
+
     }
 
 

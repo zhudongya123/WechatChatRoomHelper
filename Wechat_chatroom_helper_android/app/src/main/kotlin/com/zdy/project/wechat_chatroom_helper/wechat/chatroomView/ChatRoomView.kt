@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
+import android.provider.Settings
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.TypedValue
@@ -23,7 +24,6 @@ import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
-import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.dialog.WhiteListDialogBuilder
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.DrawableMaker
@@ -98,8 +98,12 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
         mContainer.addView(swipeBackLayout, params)
 
-        uuid = DeviceUtils.getIMELCode(mContext)
-        ApiManager.sendRequestForUserStatistics("init", uuid, Build.MODEL)
+        try {
+            uuid = Settings.Secure.getString(mainView.context.contentResolver, Settings.Secure.ANDROID_ID)
+            ApiManager.sendRequestForUserStatistics("init", uuid, Build.MODEL)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
 
 
     }
