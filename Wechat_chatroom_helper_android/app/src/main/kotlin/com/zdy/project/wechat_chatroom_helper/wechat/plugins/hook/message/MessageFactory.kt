@@ -29,8 +29,6 @@ object MessageFactory {
             "atCount, unReadMuteCount, UnReadInvite from rconversation, rcontact " +
             "where rconversation.username = rcontact.username and rconversation.username = '$field_username'"
 
-    private val specChatRoom: ArrayList<ChatInfoModel> = ArrayList()
-    private val specOfficial: ArrayList<ChatInfoModel> = ArrayList()
 
     @JvmStatic
     fun getDataBaseFactory(any: Any) = XposedHelpers.findField(any::class.java, "mCursorFactory").apply { isAccessible = true }.get(any)
@@ -63,35 +61,21 @@ object MessageFactory {
         return list
     }
 
-    fun getSpecChatRoom(force: Boolean = false): ArrayList<ChatInfoModel> {
-        if (!force && specChatRoom.isNotEmpty()) {
-            return specChatRoom
-        }
+    fun getSpecChatRoom(): ArrayList<ChatInfoModel> {
         val list = getAllChatRoom()
         val chatroomList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_CHAT_ROOM)
         val data = ArrayList(list.filterNot { chatroomList.contains(it.field_username) })
 
         LogUtils.log("getSpecChatRoom, list = ${list.joinToString { it.toString() }}, data = ${data.joinToString { it.toString() }}")
-
-        specChatRoom.clear()
-        specChatRoom.addAll(data)
-
         return data
     }
 
-    fun getSpecOfficial(force: Boolean = false): ArrayList<ChatInfoModel> {
-        if (!force && specOfficial.isNotEmpty()) {
-            return specOfficial
-        }
+    fun getSpecOfficial(): ArrayList<ChatInfoModel> {
         val list = getAllOfficial()
         val officialList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
         val data = ArrayList(list.filterNot { officialList.contains(it.field_username) })
 
         LogUtils.log("getSpecOfficial, list = ${list.joinToString { it.toString() }}, data = ${data.joinToString { it.toString() }}")
-
-        specOfficial.clear()
-        specOfficial.addAll(data)
-
         return data
     }
 

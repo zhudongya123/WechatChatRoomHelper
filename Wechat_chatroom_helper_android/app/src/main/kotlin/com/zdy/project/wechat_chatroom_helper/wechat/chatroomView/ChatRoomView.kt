@@ -198,7 +198,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
     override fun refreshList(isForce: Boolean, data: Any?) {
         //强制刷新 直接刷新
         if (isForce) {
-            refreshInner(isForce)
+            refreshInner()
             return
         }
 
@@ -221,11 +221,11 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
     }
 
-    private fun refreshInner(force: Boolean = false) {
+    private fun refreshInner() {
         mainView.post {
             val newData =
-                    if (pageType == PageType.CHAT_ROOMS) MessageFactory.getSpecChatRoom(force)
-                    else MessageFactory.getSpecOfficial(force)
+                    if (pageType == PageType.CHAT_ROOMS) MessageFactory.getSpecChatRoom()
+                    else MessageFactory.getSpecOfficial()
 
             mAdapter.data = newData
             mAdapter.notifyDataSetChanged()
