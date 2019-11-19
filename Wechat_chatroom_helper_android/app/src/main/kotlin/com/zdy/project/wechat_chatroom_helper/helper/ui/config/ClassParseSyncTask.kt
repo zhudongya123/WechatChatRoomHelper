@@ -3,7 +3,7 @@ package com.zdy.project.wechat_chatroom_helper.helper.ui.config
 import android.app.Activity
 import android.os.AsyncTask
 import android.os.Message
-import com.tencent.bugly.crashreport.CrashReport
+import android.util.Log
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.HANDLER_SHOW_NEXT_BUTTON
@@ -58,6 +58,15 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                     srcPath, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
 
 
+            Thread(Runnable {
+
+                for (dexClass in dexClasses.filter { it.classType.contains("wcdb") }) {
+
+                    Thread.sleep(1)
+                    Log.v("doInBackground", "dexClass = ${dexClass.classType}")
+                }
+            }).start()
+
             dexClasses.map { it.classType.substring(1, it.classType.length - 1).replace("/", ".") }
                     .filter { it.contains(Constants.WECHAT_PACKAGE_NAME) }
                     .forEachIndexed { index, className ->
@@ -94,7 +103,6 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
 
             return true
         } catch (e: Throwable) {
-            CrashReport.postCatchedException(e)
             sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_ERROR),
                     e.toString() + "\n" + e.stackTrace.joinToString("\n") { it.toString() })
             e.printStackTrace()

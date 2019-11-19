@@ -148,7 +148,7 @@ object MessageHandler {
                     }
                 }
 
-                LogUtils.log("MessageHandler, queryHook, sql = $sql")
+                //LogUtils.log("MessageHandler, queryHook, sql = $sql")
                 if (!sql.contains("unReadCount")) return
 
                 when {
@@ -312,12 +312,17 @@ object MessageHandler {
         }
         try {
             XposedHelpers.findAndHookMethod(database, WXObject.Message.M.QUERY, databaseFactory,
-                    String::class.java, Array<String>::class.java, String::class.java,
+                    String::class.java, Array<Any>::class.java, String::class.java,
                     databaseCancellationSignal, queryHook)
+
+            Log.v("PluginEntry", "MessageHandler line 318")
+
         } catch (e: NoSuchMethodError) {
             XposedHelpers.findAndHookMethod(database, WXObject.Message.M.QUERY, databaseFactory,
                     String::class.java, Array<Any>::class.java, String::class.java,
                     databaseCancellationSignal, queryHook)
+
+            Log.v("PluginEntry", "MessageHandler line 325")
         }
 
         XposedHelpers.findAndHookMethod(database, WXObject.Message.M.INSERT,

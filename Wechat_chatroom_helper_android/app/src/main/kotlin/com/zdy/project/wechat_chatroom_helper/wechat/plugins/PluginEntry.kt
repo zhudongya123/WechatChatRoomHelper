@@ -1,6 +1,7 @@
 package     com.zdy.project.wechat_chatroom_helper.wechat.plugins
 
 import android.annotation.SuppressLint
+import android.util.Log
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
@@ -25,17 +26,19 @@ class PluginEntry : IXposedHookLoadPackage {
 
     override fun handleLoadPackage(p0: XC_LoadPackage.LoadPackageParam) {
 
-        if (p0.processName == Constants.WECHAT_PACKAGE_NAME) {
+       // if (p0.processName == Constants.WECHAT_PACKAGE_NAME) {
 
             /**
              * 验证微信数据环境
              */
+            Log.v("PluginEntry", "line 34")
             try {
                 XposedHelpers.findClass(WXObject.Message.C.SQLiteDatabase, p0.classLoader)
             } catch (e: Throwable) {
                 e.printStackTrace()
                 return
             }
+            Log.v("PluginEntry", "line 41 , processName = ${p0.processName}")
 
             /**
              * 初始化配置项和数据
@@ -64,6 +67,9 @@ class PluginEntry : IXposedHookLoadPackage {
 
             Constants.defaultValue = Constants.DefaultValue(AppSaveInfo.getWechatVersionName().startsWith("7"))
 
+
+            Log.v("PluginEntry", "line 71")
+
             /**
              * 注入Hook
              */
@@ -73,13 +79,21 @@ class PluginEntry : IXposedHookLoadPackage {
                 MainAdapterLongClick.executeHook()
                 MainLauncherUI.executeHook()
                 if (AppSaveInfo.openLogInfo()) {
-                    LogRecord.executeHook()
+                //    LogRecord.executeHook()
                 }
                 OtherHook.executeHook()
             } catch (e: Throwable) {
                 e.printStackTrace()
+
+
+                Log.v("PluginEntry", "line 89")
+
             }
-        }
+
+            Log.v("PluginEntry", "line 93")
+
+
+ //       }
 
     }
 }
