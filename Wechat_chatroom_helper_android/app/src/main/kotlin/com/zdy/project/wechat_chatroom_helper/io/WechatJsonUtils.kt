@@ -3,12 +3,12 @@ package com.zdy.project.wechat_chatroom_helper.io
 import android.app.Activity
 import android.content.Intent
 import android.os.Environment
+import android.os.Process
 import android.text.TextUtils
 import android.util.Log
 import com.blankj.utilcode.util.FileIOUtils
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import com.zdy.project.wechat_chatroom_helper.Constants
 import ui.MainActivity
 import java.io.File
 
@@ -21,8 +21,9 @@ import java.io.File
  */
 object WechatJsonUtils {
 
-    private val folderPath = Environment.getExternalStorageDirectory().absolutePath + "/WechatChatroomHelper"
-    val configPath = Environment.getExternalStorageDirectory().absolutePath + "/WechatChatroomHelper/config.xml"
+    private val userId = (Process.myUid() / 100000).toString()
+    private var folderPath = (Environment.getExternalStorageDirectory().absolutePath + "/WechatChatroomHelper").replaceFirst(userId, "0")
+    var configPath = (Environment.getExternalStorageDirectory().absolutePath + "/WechatChatroomHelper/config.xml").replaceFirst(userId, "0")
     val parser = JsonParser()
 
     private lateinit var currentJson: JsonObject
