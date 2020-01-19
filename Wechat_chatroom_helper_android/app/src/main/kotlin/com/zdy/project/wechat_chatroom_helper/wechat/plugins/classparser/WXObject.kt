@@ -73,7 +73,7 @@ object WXObject {
             const val NoMeasuredTextView = "com.tencent.mm.ui.base.NoMeasuredTextView"
         }
 
-        object F{
+        object F {
             var ConversationItemHighLightSelectorBackGroundInt = 0
             var ConversationItemSelectorBackGroundInt = 0
         }

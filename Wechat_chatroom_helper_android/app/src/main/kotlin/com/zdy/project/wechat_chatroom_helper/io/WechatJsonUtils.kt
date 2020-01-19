@@ -8,7 +8,6 @@ import android.util.Log
 import com.blankj.utilcode.util.FileIOUtils
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import com.zdy.project.wechat_chatroom_helper.Constants
 import ui.MainActivity
 import java.io.File
 

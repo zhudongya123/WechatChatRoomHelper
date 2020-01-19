@@ -2,9 +2,11 @@ package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -21,8 +23,10 @@ import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.log.LogRecord
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
+import de.robv.android.xposed.XposedHelpers.findAndHookConstructor
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
 import java.lang.reflect.Modifier
 
@@ -53,7 +57,7 @@ object MainLauncherUI {
                     RuntimeInfo.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
                     RuntimeInfo.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
 
-                    handleDetectFitWindowView(launcherUI)
+                 //   handleDetectFitWindowView(launcherUI)
                 }
             }
         })
@@ -65,7 +69,7 @@ object MainLauncherUI {
 
                     launcherUI = param.thisObject as Activity
 
-                    handleDetectFitWindowView(launcherUI)
+               //     handleDetectFitWindowView(launcherUI)
                 }
             }
         })
@@ -168,6 +172,45 @@ object MainLauncherUI {
             }
         })
 
+        findAndHookConstructor(
+                XposedHelpers.findClass(WXObject.MainUI.C.FitSystemWindowLayoutView, RuntimeInfo.classloader),
+                Context::class.java,
+                object : XC_MethodHook() {
+
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        fitSystemWindowLayoutView = param.thisObject as ViewGroup
+
+                        handleAddView(fitSystemWindowLayoutView)
+
+                        fitSystemWindowLayoutView?.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
+                            override fun onChildViewAdded(parent: View, child: View) {
+                                handleAddView(fitSystemWindowLayoutView)
+                            }
+
+                            override fun onChildViewRemoved(parent: View?, child: View?) {}
+                        })
+                    }
+                })
+
+        findAndHookConstructor(
+                XposedHelpers.findClass(WXObject.MainUI.C.FitSystemWindowLayoutView, RuntimeInfo.classloader),
+                Context::class.java,
+                AttributeSet::class.java,
+                object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        fitSystemWindowLayoutView = param.thisObject as ViewGroup
+
+                        handleAddView(fitSystemWindowLayoutView)
+
+                        fitSystemWindowLayoutView?.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
+                            override fun onChildViewAdded(parent: View, child: View) {
+                                handleAddView(fitSystemWindowLayoutView)
+                            }
+
+                            override fun onChildViewRemoved(parent: View?, child: View?) {}
+                        })
+                    }
+                })
 
         try {
             findAndHookMethod(ConversationReflectFunction.conversationListView, WXObject.Adapter.M.SetActivity,
@@ -201,6 +244,8 @@ object MainLauncherUI {
 
             override fun onChildViewAdded(parent: View?, child: View) {
 
+                LogUtils.log("setOnHierarchyChangeListener, child = $child")
+
                 if (child::class.java.name == WXObject.MainUI.C.FitSystemWindowLayoutView) {
 
                     fitSystemWindowLayoutView = child as ViewGroup
@@ -223,6 +268,8 @@ object MainLauncherUI {
     }
 
     fun handleAddView(fitSystemWindowLayoutView: ViewGroup?) {
+
+        LogUtils.log("handleAddView, fitSystemWindowLayoutView = $fitSystemWindowLayoutView")
 
         if (fitSystemWindowLayoutView == null) return
 
@@ -290,6 +337,8 @@ object MainLauncherUI {
 
 
     fun onFitSystemWindowLayoutViewReady(chatRoomIndex: Int, officialIndex: Int, fitSystemWindowLayoutView: ViewGroup) {
+
+        LogUtils.log("onFitSystemWindowLayoutViewReady, fitSystemWindowLayoutView = $fitSystemWindowLayoutView")
 
         val chatRoomViewParent = RuntimeInfo.chatRoomViewPresenter.presenterView.parent
         if (chatRoomViewParent != null) {
