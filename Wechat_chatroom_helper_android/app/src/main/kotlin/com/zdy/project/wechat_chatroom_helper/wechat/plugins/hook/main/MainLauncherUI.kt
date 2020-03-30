@@ -23,7 +23,6 @@ import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.log.LogRecord
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookConstructor
@@ -57,7 +56,7 @@ object MainLauncherUI {
                     RuntimeInfo.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
                     RuntimeInfo.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
 
-                 //   handleDetectFitWindowView(launcherUI)
+                    //   handleDetectFitWindowView(launcherUI)
                 }
             }
         })
@@ -69,7 +68,7 @@ object MainLauncherUI {
 
                     launcherUI = param.thisObject as Activity
 
-               //     handleDetectFitWindowView(launcherUI)
+                    //     handleDetectFitWindowView(launcherUI)
                 }
             }
         })
@@ -399,12 +398,16 @@ object MainLauncherUI {
         val adapterSuperclass = adapterClass.superclass
 
         //其实筛选有两个方法，混淆之后刚好在前面的那个是 notify 方法
-        val notifyMethod = adapterSuperclass.methods.filter { it.parameterTypes.size == 1 }
-                .filter { Modifier.isFinal(it.modifiers) }
-                .first { it.parameterTypes[0].name == Boolean::class.java.name }
+        try {
+            val notifyMethod = adapterSuperclass.methods.filter { it.parameterTypes.size == 1 }
+                    .filter { Modifier.isFinal(it.modifiers) }
+                    .first { it.parameterTypes[0].name == Boolean::class.java.name }
 
-        NOTIFY_MAIN_LAUNCHER_UI_LIST_VIEW_FLAG = true
-        notifyMethod.invoke(MainAdapter.originAdapter, false)
+            NOTIFY_MAIN_LAUNCHER_UI_LIST_VIEW_FLAG = true
+            notifyMethod.invoke(MainAdapter.originAdapter, false)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
 
     }
 

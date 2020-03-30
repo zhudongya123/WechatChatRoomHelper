@@ -68,22 +68,21 @@ class PreviewFragment : Fragment() {
         mToolbarContainer = RelativeLayout(thisActivity)
 
         val height = ScreenUtils.dip2px(thisActivity, 48f)
+        val tintColor = Color.parseColor("#" + AppSaveInfo.nicknameColorInfo())
 
         mToolbar = Toolbar(thisActivity).apply {
             layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
             title = "群消息助手"
         }.also {
-            //            it.setNavigationIcon(R.drawable.arrow_icon)
-            it.navigationIcon = BitmapDrawable(thisActivity.resources, DrawableMaker.getArrowBitMapForBack(Constants.defaultValue.DEFAULT_TOOLBAR_TINT_COLOR))
-
-            it.setTitleTextColor(0xFFFFFFFF.toInt())
+            it.navigationIcon = BitmapDrawable(thisActivity.resources, DrawableMaker.getArrowBitMapForBack(tintColor))
+            it.setTitleTextColor(tintColor)
         }
 
         val clazz: Class<*> = Toolbar::class.java
         val mTitleTextView = clazz.getDeclaredField("mTitleTextView").apply { isAccessible = true }
         (mTitleTextView.get(mToolbar) as TextView).apply {
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
-            setTextColor(Constants.defaultValue.DEFAULT_TOOLBAR_TINT_COLOR)
+            setTextColor(tintColor)
         }
 
         val imageButton = clazz.getDeclaredField("mNavButtonView").apply { isAccessible = true }
@@ -107,7 +106,7 @@ class PreviewFragment : Fragment() {
                 }
                 .apply {
                     layoutParams = RelativeLayout.LayoutParams(height, height).apply { addRule(RelativeLayout.ALIGN_PARENT_RIGHT) }
-                    drawable.setColorFilter(Constants.defaultValue.DEFAULT_TOOLBAR_TINT_COLOR, PorterDuff.Mode.SRC_IN)
+                    drawable.setColorFilter(tintColor, PorterDuff.Mode.SRC_IN)
                 }
 
         mToolbarContainer.addView(mToolbar)

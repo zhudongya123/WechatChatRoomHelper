@@ -105,7 +105,6 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             e.printStackTrace()
         }
 
-
     }
 
 
@@ -249,7 +248,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         mToolbar = Toolbar(mContext)
 
         val height = ScreenUtils.dip2px(mContext, 48f)
-        val tintColor = Constants.defaultValue.DEFAULT_TOOLBAR_TINT_COLOR
+        val tintColor = Color.parseColor("#" + AppSaveInfo.nicknameColorInfo())
 
         mToolbar.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
         mToolbar.navigationIcon = BitmapDrawable(mContext.resources, DrawableMaker.getArrowBitMapForBack(tintColor))
@@ -261,7 +260,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             PageType.CHAT_ROOMS -> mToolbar.title = "群聊"
             PageType.OFFICIAL -> mToolbar.title = "服务号"
         }
-        mToolbar.setTitleTextColor(-0x50506)
+        mToolbar.setTitleTextColor(Color.parseColor("#" + AppSaveInfo.nicknameColorInfo()))
 
         val clazz: Class<*>
         try {

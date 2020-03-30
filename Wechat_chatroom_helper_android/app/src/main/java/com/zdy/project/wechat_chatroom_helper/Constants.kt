@@ -29,6 +29,13 @@ object Constants {
         val CONVERSATION_ITEM_NICKNAME_PADDING_TOP = if (!isWechatUpdate7) 10f else 14f
         val CONVERSATION_ITEM_CONTENT_PADDING_BOTTOM = if (!isWechatUpdate7) 12f else 16f
 
+        val DEFAULT_DARK_TOOLBAR_COLOR = "191919"
+        val DEFAULT_DARK_HELPER_COLOR = "232323"
+        val DEFAULT_DARK_NICKNAME_COLOR = "D5D5D5"
+        val DEFAULT_DARK_CONTENT_COLOR = "696969"
+        val DEFAULT_DARK_TIME_COLOR = "6E6E6E"
+        val DEFAULT_DARK_DIVIDER_COLOR = "383838"
+        val DEFAULT_DARK_HIGHLIGHT_COLOR = "2F2F2F"
 
     }
 }

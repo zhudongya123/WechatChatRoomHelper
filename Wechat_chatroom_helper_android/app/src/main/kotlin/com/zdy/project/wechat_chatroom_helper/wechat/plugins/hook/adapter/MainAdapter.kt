@@ -175,10 +175,10 @@ object MainAdapter {
 
 
                             if (MainAdapterLongClick.chatRoomStickyValue > 0) {
-                                itemView.background = ColorDrawable(Color.rgb(237, 237, 237))
+                             //   itemView.background = ColorDrawable(Color.rgb(237, 237, 237))
                                 // itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt)
                             } else {
-                                itemView.background = ColorDrawable(Color.rgb(255, 255, 255))
+                              //  itemView.background = ColorDrawable(Color.rgb(255, 255, 255))
                                 //  itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemSelectorBackGroundInt)
                             }
 
@@ -217,10 +217,10 @@ object MainAdapter {
                             }
 
                             if (MainAdapterLongClick.officialStickyValue > 0) {
-                                itemView.background = ColorDrawable(Color.rgb(237, 237, 237))
+                          //      itemView.background = ColorDrawable(Color.rgb(237, 237, 237))
                                 //   itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt)
                             } else {
-                                itemView.background = ColorDrawable(Color.rgb(255, 255, 255))
+                             //   itemView.background = ColorDrawable(Color.rgb(255, 255, 255))
                                 // itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemSelectorBackGroundInt)
                             }
 

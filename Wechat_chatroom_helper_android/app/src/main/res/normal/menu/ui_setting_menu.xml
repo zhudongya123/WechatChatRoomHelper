@@ -2,6 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/ui_setting_reset"
-        android:title="重置为默认颜色"/>
+        android:id="@+id/ui_setting_reset_light"
+        android:title="重置为默认颜色（亮）"/>
+
+    <item
+        android:id="@+id/ui_setting_reset_dark"
+        android:title="重置为默认颜色（黑）"/>
 </menu>

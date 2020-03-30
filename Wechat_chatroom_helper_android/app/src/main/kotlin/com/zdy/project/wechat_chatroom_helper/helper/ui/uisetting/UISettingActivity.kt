@@ -7,9 +7,9 @@ import android.view.MenuItem
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.utils.ActivityUtils
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import ui.MyApplication
-import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 
 /**
  * UiSetting Activity
@@ -19,8 +19,8 @@ import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 class UISettingActivity : AppCompatActivity() {
 
 
-    private var previewViewModel: PreviewViewModel? = null
-    private var settingViewModel: SettingViewModel? = null
+    private lateinit var previewViewModel: PreviewViewModel
+    private lateinit var settingViewModel: SettingViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,17 +44,17 @@ class UISettingActivity : AppCompatActivity() {
     companion object {
 
         fun obtainPreviewViewModel(uiSettingActivity: UISettingActivity): PreviewViewModel {
-            if (uiSettingActivity.previewViewModel == null) {
+            if (!uiSettingActivity::previewViewModel.isInitialized) {
                 uiSettingActivity.previewViewModel = PreviewViewModel(MyApplication.get())
             }
-            return uiSettingActivity.previewViewModel!!
+            return uiSettingActivity.previewViewModel
         }
 
         fun obtainSettingViewModel(uiSettingActivity: UISettingActivity): SettingViewModel {
-            if (uiSettingActivity.settingViewModel == null) {
+            if (!uiSettingActivity::settingViewModel.isInitialized) {
                 uiSettingActivity.settingViewModel = SettingViewModel(MyApplication.get())
             }
-            return uiSettingActivity.settingViewModel!!
+            return uiSettingActivity.settingViewModel
         }
     }
 
@@ -74,7 +74,7 @@ class UISettingActivity : AppCompatActivity() {
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        settingViewModel!!.refreshColorInfo()
+        settingViewModel.refreshColorInfo()
         (supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()
 
     }
@@ -85,9 +85,11 @@ class UISettingActivity : AppCompatActivity() {
     }
 
     private fun setupToolbar() {
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        supportActionBar!!.setDisplayShowHomeEnabled(true)
-        supportActionBar!!.title = "助手UI设置"
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setDisplayShowHomeEnabled(true)
+            title = "助手UI设置"
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -96,16 +98,31 @@ class UISettingActivity : AppCompatActivity() {
                 finish()
                 true
             }
-            R.id.ui_setting_reset -> {
+            R.id.ui_setting_reset_light -> {
                 AppSaveInfo.setToolbarColorInfo(Constants.defaultValue.DEFAULT_TOOLBAR_COLOR)
                 AppSaveInfo.setHelperColorInfo(Constants.defaultValue.DEFAULT_HELPER_COLOR)
                 AppSaveInfo.setNicknameColorInfo(Constants.defaultValue.DEFAULT_NICKNAME_COLOR)
                 AppSaveInfo.setContentColorInfo(Constants.defaultValue.DEFAULT_CONTENT_COLOR)
                 AppSaveInfo.setDividerColorInfo(Constants.defaultValue.DEFAULT_DIVIDER_COLOR)
+                AppSaveInfo.setTimeColorInfo(Constants.defaultValue.DEFAULT_TIME_COLOR)
+                AppSaveInfo.setHighLightColorInfo(Constants.defaultValue.DEFAULT_HIGHLIGHT_COLOR)
 
-                settingViewModel!!.refreshColorInfo()
+                settingViewModel.refreshColorInfo()
                 (supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()
 
+                true
+            }
+            R.id.ui_setting_reset_dark->{
+                AppSaveInfo.setToolbarColorInfo(Constants.defaultValue.DEFAULT_DARK_TOOLBAR_COLOR)
+                AppSaveInfo.setHelperColorInfo(Constants.defaultValue.DEFAULT_DARK_HELPER_COLOR)
+                AppSaveInfo.setNicknameColorInfo(Constants.defaultValue.DEFAULT_DARK_NICKNAME_COLOR)
+                AppSaveInfo.setContentColorInfo(Constants.defaultValue.DEFAULT_DARK_CONTENT_COLOR)
+                AppSaveInfo.setDividerColorInfo(Constants.defaultValue.DEFAULT_DARK_DIVIDER_COLOR)
+                AppSaveInfo.setTimeColorInfo(Constants.defaultValue.DEFAULT_DARK_TIME_COLOR)
+                AppSaveInfo.setHighLightColorInfo(Constants.defaultValue.DEFAULT_DARK_HIGHLIGHT_COLOR)
+
+                settingViewModel.refreshColorInfo()
+                (supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()
                 true
             }
             else -> super.onOptionsItemSelected(item)
