@@ -24,6 +24,6 @@ class MainItemViewHolder(val itemView: ViewGroup) {
     companion object {
 
         const val Conversation_Light_Text_Color = 0xFFF57C00.toInt()
-        const val Conversation_Normal_Text_Color = 0xFF999999.toInt()
+        const val Conversation_Red_Text_Color = 0xFFF44336.toInt()
     }
 }

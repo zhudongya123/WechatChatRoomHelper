@@ -303,7 +303,7 @@ object MainLauncherUI {
         if (fitSystemWindowLayoutView.childCount != fitWindowChildCount) return
 //        if (fitSystemWindowLayoutView.getChildAt(0) !is LinearLayout) return
         chattingView = fitSystemWindowLayoutView.getChildAt(chattingViewPosition)
-        if (chattingView.javaClass.simpleName != "TestTimeForChatting") return
+        if (chattingView::class.java.simpleName != "TestTimeForChatting") return
 
         onFitSystemWindowLayoutViewReady(chatRoomViewPosition, officialViewPosition, fitSystemWindowLayoutView)
     }
