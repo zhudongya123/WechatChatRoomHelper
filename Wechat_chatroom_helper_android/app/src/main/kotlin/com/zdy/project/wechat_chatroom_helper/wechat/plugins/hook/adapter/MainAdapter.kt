@@ -2,14 +2,17 @@ package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter
 
 import android.annotation.SuppressLint
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.BaseAdapter
+import android.widget.ListView
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
+import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.DrawableMaker
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction
@@ -24,10 +27,9 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
-import net.dongliu.apk.parser.Main
-import java.lang.Exception
-import java.lang.RuntimeException
 import java.lang.reflect.ParameterizedType
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 
 @SuppressLint("StaticFieldLeak")
 /**
@@ -41,12 +43,17 @@ object MainAdapter {
     var firstChatRoomPosition = -1
     var firstOfficialPosition = -1
 
+    // 可能同时刷新 2 个，故开2个线程
+    val asyncExecutor: Executor = Executors.newFixedThreadPool(2)
+
+    // 如果用户接受在主线程刷消息，那就在主线程
+    val mainThreadExecutor: Executor = Executor {
+        it.run()
+    }
 
     fun isOriginAdapterIsInitialized() = MainAdapter::originAdapter.isInitialized
 
     fun executeHook() {
-        ConversationReflectFunction
-
         val conversationWithCacheAdapterGetItem = conversationWithCacheAdapter.superclass.declaredMethods
                 .filter { it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java }
                 .first { it.name != "getItem" && it.name != "getItemId" }.name
@@ -57,8 +64,6 @@ object MainAdapter {
                 originAdapter = adapter
             }
         })
-
-
 
         findAndHookMethod(conversationWithCacheAdapter.superclass, WXObject.Adapter.M.GetCount, object : XC_MethodHook() {
 
@@ -102,41 +107,47 @@ object MainAdapter {
 
                         LogUtils.log("MMBaseAdapter_getView, afterHookedMethod, index = $position, view = $view")
 
-                        if (position == firstChatRoomPosition || position == firstOfficialPosition) {
+                        if (view == null) {
+                            return
+                        }
 
-                            if (view != null) {
-                                refreshEntryView(view, position, param)
-                            }
+                        if (position == firstChatRoomPosition) {
+                            refreshChatEntryView(view, position)
+                            param.result = view
+                        } else if (position == firstOfficialPosition) {
+                            refreshOfficialView(view, position)
+                            param.result = view
                         }
                     }
 
-
-                    private fun refreshEntryView(view: View?, position: Int, param: MethodHookParam) {
+                    private fun refreshChatEntryView(view: View?, position: Int) {
                         LogUtils.log("MessageHooker2.6,position = $position, position = $position, " +
                                 "firstChatRoomPosition = $firstChatRoomPosition ,firstOfficialPosition = $firstOfficialPosition \n")
 
                         val itemView = view as ViewGroup
+                        val mainItemViewHolder = MainItemViewHolder(itemView)
 
-                        val avatarContainer = itemView.getChildAt(0) as ViewGroup
-                        val textContainer = itemView.getChildAt(1) as ViewGroup
+                        mainItemViewHolder.unReadCount.visibility = View.GONE
+                        XposedHelpers.callMethod(mainItemViewHolder.content, "setDrawLeftDrawable", false)
 
-                        val avatar = avatarContainer.getChildAt(0) as ImageView
-                        val unReadCount = avatarContainer.getChildAt(1) as TextView
-                        val unMuteReadIndicators = avatarContainer.getChildAt(2) as ImageView
+                        setTextForNoMeasuredTextView(mainItemViewHolder.nickname, "群聊消息" + (if (MainAdapterLongClick.chatRoomStickyValue > 0) " - 置顶" else ""))
+                        mainItemViewHolder.avatar.setImageDrawable(DrawableMaker.handleAvatarDrawable(mainItemViewHolder.avatar.context, PageType.CHAT_ROOMS))
+                        mainItemViewHolder.sendStatus.visibility = View.GONE
+                        mainItemViewHolder.muteImage.visibility = View.GONE
 
-                        val nickname = ((textContainer.getChildAt(0) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(0)
-                        val time = (textContainer.getChildAt(0) as ViewGroup).getChildAt(1)
+                        if (MainAdapterLongClick.chatRoomStickyValue > 0) {
+                            //      itemView.background = ColorDrawable(Color.rgb(237, 237, 237))
+                            // itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt)
+                        } else {
+                            //      itemView.background = ColorDrawable(Color.rgb(255, 255, 255))
+                            //        //  itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemSelectorBackGroundInt)
+                        }
 
-                        val sendStatus = ((textContainer.getChildAt(1) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(0)
-                        val content = ((textContainer.getChildAt(1) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(1)
-                        val muteImage = ((textContainer.getChildAt(1) as ViewGroup).getChildAt(1) as ViewGroup).getChildAt(1)
+                        // TODO: 添加配置，让用户可以选择是否异步刷新
+                        val async = false
+                        val executor: Executor = if (async) asyncExecutor else mainThreadExecutor
 
-
-                        if (position == firstChatRoomPosition) {
-                            unReadCount.visibility = View.GONE
-                            unMuteReadIndicators.visibility = View.GONE
-                            XposedHelpers.callMethod(content, "setDrawLeftDrawable", false)
-
+                        executor.execute {
                             val allChatRoom = MessageFactory.getSpecChatRoom()
                             val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
                             val totalUnReadCount = MessageFactory.getUnReadCount(allChatRoom)
@@ -145,91 +156,95 @@ object MainAdapter {
 
                             val chatInfoModel = allChatRoom.sortedBy { -it.field_conversationTime }.first()
 
-                            setTextForNoMeasuredTextView(nickname, "群聊消息" + (if (MainAdapterLongClick.chatRoomStickyValue > 0) " - 置顶" else ""))
-                            setTextForNoMeasuredTextView(time, chatInfoModel.conversationTime)
-                            avatar.setImageDrawable(DrawableMaker.handleAvatarDrawable(avatar.context, PageType.CHAT_ROOMS))
+                            view.post {
+                                setTextForNoMeasuredTextView(mainItemViewHolder.time, chatInfoModel.conversationTime)
 
-                            sendStatus.visibility = View.GONE
-                            muteImage.visibility = View.GONE
+                                if (unReadCountItem > 0) {
 
-                            if (unReadCountItem > 0) {
+                                    val spannableStringBuilder = SpannableStringBuilder()
 
-                                val spannableStringBuilder = SpannableStringBuilder()
+                                    var firstLength = 0
+                                    if (unMuteUnReadCount > 0) {
+                                        spannableStringBuilder.append("[${unMuteUnReadCount}条] ")
+                                        firstLength = spannableStringBuilder.length
+                                        spannableStringBuilder.setSpan(ForegroundColorSpan(0xFFF44336.toInt()), 0, firstLength, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE)
+                                    }
+                                    spannableStringBuilder.append("[ $unReadCountItem 个群聊收到 $totalUnReadCount 条新消息]")
+                                    spannableStringBuilder.setSpan(ForegroundColorSpan(0xFFF57C00.toInt()), firstLength, spannableStringBuilder.length, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE)
 
-                                var firstLength = 0
-                                if (unMuteUnReadCount > 0) {
-                                    spannableStringBuilder.append("[${unMuteUnReadCount}条] ")
-                                    firstLength = spannableStringBuilder.length
-                                    spannableStringBuilder.setSpan(ForegroundColorSpan(0xFFF44336.toInt()), 0, firstLength, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE)
+                                    setTextForNoMeasuredTextView(mainItemViewHolder.content, spannableStringBuilder)
+                                    mainItemViewHolder.unMuteReadIndicators.visibility = View.VISIBLE
+                                } else {
+                                    setTextColorForNoMeasuredTextView(mainItemViewHolder.content, 0xFF999999.toInt())
+                                    setTextForNoMeasuredTextView(mainItemViewHolder.content, "${chatInfoModel.nickname}：${chatInfoModel.content}")
+                                    mainItemViewHolder.unMuteReadIndicators.visibility = View.GONE
                                 }
-                                spannableStringBuilder.append("[ ${unReadCountItem} 个群聊收到 ${totalUnReadCount} 条新消息]")
-                                spannableStringBuilder.setSpan(ForegroundColorSpan(0xFFF57C00.toInt()), firstLength, spannableStringBuilder.length, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-                                setTextForNoMeasuredTextView(content, spannableStringBuilder)
-                                unMuteReadIndicators.visibility = View.VISIBLE
-                            } else {
-                                setTextColorForNoMeasuredTextView(content, 0xFF999999.toInt())
-                                setTextForNoMeasuredTextView(content, "${chatInfoModel.nickname}：${chatInfoModel.content}")
-                                unMuteReadIndicators.visibility = View.GONE
                             }
-
-
-                            if (MainAdapterLongClick.chatRoomStickyValue > 0) {
-                             //   itemView.background = ColorDrawable(Color.rgb(237, 237, 237))
-                                // itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt)
-                            } else {
-                              //  itemView.background = ColorDrawable(Color.rgb(255, 255, 255))
-                                //  itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemSelectorBackGroundInt)
-                            }
-
-                            param.result = view
-
                         }
-                        if (position == firstOfficialPosition) {
-                            unReadCount.visibility = View.GONE
-                            unMuteReadIndicators.visibility = View.GONE
-                            XposedHelpers.callMethod(content, "setDrawLeftDrawable", false)
+                    }
 
+                    private fun refreshOfficialView(view: View?, position: Int) {
+                        LogUtils.log("MessageHooker2.6,position = $position, position = $position, " +
+                                "firstChatRoomPosition = $firstChatRoomPosition ,firstOfficialPosition = $firstOfficialPosition \n")
 
-                            val allOfficial = MessageFactory.getSpecOfficial()
-                            val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)
-                            val totalUnReadCount = MessageFactory.getUnReadCount(allOfficial)
+                        val itemView = view as ViewGroup
+                        val mainItemViewHolder = MainItemViewHolder(itemView)
 
-                            LogUtils.log("getUnReadCountItemChatRoom " + allOfficial.joinToString { "unReadCount = ${it.unReadCount}" })
+                        mainItemViewHolder.unReadCount.visibility = View.GONE
+                        XposedHelpers.callMethod(mainItemViewHolder.content, "setDrawLeftDrawable", false)
+                        mainItemViewHolder.avatar.setImageDrawable(DrawableMaker.handleAvatarDrawable(mainItemViewHolder.avatar.context, PageType.OFFICIAL))
 
-                            sendStatus.visibility = View.GONE
-                            muteImage.visibility = View.GONE
+                        mainItemViewHolder.sendStatus.visibility = View.GONE
+                        mainItemViewHolder.muteImage.visibility = View.GONE
 
-                            val chatInfoModel = allOfficial.sortedBy { -it.field_conversationTime }.first()
+                        setTextForNoMeasuredTextView(mainItemViewHolder.nickname, "服务号消息" + (if (MainAdapterLongClick.officialStickyValue > 0) " - 置顶" else ""))
+                        if (MainAdapterLongClick.officialStickyValue > 0) {
+                            //itemView.background = ColorDrawable(Color.rgb(237, 237, 237))
+                            //   itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt)
+                        } else {
+                            //  itemView.background = ColorDrawable(Color.rgb(255, 255, 255))
+                            // itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemSelectorBackGroundInt)
+                        }
 
-                            setTextForNoMeasuredTextView(nickname, "服务号消息" + (if (MainAdapterLongClick.officialStickyValue > 0) " - 置顶" else ""))
-                            setTextForNoMeasuredTextView(time, chatInfoModel.conversationTime)
-                            avatar.setImageDrawable(DrawableMaker.handleAvatarDrawable(avatar.context, PageType.OFFICIAL))
+                        val async = false
+                        val executor: Executor = if (async) asyncExecutor else mainThreadExecutor
+                        //   executor.execute {
+                        val allOfficial = MessageFactory.getSpecOfficial()
+                        val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)
+                        val totalUnReadCount = MessageFactory.getUnReadCount(allOfficial)
+
+                        LogUtils.log("getUnReadCountItemChatRoom " + allOfficial.joinToString { "unReadCount = ${it.unReadCount}" })
+
+                        val chatInfoModel = allOfficial.sortedBy { -it.field_conversationTime }.first()
+
+                        view.post {
+                            setTextForNoMeasuredTextView(mainItemViewHolder.time, chatInfoModel.conversationTime)
+
+                            val oldOfficialCString = getTextFromNoMeasuredTextView(mainItemViewHolder.content)
 
                             if (unReadCountItem > 0) {
-                                setTextForNoMeasuredTextView(content, "[ ${unReadCountItem} 个服务号收到 ${totalUnReadCount} 条新消息]")
-                                setTextColorForNoMeasuredTextView(content, 0xFFF57C00.toInt())
-                                unMuteReadIndicators.visibility = View.VISIBLE
-                            } else {
-                                setTextForNoMeasuredTextView(content, "${chatInfoModel.nickname}：${chatInfoModel.content}")
-                                setTextColorForNoMeasuredTextView(content, 0xFF999999.toInt())
-                                unMuteReadIndicators.visibility = View.GONE
-                            }
+                                val newOfficialString = "[ $unReadCountItem 个服务号收到 $totalUnReadCount 条新消息]"
+                                if (oldOfficialCString != newOfficialString) {
 
-                            if (MainAdapterLongClick.officialStickyValue > 0) {
-                          //      itemView.background = ColorDrawable(Color.rgb(237, 237, 237))
-                                //   itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt)
-                            } else {
-                             //   itemView.background = ColorDrawable(Color.rgb(255, 255, 255))
-                                // itemView.setBackgroundResource(WXObject.Adapter.F.ConversationItemSelectorBackGroundInt)
-                            }
+                                    Log.v("refreshOfficialView", "newOfficialString = $newOfficialString, oldOfficialCString = $oldOfficialCString")
 
-                            param.result = view
+                                    setTextForNoMeasuredTextView(mainItemViewHolder.content, newOfficialString)
+                                    setTextColorForNoMeasuredTextView(mainItemViewHolder.content, MainItemViewHolder.Conversation_Light_Text_Color)
+                                }
+                                mainItemViewHolder.unMuteReadIndicators.visibility = View.VISIBLE
+                            } else {
+                                val newOfficialString = "${chatInfoModel.nickname}：${chatInfoModel.content}"
+                                if (oldOfficialCString != newOfficialString) {
+                                    setTextForNoMeasuredTextView(mainItemViewHolder.content, newOfficialString)
+                                    setTextColorForNoMeasuredTextView(mainItemViewHolder.content, Color.parseColor("#" + AppSaveInfo.contentColorInfo()))
+                                }
+                                mainItemViewHolder.unMuteReadIndicators.visibility = View.GONE
+                            }
                         }
-
+                        //   }
                     }
-                })
 
+                })
 
         /**
          * 修改 getObject 的数据下标
@@ -272,7 +287,7 @@ object MainAdapter {
                 LogUtils.log("MessageHooker 2019-04-02 09:18:31, size = ${originAdapter.count}, firstChatRoomPosition = $firstChatRoomPosition, firstOfficialPosition = $firstOfficialPosition")
 
                 val newIndex =
-                //如果没有群助手和公众号
+                        //如果没有群助手和公众号
                         if (min == -1 && max == -1) {
                             index
                         }

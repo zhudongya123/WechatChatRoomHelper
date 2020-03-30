@@ -23,7 +23,6 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 @SuppressLint("StaticFieldLeak")
 class PluginEntry : IXposedHookLoadPackage {
 
-
     override fun handleLoadPackage(p0: XC_LoadPackage.LoadPackageParam) {
 
         if (p0.processName == Constants.WECHAT_PACKAGE_NAME) {
@@ -66,7 +65,6 @@ class PluginEntry : IXposedHookLoadPackage {
             Constants.defaultValue = Constants.DefaultValue(AppSaveInfo.getWechatVersionName().startsWith("7"))
 
 
-            Log.v("PluginEntry", "line 71")
 
             /**
              * 注入Hook
@@ -77,7 +75,7 @@ class PluginEntry : IXposedHookLoadPackage {
                 MainAdapterLongClick.executeHook()
                 MainLauncherUI.executeHook()
                 if (AppSaveInfo.openLogInfo()) {
-                    //    LogRecord.executeHook()
+                    LogRecord.executeHook()
                 }
                 OtherHook.executeHook()
             } catch (e: Throwable) {

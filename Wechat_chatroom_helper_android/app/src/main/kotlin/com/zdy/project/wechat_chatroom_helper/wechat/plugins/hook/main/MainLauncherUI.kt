@@ -268,7 +268,6 @@ object MainLauncherUI {
 
     fun handleAddView(fitSystemWindowLayoutView: ViewGroup?) {
 
-        LogUtils.log("handleAddView, fitSystemWindowLayoutView = $fitSystemWindowLayoutView")
 
         if (fitSystemWindowLayoutView == null) return
 
@@ -297,9 +296,12 @@ object MainLauncherUI {
             officialViewPosition = 2
 
         }
+        LogUtils.log("handleAddView, fitSystemWindowLayoutView.childCount = ${fitSystemWindowLayoutView.childCount}")
+        LogUtils.log("handleAddView, fitWindowChildCount = $fitWindowChildCount")
+
 
         if (fitSystemWindowLayoutView.childCount != fitWindowChildCount) return
-        if (fitSystemWindowLayoutView.getChildAt(0) !is LinearLayout) return
+//        if (fitSystemWindowLayoutView.getChildAt(0) !is LinearLayout) return
         chattingView = fitSystemWindowLayoutView.getChildAt(chattingViewPosition)
         if (chattingView.javaClass.simpleName != "TestTimeForChatting") return
 
