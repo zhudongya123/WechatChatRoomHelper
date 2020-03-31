@@ -7,7 +7,6 @@ import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.BaseAdapter
 import android.widget.ListView
 import com.zdy.project.wechat_chatroom_helper.LogUtils
@@ -66,6 +65,9 @@ object MainAdapter {
                 .filter { it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java }
                 .first { it.name != "getItem" && it.name != "getItemId" }.name
 
+        /**
+         * 主页面的adapter构造时的回调
+         */
         hookAllConstructors(ConversationReflectFunction.conversationWithCacheAdapter, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
                 val adapter = param.thisObject as? BaseAdapter ?: return
@@ -73,8 +75,10 @@ object MainAdapter {
             }
         })
 
+        /**
+         * 修改主页面Adapter的返回数量 【服务号和群聊列表要新增两个的长度】
+         */
         findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter.superclass, WXObject.Adapter.M.GetCount, object : XC_MethodHook() {
-
             override fun afterHookedMethod(param: MethodHookParam) {
                 var count = param.result as Int + (if (firstChatRoomPosition != -1) 1 else 0)
                 count += (if (firstOfficialPosition != -1) 1 else 0)
@@ -125,9 +129,9 @@ object MainAdapter {
 //                            }
 //                        }
 
-                    }
-                })
-
+        /**
+         * 将多出来的两个入口【其实就是ListView里面多出来的那两个View】 绑定ui
+         */
         findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter, WXObject.Adapter.M.GetView,
                 Int::class.java, View::class.java, ViewGroup::class.java,
                 object : XC_MethodHook() {
@@ -259,11 +263,10 @@ object MainAdapter {
                                     }
                                 }
                     }
-
                 })
 
         /**
-         * 修改 getObject 的数据下标
+         * 修改 getObject 的数据下标 【 插入两个view 原来getObject的位置也要发生变化】
          */
         findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter.superclass, conversationWithCacheAdapterGetItem,
                 Int::class.java, object : XC_MethodHook() {
