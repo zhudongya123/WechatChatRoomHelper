@@ -7,6 +7,7 @@ import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.BaseAdapter
 import android.widget.ListView
 import com.zdy.project.wechat_chatroom_helper.LogUtils
@@ -40,15 +41,7 @@ object MainAdapter {
     var firstChatRoomPosition = -1
     var firstOfficialPosition = -1
 
-
     val asyncFlag = false
-
-
-    /**
-     * 当前在刷新的item位置
-     */
-    var currentRefreshItemPosition = -1
-
 
     // 可能同时刷新 2 个，故开2个线程
     val asyncExecutor: Executor = Executors.newFixedThreadPool(2)
@@ -94,7 +87,8 @@ object MainAdapter {
                         val view = param.result as View?
                         val position = (param.args[2] as Int) - listView.headerViewsCount
 
-                        LogUtils.log("TrackHelperCan'tOpen, MainAdapter -> HookItemClickListener -> onItemClick ")
+                        LogUtils.log("TrackHelperCan'tOpen, MainAdapter -> HookItemClickListener -> onItemClick. " +
+                                "position = $position, firstChatRoomPosition = $firstChatRoomPosition, firstOfficialPosition = $firstOfficialPosition")
 
                         if (position == firstChatRoomPosition) {
                             LogUtils.log("TrackHelperCan'tOpen, MainAdapter -> HookItemClickListener -> onItemClick -> chatRoomClickPerform, RuntimeInfo.chatRoomViewPresenter = ${RuntimeInfo.chatRoomViewPresenter}")
@@ -109,26 +103,6 @@ object MainAdapter {
                     }
                 })
 
-        findAndHookMethod(View::class.java, "getTag",
-                object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        val view = param.thisObject as View
-                        LogUtils.log("MMBaseAdapter_getView, getTag, view = $view")
-//
-//                        if (currentRefreshItemPosition != -1) {
-//                            when (currentRefreshItemPosition) {
-//                                firstChatRoomPosition -> {
-//                                    refreshChatEntryView(view, currentRefreshItemPosition)
-//                                }
-//                                firstOfficialPosition -> {
-//                                    refreshOfficialView(view, currentRefreshItemPosition)
-//                                }
-//                                else -> {
-//
-//                                }
-//                            }
-//                        }
-
         /**
          * 将多出来的两个入口【其实就是ListView里面多出来的那两个View】 绑定ui
          */
@@ -138,24 +112,42 @@ object MainAdapter {
 
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         val position = param.args[0] as Int
-                        val view = param.result as View?
+                        val view = param.args[1] as View?
 
                         LogUtils.log("MMBaseAdapter_getView, beforeHookedMethod, index = $position, view = $view")
 
+                        /**
+                         * getView如果返回的View为空 说明是第一次初始化 直接return
+                         */
                         if (view == null) {
                             return
                         }
 
-                        if (position == firstChatRoomPosition) {
-                            currentRefreshItemPosition = position
-                            refreshChatEntryView(view, position)
-                            param.result = view
-                        } else if (position == firstOfficialPosition) {
-                            currentRefreshItemPosition = position
-                            refreshOfficialView(view, position)
-                            param.result = view
-                        } else {
+                        /**
+                         * 如果这个时候两个入口的View不为空，修改ui，然后直接返回，本身微信的getView就直接跳过
+                         */
+                        when (position) {
+                            firstChatRoomPosition -> {
+                                refreshChatEntryView(view, position)
+                                param.result = view
+                            }
+                            firstOfficialPosition -> {
+                                refreshOfficialView(view, position)
+                                param.result = view
+                            }
+                        }
 
+                        /**
+                         *因为存在跳过原微信逻辑的情况，全局每个itemView都手动添加点击事件
+                         */
+                        view.apply {
+                            setOnClickListener {
+                                listView.performItemClick(view, position + listView.headerViewsCount, view.id.toLong())
+                            }
+                            setOnLongClickListener {
+                                val onItemLongClickListener = XposedHelpers.getObjectField(listView, "mOnItemLongClickListener") as AdapterView.OnItemLongClickListener
+                                onItemLongClickListener.onItemLongClick(listView, view, position + listView.headerViewsCount, view.id.toLong())
+                            }
                         }
                     }
 
@@ -224,11 +216,10 @@ object MainAdapter {
 
                         mainItemViewHolder.unReadCount.visibility = View.GONE
                         XposedHelpers.callMethod(mainItemViewHolder.content, "setDrawLeftDrawable", false)
+                        setTextForNoMeasuredTextView(mainItemViewHolder.nickname, "服务号消息" + (if (MainAdapterLongClick.officialStickyValue > 0) " - 置顶" else ""))
                         mainItemViewHolder.avatar.setImageDrawable(DrawableMaker.handleAvatarDrawable(mainItemViewHolder.avatar.context, PageType.OFFICIAL))
                         mainItemViewHolder.sendStatus.visibility = View.GONE
                         mainItemViewHolder.muteImage.visibility = View.GONE
-
-                        setTextForNoMeasuredTextView(mainItemViewHolder.nickname, "服务号消息" + (if (MainAdapterLongClick.officialStickyValue > 0) " - 置顶" else ""))
 
                         if (asyncFlag) asyncExecutor else mainThreadExecutor
                                 .execute {
@@ -373,9 +364,9 @@ object MainAdapter {
                                 MainLauncherUI.restartMainActivity()
                                 return
                             }
-                            var field_flag = XposedHelpers.getLongField(result, "field_flag")
-                            var field_username = XposedHelpers.getObjectField(result, "field_username")
-                            var field_conversationTime = XposedHelpers.getLongField(result, "field_conversationTime")
+                            val field_flag = XposedHelpers.getLongField(result, "field_flag")
+                            val field_username = XposedHelpers.getObjectField(result, "field_username")
+                            val field_conversationTime = XposedHelpers.getLongField(result, "field_conversationTime")
 
                             LogUtils.log("MessageHook 2019-04-01 16:25:57, index = $index, flag = $field_flag, username = $field_username, field_conversationTime = $field_conversationTime")
                         } catch (e: Throwable) {
@@ -386,9 +377,9 @@ object MainAdapter {
                 }
                 val result = getCustomItemForEntry(index)
 
-                var field_flag = XposedHelpers.getLongField(result, "field_flag")
-                var field_username = XposedHelpers.getObjectField(result, "field_username")
-                var field_conversationTime = XposedHelpers.getLongField(result, "field_conversationTime")
+                val field_flag = XposedHelpers.getLongField(result, "field_flag")
+                val field_username = XposedHelpers.getObjectField(result, "field_username")
+                val field_conversationTime = XposedHelpers.getLongField(result, "field_conversationTime")
 
                 LogUtils.log("MessageHook 2019-04-01 16:25:57, index = $index, flag = $field_flag, username = $field_username, field_conversationTime = $field_conversationTime")
 
@@ -463,9 +454,7 @@ object MainAdapter {
                 val beanClass = (clazz.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>
 
                 val constructor = beanClass.getConstructor(String::class.java)
-                val newInstance = constructor.newInstance(username)
-
-                return newInstance
+                return constructor.newInstance(username)
             }
 
         })
