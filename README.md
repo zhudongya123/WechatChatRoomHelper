@@ -10,6 +10,8 @@
 
  [![](https://img.shields.io/gitter/room/WechatChatroomHelper/nw.js.svg?style=flat-square)](https://gitter.im/WechatChatroomHelper)
 
+因为一些历史原因，clone 本仓库的时候可以添加 git depth 参数来加快速度。
+
 ## 简介
 
 本软件在微信（WeChat）中实现了类似于 QQ 中群消息助手的功能，可以将所有**群聊**和**服务号**从主界面收入至单独的二级界面进行统一管理，使得主界面更加清爽高效，同时也使得群消息管理起来更加方便快捷。
