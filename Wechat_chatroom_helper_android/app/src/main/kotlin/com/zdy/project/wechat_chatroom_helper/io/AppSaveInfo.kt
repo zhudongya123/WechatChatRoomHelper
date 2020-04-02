@@ -34,6 +34,7 @@ object AppSaveInfo {
     private const val HELPER_VERSIONCODE = "helper_versionCode"
     private const val WECHAT_VERSION = "wechat_version"
     private const val WECHAT_VERSION_NAME = "wechat_version_name"
+    private const val IS_DONATION = "is_donation"
 
     private const val JSON = "json"
     private const val CHAT_ROOM_TYPE = "chatRoom_type"
@@ -44,6 +45,11 @@ object AppSaveInfo {
     private const val API_RECORD_TIME = "api_record_time"//上次请求的时间
     private const val HELPER_STICKY_INFO = "helper_sticky_info"//助手置顶位置
 
+    fun setDonation(value: Boolean) {
+        WechatJsonUtils.putJsonValue(IS_DONATION, value)
+    }
+
+    fun isDonation() = WechatJsonUtils.getJsonValue(IS_DONATION, false)
 
     fun isBizUseOldStyle(): Boolean {
         return WechatJsonUtils.getJsonValue(IS_BIZ_USE_OLD_STYLE, true)

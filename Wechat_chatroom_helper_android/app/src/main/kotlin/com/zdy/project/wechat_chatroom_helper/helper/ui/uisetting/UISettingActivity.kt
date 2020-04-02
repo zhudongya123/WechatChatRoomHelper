@@ -1,6 +1,9 @@
 package com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
@@ -99,34 +102,72 @@ class UISettingActivity : AppCompatActivity() {
                 true
             }
             R.id.ui_setting_reset_light -> {
-                AppSaveInfo.setToolbarColorInfo(Constants.defaultValue.DEFAULT_TOOLBAR_COLOR)
-                AppSaveInfo.setHelperColorInfo(Constants.defaultValue.DEFAULT_HELPER_COLOR)
-                AppSaveInfo.setNicknameColorInfo(Constants.defaultValue.DEFAULT_NICKNAME_COLOR)
-                AppSaveInfo.setContentColorInfo(Constants.defaultValue.DEFAULT_CONTENT_COLOR)
-                AppSaveInfo.setDividerColorInfo(Constants.defaultValue.DEFAULT_DIVIDER_COLOR)
-                AppSaveInfo.setTimeColorInfo(Constants.defaultValue.DEFAULT_TIME_COLOR)
-                AppSaveInfo.setHighLightColorInfo(Constants.defaultValue.DEFAULT_HIGHLIGHT_COLOR)
-
-                settingViewModel.refreshColorInfo()
-                (supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()
-
+                showDonationDialog {
+                    setupLightColorInfo()
+                }
                 true
             }
-            R.id.ui_setting_reset_dark->{
-                AppSaveInfo.setToolbarColorInfo(Constants.defaultValue.DEFAULT_DARK_TOOLBAR_COLOR)
-                AppSaveInfo.setHelperColorInfo(Constants.defaultValue.DEFAULT_DARK_HELPER_COLOR)
-                AppSaveInfo.setNicknameColorInfo(Constants.defaultValue.DEFAULT_DARK_NICKNAME_COLOR)
-                AppSaveInfo.setContentColorInfo(Constants.defaultValue.DEFAULT_DARK_CONTENT_COLOR)
-                AppSaveInfo.setDividerColorInfo(Constants.defaultValue.DEFAULT_DARK_DIVIDER_COLOR)
-                AppSaveInfo.setTimeColorInfo(Constants.defaultValue.DEFAULT_DARK_TIME_COLOR)
-                AppSaveInfo.setHighLightColorInfo(Constants.defaultValue.DEFAULT_DARK_HIGHLIGHT_COLOR)
-
-                settingViewModel.refreshColorInfo()
-                (supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()
+            R.id.ui_setting_reset_dark -> {
+                showDonationDialog {
+                    setupDarkColorInfo()
+                }
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun showDonationDialog(function: () -> Unit) {
+        if (AppSaveInfo.isDonation()) {
+            function()
+        } else {
+            AlertDialog.Builder(this)
+                    .setTitle("捐赠")
+                    .setMessage("群助手上线已经第三年了，现在依然在保持更新，如果可以的话可以捐助一下嘛，现在一个包子都要好几块了呢。")
+                    .setNegativeButton("下次再说吧") { dialog, which ->
+
+                        function()
+                        dialog.dismiss()
+
+                    }.setNeutralButton("现在就去") { dialog, which ->
+
+                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://QR.ALIPAY.COM/FKX09384NJXB5JXT9MLD11")))
+                        AppSaveInfo.setDonation(true)
+                        dialog.dismiss()
+
+                    }.setPositiveButton("已经捐过了") { dialog, which ->
+
+                        AppSaveInfo.setDonation(true)
+                        function()
+                        dialog.dismiss()
+                    }.show()
+        }
+    }
+
+    private fun setupDarkColorInfo() {
+        AppSaveInfo.setToolbarColorInfo(Constants.defaultValue.DEFAULT_DARK_TOOLBAR_COLOR)
+        AppSaveInfo.setHelperColorInfo(Constants.defaultValue.DEFAULT_DARK_HELPER_COLOR)
+        AppSaveInfo.setNicknameColorInfo(Constants.defaultValue.DEFAULT_DARK_NICKNAME_COLOR)
+        AppSaveInfo.setContentColorInfo(Constants.defaultValue.DEFAULT_DARK_CONTENT_COLOR)
+        AppSaveInfo.setDividerColorInfo(Constants.defaultValue.DEFAULT_DARK_DIVIDER_COLOR)
+        AppSaveInfo.setTimeColorInfo(Constants.defaultValue.DEFAULT_DARK_TIME_COLOR)
+        AppSaveInfo.setHighLightColorInfo(Constants.defaultValue.DEFAULT_DARK_HIGHLIGHT_COLOR)
+
+        settingViewModel.refreshColorInfo()
+        (supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()
+    }
+
+    private fun setupLightColorInfo() {
+        AppSaveInfo.setToolbarColorInfo(Constants.defaultValue.DEFAULT_TOOLBAR_COLOR)
+        AppSaveInfo.setHelperColorInfo(Constants.defaultValue.DEFAULT_HELPER_COLOR)
+        AppSaveInfo.setNicknameColorInfo(Constants.defaultValue.DEFAULT_NICKNAME_COLOR)
+        AppSaveInfo.setContentColorInfo(Constants.defaultValue.DEFAULT_CONTENT_COLOR)
+        AppSaveInfo.setDividerColorInfo(Constants.defaultValue.DEFAULT_DIVIDER_COLOR)
+        AppSaveInfo.setTimeColorInfo(Constants.defaultValue.DEFAULT_TIME_COLOR)
+        AppSaveInfo.setHighLightColorInfo(Constants.defaultValue.DEFAULT_HIGHLIGHT_COLOR)
+
+        settingViewModel.refreshColorInfo()
+        (supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()
     }
 
     override fun onPause() {
