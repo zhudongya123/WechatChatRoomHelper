@@ -70,13 +70,13 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
             }
         }
 
-        holder.nickname.setTextColor(Color.parseColor("#" + AppSaveInfo.nicknameColorInfo()))
-        holder.content.setTextColor(Color.parseColor("#" + AppSaveInfo.contentColorInfo()))
-        holder.time.setTextColor(Color.parseColor("#" + AppSaveInfo.timeColorInfo()))
-        holder.divider.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.dividerColorInfo()))
+        holder.nickname.setTextColor(Color.parseColor("#" + AppSaveInfo.nicknameColorInfo(mContext)))
+        holder.content.setTextColor(Color.parseColor("#" + AppSaveInfo.contentColorInfo(mContext)))
+        holder.time.setTextColor(Color.parseColor("#" + AppSaveInfo.timeColorInfo(mContext)))
+        holder.divider.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.dividerColorInfo(mContext)))
 
         if (item.backgroundFlag != 0L) {
-            holder.itemView.background = ChatRoomViewFactory.getItemViewBackgroundSticky()
+            holder.itemView.background = ChatRoomViewFactory.getItemViewBackgroundSticky(mContext)
         } else {
             holder.itemView.background = ChatRoomViewFactory.getItemViewBackground(mContext)
         }

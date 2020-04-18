@@ -41,7 +41,7 @@ object MainAdapter {
     var firstChatRoomPosition = -1
     var firstOfficialPosition = -1
 
-    val asyncFlag = false
+    const val asyncFlag = false
 
     // 可能同时刷新 2 个，故开2个线程
     val asyncExecutor: Executor = Executors.newFixedThreadPool(2)
@@ -199,7 +199,7 @@ object MainAdapter {
 
                                             mainItemViewHolder.unMuteReadIndicators.visibility = View.VISIBLE
                                         } else {
-                                            setTextColorForNoMeasuredTextView(mainItemViewHolder.content, Color.parseColor("#" + AppSaveInfo.contentColorInfo()))
+                                            setTextColorForNoMeasuredTextView(mainItemViewHolder.content, Color.parseColor("#" + AppSaveInfo.contentColorInfo(mainItemViewHolder.content.context)))
                                             setTextForNoMeasuredTextView(mainItemViewHolder.content, "${chatInfoModel.nickname}：${chatInfoModel.content}")
                                             mainItemViewHolder.unMuteReadIndicators.visibility = View.GONE
                                         }
@@ -247,7 +247,7 @@ object MainAdapter {
                                             val newOfficialString = "${chatInfoModel.nickname}：${chatInfoModel.content}"
                                             if (oldOfficialCString != newOfficialString) {
                                                 setTextForNoMeasuredTextView(mainItemViewHolder.content, newOfficialString)
-                                                setTextColorForNoMeasuredTextView(mainItemViewHolder.content, Color.parseColor("#" + AppSaveInfo.contentColorInfo()))
+                                                setTextColorForNoMeasuredTextView(mainItemViewHolder.content, Color.parseColor("#" + AppSaveInfo.contentColorInfo(mainItemViewHolder.content.context)))
                                             }
                                             mainItemViewHolder.unMuteReadIndicators.visibility = View.GONE
                                         }
@@ -538,4 +538,6 @@ object MainAdapter {
 
         return XposedHelpers.getObjectField(noMeasuredTextView, mTextField.name) as CharSequence
     }
+
+    fun adapterIsInitialized() = MainAdapter::originAdapter.isInitialized
 }

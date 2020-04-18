@@ -150,7 +150,11 @@ object MessageFactory {
             chatRoomMuteFlag = ByteBuffer.wrap(field_lvbuff).apply { position(1) }.getInt(39) > 0
 
             content = conversationContent
-            conversationTime = ConversationReflectFunction.getConversationTimeString(MainAdapter.originAdapter, field_conversationTime)
+            conversationTime = if (MainAdapter.adapterIsInitialized()) {
+                ConversationReflectFunction.getConversationTimeString(MainAdapter.originAdapter, field_conversationTime)
+            } else {
+                "error"
+            }
 
             unReadCount = field_unReadCount
             unReadMuteCount = field_unReadMuteCount

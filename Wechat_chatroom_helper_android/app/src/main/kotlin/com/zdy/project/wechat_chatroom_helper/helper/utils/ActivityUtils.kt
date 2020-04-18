@@ -16,6 +16,8 @@
 
 package com.zdy.project.wechat_chatroom_helper.helper.utils
 
+import android.content.Context
+import android.content.res.Configuration
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 
@@ -48,4 +50,10 @@ object ActivityUtils {
         transaction.add(fragment, tag)
         transaction.commit()
     }
+
+    fun isNightMode(context: Context): Boolean {
+        val currentNightMode = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        return currentNightMode == Configuration.UI_MODE_NIGHT_YES
+    }
+
 }
