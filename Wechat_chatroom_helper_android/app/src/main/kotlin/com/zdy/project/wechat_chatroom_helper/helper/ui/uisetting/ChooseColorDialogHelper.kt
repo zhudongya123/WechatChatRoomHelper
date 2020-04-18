@@ -34,13 +34,13 @@ object ChooseColorDialogHelper {
         val editText = subView.findViewById<EditText>(android.R.id.edit)
                 .apply {
                     val color = when (colorType) {
-                        ColorType.Toolbar -> AppSaveInfo.toolbarColorInfo()
-                        ColorType.Helper -> AppSaveInfo.helperColorInfo()
-                        ColorType.Nickname -> AppSaveInfo.nicknameColorInfo()
-                        ColorType.Content -> AppSaveInfo.contentColorInfo()
-                        ColorType.Time -> AppSaveInfo.timeColorInfo()
-                        ColorType.Divider -> AppSaveInfo.dividerColorInfo()
-                        ColorType.HighLight -> AppSaveInfo.highLightColorInfo()
+                        ColorType.Toolbar -> AppSaveInfo.toolbarColorInfo(mContext)
+                        ColorType.Helper -> AppSaveInfo.helperColorInfo(mContext)
+                        ColorType.Nickname -> AppSaveInfo.nicknameColorInfo(mContext)
+                        ColorType.Content -> AppSaveInfo.contentColorInfo(mContext)
+                        ColorType.Time -> AppSaveInfo.timeColorInfo(mContext)
+                        ColorType.Divider -> AppSaveInfo.dividerColorInfo(mContext)
+                        ColorType.HighLight -> AppSaveInfo.highLightColorInfo(mContext)
                     }
 
                     backgroundTintList = ColorStateList.valueOf(ColorUtils.getColorInt(color))

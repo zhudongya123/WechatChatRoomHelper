@@ -1,7 +1,10 @@
 package com.zdy.project.wechat_chatroom_helper.io
 
+import android.content.Context
 import com.google.gson.JsonPrimitive
 import com.zdy.project.wechat_chatroom_helper.Constants
+import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.SettingViewModel
+import com.zdy.project.wechat_chatroom_helper.helper.utils.ActivityUtils
 
 
 /**
@@ -30,11 +33,12 @@ object AppSaveInfo {
     private const val HIGHLIGHT_COLOR = "highlight_color"
 
     private const val HAS_SUIT_WECHAT_DATA = "has_suit_wechat_data"
-    private const val IS_PLAY_VERSION = "is_play_version"//
+    private const val IS_PLAY_VERSION = "is_play_version"
     private const val HELPER_VERSIONCODE = "helper_versionCode"
     private const val WECHAT_VERSION = "wechat_version"
     private const val WECHAT_VERSION_NAME = "wechat_version_name"
     private const val IS_DONATION = "is_donation"
+    private const val COLOR_MODE = "color_mode"
 
     private const val JSON = "json"
     private const val CHAT_ROOM_TYPE = "chatRoom_type"
@@ -44,6 +48,12 @@ object AppSaveInfo {
 
     private const val API_RECORD_TIME = "api_record_time"//上次请求的时间
     private const val HELPER_STICKY_INFO = "helper_sticky_info"//助手置顶位置
+
+    fun setColorMode(value: Int) {
+        WechatJsonUtils.putJsonValue(COLOR_MODE, value)
+    }
+
+    fun getColorMode() = WechatJsonUtils.getJsonValue(COLOR_MODE, 0)
 
     fun setDonation(value: Boolean) {
         WechatJsonUtils.putJsonValue(IS_DONATION, value)
@@ -132,56 +142,140 @@ object AppSaveInfo {
         WechatJsonUtils.putJsonValue(IS_AUTO_CLOSE, value)
     }
 
-    fun toolbarColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(TOOLBAR_COLOR, Constants.defaultValue.DEFAULT_TOOLBAR_COLOR)
+    fun toolbarColorInfo(context: Context?): String {
+        return if (getColorMode() == SettingViewModel.ColorMode.Manual)
+            WechatJsonUtils.getJsonValue(TOOLBAR_COLOR, Constants.defaultValue.DEFAULT_LIGHT_TOOLBAR_COLOR)
+        else {
+            if (context == null) {
+                WechatJsonUtils.getJsonValue(TOOLBAR_COLOR, Constants.defaultValue.DEFAULT_LIGHT_TOOLBAR_COLOR)
+            } else {
+                if (ActivityUtils.isNightMode(context)) {
+                    Constants.defaultValue.DEFAULT_DARK_TOOLBAR_COLOR
+                } else {
+                    Constants.defaultValue.DEFAULT_LIGHT_TOOLBAR_COLOR
+                }
+            }
+        }
     }
 
     fun setToolbarColorInfo(value: String) {
         WechatJsonUtils.putJsonValue(TOOLBAR_COLOR, value)
     }
 
-    fun helperColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(HELPER_COLOR, Constants.defaultValue.DEFAULT_HELPER_COLOR)
+    fun helperColorInfo(context: Context?): String {
+        return if (getColorMode() == SettingViewModel.ColorMode.Manual)
+            WechatJsonUtils.getJsonValue(HELPER_COLOR, Constants.defaultValue.DEFAULT_LIGHT_HELPER_COLOR)
+        else {
+            if (context == null) {
+                WechatJsonUtils.getJsonValue(HELPER_COLOR, Constants.defaultValue.DEFAULT_LIGHT_HELPER_COLOR)
+            } else {
+                if (ActivityUtils.isNightMode(context)) {
+                    Constants.defaultValue.DEFAULT_DARK_HELPER_COLOR
+                } else {
+                    Constants.defaultValue.DEFAULT_LIGHT_HELPER_COLOR
+                }
+            }
+        }
     }
 
     fun setHelperColorInfo(value: String) {
         WechatJsonUtils.putJsonValue(HELPER_COLOR, value)
     }
 
-    fun nicknameColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(NICKNAME_COLOR, Constants.defaultValue.DEFAULT_NICKNAME_COLOR)
+    fun nicknameColorInfo(context: Context?): String {
+        return if (getColorMode() == SettingViewModel.ColorMode.Manual)
+            WechatJsonUtils.getJsonValue(NICKNAME_COLOR, Constants.defaultValue.DEFAULT_LIGHT_NICKNAME_COLOR)
+        else {
+            if (context == null) {
+                WechatJsonUtils.getJsonValue(NICKNAME_COLOR, Constants.defaultValue.DEFAULT_LIGHT_NICKNAME_COLOR)
+            } else {
+                if (ActivityUtils.isNightMode(context)) {
+                    Constants.defaultValue.DEFAULT_DARK_NICKNAME_COLOR
+                } else {
+                    Constants.defaultValue.DEFAULT_LIGHT_NICKNAME_COLOR
+                }
+            }
+        }
     }
 
     fun setNicknameColorInfo(value: String) {
         WechatJsonUtils.putJsonValue(NICKNAME_COLOR, value)
     }
 
-    fun contentColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(CONTENT_COLOR, Constants.defaultValue.DEFAULT_CONTENT_COLOR)
+    fun contentColorInfo(context: Context?): String {
+        return if (getColorMode() == SettingViewModel.ColorMode.Manual)
+            WechatJsonUtils.getJsonValue(CONTENT_COLOR, Constants.defaultValue.DEFAULT_LIGHT_CONTENT_COLOR)
+        else {
+            if (context == null) {
+                WechatJsonUtils.getJsonValue(CONTENT_COLOR, Constants.defaultValue.DEFAULT_LIGHT_CONTENT_COLOR)
+            } else {
+                if (ActivityUtils.isNightMode(context)) {
+                    Constants.defaultValue.DEFAULT_DARK_CONTENT_COLOR
+                } else {
+                    Constants.defaultValue.DEFAULT_LIGHT_CONTENT_COLOR
+                }
+            }
+        }
     }
 
     fun setContentColorInfo(value: String) {
         WechatJsonUtils.putJsonValue(CONTENT_COLOR, value)
     }
 
-    fun timeColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(TIME_COLOR, Constants.defaultValue.DEFAULT_TIME_COLOR)
+    fun timeColorInfo(context: Context?): String {
+        return if (getColorMode() == SettingViewModel.ColorMode.Manual)
+            WechatJsonUtils.getJsonValue(TIME_COLOR, Constants.defaultValue.DEFAULT_LIGHT_TIME_COLOR)
+        else {
+            if (context == null) {
+                WechatJsonUtils.getJsonValue(TIME_COLOR, Constants.defaultValue.DEFAULT_LIGHT_TIME_COLOR)
+            } else {
+                if (ActivityUtils.isNightMode(context)) {
+                    Constants.defaultValue.DEFAULT_DARK_TIME_COLOR
+                } else {
+                    Constants.defaultValue.DEFAULT_LIGHT_TIME_COLOR
+                }
+            }
+        }
     }
 
     fun setTimeColorInfo(value: String) {
         WechatJsonUtils.putJsonValue(TIME_COLOR, value)
     }
 
-    fun dividerColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(DIVIDER_COLOR, Constants.defaultValue.DEFAULT_DIVIDER_COLOR)
+    fun dividerColorInfo(context: Context?): String {
+        return if (getColorMode() == SettingViewModel.ColorMode.Manual)
+            WechatJsonUtils.getJsonValue(DIVIDER_COLOR, Constants.defaultValue.DEFAULT_LIGHT_DIVIDER_COLOR)
+        else {
+            if (context == null) {
+                WechatJsonUtils.getJsonValue(DIVIDER_COLOR, Constants.defaultValue.DEFAULT_LIGHT_DIVIDER_COLOR)
+            } else {
+                if (ActivityUtils.isNightMode(context)) {
+                    Constants.defaultValue.DEFAULT_DARK_DIVIDER_COLOR
+                } else {
+                    Constants.defaultValue.DEFAULT_LIGHT_DIVIDER_COLOR
+                }
+            }
+        }
     }
 
     fun setDividerColorInfo(value: String) {
         WechatJsonUtils.putJsonValue(DIVIDER_COLOR, value)
     }
 
-    fun highLightColorInfo(): String {
-        return WechatJsonUtils.getJsonValue(HIGHLIGHT_COLOR, Constants.defaultValue.DEFAULT_HIGHLIGHT_COLOR)
+    fun highLightColorInfo(context: Context?): String {
+        return if (getColorMode() == SettingViewModel.ColorMode.Manual)
+            WechatJsonUtils.getJsonValue(HIGHLIGHT_COLOR, Constants.defaultValue.DEFAULT_LIGHT_HIGHLIGHT_COLOR)
+        else {
+            if (context == null) {
+                WechatJsonUtils.getJsonValue(HIGHLIGHT_COLOR, Constants.defaultValue.DEFAULT_LIGHT_HIGHLIGHT_COLOR)
+            } else {
+                if (ActivityUtils.isNightMode(context)) {
+                    Constants.defaultValue.DEFAULT_DARK_HIGHLIGHT_COLOR
+                } else {
+                    Constants.defaultValue.DEFAULT_LIGHT_HIGHLIGHT_COLOR
+                }
+            }
+        }
     }
 
     fun setHighLightColorInfo(value: String) {

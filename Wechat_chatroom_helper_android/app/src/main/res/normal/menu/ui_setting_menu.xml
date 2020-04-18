@@ -3,9 +3,9 @@
 
     <item
         android:id="@+id/ui_setting_reset_light"
-        android:title="重置为默认颜色（亮）"/>
+        android:title="跟随系统（自动切换夜间模式）"/>
 
     <item
         android:id="@+id/ui_setting_reset_dark"
-        android:title="重置为默认颜色（黑）"/>
+        android:title="自定义"/>
 </menu>

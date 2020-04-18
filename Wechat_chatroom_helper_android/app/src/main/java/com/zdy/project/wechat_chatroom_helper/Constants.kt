@@ -15,13 +15,6 @@ object Constants {
 
     class DefaultValue(val isWechatUpdate7: Boolean) {
 
-        val DEFAULT_TOOLBAR_COLOR = if (!isWechatUpdate7) "303030" else "EEEEEE"
-        val DEFAULT_HELPER_COLOR = "FFFFFF"
-        val DEFAULT_NICKNAME_COLOR = "353535"
-        val DEFAULT_CONTENT_COLOR = "999999"
-        val DEFAULT_TIME_COLOR = "BBBBBB"
-        val DEFAULT_DIVIDER_COLOR = "DADADA"
-        val DEFAULT_HIGHLIGHT_COLOR = "F0F0F0"
 
         val CONVERSATION_ITEM_HEIGHT = if (!isWechatUpdate7) 64f else 72f
         val DEFAULT_TOOLBAR_TINT_COLOR = Color.parseColor("#" + if (!isWechatUpdate7) "FFFFFF" else "181818")
@@ -36,6 +29,15 @@ object Constants {
         val DEFAULT_DARK_TIME_COLOR = "6E6E6E"
         val DEFAULT_DARK_DIVIDER_COLOR = "383838"
         val DEFAULT_DARK_HIGHLIGHT_COLOR = "2F2F2F"
+
+
+        val DEFAULT_LIGHT_TOOLBAR_COLOR = if (!isWechatUpdate7) "303030" else "EEEEEE"
+        val DEFAULT_LIGHT_HELPER_COLOR = "FFFFFF"
+        val DEFAULT_LIGHT_NICKNAME_COLOR = "353535"
+        val DEFAULT_LIGHT_CONTENT_COLOR = "999999"
+        val DEFAULT_LIGHT_TIME_COLOR = "BBBBBB"
+        val DEFAULT_LIGHT_DIVIDER_COLOR = "DADADA"
+        val DEFAULT_LIGHT_HIGHLIGHT_COLOR = "F0F0F0"
 
     }
 }

@@ -68,7 +68,7 @@ class PreviewFragment : Fragment() {
         mToolbarContainer = RelativeLayout(thisActivity)
 
         val height = ScreenUtils.dip2px(thisActivity, 48f)
-        val tintColor = Color.parseColor("#" + AppSaveInfo.nicknameColorInfo())
+        val tintColor = Color.parseColor("#" + AppSaveInfo.nicknameColorInfo(thisActivity))
 
         mToolbar = Toolbar(thisActivity).apply {
             layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height)
@@ -130,8 +130,8 @@ class PreviewFragment : Fragment() {
     }
 
     fun notifyUIToChangeColor() {
-        mToolbarContainer.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.toolbarColorInfo()))
-        mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo()))
+        mToolbarContainer.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.toolbarColorInfo(thisActivity)))
+        mRecyclerView.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.helperColorInfo(thisActivity)))
         chatRoomRecyclerViewAdapter.notifyDataSetChanged()
     }
 

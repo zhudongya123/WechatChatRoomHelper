@@ -177,9 +177,9 @@ object ChatRoomViewFactory {
         return drawable
     }
 
-    fun getItemViewBackgroundSticky(): Drawable? {
+    fun getItemViewBackgroundSticky(context: Context): Drawable? {
         val drawable = StateListDrawable()
-        drawable.addState(intArrayOf(), ColorDrawable(ColorUtils.getColorInt(AppSaveInfo.highLightColorInfo())))
+        drawable.addState(intArrayOf(), ColorDrawable(ColorUtils.getColorInt(AppSaveInfo.highLightColorInfo(context))))
         return drawable
     }
 

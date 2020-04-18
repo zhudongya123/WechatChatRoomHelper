@@ -45,7 +45,6 @@ class UISettingActivity : AppCompatActivity() {
     }
 
     companion object {
-
         fun obtainPreviewViewModel(uiSettingActivity: UISettingActivity): PreviewViewModel {
             if (!uiSettingActivity::previewViewModel.isInitialized) {
                 uiSettingActivity.previewViewModel = PreviewViewModel(MyApplication.get())
@@ -82,10 +81,6 @@ class UISettingActivity : AppCompatActivity() {
 
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.ui_setting_menu, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
 
     private fun setupToolbar() {
         supportActionBar?.apply {
@@ -95,27 +90,6 @@ class UISettingActivity : AppCompatActivity() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                true
-            }
-            R.id.ui_setting_reset_light -> {
-                showDonationDialog {
-                    setupLightColorInfo()
-                }
-                true
-            }
-            R.id.ui_setting_reset_dark -> {
-                showDonationDialog {
-                    setupDarkColorInfo()
-                }
-                true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
 
     private fun showDonationDialog(function: () -> Unit) {
         if (AppSaveInfo.isDonation()) {
@@ -158,13 +132,13 @@ class UISettingActivity : AppCompatActivity() {
     }
 
     private fun setupLightColorInfo() {
-        AppSaveInfo.setToolbarColorInfo(Constants.defaultValue.DEFAULT_TOOLBAR_COLOR)
-        AppSaveInfo.setHelperColorInfo(Constants.defaultValue.DEFAULT_HELPER_COLOR)
-        AppSaveInfo.setNicknameColorInfo(Constants.defaultValue.DEFAULT_NICKNAME_COLOR)
-        AppSaveInfo.setContentColorInfo(Constants.defaultValue.DEFAULT_CONTENT_COLOR)
-        AppSaveInfo.setDividerColorInfo(Constants.defaultValue.DEFAULT_DIVIDER_COLOR)
-        AppSaveInfo.setTimeColorInfo(Constants.defaultValue.DEFAULT_TIME_COLOR)
-        AppSaveInfo.setHighLightColorInfo(Constants.defaultValue.DEFAULT_HIGHLIGHT_COLOR)
+        AppSaveInfo.setToolbarColorInfo(Constants.defaultValue.DEFAULT_LIGHT_TOOLBAR_COLOR)
+        AppSaveInfo.setHelperColorInfo(Constants.defaultValue.DEFAULT_LIGHT_HELPER_COLOR)
+        AppSaveInfo.setNicknameColorInfo(Constants.defaultValue.DEFAULT_LIGHT_NICKNAME_COLOR)
+        AppSaveInfo.setContentColorInfo(Constants.defaultValue.DEFAULT_LIGHT_CONTENT_COLOR)
+        AppSaveInfo.setDividerColorInfo(Constants.defaultValue.DEFAULT_LIGHT_DIVIDER_COLOR)
+        AppSaveInfo.setTimeColorInfo(Constants.defaultValue.DEFAULT_LIGHT_TIME_COLOR)
+        AppSaveInfo.setHighLightColorInfo(Constants.defaultValue.DEFAULT_LIGHT_HIGHLIGHT_COLOR)
 
         settingViewModel.refreshColorInfo()
         (supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()
