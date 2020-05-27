@@ -57,6 +57,28 @@ object ConversationReflectFunction {
             XposedHelpers.callStaticMethod(conversationAvatar, conversationAvatarMethod.name, imageView, field_username, 0.1f, false)
 
 
+    fun getConversationNickname(adapter: Any, chatInfoModel: ChatInfoModel): CharSequence {
+
+        val getNicknameMethod = conversationWithCacheAdapter.declaredMethods
+                .filter { it.parameterTypes.size == 1 }
+                .filter {
+                    it.parameterTypes[0].simpleName == beanClass.simpleName
+                }.single {
+                    it.returnType.enclosingClass != null
+                            && it.returnType.enclosingClass.name == conversationWithCacheAdapter.name
+                }
+
+        val aeConstructor = beanClass.constructors.filter { it.parameterTypes.size == 1 }
+                .firstOrNull { it.parameterTypes[0] == String::class.java }!!
+
+        val bean = aeConstructor.newInstance(chatInfoModel.field_username)
+
+        val result = XposedHelpers.callMethod(adapter, getNicknameMethod.name, bean)
+        val nicknameResult = XposedHelpers.getObjectField(result, "nickName") as CharSequence
+
+        return if (nicknameResult.isEmpty()) "群聊" else nicknameResult
+    }
+
     fun getConversationContent(adapter: Any, chatInfoModel: ChatInfoModel): CharSequence {
 
         val getContentMethod = conversationWithCacheAdapter.declaredMethods

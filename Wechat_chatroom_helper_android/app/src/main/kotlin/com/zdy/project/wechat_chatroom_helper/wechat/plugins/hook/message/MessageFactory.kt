@@ -139,17 +139,16 @@ object MessageFactory {
 
             backgroundFlag = getStickFlagInfo(obj)
 
-            nickname = if (field_nickname.isEmpty()) "群聊" else field_nickname
-
-            val conversationContent = if (MainAdapter.isOriginAdapterIsInitialized()) {
-                ConversationReflectFunction.getConversationContent(MainAdapter.originAdapter, this)
+            if (MainAdapter.isOriginAdapterIsInitialized()) {
+                content = ConversationReflectFunction.getConversationContent(MainAdapter.originAdapter, this)
+                nickname = ConversationReflectFunction.getConversationNickname(MainAdapter.originAdapter, this)
             } else {
-                field_content
+                content = field_content
+                nickname = if (field_nickname.isEmpty()) "群聊" else field_nickname
             }
 
             chatRoomMuteFlag = ByteBuffer.wrap(field_lvbuff).apply { position(1) }.getInt(39) > 0
 
-            content = conversationContent
             conversationTime = if (MainAdapter.adapterIsInitialized()) {
                 ConversationReflectFunction.getConversationTimeString(MainAdapter.originAdapter, field_conversationTime)
             } else {
