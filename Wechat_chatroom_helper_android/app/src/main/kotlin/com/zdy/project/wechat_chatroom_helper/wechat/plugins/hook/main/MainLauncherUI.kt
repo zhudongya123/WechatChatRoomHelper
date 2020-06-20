@@ -11,10 +11,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.widget.FrameLayout
-import android.widget.LinearLayout
-import android.widget.ListAdapter
-import android.widget.ListView
+import android.widget.*
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
@@ -40,6 +37,8 @@ object MainLauncherUI {
     lateinit var launcherUI: Activity
 
     var fitSystemWindowLayoutView: ViewGroup? = null
+    var container: ViewGroup? = null
+
 
     fun executeHook() {
 
@@ -56,7 +55,7 @@ object MainLauncherUI {
                     RuntimeInfo.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
                     RuntimeInfo.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
 
-                    //   handleDetectFitWindowView(launcherUI)
+                    handleDetectFitWindowView(launcherUI)
                 }
             }
         })
@@ -68,7 +67,7 @@ object MainLauncherUI {
 
                     launcherUI = param.thisObject as Activity
 
-                    //     handleDetectFitWindowView(launcherUI)
+                    handleDetectFitWindowView(launcherUI)
                 }
             }
         })
@@ -171,46 +170,6 @@ object MainLauncherUI {
             }
         })
 
-        findAndHookConstructor(
-                XposedHelpers.findClass(WXObject.MainUI.C.FitSystemWindowLayoutView, RuntimeInfo.classloader),
-                Context::class.java,
-                object : XC_MethodHook() {
-
-                    override fun afterHookedMethod(param: MethodHookParam) {
-                        fitSystemWindowLayoutView = param.thisObject as ViewGroup
-
-                        handleAddView(fitSystemWindowLayoutView)
-
-                        fitSystemWindowLayoutView?.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
-                            override fun onChildViewAdded(parent: View, child: View) {
-                                handleAddView(fitSystemWindowLayoutView)
-                            }
-
-                            override fun onChildViewRemoved(parent: View?, child: View?) {}
-                        })
-                    }
-                })
-
-        findAndHookConstructor(
-                XposedHelpers.findClass(WXObject.MainUI.C.FitSystemWindowLayoutView, RuntimeInfo.classloader),
-                Context::class.java,
-                AttributeSet::class.java,
-                object : XC_MethodHook() {
-                    override fun afterHookedMethod(param: MethodHookParam) {
-                        fitSystemWindowLayoutView = param.thisObject as ViewGroup
-
-                        handleAddView(fitSystemWindowLayoutView)
-
-                        fitSystemWindowLayoutView?.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
-                            override fun onChildViewAdded(parent: View, child: View) {
-                                handleAddView(fitSystemWindowLayoutView)
-                            }
-
-                            override fun onChildViewRemoved(parent: View?, child: View?) {}
-                        })
-                    }
-                })
-
         try {
             findAndHookMethod(ConversationReflectFunction.conversationListView, WXObject.Adapter.M.SetActivity,
                     XposedHelpers.findClass(WXObject.MainUI.C.MMFragmentActivity, RuntimeInfo.classloader), object : XC_MethodHook() {
@@ -233,6 +192,45 @@ object MainLauncherUI {
             e.printStackTrace()
         }
 
+
+        additionFitSystemWindowHook()
+    }
+
+    private fun additionFitSystemWindowHook() {
+
+        fun execute(param: XC_MethodHook.MethodHookParam) {
+            fitSystemWindowLayoutView = param.thisObject as ViewGroup
+            handleAddView(fitSystemWindowLayoutView)
+            fitSystemWindowLayoutView?.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
+                override fun onChildViewAdded(parent: View, child: View) {
+                    handleAddView(fitSystemWindowLayoutView)
+                }
+
+                override fun onChildViewRemoved(parent: View?, child: View?) {}
+            })
+        }
+
+        findAndHookConstructor(
+                XposedHelpers.findClass(WXObject.MainUI.C.FitSystemWindowLayoutView, RuntimeInfo.classloader),
+                Context::class.java,
+                object : XC_MethodHook() {
+
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        LogUtils.log("MainLauncherUI, FitSystemWindowLayoutView, Constructor by Context")
+                        execute(param)
+                    }
+                })
+
+        findAndHookConstructor(
+                XposedHelpers.findClass(WXObject.MainUI.C.FitSystemWindowLayoutView, RuntimeInfo.classloader),
+                Context::class.java,
+                AttributeSet::class.java,
+                object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        LogUtils.log("MainLauncherUI, FitSystemWindowLayoutView, Constructor by Context and AttributeSet")
+                        execute(param)
+                    }
+                })
     }
 
     fun handleDetectFitWindowView(activity: Activity) {
@@ -267,45 +265,54 @@ object MainLauncherUI {
     }
 
     fun handleAddView(fitSystemWindowLayoutView: ViewGroup?) {
-
+        LogUtils.log("handleAddView, fitSystemWindowLayoutView = $fitSystemWindowLayoutView")
 
         if (fitSystemWindowLayoutView == null) return
 
-        val chattingView: View//聊天View
-        val chattingViewPosition: Int//聊天View的下標
-
-        var fitWindowChildCount = 0//fitSystemWindowLayoutView的 child 数量
-        var chatRoomViewPosition = 0
-        var officialViewPosition = 0
-
-        /*
-         * 微信在某个版本之后 View 数量发生变化，下标也要相应刷新
-         **/
-        if (isWechatHighVersion(1140)) {
-
-            fitWindowChildCount = 3
-            chattingViewPosition = 2
-            chatRoomViewPosition = 2
-            officialViewPosition = 3
-
-        } else {
-
-            fitWindowChildCount = 2
-            chattingViewPosition = 1
-            chatRoomViewPosition = 1
-            officialViewPosition = 2
-
-        }
+//        val chattingView: View//聊天View
+//        val chattingViewPosition: Int//聊天View的下標
+//
+//        var fitWindowChildCount = 0//fitSystemWindowLayoutView的 child 数量
+//        var chatRoomViewPosition = 0
+//        var officialViewPosition = 0
+//
+//        /*
+//         * 微信在某个版本之后 View 数量发生变化，下标也要相应刷新
+//         **/
+//        if (isWechatHighVersion(1140)) {
+//
+//            fitWindowChildCount = 3
+//            chattingViewPosition = 2
+//            chatRoomViewPosition = 2
+//            officialViewPosition = 3
+//
+//        } else {
+//
+//            fitWindowChildCount = 2
+//            chattingViewPosition = 1
+//            chatRoomViewPosition = 1
+//            officialViewPosition = 2
+//
+//        }
         LogUtils.log("handleAddView, fitSystemWindowLayoutView.childCount = ${fitSystemWindowLayoutView.childCount}")
-        LogUtils.log("handleAddView, fitWindowChildCount = $fitWindowChildCount")
 
+        var containerPosition = 0
 
-        if (fitSystemWindowLayoutView.childCount != fitWindowChildCount) return
-//        if (fitSystemWindowLayoutView.getChildAt(0) !is LinearLayout) return
-        chattingView = fitSystemWindowLayoutView.getChildAt(chattingViewPosition)
-        if (chattingView::class.java.simpleName != "TestTimeForChatting") return
+        for (index in 0 until fitSystemWindowLayoutView.childCount) {
 
-        onFitSystemWindowLayoutViewReady(chatRoomViewPosition, officialViewPosition, fitSystemWindowLayoutView)
+            if (fitSystemWindowLayoutView.getChildAt(index)::class.java.name.contains("AbsoluteLayout")) {
+                return
+            }
+
+            if (fitSystemWindowLayoutView.getChildAt(index)::class.java.name.contains("TestTimeForChatting")) {
+                containerPosition = index
+            }
+        }
+
+        container = AbsoluteLayout(launcherUI)
+        fitSystemWindowLayoutView.addView(container, containerPosition)
+
+        onFitSystemWindowLayoutViewReady(fitSystemWindowLayoutView)
     }
 
     /**
@@ -337,7 +344,7 @@ object MainLauncherUI {
     }
 
 
-    fun onFitSystemWindowLayoutViewReady(chatRoomIndex: Int, officialIndex: Int, fitSystemWindowLayoutView: ViewGroup) {
+    private fun onFitSystemWindowLayoutViewReady(fitSystemWindowLayoutView: ViewGroup) {
 
         LogUtils.log("onFitSystemWindowLayoutViewReady, fitSystemWindowLayoutView = $fitSystemWindowLayoutView")
 
@@ -351,8 +358,11 @@ object MainLauncherUI {
             (chatRoomViewParent as ViewGroup).removeView(RuntimeInfo.officialViewPresenter.presenterView)
         }
 
-        fitSystemWindowLayoutView.addView(RuntimeInfo.chatRoomViewPresenter.presenterView, chatRoomIndex)
-        fitSystemWindowLayoutView.addView(RuntimeInfo.officialViewPresenter.presenterView, officialIndex)
+        container?.apply {
+            removeAllViews()
+            addView(RuntimeInfo.chatRoomViewPresenter.presenterView)
+            addView(RuntimeInfo.officialViewPresenter.presenterView)
+        }
 
 
         if ((fitSystemWindowLayoutView.getChildAt(0) as ViewGroup).childCount != 2)

@@ -13,6 +13,10 @@ object LogUtils {
         Log.v("WCRH", " : $s")
     }
 
+    fun weixinLog(s: String) {
+        if (!AppSaveInfo.openLogInfo()) return
+        Log.v("Weixin", " : $s")
+    }
 
     fun isOpen(): Boolean {
         return AppSaveInfo.openLogInfo()
