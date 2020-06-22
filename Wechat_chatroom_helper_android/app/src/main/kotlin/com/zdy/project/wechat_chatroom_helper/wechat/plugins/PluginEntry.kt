@@ -1,8 +1,8 @@
 package     com.zdy.project.wechat_chatroom_helper.wechat.plugins
 
 import android.annotation.SuppressLint
-import android.util.Log
 import com.zdy.project.wechat_chatroom_helper.Constants
+import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
@@ -13,6 +13,7 @@ import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLaunc
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageHandler
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.other.OtherHook
 import de.robv.android.xposed.IXposedHookLoadPackage
+import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
@@ -65,7 +66,6 @@ class PluginEntry : IXposedHookLoadPackage {
             Constants.defaultValue = Constants.DefaultValue(AppSaveInfo.getWechatVersionName().startsWith("7"))
 
 
-
             /**
              * 注入Hook
              */
@@ -78,6 +78,20 @@ class PluginEntry : IXposedHookLoadPackage {
                     LogRecord.executeHook()
                 }
                 OtherHook.executeHook()
+
+
+                val fClass = XposedHelpers.findClass("com.tencent.mm.ui.f", RuntimeInfo.classloader)
+                val fClass2 = XposedHelpers.findClass("com.tencent.mm.storagebase.a.f", RuntimeInfo.classloader)
+
+
+                XposedHelpers.findAndHookMethod("com.tencent.mm.storagebase.a.f", RuntimeInfo.classloader, "fdA", object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+//                        LogUtils.log("MessageHook 2019-04-05 14:11:46, supportHashMap = ${MainAdapter.supportHashMap}")
+                        param.result = MainAdapter.supportHashMap
+                    }
+                })
+
+
             } catch (e: Throwable) {
                 e.printStackTrace()
 

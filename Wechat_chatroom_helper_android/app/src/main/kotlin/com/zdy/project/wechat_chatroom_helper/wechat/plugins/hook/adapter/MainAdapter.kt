@@ -37,6 +37,7 @@ object MainAdapter {
 
     lateinit var originAdapter: BaseAdapter
     lateinit var listView: ListView
+    var supportHashMap = mutableMapOf<Any, Any>()
 
     var firstChatRoomPosition = -1
     var firstOfficialPosition = -1
@@ -364,11 +365,6 @@ object MainAdapter {
                                 MainLauncherUI.restartMainActivity()
                                 return
                             }
-                            val field_flag = XposedHelpers.getLongField(result, "field_flag")
-                            val field_username = XposedHelpers.getObjectField(result, "field_username")
-                            val field_conversationTime = XposedHelpers.getLongField(result, "field_conversationTime")
-
-                            LogUtils.log("MessageHook 2019-04-01 16:25:57, index = $index, flag = $field_flag, username = $field_username, field_conversationTime = $field_conversationTime")
                         } catch (e: Throwable) {
                             e.printStackTrace()
                         }
@@ -382,6 +378,8 @@ object MainAdapter {
                 val field_conversationTime = XposedHelpers.getLongField(result, "field_conversationTime")
 
                 LogUtils.log("MessageHook 2019-04-01 16:25:57, index = $index, flag = $field_flag, username = $field_username, field_conversationTime = $field_conversationTime")
+
+                supportHashMap[field_username] = result
 
                 param.result = result
             }
@@ -458,6 +456,10 @@ object MainAdapter {
             }
 
         })
+
+
+
+
 
         findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter.superclass, "getChangeType", object : XC_MethodHook() {
 

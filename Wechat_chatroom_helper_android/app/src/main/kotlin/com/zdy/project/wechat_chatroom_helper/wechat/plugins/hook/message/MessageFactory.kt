@@ -38,6 +38,8 @@ object MessageFactory {
         val cursor = XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, "rawQuery", SqlForGetAllChatRoom, null) as Cursor
         val list = arrayListOf<ChatInfoModel>()
 
+        LogUtils.log("MessageHandler, chatRoomCount = ${cursor.count}")
+
         while (cursor.moveToNext()) {
             list.add(buildChatInfoModelByCursor(cursor))
         }
@@ -54,6 +56,8 @@ object MessageFactory {
     fun getAllOfficial(): ArrayList<ChatInfoModel> {
         val cursor = XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, "rawQuery", SqlForGetAllOfficial, null) as Cursor
         val list = arrayListOf<ChatInfoModel>()
+
+        LogUtils.log("MessageHandler, officialCount = ${cursor.count}")
 
         while (cursor.moveToNext()) {
             list.add(buildChatInfoModelByCursor(cursor))
