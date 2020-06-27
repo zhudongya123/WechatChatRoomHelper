@@ -93,9 +93,14 @@ object MessageHandler {
     //判断当前sql语句是否为我们自定义的未读数逻辑
     private fun isQueryNewAllConversation(sql: String) = SqlForNewAllContactConversation.all { sql.contains(it) }
 
+    /**
+     * 连接数据库的对象
+     */
     var MessageDatabaseObject: Any? = null
 
     private var iMainAdapterRefreshes = ArrayList<MessageEventNotifyListener>()
+
+    var totalUnReadCount: Int = 0
 
     fun addMessageEventNotifyListener(messageEventNotifyListener: MessageEventNotifyListener) {
         iMainAdapterRefreshes.add(messageEventNotifyListener)
@@ -266,8 +271,10 @@ object MessageHandler {
                         var officialPosition = -1
                         var chatRoomPosition = -1
 
-                        //根据时间先后排序，确定入口的位置
-                        //遍历每一条回话，比较会话时间
+                        /**
+                         * 根据时间先后排序，确定入口的位置
+                         *遍历每一条回话，比较会话时间
+                         */
                         while (cursor.moveToNext()) {
                             val conversationTime = cursor.getLong(cursor.columnNames.indexOf("flag"))
 
@@ -280,7 +287,9 @@ object MessageHandler {
                             }
                         }
 
-                        //根据入口先后调整插入的位置
+                        /**
+                         * 根据入口先后调整插入的位置
+                         */
                         if (officialPosition != -1 && chatRoomPosition != -1) {
                             if (officialPosition > chatRoomPosition) {
                                 officialPosition += 1
@@ -301,6 +310,13 @@ object MessageHandler {
                         LogUtils.log("MessageHook 2019-04-12 16:05:28, chatRoomPosition = $chatRoomPosition, officialPosition = $officialPosition")
 
                         iMainAdapterRefreshes.forEach { it.onEntryPositionChanged(chatRoomPosition, officialPosition) }
+
+
+                        totalUnReadCount = 0
+                        while (cursor.moveToNext()) {
+                            val unReadCount = cursor.getLong(cursor.columnNames.indexOf("unReadCount"))
+                            totalUnReadCount += unReadCount.toInt()
+                        }
 
                         //恢复数据库游标为起始位置
                         cursor.move(0)
