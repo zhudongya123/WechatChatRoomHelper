@@ -52,6 +52,8 @@ class PluginEntry : IXposedHookLoadPackage {
             WXObject.Adapter.C.ConversationLongClickListener = configJson.get("conversationLongClickListener").asString
             WXObject.Adapter.C.ConversationMenuItemSelectedListener = configJson.get("conversationMenuItemSelectedListener").asString
             WXObject.Adapter.C.ConversationStickyHeaderHandler = configJson.get("conversationStickyHeaderHandler").asString
+            WXObject.Adapter.C.ConversationHashMapBean = configJson.get("conversationHashMapBean").asString
+
 
 //            WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt = configJson.get("conversationItemHighLightSelectorBackGroundInt").asString.toInt()
 //            WXObject.Adapter.F.ConversationItemSelectorBackGroundInt = configJson.get("conversationItemSelectorBackGroundInt").asString.toInt()
@@ -74,22 +76,50 @@ class PluginEntry : IXposedHookLoadPackage {
                 MainAdapter.executeHook()
                 MainAdapterLongClick.executeHook()
                 MainLauncherUI.executeHook()
-                if (AppSaveInfo.openLogInfo()) {
-                    LogRecord.executeHook()
-                }
+//                if (AppSaveInfo.openLogInfo()) {
+//                    LogRecord.executeHook()
+//                }
                 OtherHook.executeHook()
 
 
-                val fClass = XposedHelpers.findClass("com.tencent.mm.ui.f", RuntimeInfo.classloader)
-                val fClass2 = XposedHelpers.findClass("com.tencent.mm.storagebase.a.f", RuntimeInfo.classloader)
-
-
-                XposedHelpers.findAndHookMethod("com.tencent.mm.storagebase.a.f", RuntimeInfo.classloader, "fdA", object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
+//                val fClass = XposedHelpers.findClass("com.tencent.mm.ui.f", RuntimeInfo.classloader)
+//                val fClass2 = XposedHelpers.findClass("com.tencent.mm.storagebase.a.f", RuntimeInfo.classloader)
+//
+//                XposedHelpers.findAndHookMethod("com.tencent.mm.storagebase.a.f", RuntimeInfo.classloader, "fdA", object : XC_MethodHook() {
+//                    override fun beforeHookedMethod(param: MethodHookParam) {
 //                        LogUtils.log("MessageHook 2019-04-05 14:11:46, supportHashMap = ${MainAdapter.supportHashMap}")
-                        param.result = MainAdapter.supportHashMap
-                    }
-                })
+//                        param.result = MainAdapter.supportHashMap
+//                    }
+//
+//                    override fun afterHookedMethod(param: MethodHookParam) {
+//                        val result = param.result as HashMap<*, *>
+//
+//
+//                        result.entries.forEach {
+//                            LogUtils.log("storagebase, itemKey = ${it.key}, itemValue = ${it.value}")
+//                        }
+//
+//                    }
+//                })
+//
+//
+//                val abClass = XposedHelpers.findClass("com.tencent.mm.storagebase.a.b", RuntimeInfo.classloader)
+//                val aaClass = XposedHelpers.findClass("com.tencent.mm.storagebase.a.a", RuntimeInfo.classloader)
+//
+//
+//                LogUtils.log("storagebase, line 109")
+//                XposedHelpers.findAndHookMethod(abClass, "b", Any::class.java, aaClass, object : XC_MethodHook() {
+//
+//                    override fun beforeHookedMethod(param: MethodHookParam) {
+//
+//                        val key = param.args[0]
+//                        val value = param.args[1]
+//
+//                        LogUtils.log("storagebase, key = $key, value = $value")
+//                    }
+//
+//                })
+//                LogUtils.log("storagebase, line 121")
 
 
             } catch (e: Throwable) {

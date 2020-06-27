@@ -191,8 +191,8 @@ object MessageHandler {
                         /**
                          * 刷新两个助手的列表
                          */
-                       // RuntimeInfo.chatRoomViewPresenter.refreshList(false, Any())
-                      //  RuntimeInfo.officialViewPresenter.refreshList(false, Any())
+                        RuntimeInfo.chatRoomViewPresenter.refreshList(false, Any())
+                        RuntimeInfo.officialViewPresenter.refreshList(false, Any())
 
                         /**
                          * 获取两个群聊和服务号的白名单
@@ -312,6 +312,7 @@ object MessageHandler {
                     //当查询未读数时的修改逻辑
                     isQueryOriginAllUnReadCount(sql) -> {
 
+                        /*
                         LogUtils.log("MessageHandler, refreshAllConversationUnReadCount")
 
                         val officialList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
@@ -336,6 +337,8 @@ object MessageHandler {
 
                         LogUtils.log("sqlForAllUnReadCount =  $sqlForAllUnReadCount")
                         param.result = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, sqlForAllUnReadCount, selectionArgs, editTable, cancellation)
+
+                         */
                     }
                 }
 

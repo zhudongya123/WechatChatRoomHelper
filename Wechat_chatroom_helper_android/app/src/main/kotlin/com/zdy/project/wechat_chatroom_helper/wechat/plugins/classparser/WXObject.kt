@@ -69,6 +69,7 @@ object WXObject {
             var ConversationLongClickListener = ""
             var ConversationMenuItemSelectedListener = ""
             var ConversationStickyHeaderHandler = ""
+            var ConversationHashMapBean = ""
 
             const val NoMeasuredTextView = "com.tencent.mm.ui.base.NoMeasuredTextView"
         }

@@ -1,5 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser
 
+import android.database.AbstractCursor
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
@@ -186,6 +187,14 @@ object WXClassParser {
                         backgroundClass.getField("white_list_item_selector")
                     else backgroundClass.getField("comm_list_item_selector")
             return field.getInt(null)
+        }
+
+        fun getConversationHashMapBean(classes: MutableList<Class<*>>): Class<*>? {
+            return classes
+                    .filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.storagebase") }
+                    .filter { Modifier.isFinal(it.modifiers) }
+                    .filter { it.methods.any { it.name == "checkPosition" } }
+                    .firstOrNull { it.declaredFields.any { it.name == "pageSize" && it.type == Int::class.java } }
         }
     }
 }
