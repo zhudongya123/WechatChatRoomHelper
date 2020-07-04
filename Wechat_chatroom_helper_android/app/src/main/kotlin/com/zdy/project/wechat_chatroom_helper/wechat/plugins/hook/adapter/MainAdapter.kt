@@ -37,7 +37,6 @@ object MainAdapter {
 
     lateinit var originAdapter: BaseAdapter
     lateinit var listView: ListView
-    var supportHashMap = mutableMapOf<Any, Any>()
 
     var firstChatRoomPosition = -1
     var firstOfficialPosition = -1
@@ -73,10 +72,19 @@ object MainAdapter {
          * 修改主页面Adapter的返回数量 【服务号和群聊列表要新增两个的长度】
          */
         findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter.superclass, WXObject.Adapter.M.GetCount, object : XC_MethodHook() {
+
+            override fun beforeHookedMethod(param: MethodHookParam) {
+                super.beforeHookedMethod(param)
+
+                val count = param.result as Int
+                LogUtils.log("MessageHook beforeHookedMethod, count = $count")
+            }
+
             override fun afterHookedMethod(param: MethodHookParam) {
                 var count = param.result as Int + (if (firstChatRoomPosition != -1) 1 else 0)
                 count += (if (firstOfficialPosition != -1) 1 else 0)
                 param.result = count
+                LogUtils.log("MessageHook afterHookedMethod, count = $count")
             }
         })
 
@@ -295,7 +303,7 @@ object MainAdapter {
                 val max = Math.max(firstChatRoomPosition, firstOfficialPosition)
 
 
-                LogUtils.log("MessageHooker 2019-04-02 09:18:31, size = ${originAdapter.count}, firstChatRoomPosition = $firstChatRoomPosition, firstOfficialPosition = $firstOfficialPosition")
+                LogUtils.log("MessageHook 2019-04-02 09:18:31, size = ${originAdapter.count}, firstChatRoomPosition = $firstChatRoomPosition, firstOfficialPosition = $firstOfficialPosition")
 
                 val newIndex =
                         //如果没有群助手和公众号
@@ -347,43 +355,49 @@ object MainAdapter {
 
                 var index = param.args[0] as Int
 
+                LogUtils.log("MessageHook 2020-07-04 16:02:08, index = $index, getItemChatRoomFlag = $getItemChatRoomFlag, getItemOfficialFlag = $getItemOfficialFlag")
+
                 when {
+                    /**
+                     * adapter需要群助手的的adapter model 然后返还给它
+                     */
                     getItemChatRoomFlag -> {
                         getItemChatRoomFlag = false
-                        index = firstChatRoomPosition
+
+                        val result = getCustomItemForEntry(firstChatRoomPosition)
+                        param.result = result
                     }
+                    /**
+                     * adapter需要服务号的的adapter model 然后返还给它
+                     */
                     getItemOfficialFlag -> {
                         getItemOfficialFlag = false
-                        index = firstOfficialPosition
+
+                        val result = getCustomItemForEntry(firstOfficialPosition)
+                        param.result = result
                     }
                     else -> {
                         try {
                             val result = param.result
 
-                            //返回了空的数据，此时getcount和getitem已经无法对应 所以直接刷新list
+                            //todo 返回了空的数据，此时getcount和getitem已经无法对应 所以直接刷新list
                             if (result == null) {
-                                MainLauncherUI.restartMainActivity()
-                                return
+                                LogUtils.log("MessageHook 2019-04-01 15:30:00, index = $index")
+                               // MainLauncherUI.restartMainActivity()
+                                val result = getCustomItemForEntry(firstOfficialPosition)
+                                param.result = result
                             }
                         } catch (e: Throwable) {
                             e.printStackTrace()
                         }
-                        return
                     }
                 }
-                val result = getCustomItemForEntry(index)
 
-                val field_flag = XposedHelpers.getLongField(result, "field_flag")
-                val field_username = XposedHelpers.getObjectField(result, "field_username")
-                val field_conversationTime = XposedHelpers.getLongField(result, "field_conversationTime")
-
-                LogUtils.log("MessageHook 2019-04-01 16:25:57, index = $index, flag = $field_flag, username = $field_username, field_conversationTime = $field_conversationTime")
-
-                supportHashMap[field_username] = result
-
-                param.result = result
             }
 
+            /**
+             * 判断传入的位置是不是助手的位置
+             */
             private fun handleEntryPosition(index: Int): Int {
                 if (firstChatRoomPosition == index) {
                     getItemChatRoomFlag = true
@@ -397,6 +411,9 @@ object MainAdapter {
             private var chatRoomItemModel: Any? = null
             private var officialItemModel: Any? = null
 
+            /**
+             * 构造助手的Bean然后返回
+             */
             private fun getCustomItemForEntry(currentPosition: Int): Any {
 
                 val field_conversationTime: Long
