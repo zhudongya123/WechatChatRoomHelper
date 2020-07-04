@@ -47,7 +47,7 @@ object MessageHandler {
             "order by flag desc")
 
     //查询除去服务号的未读消息总数(不完整 查看相关逻辑)
-    private var SqlForNewAllUnreadCount = "select sum(unReadCount) from rconversation, rcontact where rconversation.unReadCount > 0 " +
+    private var SqlForNewAllUnreadCount = "select * from rconversation, rcontact where rconversation.unReadCount > 0 " +
             "AND (rconversation.parentRef is null or parentRef = '' ) " +
             "AND rconversation.username = rcontact.username " +
 
@@ -82,10 +82,18 @@ object MessageHandler {
                     "( type & 512 ) == 0",
                     "rcontact.username != 'officialaccounts'")
 
+    private val FilterListForOriginAllUnread3 = "select * from rconversation where unReadCount > 0 " +
+            "AND (parentRef is null or parentRef = '' )  " +
+            "and ( 1 != 1  or rconversation.username like '%@im.chatroom' " +
+            "or rconversation.username like '%@chatroom' " +
+            "or rconversation.username like '%@openim' " +
+            "or rconversation.username not like '%@%' ) "
+
+
     private const val FilterListForOriginAllUnread2 = "rcontact.verifyFlag == 0"
 
     //判断当前sql语句是否为微信原始的未读数逻辑
-    private fun isQueryOriginAllUnReadCount(sql: String) = FilterListForOriginAllUnread1.all { sql.contains(it) } && !sql.contains(FilterListForOriginAllUnread2)
+    private fun isQueryOriginAllUnReadCount(sql: String) = FilterListForOriginAllUnread3.all { sql.contains(it) } && !sql.contains(FilterListForOriginAllUnread2)
 
     //判断当前sql语句是否为微信原始的未读数逻辑
     private fun isQueryOriginAllConversation(sql: String) = FilterListForOriginAllConversation.all { sql.contains(it) }
@@ -168,6 +176,7 @@ object MessageHandler {
                     }
                 }
 
+                LogUtils.log("MessageHandler, queryHook, sql = $sql")
                 if (!sql.contains("parentRef is null")) return
 
                 val cursor = param.result as Cursor
@@ -179,7 +188,6 @@ object MessageHandler {
                      */
                     isQueryOriginAllConversation(sql) -> {
 
-                        LogUtils.log("MessageHandler, queryHook, sql = $sql")
                         LogUtils.log("MessageHandler, originConversationSize = ${cursor.count}")
 
                         LogUtils.log("MessageHandler, refreshAllConversation")
@@ -328,7 +336,6 @@ object MessageHandler {
                     //当查询未读数时的修改逻辑
                     isQueryOriginAllUnReadCount(sql) -> {
 
-                        /*
                         LogUtils.log("MessageHandler, refreshAllConversationUnReadCount")
 
                         val officialList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
@@ -354,7 +361,7 @@ object MessageHandler {
                         LogUtils.log("sqlForAllUnReadCount =  $sqlForAllUnReadCount")
                         param.result = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, sqlForAllUnReadCount, selectionArgs, editTable, cancellation)
 
-                         */
+
                     }
                 }
 

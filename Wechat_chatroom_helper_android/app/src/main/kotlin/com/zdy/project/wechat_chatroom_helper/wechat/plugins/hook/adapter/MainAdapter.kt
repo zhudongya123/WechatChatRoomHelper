@@ -459,8 +459,6 @@ object MainAdapter {
 
 
 
-
-
         findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter.superclass, "getChangeType", object : XC_MethodHook() {
 
             override fun beforeHookedMethod(param: MethodHookParam) {
@@ -479,13 +477,11 @@ object MainAdapter {
          * 这里因为改变拦截方式，所以直接取消系统的计算方式，强制返回 空
          */
 
-        LogUtils.log("conversationGetHash, method = ${ConversationReflectFunction.conversationGetHashMapMethod}")
         findAndHookMethod(ConversationReflectFunction.conversationHashMapBean, ConversationReflectFunction.conversationGetHashMapMethod.name, object : XC_MethodHook() {
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                param.result = HashMap<Any, Any>()
-            }
+//            override fun beforeHookedMethod(param: MethodHookParam) {
+//                param.result = HashMap<Any, Any>()
+//            }
         })
-        LogUtils.log("conversationGetHash, method = ${ConversationReflectFunction.conversationGetHashMapMethod}")
 
 
         MessageHandler.addMessageEventNotifyListener(object : MessageEventNotifyListener {
