@@ -73,13 +73,6 @@ object MainAdapter {
          */
         findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter.superclass, WXObject.Adapter.M.GetCount, object : XC_MethodHook() {
 
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                super.beforeHookedMethod(param)
-
-                val count = param.result as Int
-                LogUtils.log("MessageHook beforeHookedMethod, count = $count")
-            }
-
             override fun afterHookedMethod(param: MethodHookParam) {
                 var count = param.result as Int + (if (firstChatRoomPosition != -1) 1 else 0)
                 count += (if (firstOfficialPosition != -1) 1 else 0)
