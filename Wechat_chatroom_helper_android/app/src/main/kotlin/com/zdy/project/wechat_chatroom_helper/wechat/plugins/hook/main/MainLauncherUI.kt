@@ -12,7 +12,10 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.widget.*
+import android.widget.AbsoluteLayout
+import android.widget.LinearLayout
+import android.widget.ListAdapter
+import android.widget.ListView
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
@@ -42,7 +45,7 @@ object MainLauncherUI {
 
     fun executeHook() {
 
-        //fitSystemWindowConstructorHook()
+        fitSystemWindowConstructorHook()
 
         findAndHookMethod(Activity::class.java, WXObject.MainUI.M.OnCreate, Bundle::class.java, object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
@@ -54,7 +57,7 @@ object MainLauncherUI {
                     RuntimeInfo.chatRoomViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.CHAT_ROOMS)
                     RuntimeInfo.officialViewPresenter = ChatRoomViewPresenter(launcherUI, PageType.OFFICIAL)
 
-                   handleDetectFitWindowView(launcherUI)
+//                    handleDetectFitWindowView(launcherUI)
                 }
             }
         })
@@ -66,7 +69,7 @@ object MainLauncherUI {
         findAndHookMethod(WXObject.MainUI.C.LauncherUI, RuntimeInfo.classloader,
                 WXObject.MainUI.M.DispatchKeyEventOfLauncherUI, KeyEvent::class.java, object : XC_MethodHook() {
             @Throws(Throwable::class)
-            override fun beforeHookedMethod(param: XC_MethodHook.MethodHookParam) {
+            override fun beforeHookedMethod(param: MethodHookParam) {
                 hookDispatchKeyEvent(param)
             }
         })
@@ -77,7 +80,7 @@ object MainLauncherUI {
                 WXObject.MainUI.M.StartChattingOfLauncherUI, String::class.java, Bundle::class.java, Boolean::class.java,
                 object : XC_MethodHook() {
                     @Throws(Throwable::class)
-                    override fun beforeHookedMethod(param: XC_MethodHook.MethodHookParam) {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
                         LogUtils.log("MainLauncherUI, startChatting")
                         if (RuntimeInfo.currentPage == PageType.OFFICIAL) RuntimeInfo.currentPage = PageType.CHATTING_WITH_OFFICIAL
                         else if (RuntimeInfo.currentPage == PageType.CHAT_ROOMS) RuntimeInfo.currentPage = PageType.CHATTING_WITH_CHAT_ROOMS
@@ -92,7 +95,7 @@ object MainLauncherUI {
                 WXObject.MainUI.M.CloseChattingOfLauncherUI, Boolean::class.java,
                 object : XC_MethodHook() {
                     @Throws(Throwable::class)
-                    override fun beforeHookedMethod(param: XC_MethodHook.MethodHookParam) {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
                         LogUtils.log("MainLauncherUI, closeChatting")
                         if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_OFFICIAL) {
                             if (RuntimeInfo.officialViewPresenter.isShowing)
@@ -151,28 +154,27 @@ object MainLauncherUI {
 
     }
 
+    private fun addListenerForFitWindowView(parentView: ViewGroup, callBack: (result: Boolean) -> Unit) {
+        for (index in 0 until parentView.childCount) {
+
+            val childView = parentView.getChildAt(index)
+            LogUtils.log("MainLauncherUI, handleDetectFitWindowView, getChildAt, child = $childView")
+            if (childView::class.java.name == WXObject.MainUI.C.FitSystemWindowLayoutView) {
+                val fitSystemWindowLayoutView = childView as ViewGroup
+                addHelperViewToFitSystemView(fitSystemWindowLayoutView)
+
+                callBack(true)
+                return
+            }
+        }
+
+        callBack(false)
+    }
 
     /**
      * 通过 Activity 的 LauncherUI 的DecorView 来获取子元素FitSystemWindowLayoutView 来添加群助手View
      */
     fun handleDetectFitWindowView(activity: Activity) {
-
-         fun addListenerForFitWindowView(parentView: ViewGroup, callBack: (result: Boolean) -> Unit) {
-            for (index in 0 until parentView.childCount) {
-
-                val childView = parentView.getChildAt(index)
-                LogUtils.log("MainLauncherUI, handleDetectFitWindowView, getChildAt, child = $childView")
-                if (childView::class.java.name == WXObject.MainUI.C.FitSystemWindowLayoutView) {
-                    val fitSystemWindowLayoutView = childView as ViewGroup
-                    addHelperViewToFitSystemView(fitSystemWindowLayoutView)
-
-                    callBack(true)
-                    return
-                }
-            }
-
-            callBack(false)
-        }
 
         LogUtils.log("MainLauncherUI, handleDetectFitWindowView, activity = $activity")
         if (activity.isDestroyed || activity.isFinishing) return
@@ -194,7 +196,8 @@ object MainLauncherUI {
             }
             decorView.childCount == 1 && decorView.getChildAt(0) is LinearLayout -> {
                 LogUtils.log("MainLauncherUI, handleDetectFitWindowView, decorView, childCount = 1")
-                addListenerForFitWindowView(decorView.getChildAt(0) as ViewGroup) {
+                val parentView = decorView.getChildAt(0) as ViewGroup
+                addListenerForFitWindowView(parentView) {
                     if (!it) {
                         Handler(launcherUI.mainLooper).postDelayed({
                             handleDetectFitWindowView(activity)
@@ -222,7 +225,6 @@ object MainLauncherUI {
     private fun fitSystemWindowConstructorHook() {
         fun execute(param: XC_MethodHook.MethodHookParam) {
             val fitSystemWindowLayoutView = param.thisObject as ViewGroup
-            addHelperViewToFitSystemView(fitSystemWindowLayoutView)
             fitSystemWindowLayoutView.setOnHierarchyChangeListener(object : ViewGroup.OnHierarchyChangeListener {
                 override fun onChildViewAdded(parent: View, child: View) {
                     addHelperViewToFitSystemView(fitSystemWindowLayoutView)
@@ -232,47 +234,29 @@ object MainLauncherUI {
             })
         }
 
+        val fitSystemWindowLayoutViewClass = XposedHelpers.findClass(WXObject.MainUI.C.FitSystemWindowLayoutView, RuntimeInfo.classloader)
 
-        findAndHookConstructor(FrameLayout::class.java,
+
+        findAndHookConstructor(fitSystemWindowLayoutViewClass,
                 Context::class.java,
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         val thisObject = param.thisObject
 
-                        if (thisObject::class.java.name == WXObject.MainUI.C.FitSystemWindowLayoutView) {
-                            LogUtils.log("MainLauncherUI, FitSystemWindowLayoutView, 1 params, class  = ${thisObject::class.java}")
-                            execute(param)
-                        }
+                        LogUtils.log("MainLauncherUI, FitSystemWindowLayoutView, 1 params, class  = ${thisObject::class.java}")
+                        execute(param)
                     }
                 })
 
-        findAndHookConstructor(FrameLayout::class.java,
+        findAndHookConstructor(fitSystemWindowLayoutViewClass,
                 Context::class.java,
                 AttributeSet::class.java,
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         val thisObject = param.thisObject
 
-                        if (thisObject::class.java.name == WXObject.MainUI.C.FitSystemWindowLayoutView) {
-                            LogUtils.log("MainLauncherUI, FitSystemWindowLayoutView, 2 params, class  = ${thisObject::class.java}")
-                            execute(param)
-                        }
-                    }
-                })
-
-        findAndHookConstructor(FrameLayout::class.java,
-                Context::class.java,
-                AttributeSet::class.java,
-                Int::class.java,
-                object : XC_MethodHook() {
-                    override fun afterHookedMethod(param: MethodHookParam) {
-                        val thisObject = param.thisObject
-
-                        if (thisObject::class.java.name == WXObject.MainUI.C.FitSystemWindowLayoutView) {
-                            LogUtils.log("MainLauncherUI, FitSystemWindowLayoutView, 3 params, class  = ${thisObject::class.java}")
-                            execute(param)
-                        }
-
+                        LogUtils.log("MainLauncherUI, FitSystemWindowLayoutView, 2 params, class  = ${thisObject::class.java}")
+                        execute(param)
                     }
                 })
     }
@@ -280,10 +264,10 @@ object MainLauncherUI {
     /**
      * 将助手View添加到微信的相应View中
      */
-    private fun addHelperViewToFitSystemView(fitSystemWindowLayoutView: ViewGroup?) {
+    private fun addHelperViewToFitSystemView(fitSystemWindowLayoutView: ViewGroup?): Boolean {
         LogUtils.log("MainLauncherUI, handleAddView, fitSystemWindowLayoutView = $fitSystemWindowLayoutView")
 
-        if (fitSystemWindowLayoutView == null) return
+        if (fitSystemWindowLayoutView == null) return false
 
 //        val chattingView: View//聊天View
 //        val chattingViewPosition: Int//聊天View的下標
@@ -317,7 +301,7 @@ object MainLauncherUI {
         for (index in 0 until fitSystemWindowLayoutView.childCount) {
 
             if (fitSystemWindowLayoutView.getChildAt(index)::class.java.name.contains("AbsoluteLayout")) {
-                return
+                return true
             }
 
             if (fitSystemWindowLayoutView.getChildAt(index)::class.java.name.contains("TestTimeForChatting")) {
@@ -325,10 +309,13 @@ object MainLauncherUI {
             }
         }
 
+
         container = AbsoluteLayout(launcherUI)
         fitSystemWindowLayoutView.addView(container, containerPosition)
 
         onFitSystemWindowLayoutViewReady(fitSystemWindowLayoutView)
+
+        return true
     }
 
     /**
@@ -380,11 +367,16 @@ object MainLauncherUI {
             addView(RuntimeInfo.officialViewPresenter.presenterView)
         }
 
+        LogUtils.log("MainLauncherUI, onFitSystemWindowLayoutViewReady, addViewFinish, container = $container, " +
+                "chatRoom = ${RuntimeInfo.chatRoomViewPresenter.presenterView}" +
+                "official = ${RuntimeInfo.officialViewPresenter.presenterView}")
 
         if ((fitSystemWindowLayoutView.getChildAt(0) as ViewGroup).childCount != 2)
             return
         val mainView = (fitSystemWindowLayoutView.getChildAt(0) as ViewGroup).getChildAt(1)
 
+
+        LogUtils.log("MainLauncherUI, onFitSystemWindowLayoutViewReady, mainView = $mainView")
 
         //调整布局大小，解决部分虛擬按鍵手機的問題
         mainView.viewTreeObserver
@@ -411,11 +403,13 @@ object MainLauncherUI {
                     if (Rect(left1, top1, right1, bottom1) == Rect(left, top, right, bottom))
                         return@OnGlobalLayoutListener
 
-                    val params = FrameLayout.LayoutParams(width, height)
+                    val params = ViewGroup.MarginLayoutParams(width, height)
                     params.setMargins(0, top, 0, 0)
 
                     chatRoomViewPresenterPresenterView.layoutParams = params
                     officialViewPresenterPresenterView.layoutParams = params
+
+                    LogUtils.log("MainLauncherUI, onFitSystemWindowLayoutViewReady, setLayoutParams = $mainView")
                 })
     }
 

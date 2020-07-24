@@ -480,18 +480,18 @@ object MainAdapter {
         })
 
 
-        /**
-         * 2020年6月27日
-         * 新版微信 大于 7.0.16 刷新聊天界面（其实就是取全部聊天最新数据时）回取HashMap来计算未读数
-         *
-         * 这里因为改变拦截方式，所以直接取消系统的计算方式，强制返回 空
-         */
-
-        findAndHookMethod(ConversationReflectFunction.conversationHashMapBean, ConversationReflectFunction.conversationGetHashMapMethod.name, object : XC_MethodHook() {
+//        /**
+//         * 2020年6月27日
+//         * 新版微信 大于 7.0.16 刷新聊天界面（其实就是取全部聊天最新数据时）回取HashMap来计算未读数
+//         *
+//         * 这里因为改变拦截方式，所以直接取消系统的计算方式，强制返回 空
+//         */
+//
+//        findAndHookMethod(ConversationReflectFunction.conversationHashMapBean, ConversationReflectFunction.conversationGetHashMapMethod.name, object : XC_MethodHook() {
 //            override fun beforeHookedMethod(param: MethodHookParam) {
 //                param.result = HashMap<Any, Any>()
 //            }
-        })
+//        })
 
 
         MessageHandler.addMessageEventNotifyListener(object : MessageEventNotifyListener {
