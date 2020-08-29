@@ -82,18 +82,18 @@ object MessageHandler {
                     "( type & 512 ) == 0",
                     "rcontact.username != 'officialaccounts'")
 
-    private val FilterListForOriginAllUnread3 = "select * from rconversation where unReadCount > 0 " +
-            "AND (parentRef is null or parentRef = '' )  " +
-            "and ( 1 != 1  or rconversation.username like '%@im.chatroom' " +
-            "or rconversation.username like '%@chatroom' " +
-            "or rconversation.username like '%@openim' " +
-            "or rconversation.username not like '%@%' ) "
+    private val FilterListForOriginAllUnread3 = arrayOf(
+            "AND (parentRef is null or parentRef = '' )  " ,
+            "and ( 1 != 1  or rconversation.username like '%@im.chatroom' " ,
+            "or rconversation.username like '%@chatroom' " ,
+            "or rconversation.username like '%@openim' " ,
+            "or rconversation.username not like '%@%' ) ")
 
 
     private const val FilterListForOriginAllUnread2 = "rcontact.verifyFlag == 0"
 
     //判断当前sql语句是否为微信原始的未读数逻辑
-    private fun isQueryOriginAllUnReadCount(sql: String) = FilterListForOriginAllUnread3.all { sql.contains(it) } && !sql.contains(FilterListForOriginAllUnread2)
+    private fun isQueryOriginAllUnReadCount(sql: String) = FilterListForOriginAllUnread3.all { sql.contains(it) }
 
     //判断当前sql语句是否为微信原始的未读数逻辑
     private fun isQueryOriginAllConversation(sql: String) = FilterListForOriginAllConversation.all { sql.contains(it) }
@@ -333,7 +333,9 @@ object MessageHandler {
                     }
 
 
-                    //当查询未读数时的修改逻辑
+                    /**
+                     * 当查询未读数时的修改逻辑
+                     */
                     isQueryOriginAllUnReadCount(sql) -> {
 
                         LogUtils.log("MessageHandler, refreshAllConversationUnReadCount")

@@ -76,7 +76,7 @@ class PluginEntry : IXposedHookLoadPackage {
                     LogRecord.executeHook()
                 }
                 OtherHook.executeHook()
-             //   MainUnReadCount.executeHook()
+
 
             } catch (e: Throwable) {
                 e.printStackTrace()
