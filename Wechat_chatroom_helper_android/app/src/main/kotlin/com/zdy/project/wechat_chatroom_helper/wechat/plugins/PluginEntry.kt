@@ -1,8 +1,8 @@
 package     com.zdy.project.wechat_chatroom_helper.wechat.plugins
 
 import android.annotation.SuppressLint
-import android.util.Log
 import com.zdy.project.wechat_chatroom_helper.Constants
+import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
@@ -10,9 +10,11 @@ import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAd
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapterLongClick
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.log.LogRecord
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainUnReadCount
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageHandler
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.other.OtherHook
 import de.robv.android.xposed.IXposedHookLoadPackage
+import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
@@ -51,10 +53,7 @@ class PluginEntry : IXposedHookLoadPackage {
             WXObject.Adapter.C.ConversationLongClickListener = configJson.get("conversationLongClickListener").asString
             WXObject.Adapter.C.ConversationMenuItemSelectedListener = configJson.get("conversationMenuItemSelectedListener").asString
             WXObject.Adapter.C.ConversationStickyHeaderHandler = configJson.get("conversationStickyHeaderHandler").asString
-
-//            WXObject.Adapter.F.ConversationItemHighLightSelectorBackGroundInt = configJson.get("conversationItemHighLightSelectorBackGroundInt").asString.toInt()
-//            WXObject.Adapter.F.ConversationItemSelectorBackGroundInt = configJson.get("conversationItemSelectorBackGroundInt").asString.toInt()
-
+            WXObject.Adapter.C.ConversationHashMapBean = configJson.get("conversationHashMapBean").asString
             WXObject.Tool.C.Logcat = configJson.get("logcat").asString
 
             MainAdapterLongClick.parseStickyInfo(AppSaveInfo.getHelperStickyInfo()) {
@@ -63,7 +62,6 @@ class PluginEntry : IXposedHookLoadPackage {
             }
 
             Constants.defaultValue = Constants.DefaultValue(AppSaveInfo.getWechatVersionName().startsWith("7"))
-
 
 
             /**
@@ -78,6 +76,8 @@ class PluginEntry : IXposedHookLoadPackage {
                     LogRecord.executeHook()
                 }
                 OtherHook.executeHook()
+
+
             } catch (e: Throwable) {
                 e.printStackTrace()
 

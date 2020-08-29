@@ -15,10 +15,13 @@ object ConversationReflectFunction {
     val conversationListView = XposedHelpers.findClass(WXObject.Adapter.C.ConversationListView, RuntimeInfo.classloader)
     val conversationClickListener = XposedHelpers.findClass(WXObject.Adapter.C.ConversationClickListener, RuntimeInfo.classloader)
     val conversationStickyHeaderHandler = XposedHelpers.findClass(WXObject.Adapter.C.ConversationStickyHeaderHandler, RuntimeInfo.classloader)
+    val conversationHashMapBean = XposedHelpers.findClass(WXObject.Adapter.C.ConversationHashMapBean, RuntimeInfo.classloader)
+
 
 
     private val conversationTimeStringMethod = conversationWithCacheAdapter.declaredMethods
-            .filter { !it.isAccessible }.filter { it.returnType == CharSequence::class.java }
+            .filter { !it.isAccessible }
+            .filter { it.returnType == CharSequence::class.java }
             .first { it.parameterTypes.size == 1 }
 
     private val conversationAvatarMethod = conversationAvatar.methods
@@ -30,8 +33,15 @@ object ConversationReflectFunction {
                         && it.parameterTypes[3].name == Boolean::class.java.name
             }
 
+    val conversationGetHashMapMethod = conversationHashMapBean.methods
+            .filter { it.returnType == HashMap::class.java }
+            .first { it.parameterTypes.isEmpty() }
+
+
     val beanClass = ((conversationWithCacheAdapter.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>)
-    val beanConstructor = beanClass.constructors.filter { it.parameterTypes.size == 1 }.first { it.parameterTypes[0] == String::class.java }
+    val beanConstructor = beanClass.constructors
+            .filter { it.parameterTypes.size == 1 }
+            .first { it.parameterTypes[0] == String::class.java }
 
     val stickyHeaderHandlerMethod = conversationStickyHeaderHandler.methods.first { it.parameterTypes.size == 3 }
 

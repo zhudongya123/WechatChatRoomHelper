@@ -93,6 +93,8 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
 //            configData["conversationItemHighLightSelectorBackGroundInt"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationItemHighLightSelectorBackGroundInt(classes))
 //            configData["conversationItemSelectorBackGroundInt"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationItemSelectorBackGroundInt(classes))
             configData["logcat"] = parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
+            configData["conversationHashMapBean"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationHashMapBean(classes))
+
 
             writeNewConfig()
 

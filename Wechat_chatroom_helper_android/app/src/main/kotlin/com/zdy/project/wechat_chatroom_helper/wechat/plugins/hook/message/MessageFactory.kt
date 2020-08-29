@@ -22,7 +22,7 @@ object MessageFactory {
     private const val SqlForGetAllChatRoom = "select unReadCount, status, isSend, flag, conversationTime, " +
             "rconversation.username, rcontact.nickname, rcontact.lvbuff, content, msgType, digest, digestUser, attrflag, editingMsg, " +
             "atCount, unReadMuteCount, UnReadInvite from rconversation, rcontact " +
-            "where rcontact.username = rconversation.username and  rconversation.username like '%@chatroom' order by flag desc"
+            "where rcontact.username = rconversation.username and  rconversation.username like '%chatroom' order by flag desc"
 
     private fun SqlForByUsername(field_username: String) = "select unReadCount, status, flag, isSend, conversationTime, " +
             "rconversation.username, rcontact.nickname, rcontact.lvbuff, content, msgType, digest, digestUser, attrflag, editingMsg, " +
@@ -37,6 +37,8 @@ object MessageFactory {
     fun getAllChatRoom(): ArrayList<ChatInfoModel> {
         val cursor = XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, "rawQuery", SqlForGetAllChatRoom, null) as Cursor
         val list = arrayListOf<ChatInfoModel>()
+
+        LogUtils.log("MessageHandler, chatRoomCount = ${cursor.count}")
 
         while (cursor.moveToNext()) {
             list.add(buildChatInfoModelByCursor(cursor))
@@ -54,6 +56,8 @@ object MessageFactory {
     fun getAllOfficial(): ArrayList<ChatInfoModel> {
         val cursor = XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, "rawQuery", SqlForGetAllOfficial, null) as Cursor
         val list = arrayListOf<ChatInfoModel>()
+
+        LogUtils.log("MessageHandler, officialCount = ${cursor.count}")
 
         while (cursor.moveToNext()) {
             list.add(buildChatInfoModelByCursor(cursor))

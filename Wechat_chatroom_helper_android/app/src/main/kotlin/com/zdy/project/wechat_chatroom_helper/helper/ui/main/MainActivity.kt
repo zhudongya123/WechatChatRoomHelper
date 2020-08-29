@@ -20,7 +20,6 @@ import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import manager.PermissionHelper
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
-import java.util.HashMap
 
 
 class MainActivity : BaseActivity() {
