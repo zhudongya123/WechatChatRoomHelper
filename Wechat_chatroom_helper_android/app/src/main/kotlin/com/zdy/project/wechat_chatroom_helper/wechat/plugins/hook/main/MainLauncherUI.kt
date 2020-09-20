@@ -161,7 +161,6 @@ object MainLauncherUI {
     }
 
 
-
     /**
      * 通过 Activity 的 LauncherUI 的DecorView 来获取子元素FitSystemWindowLayoutView 来添加群助手View
      */
@@ -410,8 +409,8 @@ object MainLauncherUI {
                     if (Rect(left1, top1, right1, bottom1) == Rect(left, top, right, bottom))
                         return@OnGlobalLayoutListener
 
-                    val params = ViewGroup.MarginLayoutParams(width, height)
-                    params.setMargins(0, top, 0, 0)
+                    val params = AbsoluteLayout.LayoutParams(width, height, left, top)
+//                    params.setMargins(0, top, 0, 0)
 
                     chatRoomViewPresenterPresenterView.layoutParams = params
                     officialViewPresenterPresenterView.layoutParams = params
