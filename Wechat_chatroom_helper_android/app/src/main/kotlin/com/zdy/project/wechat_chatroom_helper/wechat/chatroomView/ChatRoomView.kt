@@ -19,7 +19,6 @@ import android.view.ViewTreeObserver
 import android.widget.*
 import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout
-import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
@@ -92,7 +91,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         mainView.addView(initToolbar())
         mainView.addView(mRecyclerView)
         mainView.isClickable = true
-        mainView.setPadding(0, if (Constants.defaultValue.isWechatUpdate7) ScreenUtils.getStatusHeight(mContext) else 0, 0, 0)
+        mainView.setPadding(0, ScreenUtils.getStatusHeight(mContext), 0, 0)
 
         initSwipeBack()
 

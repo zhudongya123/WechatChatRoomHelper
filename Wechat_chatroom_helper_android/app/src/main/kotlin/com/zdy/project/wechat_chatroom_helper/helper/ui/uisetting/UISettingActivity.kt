@@ -30,7 +30,7 @@ class UISettingActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_ui_setting)
 
-        Constants.defaultValue = Constants.DefaultValue(AppSaveInfo.getWechatVersionName().startsWith("7"))
+        Constants.defaultValue = Constants.DefaultValue(true)
 
         setupViewFragment()
 
