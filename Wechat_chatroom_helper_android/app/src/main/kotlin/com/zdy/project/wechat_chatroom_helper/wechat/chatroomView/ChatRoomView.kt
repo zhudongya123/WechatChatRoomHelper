@@ -3,6 +3,7 @@ package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import android.os.Handler
@@ -12,10 +13,7 @@ import android.provider.Settings
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.TypedValue
-import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
+import android.view.*
 import android.widget.*
 import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout
@@ -255,20 +253,34 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
         mToolbar.setNavigationOnClickListener { mPresenter.dismiss() }
         mToolbar.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.toolbarColorInfo(mContext)))
 
-        when (pageType) {
-            PageType.CHAT_ROOMS -> mToolbar.title = "群聊"
-            PageType.OFFICIAL -> mToolbar.title = "服务号"
-        }
-        mToolbar.setTitleTextColor(Color.parseColor("#" + AppSaveInfo.nicknameColorInfo(mContext)))
+//        when (pageType) {
+//            PageType.CHAT_ROOMS -> mToolbar.title = "群聊"
+//            PageType.OFFICIAL -> mToolbar.title = "服务号"
+//        }
+//        mToolbar.setTitleTextColor(Color.parseColor("#" + AppSaveInfo.nicknameColorInfo(mContext)))
+//
+        mToolbar.addView(TextView(mContext).apply {
+            gravity = Gravity.CENTER
+            layoutParams = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT).apply {
+                setMargins(0, 0, ScreenUtils.dip2px(mContext, 72f), 0)
+            }
+            setTextColor(Color.parseColor("#" + AppSaveInfo.nicknameColorInfo(mContext)))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+            typeface = Typeface.DEFAULT_BOLD
+            when (pageType) {
+                PageType.CHAT_ROOMS -> text = "群聊"
+                PageType.OFFICIAL -> text = "服务号"
+            }
+        })
 
         val clazz: Class<*>
         try {
             clazz = Class.forName("android.widget.Toolbar")
-            val mTitleTextView = clazz.getDeclaredField("mTitleTextView")
-            mTitleTextView.isAccessible = true
-            val textView = mTitleTextView.get(mToolbar) as TextView
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
-            textView.setTextColor(tintColor)
+//            val mTitleTextView = clazz.getDeclaredField("mTitleTextView")
+//            mTitleTextView.isAccessible = true
+//            val textView = mTitleTextView.get(mToolbar) as TextView
+//            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+//            textView.setTextColor(tintColor)
 
             val mNavButtonView = clazz.getDeclaredField("mNavButtonView")
             mNavButtonView.isAccessible = true
