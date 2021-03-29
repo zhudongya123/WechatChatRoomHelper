@@ -269,7 +269,7 @@ object MainAdapter {
 
             override fun beforeHookedMethod(param: MethodHookParam) {
 
-                LogUtils.log("MessageHooker 2019-04-12 15:36:49, thisObject className = ${param.thisObject::class.java.name}, adapter className = ${ConversationReflectFunction.conversationWithCacheAdapter.name}")
+                LogUtils.log("MessageHook 2019-04-12 15:36:49, thisObject className = ${param.thisObject::class.java.name}, adapter className = ${ConversationReflectFunction.conversationWithCacheAdapter.name}")
 
                 if (param.thisObject::class.java.name != ConversationReflectFunction.conversationWithCacheAdapter.name) return
 

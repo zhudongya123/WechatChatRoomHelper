@@ -38,7 +38,7 @@ object MessageFactory {
         val cursor = XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, "rawQuery", SqlForGetAllChatRoom, null) as Cursor
         val list = arrayListOf<ChatInfoModel>()
 
-        LogUtils.log("MessageHandler, chatRoomCount = ${cursor.count}")
+        LogUtils.log("MessageFactory, chatRoomCount = ${cursor.count}")
 
         while (cursor.moveToNext()) {
             list.add(buildChatInfoModelByCursor(cursor))
@@ -57,7 +57,7 @@ object MessageFactory {
         val cursor = XposedHelpers.callMethod(MessageHandler.MessageDatabaseObject, "rawQuery", SqlForGetAllOfficial, null) as Cursor
         val list = arrayListOf<ChatInfoModel>()
 
-        LogUtils.log("MessageHandler, officialCount = ${cursor.count}")
+        LogUtils.log("MessageFactory, officialCount = ${cursor.count}")
 
         while (cursor.moveToNext()) {
             list.add(buildChatInfoModelByCursor(cursor))
@@ -70,7 +70,7 @@ object MessageFactory {
         val chatroomList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_CHAT_ROOM)
         val data = ArrayList(list.filterNot { chatroomList.contains(it.field_username) })
 
-        LogUtils.log("getSpecChatRoom, list = ${list.joinToString { it.toString() }}, data = ${data.joinToString { it.toString() }}")
+        LogUtils.log("MessageFactory, getSpecChatRoom, list = ${list.joinToString { it.toString() }}, data = ${data.joinToString { it.toString() }}")
         return data
     }
 
@@ -79,7 +79,7 @@ object MessageFactory {
         val officialList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
         val data = ArrayList(list.filterNot { officialList.contains(it.field_username) })
 
-        LogUtils.log("getSpecOfficial, list = ${list.joinToString { it.toString() }}, data = ${data.joinToString { it.toString() }}")
+        LogUtils.log("MessageFactory, getSpecOfficial, list = ${list.joinToString { it.toString() }}, data = ${data.joinToString { it.toString() }}")
         return data
     }
 

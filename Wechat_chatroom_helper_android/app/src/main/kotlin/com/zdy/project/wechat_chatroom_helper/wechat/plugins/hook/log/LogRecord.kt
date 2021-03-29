@@ -37,14 +37,14 @@ object LogRecord {
 
                         if (param.args[2] == null) {
 
-                            LogUtils.weixinLog("level = " + param.method.name + ", name = $str1, value = $str2")
+                           // LogUtils.weixinLog("level = " + param.method.name + ", name = $str1, value = $str2")
 
                         } else {
                             val objArr = param.args[2] as Array<Any>
 
                             val format = String.format(str2, *objArr)
 
-                            LogUtils.weixinLog("level = " + param.method.name + ", name = $str1, value = $format")
+                          //  LogUtils.weixinLog("level = " + param.method.name + ", name = $str1, value = $format")
                         }
 
                     } catch (e: Exception) {

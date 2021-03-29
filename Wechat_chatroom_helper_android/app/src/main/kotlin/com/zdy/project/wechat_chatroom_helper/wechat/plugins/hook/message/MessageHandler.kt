@@ -2,16 +2,11 @@ package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message
 
 import android.content.ContentValues
 import android.database.Cursor
-import android.support.v7.widget.RecyclerView
 import android.util.Log
-import android.widget.BaseAdapter
-import android.widget.ListAdapter
-import android.widget.ListView
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.interfaces.MessageEventNotifyListener
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
@@ -33,47 +28,36 @@ object MessageHandler {
     private const val SqlForGetFirstChatroom = "select username, flag, conversationTime from rconversation where  username like '%@chatroom' order by conversationTime desc limit 1"
 
     //查询除去服务号和群聊的sql语句，可以通过拼接添加自定义名单
-    private var SqlForNewAllContactConversation = arrayOf("select unReadCount, status, isSend, conversationTime, rconversation.username, ",
-            "content, msgType, flag, digest, digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite, hasTodo ",
-            "from rconversation, rcontact " +
-                    "where  " +
-                    "( rconversation.parentRef is null  or rconversation.parentRef = ''  ) ",
-            "and ( rconversation.username = rcontact.username and rcontact.verifyFlag = 0 ) ",
-            "and ( 1 != 1 " +
-                    "or rconversation.username like '%@openim' " +
-                    "or rconversation.username not like '%@%'  " +
-                    ") ",
-            "and rconversation.username != 'qmessage' and rconversation.username != 'appbrand_notify_message' ",
-            "order by flag desc")
-
-    //查询除去服务号的未读消息总数(不完整 查看相关逻辑)
-    private var SqlForNewAllUnreadCount = "select * from rconversation, rcontact where rconversation.unReadCount > 0 " +
-            "AND (rconversation.parentRef is null or parentRef = '' ) " +
-            "AND rconversation.username = rcontact.username " +
-
-            "AND ( 1 != 1  " +
-            "or rconversation.username like '%@im.chatroom' " +
-            "or rconversation.username like '%@chatroom' " +
-            "or rconversation.username like '%@openim' " +
-            "or rconversation.username not like '%@%' )  " +
-
-            "AND ( type & 512 ) == 0 " +
-            "AND rcontact.username != 'officialaccounts' " +
-            "AND rconversation.username != 'floatbottle' " +
-            "AND rconversation.username != 'notifymessage' "
+    private var SqlForNewAllContactConversation =
+            arrayOf("select rconversation.unReadCount, rconversation.status, rconversation.isSend, " +
+                    "rconversation.conversationTime, rconversation.username, rconversation.content, " +
+                    "rconversation.msgType, rconversation.flag, rconversation.digest, " +
+                    "rconversation.digestUser, rconversation.attrflag, rconversation.editingMsg, " +
+                    "rconversation.atCount, rconversation.unReadMuteCount, " +
+                    "rconversation.UnReadInvite, rconversation.hasTodo, rconversation.hbMarkRed ",
+                    "from rconversation inner join rcontact " +
+                            "WHERE  " +
+                    "( rconversation.username = rcontact.username and rcontact.verifyFlag = 0 and rcontact.username not like '%@chatroom') ",
+                    "AND  ( parentRef is null  or parentRef = '' )",
+                    "and ( rcontact.usernameFlag in ( 4 , 2 , 65536 , 0 )  )",
+                    "and rconversation.username != 'qmessage' and rconversation.username != 'appbrand_notify_message' ",
+                    "order by flag desc")
 
     //微信原始的查询所有消息回话的语句，通过分段来筛选出相关逻辑
     private val FilterListForOriginAllConversation =
-            arrayOf("select unReadCount, status, isSend, conversationTime, username, content, msgType",
-                    "digest, digestUser, attrflag, editingMsg, atCount, unReadMuteCount, UnReadInvite",
+            arrayOf("rconversation.unReadCount, rconversation.status, rconversation.isSend, ",
+                    "rconversation.conversationTime, rconversation.username, rconversation.content, ",
+                    "rconversation.msgType, rconversation.flag, rconversation.digest, rconversation.digestUser, ",
+                    "rconversation.attrflag, rconversation.editingMsg, rconversation.atCount, ",
+                    "rconversation.unReadMuteCount, rconversation.UnReadInvite",
                     "( parentRef is null  or parentRef = '' )",
-                    "( 1 != 1  or rconversation.username like",
-                    "'%@chatroom' or rconversation.username like '%@openim'",
-                    "or rconversation.username not like '%@%' )",
                     "and rconversation.username != 'qmessage'",
-                    "order by flag desc")
+                    "order by rconversation.flag desc")
 
-    //微信原始的查询消息未读数的语句，通过分段来筛选出相关逻辑
+
+
+
+
     private val FilterListForOriginAllUnread1 =
             arrayOf("select sum(unReadCount) from rconversation, rcontact",
                     "(rconversation.parentRef is null or parentRef = '' )",
@@ -82,7 +66,11 @@ object MessageHandler {
                     "( type & 512 ) == 0",
                     "rcontact.username != 'officialaccounts'")
 
+    private const val FilterListForOriginAllUnread2 = "rcontact.verifyFlag == 0"
+
+    //微信原始的查询消息未读数的语句，通过分段来筛选出相关逻辑
     private val FilterListForOriginAllUnread3 = arrayOf(
+            "select unReadCount from rconversation",
             "AND (parentRef is null or parentRef = '' )  " ,
             "and ( 1 != 1  or rconversation.username like '%@im.chatroom' " ,
             "or rconversation.username like '%@chatroom' " ,
@@ -90,15 +78,27 @@ object MessageHandler {
             "or rconversation.username not like '%@%' ) ")
 
 
-    private const val FilterListForOriginAllUnread2 = "rcontact.verifyFlag == 0"
+    //自定义的未读消息数量(不完整 查看相关逻辑)
+    private var SqlForNewAllUnreadCount = "select rconversation.unReadCount from rconversation, rcontact where " +
+            "rconversation.unReadCount > 0 " +
+            "AND rconversation.username = 'wxid_oifslqanoq5t22'"+
+            "AND (rconversation.parentRef is null or rconversation.parentRef = '' ) " +
+            "AND rconversation.username = rcontact.username " +
+            "AND ( 1 != 1  " +
+            "or rconversation.username like '%@im.chatroom' " +
+            "or rconversation.username like '%@chatroom' " +
+            "or rconversation.username like '%@openim' " +
+            "or rconversation.username not like '%@%' )  "
+
+
 
     //判断当前sql语句是否为微信原始的未读数逻辑
     private fun isQueryOriginAllUnReadCount(sql: String) = FilterListForOriginAllUnread3.all { sql.contains(it) }
 
-    //判断当前sql语句是否为微信原始的未读数逻辑
+    //判断当前sql语句是否为微信原始的会话列表逻辑
     private fun isQueryOriginAllConversation(sql: String) = FilterListForOriginAllConversation.all { sql.contains(it) }
 
-    //判断当前sql语句是否为我们自定义的未读数逻辑
+    //判断当前sql语句是否为我们自定义的会话列表【已经去除了群聊和服务号】逻辑
     private fun isQueryNewAllConversation(sql: String) = SqlForNewAllContactConversation.all { sql.contains(it) }
 
     /**
@@ -188,9 +188,8 @@ object MessageHandler {
                      */
                     isQueryOriginAllConversation(sql) -> {
 
+                        LogUtils.log("MessageHandler, isQueryOriginAllConversation")
                         LogUtils.log("MessageHandler, originConversationSize = ${cursor.count}")
-
-                        LogUtils.log("MessageHandler, refreshAllConversation")
 
                         /**
                          * 先获取两个助手的 username (包含Sql查询)
@@ -244,6 +243,8 @@ object MessageHandler {
                      * 当请求全部联系人回话时（就是去除群聊和服务号的情况）
                      */
                     isQueryNewAllConversation(sql) -> {
+
+                        LogUtils.log("MessageHandler, isQueryNewAllConversation")
                         LogUtils.log("MessageHandler, SqlForNewAllContactConversation size = ${SqlForNewAllContactConversation.joinToString("") { it }}")
 
                         //额外查询两次，找到当前最新的服务号和群聊的最近消息时间
@@ -338,16 +339,16 @@ object MessageHandler {
                      */
                     isQueryOriginAllUnReadCount(sql) -> {
 
-                        LogUtils.log("MessageHandler, refreshAllConversationUnReadCount")
+                        LogUtils.log("MessageHandler, isQueryOriginAllUnReadCount")
 
                         val officialList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
 
                         var sqlForAllUnReadCount =
                                 if (officialList.size == 0) {
-                                    "$SqlForNewAllUnreadCount and rcontact.verifyFlag == 0 "
+                                    "$SqlForNewAllUnreadCount and ( rconversation.username = rcontact.username and rcontact.verifyFlag = 0) "
                                 } else {
                                     SqlForNewAllUnreadCount +
-                                            officialList.joinToString("' or rconversation.username = '", " and ( rconversation.username = rcontact.username and ( rconversation.username = '", "' or rcontact.verifyFlag == 0 ))") { it }
+                                            officialList.joinToString("' or rconversation.username = '", " and ( rconversation.username = rcontact.username and ( rconversation.username = '", "' or rcontact.verifyFlag = 0 ))") { it }
                                 }
 
 
@@ -360,7 +361,10 @@ object MessageHandler {
                             e.printStackTrace()
                         }
 
-                        LogUtils.log("sqlForAllUnReadCount =  $sqlForAllUnReadCount")
+                        LogUtils.log("sqlForAllUnReadCount =  $sqlForAllUnReadCount");
+
+                        sqlForAllUnReadCount ="select rconversation.unReadCount from rconversation, rcontact where rconversation.username = rcontact.username and rcontact.verifyFlag = 0"
+
                         param.result = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, sqlForAllUnReadCount, selectionArgs, editTable, cancellation)
 
 
