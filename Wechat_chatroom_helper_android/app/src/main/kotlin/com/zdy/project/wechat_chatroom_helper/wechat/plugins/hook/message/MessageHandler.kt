@@ -170,8 +170,8 @@ object MessageHandler {
                     }
                 }
 
-                LogUtils.log("MessageHandle2r, queryHook, sql = $sql")
                 if (!sql.contains("parentRef is null")) return
+                //LogUtils.log("MessageHandle2r, queryHook, sql = $sql")
 
                 val cursor = param.result as Cursor
 
@@ -330,7 +330,7 @@ object MessageHandler {
                     /**
                      * 当查询未读数时的修改逻辑
                      *
-                     * usernameFlag  2时为群聊 0为服务号  4和65536暂时没有研究
+                     * verifyFlag 0为服务号
                      */
                     isQueryOriginAllUnReadCount(sql) -> {
 
@@ -339,9 +339,7 @@ object MessageHandler {
 
                         val officialList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
 
-                        /**
-                         * 修改格式，以免重复拦截
-                         */
+
                         var newUnReadCountSql = "$sql and ( rcontact.username = rconversation.username and ( rcontact.verifyFlag = 0"
 
                         if (officialList.size != 0) {
@@ -351,6 +349,9 @@ object MessageHandler {
                         newUnReadCountSql += " ))"
 
 
+                        /**
+                         * 白名单群聊逻辑暂时去除 非免打扰群聊本来就正确显示未读数
+                         */
 //                        try {
 //                            val unMuteChatRoomList = MessageFactory.getUnMuteChatRoomList(MessageFactory.getSpecChatRoom()).map { it.field_username }
 //                            if (unMuteChatRoomList.isNotEmpty()) {

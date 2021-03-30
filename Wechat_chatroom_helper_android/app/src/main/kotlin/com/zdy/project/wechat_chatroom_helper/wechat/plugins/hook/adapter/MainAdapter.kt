@@ -26,8 +26,6 @@ import de.robv.android.xposed.XposedBridge.hookAllConstructors
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.XposedHelpers.findAndHookMethod
 import java.lang.reflect.ParameterizedType
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
 
 @SuppressLint("StaticFieldLeak")
 /**
@@ -41,15 +39,8 @@ object MainAdapter {
     var firstChatRoomPosition = -1
     var firstOfficialPosition = -1
 
-    const val asyncFlag = false
+    const val asyncFlag = true
 
-    // 可能同时刷新 2 个，故开2个线程
-    val asyncExecutor: Executor = Executors.newFixedThreadPool(2)
-
-    // 如果用户接受在主线程刷消息，那就在主线程
-    val mainThreadExecutor: Executor = Executor {
-        it.run()
-    }
 
     fun isOriginAdapterIsInitialized() = MainAdapter::originAdapter.isInitialized
 
@@ -179,39 +170,38 @@ object MainAdapter {
                         mainItemViewHolder.sendStatus.visibility = View.GONE
                         mainItemViewHolder.muteImage.visibility = View.GONE
 
-                        if (asyncFlag) asyncExecutor else mainThreadExecutor
-                                .execute {
-                                    val allChatRoom = MessageFactory.getSpecChatRoom()
-                                    val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
-                                    val totalUnReadCount = MessageFactory.getUnReadCount(allChatRoom)
-                                    val unMuteUnReadCount = MessageFactory.getUnMuteUnReadCount(allChatRoom)
-                                    LogUtils.log("getUnReadCountItemChatRoom " + allChatRoom.joinToString { "unReadCount = ${it.unReadCount}" })
 
-                                    val chatInfoModel = allChatRoom.sortedBy { -it.field_conversationTime }.first()
 
-                                    view.post {
-                                        setTextForNoMeasuredTextView(mainItemViewHolder.time, chatInfoModel.conversationTime)
-                                        if (unReadCountItem > 0) {
-                                            val spannableStringBuilder = SpannableStringBuilder().apply {
-                                                var firstLength = 0
-                                                if (unMuteUnReadCount > 0) {
-                                                    append("[${unMuteUnReadCount}条] ")
-                                                    firstLength = length
-                                                    setSpan(ForegroundColorSpan(MainItemViewHolder.Conversation_Red_Text_Color), 0, firstLength, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE)
-                                                }
-                                                append("[ $unReadCountItem 个群聊收到 $totalUnReadCount 条新消息]")
-                                                setSpan(ForegroundColorSpan(MainItemViewHolder.Conversation_Light_Text_Color), firstLength, length, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE)
-                                            }
-                                            setTextForNoMeasuredTextView(mainItemViewHolder.content, spannableStringBuilder)
+                        val allChatRoom = MessageFactory.getSpecChatRoom()
+                        val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
+                        val totalUnReadCount = MessageFactory.getUnReadCount(allChatRoom)
+                        val unMuteUnReadCount = MessageFactory.getUnMuteUnReadCount(allChatRoom)
+                        LogUtils.log("getUnReadCountItemChatRoom " + allChatRoom.joinToString { "unReadCount = ${it.unReadCount}" })
 
-                                            mainItemViewHolder.unMuteReadIndicators.visibility = View.VISIBLE
-                                        } else {
-                                            setTextColorForNoMeasuredTextView(mainItemViewHolder.content, Color.parseColor("#" + AppSaveInfo.contentColorInfo(mainItemViewHolder.content.context)))
-                                            setTextForNoMeasuredTextView(mainItemViewHolder.content, "${chatInfoModel.nickname}：${chatInfoModel.content}")
-                                            mainItemViewHolder.unMuteReadIndicators.visibility = View.GONE
-                                        }
+                        val chatInfoModel = allChatRoom.sortedBy { -it.field_conversationTime }.first()
+
+                        view.post {
+                            setTextForNoMeasuredTextView(mainItemViewHolder.time, chatInfoModel.conversationTime)
+                            if (unReadCountItem > 0) {
+                                val spannableStringBuilder = SpannableStringBuilder().apply {
+                                    var firstLength = 0
+                                    if (unMuteUnReadCount > 0) {
+                                        append("[${unMuteUnReadCount}条] ")
+                                        firstLength = length
+                                        setSpan(ForegroundColorSpan(MainItemViewHolder.Conversation_Red_Text_Color), 0, firstLength, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE)
                                     }
+                                    append("[ $unReadCountItem 个群聊收到 $totalUnReadCount 条新消息]")
+                                    setSpan(ForegroundColorSpan(MainItemViewHolder.Conversation_Light_Text_Color), firstLength, length, SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE)
                                 }
+                                setTextForNoMeasuredTextView(mainItemViewHolder.content, spannableStringBuilder)
+
+                                mainItemViewHolder.unMuteReadIndicators.visibility = View.VISIBLE
+                            } else {
+                                setTextColorForNoMeasuredTextView(mainItemViewHolder.content, Color.parseColor("#" + AppSaveInfo.contentColorInfo(mainItemViewHolder.content.context)))
+                                setTextForNoMeasuredTextView(mainItemViewHolder.content, "${chatInfoModel.nickname}：${chatInfoModel.content}")
+                                mainItemViewHolder.unMuteReadIndicators.visibility = View.GONE
+                            }
+                        }
                     }
 
                     private fun refreshOfficialView(view: View?, position: Int) {
@@ -228,38 +218,37 @@ object MainAdapter {
                         mainItemViewHolder.sendStatus.visibility = View.GONE
                         mainItemViewHolder.muteImage.visibility = View.GONE
 
-                        if (asyncFlag) asyncExecutor else mainThreadExecutor
-                                .execute {
-                                    val allOfficial = MessageFactory.getSpecOfficial()
-                                    val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)
-                                    val totalUnReadCount = MessageFactory.getUnReadCount(allOfficial)
 
-                                    LogUtils.log("getUnReadCountItemChatRoom " + allOfficial.joinToString { "unReadCount = ${it.unReadCount}" })
 
-                                    val chatInfoModel = allOfficial.sortedBy { -it.field_conversationTime }.first()
+                        val allOfficial = MessageFactory.getSpecOfficial()
+                        val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)
+                        val totalUnReadCount = MessageFactory.getUnReadCount(allOfficial)
 
-                                    view.post {
-                                        setTextForNoMeasuredTextView(mainItemViewHolder.time, chatInfoModel.conversationTime)
-                                        val oldOfficialCString = getTextFromNoMeasuredTextView(mainItemViewHolder.content)
+                        LogUtils.log("getUnReadCountItemChatRoom " + allOfficial.joinToString { "unReadCount = ${it.unReadCount}" })
 
-                                        if (unReadCountItem > 0) {
-                                            val newOfficialString = "[ $unReadCountItem 个服务号收到 $totalUnReadCount 条新消息]"
-                                            if (oldOfficialCString != newOfficialString) {
-                                                Log.v("refreshOfficialView", "newOfficialString = $newOfficialString, oldOfficialCString = $oldOfficialCString")
-                                                setTextForNoMeasuredTextView(mainItemViewHolder.content, newOfficialString)
-                                                setTextColorForNoMeasuredTextView(mainItemViewHolder.content, MainItemViewHolder.Conversation_Light_Text_Color)
-                                            }
-                                            mainItemViewHolder.unMuteReadIndicators.visibility = View.VISIBLE
-                                        } else {
-                                            val newOfficialString = "${chatInfoModel.nickname}：${chatInfoModel.content}"
-                                            if (oldOfficialCString != newOfficialString) {
-                                                setTextForNoMeasuredTextView(mainItemViewHolder.content, newOfficialString)
-                                                setTextColorForNoMeasuredTextView(mainItemViewHolder.content, Color.parseColor("#" + AppSaveInfo.contentColorInfo(mainItemViewHolder.content.context)))
-                                            }
-                                            mainItemViewHolder.unMuteReadIndicators.visibility = View.GONE
-                                        }
-                                    }
+                        val chatInfoModel = allOfficial.sortedBy { -it.field_conversationTime }.first()
+
+                        view.post {
+                            setTextForNoMeasuredTextView(mainItemViewHolder.time, chatInfoModel.conversationTime)
+                            val oldOfficialCString = getTextFromNoMeasuredTextView(mainItemViewHolder.content)
+
+                            if (unReadCountItem > 0) {
+                                val newOfficialString = "[ $unReadCountItem 个服务号收到 $totalUnReadCount 条新消息]"
+                                if (oldOfficialCString != newOfficialString) {
+                                    Log.v("refreshOfficialView", "newOfficialString = $newOfficialString, oldOfficialCString = $oldOfficialCString")
+                                    setTextForNoMeasuredTextView(mainItemViewHolder.content, newOfficialString)
+                                    setTextColorForNoMeasuredTextView(mainItemViewHolder.content, MainItemViewHolder.Conversation_Light_Text_Color)
                                 }
+                                mainItemViewHolder.unMuteReadIndicators.visibility = View.VISIBLE
+                            } else {
+                                val newOfficialString = "${chatInfoModel.nickname}：${chatInfoModel.content}"
+                                if (oldOfficialCString != newOfficialString) {
+                                    setTextForNoMeasuredTextView(mainItemViewHolder.content, newOfficialString)
+                                    setTextColorForNoMeasuredTextView(mainItemViewHolder.content, Color.parseColor("#" + AppSaveInfo.contentColorInfo(mainItemViewHolder.content.context)))
+                                }
+                                mainItemViewHolder.unMuteReadIndicators.visibility = View.GONE
+                            }
+                        }
                     }
                 })
 
