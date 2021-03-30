@@ -137,6 +137,11 @@ object MainAdapter {
                                 refreshOfficialView(view, position)
                                 param.result = view
                             }
+
+                            else -> {
+
+
+                            }
                         }
 
                         /**
@@ -376,7 +381,7 @@ object MainAdapter {
                             //todo 返回了空的数据，此时getcount和getitem已经无法对应 所以直接刷新list
                             if (result == null) {
                                 LogUtils.log("MessageHook 2019-04-01 15:30:00, index = $index")
-                               // MainLauncherUI.restartMainActivity()
+                                // MainLauncherUI.restartMainActivity()
                                 val result = getCustomItemForEntry(firstOfficialPosition)
                                 param.result = result
                             }
