@@ -20,8 +20,8 @@ android {
         applicationId "com.zdy.project.wechat_chatroom_helper"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.sdkVersion
-        versionCode 48
-        versionName "1.4.13"
+        versionCode 49
+        versionName "1.4.14"
     }
 
     buildTypes {
