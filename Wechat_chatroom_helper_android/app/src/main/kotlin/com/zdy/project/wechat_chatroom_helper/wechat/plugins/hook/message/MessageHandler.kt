@@ -57,7 +57,7 @@ object MessageHandler {
 
 
 
-
+    @Deprecated("微信老版本废弃")
     private val FilterListForOriginAllUnread1 =
             arrayOf("select sum(unReadCount) from rconversation, rcontact",
                     "(rconversation.parentRef is null or parentRef = '' )",
@@ -66,34 +66,28 @@ object MessageHandler {
                     "( type & 512 ) == 0",
                     "rcontact.username != 'officialaccounts'")
 
+    @Deprecated("微信老版本废弃， verifyFlag为0时一定不是订阅号和服务号")
     private const val FilterListForOriginAllUnread2 = "rcontact.verifyFlag == 0"
 
-    //微信原始的查询消息未读数的语句，通过分段来筛选出相关逻辑
+    @Deprecated("微信8.0.2废弃")
     private val FilterListForOriginAllUnread3 = arrayOf(
             "select unReadCount from rconversation",
-            "AND (parentRef is null or parentRef = '' )  " ,
-            "and ( 1 != 1  or rconversation.username like '%@im.chatroom' " ,
-            "or rconversation.username like '%@chatroom' " ,
-            "or rconversation.username like '%@openim' " ,
+            "AND (parentRef is null or parentRef = '' )  ",
+            "and ( 1 != 1  or rconversation.username like '%@im.chatroom' ",
+            "or rconversation.username like '%@chatroom' ",
+            "or rconversation.username like '%@openim' ",
             "or rconversation.username not like '%@%' ) ")
 
-
-    //自定义的未读消息数量(不完整 查看相关逻辑)
-    private var SqlForNewAllUnreadCount = "select rconversation.unReadCount from rconversation, rcontact where " +
-            "rconversation.unReadCount > 0 " +
-            "AND rconversation.username = 'wxid_oifslqanoq5t22'"+
-            "AND (rconversation.parentRef is null or rconversation.parentRef = '' ) " +
-            "AND rconversation.username = rcontact.username " +
-            "AND ( 1 != 1  " +
-            "or rconversation.username like '%@im.chatroom' " +
-            "or rconversation.username like '%@chatroom' " +
-            "or rconversation.username like '%@openim' " +
-            "or rconversation.username not like '%@%' )  "
-
+    //微信原始的查询消息未读数的语句，通过分段来筛选出相关逻辑
+    private val FilterListForOriginAllUnread4 = arrayOf("SELECT rconversation.username, rconversation.unReadCount, rconversation.conversationTime",
+            "from rconversation inner join rcontact", "" +
+            "WHERE rconversation.username = rcontact.username AND unReadCount > 0",
+            "AND  ( parentRef is null or parentRef = '' )",
+            "and ( rcontact.usernameFlag in ( 4 , 2 , 65536 , 0 )  )")
 
 
     //判断当前sql语句是否为微信原始的未读数逻辑
-    private fun isQueryOriginAllUnReadCount(sql: String) = FilterListForOriginAllUnread3.all { sql.contains(it) }
+    private fun isQueryOriginAllUnReadCount(sql: String) = FilterListForOriginAllUnread4.all { sql.contains(it) }
 
     //判断当前sql语句是否为微信原始的会话列表逻辑
     private fun isQueryOriginAllConversation(sql: String) = FilterListForOriginAllConversation.all { sql.contains(it) }
@@ -176,7 +170,7 @@ object MessageHandler {
                     }
                 }
 
-                LogUtils.log("MessageHandler, queryHook, sql = $sql")
+                LogUtils.log("MessageHandle2r, queryHook, sql = $sql")
                 if (!sql.contains("parentRef is null")) return
 
                 val cursor = param.result as Cursor
@@ -232,8 +226,7 @@ object MessageHandler {
                                     prefix + list.joinToString("' or rconversation.username = '", "or ( rconversation.username = rcontact.username and ( rconversation.username = '", "' )) ") { it } + postfix
                                 }
 
-                        LogUtils.log("sqlForAllConversation =  $sqlForAllConversation")
-
+                        LogUtils.log("MessageHandler, sqlForAllConversation =  $sqlForAllConversation")
 
                         val result = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, sqlForAllConversation, selectionArgs, editTable, cancellation)
                         param.result = result
@@ -336,36 +329,40 @@ object MessageHandler {
 
                     /**
                      * 当查询未读数时的修改逻辑
+                     *
+                     * usernameFlag  2时为群聊 0为服务号  4和65536暂时没有研究
                      */
                     isQueryOriginAllUnReadCount(sql) -> {
 
-                        LogUtils.log("MessageHandler, isQueryOriginAllUnReadCount")
+
+                        if (sql.contains("verifyFlag"))return
 
                         val officialList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
 
-                        var sqlForAllUnReadCount =
-                                if (officialList.size == 0) {
-                                    "$SqlForNewAllUnreadCount and ( rconversation.username = rcontact.username and rcontact.verifyFlag = 0) "
-                                } else {
-                                    SqlForNewAllUnreadCount +
-                                            officialList.joinToString("' or rconversation.username = '", " and ( rconversation.username = rcontact.username and ( rconversation.username = '", "' or rcontact.verifyFlag = 0 ))") { it }
-                                }
+                        /**
+                         * 修改格式，以免重复拦截
+                         */
+                        var newUnReadCountSql = "$sql and ( rcontact.username = rconversation.username and ( rcontact.verifyFlag = 0"
 
-
-                        try {
-                            val unMuteChatRoomList = MessageFactory.getUnMuteChatRoomList(MessageFactory.getSpecChatRoom()).map { it.field_username }
-                            if (unMuteChatRoomList.isNotEmpty()) {
-                                sqlForAllUnReadCount += unMuteChatRoomList.joinToString("' and rconversation.username != '", " and rconversation.username != '", "' ") { it }
-                            }
-                        } catch (e: Throwable) {
-                            e.printStackTrace()
+                        if (officialList.size != 0) {
+                            newUnReadCountSql += officialList.joinToString("' or rconversation.username = '", " or  rconversation.username = '", "'") { it }
                         }
 
-                        LogUtils.log("sqlForAllUnReadCount =  $sqlForAllUnReadCount");
+                        newUnReadCountSql += " ))"
 
-                        sqlForAllUnReadCount ="select rconversation.unReadCount from rconversation, rcontact where rconversation.username = rcontact.username and rcontact.verifyFlag = 0"
 
-                        param.result = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, sqlForAllUnReadCount, selectionArgs, editTable, cancellation)
+//                        try {
+//                            val unMuteChatRoomList = MessageFactory.getUnMuteChatRoomList(MessageFactory.getSpecChatRoom()).map { it.field_username }
+//                            if (unMuteChatRoomList.isNotEmpty()) {
+//                                newUnReadCountSql += unMuteChatRoomList.joinToString("' and rconversation.username != '", " and rconversation.username != '", "' ") { it }
+//                            }
+//                        } catch (e: Throwable) {
+//                            e.printStackTrace()
+//                        }
+
+                        LogUtils.log("MessageHandler, sqlForAllUnReadCount =  $newUnReadCountSql")
+
+                        param.result = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, newUnReadCountSql, selectionArgs, editTable, cancellation)
 
 
                     }

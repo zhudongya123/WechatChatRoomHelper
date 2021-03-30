@@ -12,19 +12,19 @@ import java.nio.ByteBuffer
 
 object MessageFactory {
 
-    private const val SqlForGetAllOfficial = "select unReadCount, status, isSend, flag, conversationTime," +
+    private const val SqlForGetAllOfficial = "select unReadCount, status, isSend, flag, conversationTime, rcontact.usernameFlag, " +
             "rconversation.username, rcontact.nickname, rcontact.lvbuff, content, msgType ,digest, digestUser, attrflag, editingMsg, " +
             "atCount, unReadMuteCount, UnReadInvite from rconversation, rcontact " +
             "where ( rcontact.username = rconversation.username and rcontact.verifyFlag != 0) and ( parentRef is null  or parentRef = '' )  " +
             "and ( 1 !=1 or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  " +
             "and rconversation.username != 'qmessage' order by flag desc"
 
-    private const val SqlForGetAllChatRoom = "select unReadCount, status, isSend, flag, conversationTime, " +
+    private const val SqlForGetAllChatRoom = "select unReadCount, status, isSend, flag, conversationTime, rcontact.usernameFlag, " +
             "rconversation.username, rcontact.nickname, rcontact.lvbuff, content, msgType, digest, digestUser, attrflag, editingMsg, " +
             "atCount, unReadMuteCount, UnReadInvite from rconversation, rcontact " +
             "where rcontact.username = rconversation.username and  rconversation.username like '%chatroom' order by flag desc"
 
-    private fun SqlForByUsername(field_username: String) = "select unReadCount, status, flag, isSend, conversationTime, " +
+    private fun SqlForByUsername(field_username: String) = "select unReadCount, status, flag, isSend, conversationTime, rcontact.usernameFlag, " +
             "rconversation.username, rcontact.nickname, rcontact.lvbuff, content, msgType, digest, digestUser, attrflag, editingMsg, " +
             "atCount, unReadMuteCount, UnReadInvite from rconversation, rcontact " +
             "where rconversation.username = rcontact.username and rconversation.username = '$field_username'"
@@ -137,6 +137,8 @@ object MessageFactory {
             field_UnReadInvite = cursor.getInt(cursor.getColumnIndex("UnReadInvite"))
             field_unReadCount = cursor.getInt(cursor.getColumnIndex("unReadCount"))
             field_lvbuff = cursor.getBlob(cursor.getColumnIndex("lvbuff"))
+            field_usernameFlag = cursor.getInt(cursor.getColumnIndex("usernameFlag"))
+
 
             val obj = ConversationReflectFunction.beanConstructor.newInstance("")
             ConversationReflectFunction.beanClass.getField("field_flag").set(obj, field_flag)

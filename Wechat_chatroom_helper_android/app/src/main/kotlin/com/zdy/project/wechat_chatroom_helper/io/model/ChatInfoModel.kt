@@ -18,6 +18,7 @@ class ChatInfoModel {
     var field_conversationTime: Long = 0L
 
     var field_flag: Long = 0L
+    var field_usernameFlag: Int = 0
     var field_isSend: Int = 0
     var field_status: Int = 0
     var field_attrflag: Int = 0
@@ -55,7 +56,10 @@ class ChatInfoModel {
     }
 
     override fun toString(): String {
-        return "ChatInfoModel, username = $field_username, nickname = $nickname, content = $content, conversationTime = $conversationTime, unReadMuteCount = $unReadMuteCount, unReadCount = $unReadCount"
+        return "ChatInfoModel, username = $field_username, nickname = $nickname, content = $content, " +
+                "conversationTime = $conversationTime, unReadMuteCount = $unReadMuteCount, " +
+                "unReadCount = $unReadCount, field_usernameFlag = $field_usernameFlag, " +
+                "field_flag = $field_flag, field_attrflag = $field_attrflag"
     }
 
 }
