@@ -45,14 +45,10 @@ object MessageHandler {
 
     //微信原始的查询所有消息回话的语句，通过分段来筛选出相关逻辑
     private val FilterListForOriginAllConversation =
-            arrayOf("rconversation.unReadCount, rconversation.status, rconversation.isSend, ",
-                    "rconversation.conversationTime, rconversation.username, rconversation.content, ",
-                    "rconversation.msgType, rconversation.flag, rconversation.digest, rconversation.digestUser, ",
-                    "rconversation.attrflag, rconversation.editingMsg, rconversation.atCount, ",
-                    "rconversation.unReadMuteCount, rconversation.UnReadInvite",
+            arrayOf("select unReadCount, status, isSend, conversationTime, username, content, msgType, flag, digest, digestUser, attrflag, editingMsg,",
                     "( parentRef is null  or parentRef = '' )",
                     "and rconversation.username != 'qmessage'",
-                    "order by rconversation.flag desc")
+                    "order by flag desc")
 
 
 
@@ -171,7 +167,7 @@ object MessageHandler {
                 }
 
                 if (!sql.contains("parentRef is null")) return
-                //LogUtils.log("MessageHandle2r, queryHook, sql = $sql")
+                LogUtils.log("MessageHandle2r, queryHook, sql = $sql")
 
                 val cursor = param.result as Cursor
 

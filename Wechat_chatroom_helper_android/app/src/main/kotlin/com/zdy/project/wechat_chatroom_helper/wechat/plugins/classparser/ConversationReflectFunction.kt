@@ -1,5 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser
 
+import android.util.Log
 import android.widget.ImageView
 import com.blankj.utilcode.util.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
@@ -11,7 +12,7 @@ object ConversationReflectFunction {
 
     val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithCacheAdapter, RuntimeInfo.classloader)
     val conversationAvatar = XposedHelpers.findClass(WXObject.Adapter.C.ConversationAvatar, RuntimeInfo.classloader)
-    val conversationWithAppBrandListView = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithAppBrandListView, RuntimeInfo.classloader)
+  //  val conversationWithAppBrandListView = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithAppBrandListView, RuntimeInfo.classloader)
     val conversationListView = XposedHelpers.findClass(WXObject.Adapter.C.ConversationListView, RuntimeInfo.classloader)
     val conversationClickListener = XposedHelpers.findClass(WXObject.Adapter.C.ConversationClickListener, RuntimeInfo.classloader)
     val conversationStickyHeaderHandler = XposedHelpers.findClass(WXObject.Adapter.C.ConversationStickyHeaderHandler, RuntimeInfo.classloader)
@@ -91,6 +92,7 @@ object ConversationReflectFunction {
 
     fun getConversationContent(adapter: Any, chatInfoModel: ChatInfoModel): CharSequence {
 
+        Log.v("getConversationContent","beanClass = ${beanClass.simpleName}")
         val getContentMethod = conversationWithCacheAdapter.declaredMethods
                 .filter { it.parameterTypes.size == 3 }
                 .single {
