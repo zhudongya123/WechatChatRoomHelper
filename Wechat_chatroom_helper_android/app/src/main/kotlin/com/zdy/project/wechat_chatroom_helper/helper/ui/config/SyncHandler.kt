@@ -80,7 +80,7 @@ class SyncHandler(val activity: ConfigActivity) : Handler() {
             }
 
             HANDLER_SHOW_NEXT_BUTTON -> {
-                activity.setNavigationBarNextButtonEnabled2(true)
+                activity.setNavigationBarNextButtonEnabled(true)
             }
         }
     }
