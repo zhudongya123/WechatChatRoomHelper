@@ -167,7 +167,7 @@ object MessageHandler {
                 }
 
                 if (!sql.contains("parentRef is null")) return
-                LogUtils.log("MessageHandle2r, queryHook, sql = $sql")
+             //   LogUtils.log("MessageHandle2r, queryHook, sql = $sql")
 
                 val cursor = param.result as Cursor
 

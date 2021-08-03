@@ -39,7 +39,6 @@ object MainAdapter {
     var firstChatRoomPosition = -1
     var firstOfficialPosition = -1
 
-    const val asyncFlag = true
 
 
     fun isOriginAdapterIsInitialized() = MainAdapter::originAdapter.isInitialized
