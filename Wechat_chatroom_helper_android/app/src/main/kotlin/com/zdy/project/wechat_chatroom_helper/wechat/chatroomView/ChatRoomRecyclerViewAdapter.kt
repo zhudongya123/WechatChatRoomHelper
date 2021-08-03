@@ -75,6 +75,9 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
         holder.time.setTextColor(Color.parseColor("#" + AppSaveInfo.timeColorInfo(mContext)))
         holder.divider.setBackgroundColor(Color.parseColor("#" + AppSaveInfo.dividerColorInfo(mContext)))
 
+        /**
+         * 是否为置顶
+         */
         if (item.backgroundFlag != 0L) {
             holder.itemView.background = ChatRoomViewFactory.getItemViewBackgroundSticky(mContext)
         } else {

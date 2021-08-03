@@ -1,6 +1,5 @@
 package com.zdy.project.wechat_chatroom_helper.helper.ui.config
 
-import android.content.Intent
 import android.os.Bundle
 import android.support.annotation.ColorRes
 import android.support.annotation.IdRes
@@ -23,14 +22,13 @@ import manager.PermissionHelper
 class ConfigActivity : AppCompatActivity() {
 
     enum class PageName {
-        WELCOME,
-        WRITE_AND_READ_FILE,
-        WRITE_CONFIG
+        WELCOME,//欢迎页面
+        WRITE_AND_READ_FILE,//读写权限页面
+        WRITE_CONFIG//写配置页面
     }
 
 
     private var currentPage: PageName = PageName.WELCOME
-
 
     private lateinit var setupWizardLayout: SetupWizardLayout
     private lateinit var mContainerLayout: ViewGroup
@@ -47,15 +45,20 @@ class ConfigActivity : AppCompatActivity() {
 
         setupWizardLayout.navigationBar.setNavigationBarListener(object : NavigationBar.NavigationBarListener {
             override fun onNavigateBack() {
+                //后退
                 gotoPriorPage()
             }
 
             override fun onNavigateNext() {
+                //前进
                 gotoNextPage()
             }
         })
     }
 
+    /**
+     * 进入下一个页面
+     */
     fun gotoNextPage() {
         when (currentPage) {
             PageName.WELCOME -> {
@@ -72,6 +75,10 @@ class ConfigActivity : AppCompatActivity() {
         setupPage()
     }
 
+
+    /**
+     * 进入上一个页面
+     */
     fun gotoPriorPage() {
         when (currentPage) {
             PageName.WELCOME -> {
@@ -89,7 +96,7 @@ class ConfigActivity : AppCompatActivity() {
     }
 
 
-    fun setupPage() {
+    private fun setupPage() {
         when (currentPage) {
             PageName.WELCOME -> {
                 setupWizardLayout.navigationBar.backButton.visibility = View.GONE
@@ -121,9 +128,11 @@ class ConfigActivity : AppCompatActivity() {
     }
 
 
+    /**
+     * 设置继续按钮是否可以点击
+     */
     fun setNavigationBarNextButtonEnabled(nextButtonEnable: Boolean) {
         setupWizardLayout.navigationBar.nextButton.isEnabled = nextButtonEnable
-
     }
 
     private fun initColorTextView(@IdRes id: Int, @StringRes text: Int, @ColorRes color: Int) {
@@ -132,6 +141,9 @@ class ConfigActivity : AppCompatActivity() {
         textView.setTextColor(ContextCompat.getColor(this, color))
     }
 
+    /**
+     * 检查权限设置
+     */
     private fun checkPermission() {
         when (PermissionHelper.check(this)) {
             PermissionHelper.ALLOW -> {
@@ -161,6 +173,9 @@ class ConfigActivity : AppCompatActivity() {
 
     }
 
+    /**
+     * 查找微信配置类
+     */
     private fun parseApkClasses() {
         AppSaveInfo.setSuitWechatDataInfo(false)
         WechatJsonUtils.putFileString()
@@ -178,7 +193,6 @@ class ConfigActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         task?.cancel(true)
-
     }
 
 }

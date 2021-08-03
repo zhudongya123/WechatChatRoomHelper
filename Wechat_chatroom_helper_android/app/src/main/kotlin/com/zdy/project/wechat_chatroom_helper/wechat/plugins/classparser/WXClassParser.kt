@@ -1,6 +1,7 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser
 
 import android.database.AbstractCursor
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
@@ -37,7 +38,6 @@ object WXClassParser {
                     .firstOrNull { it.methods.any { it.name == "clearCache" } }!!
             return clazz
         }
-
 
 
         fun getConversationClickListener(classes: MutableList<Class<*>>): Class<*>? {
@@ -120,7 +120,7 @@ object WXClassParser {
 
             return classes
                     .filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.plugin.messenger.foundation") }
-                    .filter { Modifier.isFinal(it.modifiers) }
+                    //.filter { Modifier.isFinal(it.modifiers) }
                     .firstOrNull { it ->
                         try {
                             it.methods.any { method ->
@@ -190,11 +190,30 @@ object WXClassParser {
         }
 
         fun getConversationHashMapBean(classes: MutableList<Class<*>>): Class<*>? {
+
+            val conversationWithCacheAdapter = getConversationWithCacheAdapter(classes)!!
+
+            val conversationWithCacheAdapterGetItem = conversationWithCacheAdapter.superclass.methods
+                    .filter { it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java }
+                    .filter { it.returnType != Int::class.java }
+                    .first { it.name != "getItem" && it.name != "getItemId" }.name
+
+            Log.v("erGetItem", "conversationWithCacheAdapterGetItem = $conversationWithCacheAdapterGetItem")
+
+            val conversationWithCacheAdapterGetItem2 = conversationWithCacheAdapter.superclass.declaredMethods
+                    .filter { it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java }
+                    .first { it.name != "getItem" && it.name != "getItemId" }.name
+
+
+            Log.v("erGetItem", "conversationWithCacheAdapterGetItem = $conversationWithCacheAdapterGetItem2")
+
             return classes
-                    .filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.storagebase") }
-                    .filter { Modifier.isFinal(it.modifiers) }
-                    .filter { it.methods.any { it.name == "checkPosition" } }
-                    .firstOrNull { it.declaredFields.any { it.name == "pageSize" && it.type == Int::class.java } }
+                    .filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.storagebase.a.f") }
+                    //   .filter { Modifier.isFinal(it.modifiers) }
+                    .filter { it.declaredMethods.any { it.name == "checkPosition" } }
+                    .firstOrNull {
+                        it.declaredFields.any { it.name == "pageSize" && it.type == Int::class.java }
+                    }
         }
     }
 }
