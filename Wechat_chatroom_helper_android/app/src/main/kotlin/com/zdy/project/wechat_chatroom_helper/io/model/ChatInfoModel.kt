@@ -35,7 +35,10 @@ class ChatInfoModel {
     var unReadCount: Int = 0
     var chatRoomMuteFlag = false
 
-    var backgroundFlag: Long = 0
+    /**
+     * 判断是否置顶
+     */
+    var stickyFlag: Long = 0
 
 
     override fun equals(other: Any?): Boolean {
@@ -49,10 +52,6 @@ class ChatInfoModel {
         if (other.unReadCount != unReadCount) return false
 
         return true
-    }
-
-    override fun hashCode(): Int {
-        return super.hashCode()
     }
 
     override fun toString(): String {

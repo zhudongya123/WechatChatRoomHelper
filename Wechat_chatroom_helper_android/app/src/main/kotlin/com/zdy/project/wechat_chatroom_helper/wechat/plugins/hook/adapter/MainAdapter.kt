@@ -44,9 +44,6 @@ object MainAdapter {
     fun isOriginAdapterIsInitialized() = MainAdapter::originAdapter.isInitialized
 
     fun executeHook() {
-        val conversationWithCacheAdapterGetItem = ConversationReflectFunction.conversationWithCacheAdapter.superclass.declaredMethods
-                .filter { it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java }
-                .first { it.name != "getItem" && it.name != "getItemId" }.name
 
         /**
          * 主页面的adapter构造时的回调
@@ -170,7 +167,6 @@ object MainAdapter {
                         mainItemViewHolder.muteImage.visibility = View.GONE
 
 
-
                         val allChatRoom = MessageFactory.getSpecChatRoom()
                         val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
                         val totalUnReadCount = MessageFactory.getUnReadCount(allChatRoom)
@@ -218,7 +214,6 @@ object MainAdapter {
                         mainItemViewHolder.muteImage.visibility = View.GONE
 
 
-
                         val allOfficial = MessageFactory.getSpecOfficial()
                         val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)
                         val totalUnReadCount = MessageFactory.getUnReadCount(allOfficial)
@@ -254,7 +249,9 @@ object MainAdapter {
         /**
          * 修改 getObject 的数据下标 【 插入两个view 原来getObject的位置也要发生变化】
          */
-        findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter.superclass, conversationWithCacheAdapterGetItem,
+
+        findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter.superclass,
+                ConversationReflectFunction.conversationWithCacheAdapterGetItemMethodName,
                 Int::class.java, object : XC_MethodHook() {
 
             private var getItemChatRoomFlag = false

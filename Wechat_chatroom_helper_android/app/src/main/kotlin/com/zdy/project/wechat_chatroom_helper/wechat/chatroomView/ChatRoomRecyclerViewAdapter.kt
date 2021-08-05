@@ -4,8 +4,6 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.support.v7.widget.RecyclerView
-import android.text.SpannableStringBuilder
-import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.view.ViewGroup
 import com.zdy.project.wechat_chatroom_helper.LogUtils
@@ -78,7 +76,7 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
         /**
          * 是否为置顶
          */
-        if (item.backgroundFlag != 0L) {
+        if (item.stickyFlag != 0L) {
             holder.itemView.background = ChatRoomViewFactory.getItemViewBackgroundSticky(mContext)
         } else {
             holder.itemView.background = ChatRoomViewFactory.getItemViewBackground(mContext)

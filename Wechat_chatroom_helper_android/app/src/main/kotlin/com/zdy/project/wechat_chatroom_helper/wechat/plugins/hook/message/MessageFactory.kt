@@ -139,16 +139,16 @@ object MessageFactory {
             field_lvbuff = cursor.getBlob(cursor.getColumnIndex("lvbuff"))
             field_usernameFlag = cursor.getInt(cursor.getColumnIndex("usernameFlag"))
 
-
-            val obj = ConversationReflectFunction.beanConstructor.newInstance("")
-            ConversationReflectFunction.beanClass.getField("field_flag").set(obj, field_flag)
-
-            backgroundFlag = getStickFlagInfo(obj)
+            stickyFlag = kotlin.run {
+                val obj = ConversationReflectFunction.beanConstructor.newInstance("")
+                ConversationReflectFunction.setupItemClassField(obj, "field_flag", field_flag)
+                return@run getStickFlagInfo(obj)
+            }
 
             if (MainAdapter.isOriginAdapterIsInitialized()) {
                 content = ConversationReflectFunction.getConversationContent(MainAdapter.originAdapter, this)
                 nickname = if (field_nickname.isEmpty()) "群聊" else field_nickname
-           //     nickname = ConversationReflectFunction.getConversationNickname(MainAdapter.originAdapter, this)
+                nickname = ConversationReflectFunction.getConversationNickname(MainAdapter.originAdapter, this)
             } else {
                 content = field_content
                 nickname = if (field_nickname.isEmpty()) "群聊" else field_nickname

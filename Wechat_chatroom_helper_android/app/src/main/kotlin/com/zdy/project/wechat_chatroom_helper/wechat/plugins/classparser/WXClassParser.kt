@@ -105,14 +105,17 @@ object WXClassParser {
                     .firstOrNull { it.declaredClasses.any { it.methods.map { it.name }.contains("doInvalidate") } }!!
                     .declaredClasses!!
                     .firstOrNull {
-                        it.methods.any {
-                            it.parameterTypes.isNotEmpty() &&
+                        it.declaredMethods.any {
+                            it.parameterTypes.size == 4 &&
                                     it.parameterTypes[0].name == ImageView::class.java.name
                         }
                     }
         }
 
 
+        /**
+         * 获取置顶的标记方法
+         */
         fun getConversationStickyHeaderHandler(classes: MutableList<Class<*>>): Class<*>? {
 
             val conversationWithCacheAdapter = getConversationWithCacheAdapter(classes)!!

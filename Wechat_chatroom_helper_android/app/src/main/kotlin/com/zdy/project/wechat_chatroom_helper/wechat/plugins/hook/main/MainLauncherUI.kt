@@ -115,7 +115,7 @@ object MainLauncherUI {
                 })
 
 
-        try {
+//        try {
 //            findAndHookMethod(ConversationReflectFunction.conversationWithAppBrandListView,
 //                    WXObject.Adapter.M.SetAdapter,
 //                    ListAdapter::class.java, object : XC_MethodHook() {
@@ -134,9 +134,9 @@ object MainLauncherUI {
 //                    RuntimeInfo.officialViewPresenter.start()
 //                }
 //            })
-        } catch (e: Throwable) {
-            e.printStackTrace()
-        }
+//        } catch (e: Throwable) {
+//            e.printStackTrace()
+//        }
 
 
         try {
@@ -174,6 +174,15 @@ object MainLauncherUI {
          * 寻找并获得fitSystemView
          */
         fun addListenerForFitWindowView(parentView: ViewGroup, callBack: (result: Boolean) -> Unit) {
+
+            /**
+             * 容器View已经添加了 就不要持续不断地检查
+             */
+            if (container != null && container?.parent != null) {
+                callBack(true)
+                return
+            }
+
             for (index in 0 until parentView.childCount) {
 
                 val childView = parentView.getChildAt(index)
@@ -186,8 +195,8 @@ object MainLauncherUI {
                     return
                 }
             }
-
             callBack(false)
+
         }
 
         LogUtils.log("MainLauncherUI, handleDetectFitWindowView, activity = $activity")
@@ -263,9 +272,15 @@ object MainLauncherUI {
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         val thisObject = param.thisObject
-
                         LogUtils.log("MainLauncherUI, FitSystemWindowLayoutView, 1 params, class  = ${thisObject::class.java}")
-                        execute(param)
+
+                        /**
+                         * 如果不是LauncherUI 这个activity 就不要执行添加的逻辑，可能是其他的页面
+                         */
+                        val activity = XposedHelpers.callMethod(thisObject, "getContext")
+                        if (activity::class.java.simpleName == "LauncherUI"){
+                            execute(param)
+                        }
                     }
                 })
 
@@ -278,9 +293,15 @@ object MainLauncherUI {
                 object : XC_MethodHook() {
                     override fun afterHookedMethod(param: MethodHookParam) {
                         val thisObject = param.thisObject
-
                         LogUtils.log("MainLauncherUI, FitSystemWindowLayoutView, 2 params, class  = ${thisObject::class.java}")
-                        execute(param)
+
+                        /**
+                         * 如果不是LauncherUI 这个activity 就不要执行添加的逻辑，可能是其他的页面
+                         */
+                        val activity = XposedHelpers.callMethod(thisObject, "getContext")
+                        if (activity::class.java.simpleName == "LauncherUI"){
+                            execute(param)
+                        }
                     }
                 })
     }

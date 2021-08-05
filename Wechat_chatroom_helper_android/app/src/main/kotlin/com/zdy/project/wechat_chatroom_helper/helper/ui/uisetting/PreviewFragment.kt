@@ -14,7 +14,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
@@ -146,7 +145,7 @@ class PreviewFragment : Fragment() {
                             conversationTime = timeString
                             unReadCount = 1
                             field_username = ""
-                            backgroundFlag = 1
+                            stickyFlag = 1
                         })
                 it.add(ChatInfoModel()
                         .apply {
