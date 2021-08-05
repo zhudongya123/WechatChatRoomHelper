@@ -18,13 +18,15 @@
 
 
 下载地址：
+- [项目地址](http://159.75.116.26:8080/wechat/wechat_download.jsp)
 - [酷安](https://www.coolapk.com/apk/com.zdy.project.wechat_chatroom_helper)
 - [手机乐园 (历史版本)](https://soft.shouji.com.cn/down/168556.html)
 - [GitHub Realase](https://github.com/zhudongya123/WechatChatRoomHelper/releases)
 
+
 项目主页及更多信息：
-- [项目反馈地址](http://122.152.202.233:8080/wechat/wechat_download.jsp)
-- [每日用户统计](http://122.152.202.233:8080/wechat/user_stat.jsp)
+- [项目地址](http://159.75.116.26:8080/wechat/wechat_download.jsp)
+- [反馈地址(拉到最底下)](http://159.75.116.26:8080/wechat/wechat_download.jsp)
 
 ## 博客
 开发历程和Xposed部分教程正在逐步编写中，访问：[WechatChatRoomHelper_Tutorial](https://github.com/zhudongya123/WechatChatRoomHelper_Tutorial)
@@ -56,7 +58,7 @@
 
 ## 支持的微信版本
 
-自 1.3.17 后使用了动态技术适配了最近几个月的微信版本，理论上来说大于 微信6.6.7 (1320) 的版本都可生效。
+自 1.3.17 后使用了动态技术适配了最近几个月甚至几年的的微信版本，理论上来说大于 微信6.6.7 (1320) 的版本都可生效。
 
 具体情况请在程序中获取配置时查看。
 
