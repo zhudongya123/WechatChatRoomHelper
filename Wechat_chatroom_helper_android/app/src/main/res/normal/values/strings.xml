@@ -39,5 +39,6 @@
     <string name="sub_title_ques_item_2">在双（多）开/分身中使用群消息助手</string>
 
     <string name="sub_title_about_item_1">项目主页</string>
+    <string name="sub_title_about_item_1_">可以在这里找到新版本或者适配指南。</string>
     <string name="sub_title_about_item_2">捐钱续命</string>
 </resources>

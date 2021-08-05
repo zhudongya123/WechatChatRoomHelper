@@ -2,6 +2,7 @@ package ui
 
 import android.content.*
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.SwitchCompat
@@ -61,7 +62,7 @@ class MainActivity : BaseActivity() {
                             getString(R.string.title_ui_setting_string),
                             getString(R.string.title_question_string),
                             getString(R.string.title_other_setting_string),
-                            getString(R.string.title_about_string)))
+                            getString(R.string.sub_title_about_item_1)))
                 }
                 PermissionHelper.ASK -> {
                     initSetting(arrayOf("群消息助手状态"))
@@ -131,7 +132,7 @@ class MainActivity : BaseActivity() {
 
                 getString(R.string.title_question_string) -> {
                     itemView.setOnClickListener {
-                        thisActivity.startActivity(Intent(thisActivity, QuestionActivity::class.java))
+                        thisActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/zhudongya123/WechatChatRoomHelper/wiki")))
                     }
                     text2.setText(R.string.sub_title_question_string)
                 }
@@ -154,9 +155,10 @@ class MainActivity : BaseActivity() {
                         thisActivity.startActivity(Intent(thisActivity, MoreSettingActivity::class.java))
                     }
                 }
-                getString(R.string.title_about_string) -> {
+                getString(R.string.sub_title_about_item_1) -> {
+                    text2.setText(R.string.sub_title_about_item_1_)
                     itemView.setOnClickListener {
-                        thisActivity.startActivity(Intent(thisActivity, AboutActivity::class.java))
+                        thisActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("http://159.75.116.26:8080/wechat/wechat_download.jsp")))
                     }
                 }
 
