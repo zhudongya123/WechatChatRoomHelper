@@ -1,7 +1,5 @@
 package com.zdy.project.wechat_chatroom_helper.helper.ui.more
 
-import android.content.ComponentName
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v7.widget.SwitchCompat
 import android.view.LayoutInflater
@@ -11,8 +9,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.ui.BaseActivity
-import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import manager.PermissionHelper
 
 class MoreSettingActivity : BaseActivity() {

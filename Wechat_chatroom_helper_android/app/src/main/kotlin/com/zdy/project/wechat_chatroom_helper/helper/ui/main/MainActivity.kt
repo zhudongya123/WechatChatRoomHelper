@@ -1,7 +1,6 @@
 package ui
 
-import android.content.*
-import android.graphics.drawable.Drawable
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
@@ -10,17 +9,15 @@ import android.view.LayoutInflater
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.zdy.project.wechat_chatroom_helper.R
-import com.zdy.project.wechat_chatroom_helper.helper.ui.AboutActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.BaseActivity
-import com.zdy.project.wechat_chatroom_helper.helper.ui.QuestionActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.ConfigActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.functionsetting.FunctionSettingActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.more.MoreSettingActivity
 import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActivity
-import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
-import manager.PermissionHelper
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
+import manager.PermissionHelper
 
 
 class MainActivity : BaseActivity() {

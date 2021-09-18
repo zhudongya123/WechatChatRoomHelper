@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActivity
 
 abstract class BaseFragment : Fragment() {
 

@@ -10,6 +10,7 @@ import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
+import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
@@ -142,10 +143,12 @@ object MainAdapterLongClick {
                     else
                         XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_OFFICIAL_ENABLE, 0, "服务号助手置顶")
                 }
-                if (RuntimeInfo.chatRoomViewPresenter.getCurrentData().any { it.field_username == currentLongClickUsername }) {
+                if ((RuntimeInfo.chatRoomViewPresenter?.getCurrentData()
+                                ?: arrayListOf()).any { it.field_username == currentLongClickUsername }) {
                     XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_REMOVE_CHATROOM, 0, "移出群聊消息")
                 }
-                if (RuntimeInfo.officialViewPresenter.getCurrentData().any { it.field_username == currentLongClickUsername }) {
+                if ((RuntimeInfo.officialViewPresenter?.getCurrentData()
+                                ?: arrayListOf()).any { it.field_username == currentLongClickUsername }) {
                     XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_REMOVE_OFFICIAL, 0, "移出服务号消息")
                 }
 
@@ -174,11 +177,11 @@ object MainAdapterLongClick {
 
                     MENU_ITEM_CLEAR_UNREAD_CHATROOM -> {
                         MessageFactory.clearSpecChatRoomUnRead()
-                        RuntimeInfo.chatRoomViewPresenter.refreshList(false, Any())
+                        RuntimeInfo.chatRoomViewPresenter?.refreshList(false, Any())
                     }
                     MENU_ITEM_CLEAR_UNREAD_OFFICIAL -> {
                         MessageFactory.clearSpecOfficialUnRead()
-                        RuntimeInfo.officialViewPresenter.refreshList(false, Any())
+                        RuntimeInfo.officialViewPresenter?.refreshList(false, Any())
                     }
                     MENU_ITEM_STICK_HEADER_CHATROOM_ENABLE -> {
                         if (officialStickyValue > 0) {
@@ -261,16 +264,18 @@ object MainAdapterLongClick {
 
             override fun afterHookedMethod(param: MethodHookParam?) {
 
-                if (RuntimeInfo.chatRoomViewPresenter.getCurrentData().none { it.field_username == currentLongClickUsername } &&
-                        RuntimeInfo.officialViewPresenter.getCurrentData().none { it.field_username == currentLongClickUsername }) return
+                if ((RuntimeInfo.chatRoomViewPresenter?.getCurrentData()
+                                ?: arrayListOf()).none { it.field_username == currentLongClickUsername } &&
+                        (RuntimeInfo.officialViewPresenter?.getCurrentData()
+                                ?: arrayListOf()).none { it.field_username == currentLongClickUsername }) return
 
                 /**
                  * 如果当前的点击项是助手里面的某项,刷新助手的数据
                  *
                  * ps:点击了删除此会话时，需要更新adapter
                  */
-                RuntimeInfo.chatRoomViewPresenter.refreshList(false, Any())
-                RuntimeInfo.officialViewPresenter.refreshList(false, Any())
+                RuntimeInfo.chatRoomViewPresenter?.refreshList(false, Any())
+                RuntimeInfo.officialViewPresenter?.refreshList(false, Any())
 
             }
 

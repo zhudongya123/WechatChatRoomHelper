@@ -11,8 +11,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.ui.BaseActivity
-import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import manager.PermissionHelper
 
 class FunctionSettingActivity : BaseActivity() {

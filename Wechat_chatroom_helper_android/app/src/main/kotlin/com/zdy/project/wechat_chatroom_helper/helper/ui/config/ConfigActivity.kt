@@ -15,8 +15,8 @@ import com.android.setupwizardlib.SetupWizardLayout
 import com.android.setupwizardlib.view.NavigationBar
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
-import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import manager.PermissionHelper
 
 class ConfigActivity : AppCompatActivity() {
