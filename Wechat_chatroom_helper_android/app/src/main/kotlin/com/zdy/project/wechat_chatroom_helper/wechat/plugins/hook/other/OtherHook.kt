@@ -1,7 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.other
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.zdy.project.wechat_chatroom_helper.LogUtils

@@ -7,8 +7,8 @@ import android.support.annotation.IdRes
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils
 
 
 /**

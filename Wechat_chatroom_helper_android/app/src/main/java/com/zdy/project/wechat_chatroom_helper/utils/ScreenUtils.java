@@ -14,8 +14,6 @@ import android.view.WindowManager;
 
 import java.lang.reflect.Method;
 
-import de.robv.android.xposed.XposedBridge;
-
 
 public class ScreenUtils {
     private ScreenUtils() {

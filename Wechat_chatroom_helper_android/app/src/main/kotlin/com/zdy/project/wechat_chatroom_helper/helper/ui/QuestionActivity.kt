@@ -6,11 +6,9 @@ import android.os.Bundle
 import android.support.v7.widget.SwitchCompat
 import android.view.LayoutInflater
 import android.view.MenuItem
-import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.zdy.project.wechat_chatroom_helper.R
-import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 
 class QuestionActivity : BaseActivity() {
 

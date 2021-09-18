@@ -2,7 +2,6 @@ package com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting
 
 import android.arch.lifecycle.Observer
 import android.content.Context
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

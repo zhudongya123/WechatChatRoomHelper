@@ -15,8 +15,6 @@ import com.zdy.project.wechat_chatroom_helper.R;
 import com.zdy.project.wechat_chatroom_helper.utils.ScreenUtils;
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.DrawableMaker;
 
-import java.util.ArrayList;
-
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout;
 
 /**

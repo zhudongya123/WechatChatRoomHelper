@@ -1,6 +1,5 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser
 
-import android.database.AbstractCursor
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
