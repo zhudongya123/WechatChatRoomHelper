@@ -9,7 +9,7 @@ import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 object LogUtils {
 
     fun log(s: String) {
-         if (!AppSaveInfo.openLogInfo()) return
+        if (!AppSaveInfo.openLogInfo()) return
         Log.v("WCRH", " : $s")
     }
 
