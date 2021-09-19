@@ -3,7 +3,6 @@ package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.other
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import de.robv.android.xposed.XC_MethodHook
