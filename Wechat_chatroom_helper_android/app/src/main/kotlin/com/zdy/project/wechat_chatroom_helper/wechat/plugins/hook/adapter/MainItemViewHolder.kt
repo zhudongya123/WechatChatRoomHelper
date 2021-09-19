@@ -6,8 +6,9 @@ import android.widget.TextView
 
 class MainItemViewHolder(val itemView: ViewGroup) {
 
-    val avatarContainer = itemView.getChildAt(0) as ViewGroup
-    val textContainer = itemView.getChildAt(1) as ViewGroup
+    val containerView: ViewGroup = itemView.getChildAt(0) as ViewGroup
+    val avatarContainer = containerView.getChildAt(0) as ViewGroup
+    val textContainer = containerView.getChildAt(1) as ViewGroup
 
     val avatar = avatarContainer.getChildAt(0) as ImageView
     val unReadCount = avatarContainer.getChildAt(1) as TextView

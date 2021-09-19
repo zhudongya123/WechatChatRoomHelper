@@ -34,10 +34,10 @@ object MessageHandler {
                     "rconversation.msgType, rconversation.flag, rconversation.digest, " +
                     "rconversation.digestUser, rconversation.attrflag, rconversation.editingMsg, " +
                     "rconversation.atCount, rconversation.unReadMuteCount, " +
-                    "rconversation.UnReadInvite, rconversation.hasTodo, rconversation.hbMarkRed ",
-                    "from rconversation inner join rcontact " +
-                            "WHERE  " +
-                    "( rconversation.username = rcontact.username and rcontact.verifyFlag = 0 and rcontact.username not like '%@chatroom') ",
+                    "rconversation.UnReadInvite, rconversation.hasTodo, rconversation.hbMarkRed, " +
+                    "rconversation.remitMarkRed ",
+                    "from rconversation, rcontact where " +
+                            "( rconversation.username = rcontact.username and rcontact.verifyFlag = 0 and rcontact.username not like '%@chatroom') ",
                     "AND  ( parentRef is null  or parentRef = '' )",
                     "and ( rcontact.usernameFlag in ( 4 , 2 , 65536 , 0 )  )",
                     "and rconversation.username != 'qmessage' and rconversation.username != 'appbrand_notify_message' ",
@@ -45,12 +45,11 @@ object MessageHandler {
 
     //微信原始的查询所有消息回话的语句，通过分段来筛选出相关逻辑
     private val FilterListForOriginAllConversation =
-            arrayOf("select unReadCount, status, isSend, conversationTime, username, content, msgType, flag, digest, digestUser, attrflag, editingMsg,",
-                    "( parentRef is null  or parentRef = '' )",
+            arrayOf("select unReadCount, status, isSend, conversationTime, username, content, msgType,",
+                    "parentRef is null",
+                    "or parentRef = ''",
                     "and rconversation.username != 'qmessage'",
                     "order by flag desc")
-
-
 
 
     @Deprecated("微信老版本废弃")
@@ -166,14 +165,14 @@ object MessageHandler {
                     }
                 }
 
+                LogUtils.log("MessageHandler, queryHook, sql = $sql")
                 if (!sql.contains("parentRef is null")) return
-             //   LogUtils.log("MessageHandle2r, queryHook, sql = $sql")
 
                 val cursor = param.result as Cursor
 
                 when {
                     /**
-                     * 如果本次查询是查询全部回话时
+                     * 如果本次查询是查询全部回话时（包括服务号和群聊）
                      * 修改返回结果为全部联系人回话（不包括服务号和群聊）
                      */
                     isQueryOriginAllConversation(sql) -> {
@@ -193,8 +192,8 @@ object MessageHandler {
                         /**
                          * 刷新两个助手的列表
                          */
-                        RuntimeInfo.chatRoomViewPresenter.refreshList(false, Any())
-                        RuntimeInfo.officialViewPresenter.refreshList(false, Any())
+                        RuntimeInfo.chatRoomViewPresenter?.refreshList(false, Any())
+                        RuntimeInfo.officialViewPresenter?.refreshList(false, Any())
 
                         /**
                          * 获取两个群聊和服务号的白名单
@@ -229,9 +228,9 @@ object MessageHandler {
                     }
 
                     /**
-                     * 当请求全部联系人回话时（就是去除群聊和服务号的情况）
+                     * 当请求全部联系人回话时（不包括服务号和群聊）
                      */
-                    isQueryNewAllConversation(sql) -> {
+                    isQueryNewAllConversation(sql) && !sql.contains(", rconversation.conversationTime desc") -> {
 
                         LogUtils.log("MessageHandler, isQueryNewAllConversation")
                         LogUtils.log("MessageHandler, SqlForNewAllContactConversation size = ${SqlForNewAllContactConversation.joinToString("") { it }}")
@@ -316,10 +315,16 @@ object MessageHandler {
                             totalUnReadCount += unReadCount.toInt()
                         }
 
-                        //恢复数据库游标为起始位置
-                        cursor.move(0)
 
                         LogUtils.log("MessageHandler, refreshNewAllConversation size = ${cursor.count}")
+
+                        /**
+                         * 2021-09-18
+                         * 新逻辑
+                         */
+                        val newSqlForAllConversation = "$sql, rconversation.conversationTime desc"
+                        val result = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, newSqlForAllConversation, selectionArgs, editTable, cancellation)
+                        param.result = result
                     }
 
 
@@ -331,7 +336,7 @@ object MessageHandler {
                     isQueryOriginAllUnReadCount(sql) -> {
 
 
-                        if (sql.contains("verifyFlag"))return
+                        if (sql.contains("verifyFlag")) return
 
                         val officialList = AppSaveInfo.getWhiteList(AppSaveInfo.WHITE_LIST_OFFICIAL)
 

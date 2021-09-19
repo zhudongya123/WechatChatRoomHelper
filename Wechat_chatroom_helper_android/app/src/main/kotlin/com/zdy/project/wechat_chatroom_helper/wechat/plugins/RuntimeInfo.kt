@@ -11,8 +11,8 @@ object RuntimeInfo {
     lateinit var classloader: ClassLoader
 
     @SuppressLint("StaticFieldLeak")
-    lateinit var chatRoomViewPresenter: ChatRoomViewPresenter
+    var chatRoomViewPresenter: ChatRoomViewPresenter? = null
 
     @SuppressLint("StaticFieldLeak")
-    lateinit var officialViewPresenter: ChatRoomViewPresenter
+    var officialViewPresenter: ChatRoomViewPresenter? = null
 }

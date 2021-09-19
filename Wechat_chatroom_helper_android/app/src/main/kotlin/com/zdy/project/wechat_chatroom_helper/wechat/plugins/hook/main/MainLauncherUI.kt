@@ -89,8 +89,8 @@ object MainLauncherUI {
                         else if (RuntimeInfo.currentPage == PageType.CHAT_ROOMS) RuntimeInfo.currentPage = PageType.CHATTING_WITH_CHAT_ROOMS
 
                         if (AppSaveInfo.autoCloseInfo()) {
-                            if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_OFFICIAL) RuntimeInfo.officialViewPresenter.dismiss()
-                            else if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_CHAT_ROOMS) RuntimeInfo.chatRoomViewPresenter.dismiss()
+                            if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_OFFICIAL) RuntimeInfo.officialViewPresenter?.dismiss()
+                            else if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_CHAT_ROOMS) RuntimeInfo.chatRoomViewPresenter?.dismiss()
                         }
                     }
                 })
@@ -101,12 +101,12 @@ object MainLauncherUI {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         LogUtils.log("MainLauncherUI, closeChatting")
                         if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_OFFICIAL) {
-                            if (RuntimeInfo.officialViewPresenter.isShowing)
+                            if (RuntimeInfo.officialViewPresenter?.isShowing == true)
                                 RuntimeInfo.currentPage = PageType.OFFICIAL
                             else RuntimeInfo.currentPage = PageType.MAIN
 
                         } else if (RuntimeInfo.currentPage == PageType.CHATTING_WITH_CHAT_ROOMS) {
-                            if (RuntimeInfo.chatRoomViewPresenter.isShowing)
+                            if (RuntimeInfo.chatRoomViewPresenter?.isShowing == true)
                                 RuntimeInfo.currentPage = PageType.CHAT_ROOMS
                             else RuntimeInfo.currentPage = PageType.MAIN
                         }
@@ -149,15 +149,27 @@ object MainLauncherUI {
                     val adapter = param.args[0]
                     MainAdapter.listView = param.thisObject as ListView
 
-                    if (RuntimeInfo.chatRoomViewPresenter.isStarted() || RuntimeInfo.officialViewPresenter.isStarted()) return
+                    val chatRoomViewPresenter = RuntimeInfo.chatRoomViewPresenter ?: return
+                    val officialViewPresenter = RuntimeInfo.officialViewPresenter ?: return
 
-                    RuntimeInfo.chatRoomViewPresenter.setAdapter(adapter)
-                    RuntimeInfo.officialViewPresenter.setAdapter(adapter)
+                    if (chatRoomViewPresenter.isStarted() || officialViewPresenter.isStarted()) return
 
-                    RuntimeInfo.chatRoomViewPresenter.start()
-                    RuntimeInfo.officialViewPresenter.start()
+                    chatRoomViewPresenter.setAdapter(adapter)
+                    officialViewPresenter.setAdapter(adapter)
+
+                    chatRoomViewPresenter.start()
+                    officialViewPresenter.start()
                 }
             })
+
+//            findAndHookMethod(ConversationReflectFunction.conversationListView,
+//                    "onSizeChanged", Int::class.java, Int::class.java, Int::class.java, Int::class.java,
+//                    object : XC_MethodHook() {
+//                        override fun beforeHookedMethod(param: MethodHookParam) {
+//                            param.result = null
+//
+//                        }
+//                    })
         } catch (e: Throwable) {
             e.printStackTrace()
         }
@@ -278,7 +290,7 @@ object MainLauncherUI {
                          * 如果不是LauncherUI 这个activity 就不要执行添加的逻辑，可能是其他的页面
                          */
                         val activity = XposedHelpers.callMethod(thisObject, "getContext")
-                        if (activity::class.java.simpleName == "LauncherUI"){
+                        if (activity::class.java.simpleName == "LauncherUI") {
                             execute(param)
                         }
                     }
@@ -299,7 +311,7 @@ object MainLauncherUI {
                          * 如果不是LauncherUI 这个activity 就不要执行添加的逻辑，可能是其他的页面
                          */
                         val activity = XposedHelpers.callMethod(thisObject, "getContext")
-                        if (activity::class.java.simpleName == "LauncherUI"){
+                        if (activity::class.java.simpleName == "LauncherUI") {
                             execute(param)
                         }
                     }
@@ -364,14 +376,16 @@ object MainLauncherUI {
         if (keyEvent.keyCode == KeyEvent.KEYCODE_BACK && keyEvent.action == KeyEvent.ACTION_DOWN) {
 
             //群消息助手在屏幕上显示
-            if (RuntimeInfo.currentPage == PageType.CHAT_ROOMS && RuntimeInfo.chatRoomViewPresenter.isShowing) {
-                RuntimeInfo.chatRoomViewPresenter.dismiss()
+            val chatRoomViewPresenter = RuntimeInfo.chatRoomViewPresenter ?: return
+            if (RuntimeInfo.currentPage == PageType.CHAT_ROOMS && chatRoomViewPresenter.isShowing) {
+                chatRoomViewPresenter.dismiss()
                 param.result = true
 
             }
             //公众号助手在屏幕上显示
-            if (RuntimeInfo.currentPage == PageType.OFFICIAL && RuntimeInfo.officialViewPresenter.isShowing) {
-                RuntimeInfo.officialViewPresenter.dismiss()
+            val officialViewPresenter = RuntimeInfo.officialViewPresenter ?: return
+            if (RuntimeInfo.currentPage == PageType.OFFICIAL && officialViewPresenter.isShowing) {
+                officialViewPresenter.dismiss()
                 param.result = true
             }
         }
@@ -382,25 +396,27 @@ object MainLauncherUI {
 
         LogUtils.log("MainLauncherUI, onFitSystemWindowLayoutViewReady, fitSystemWindowLayoutView = $fitSystemWindowLayoutView")
 
-        val chatRoomViewParent = RuntimeInfo.chatRoomViewPresenter.presenterView.parent
+        val chatRoomViewPresenter = RuntimeInfo.chatRoomViewPresenter ?: return
+        val chatRoomViewParent = chatRoomViewPresenter.presenterView.parent
         if (chatRoomViewParent != null) {
-            (chatRoomViewParent as ViewGroup).removeView(RuntimeInfo.chatRoomViewPresenter.presenterView)
+            (chatRoomViewParent as ViewGroup).removeView(chatRoomViewPresenter.presenterView)
         }
 
-        val officialViewParent = RuntimeInfo.officialViewPresenter.presenterView.parent
+        val officialViewPresenter = RuntimeInfo.officialViewPresenter ?: return
+        val officialViewParent = officialViewPresenter.presenterView.parent
         if (officialViewParent != null) {
-            (chatRoomViewParent as ViewGroup).removeView(RuntimeInfo.officialViewPresenter.presenterView)
+            (chatRoomViewParent as ViewGroup).removeView(officialViewPresenter.presenterView)
         }
 
         container?.apply {
             removeAllViews()
-            addView(RuntimeInfo.chatRoomViewPresenter.presenterView)
-            addView(RuntimeInfo.officialViewPresenter.presenterView)
+            addView(chatRoomViewPresenter.presenterView)
+            addView(officialViewPresenter.presenterView)
         }
 
         LogUtils.log("MainLauncherUI, onFitSystemWindowLayoutViewReady, addViewFinish, container = $container, " +
-                "chatRoom = ${RuntimeInfo.chatRoomViewPresenter.presenterView}" +
-                "official = ${RuntimeInfo.officialViewPresenter.presenterView}")
+                "chatRoom = ${chatRoomViewPresenter.presenterView}" +
+                "official = ${officialViewPresenter.presenterView}")
 
         if ((fitSystemWindowLayoutView.getChildAt(0) as ViewGroup).childCount != 2)
             return
@@ -422,8 +438,8 @@ object MainLauncherUI {
 
                     if (width == 0 || height == 0) return@OnGlobalLayoutListener
 
-                    val chatRoomViewPresenterPresenterView = RuntimeInfo.chatRoomViewPresenter.presenterView
-                    val officialViewPresenterPresenterView = RuntimeInfo.officialViewPresenter.presenterView
+                    val chatRoomViewPresenterPresenterView = chatRoomViewPresenter.presenterView
+                    val officialViewPresenterPresenterView = officialViewPresenter.presenterView
 
 
                     val left1 = chatRoomViewPresenterPresenterView.left

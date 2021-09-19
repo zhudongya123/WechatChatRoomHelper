@@ -40,7 +40,6 @@ object MainAdapter {
     var firstOfficialPosition = -1
 
 
-
     fun isOriginAdapterIsInitialized() = MainAdapter::originAdapter.isInitialized
 
     fun executeHook() {
@@ -64,7 +63,6 @@ object MainAdapter {
                 var count = param.result as Int + (if (firstChatRoomPosition != -1) 1 else 0)
                 count += (if (firstOfficialPosition != -1) 1 else 0)
                 param.result = count
-                LogUtils.log("MessageHook afterHookedMethod, count = $count")
             }
         })
 
@@ -81,12 +79,12 @@ object MainAdapter {
 
                         if (position == firstChatRoomPosition) {
                             LogUtils.log("TrackHelperCan'tOpen, MainAdapter -> HookItemClickListener -> onItemClick -> chatRoomClickPerform, RuntimeInfo.chatRoomViewPresenter = ${RuntimeInfo.chatRoomViewPresenter}")
-                            RuntimeInfo.chatRoomViewPresenter.show()
+                            RuntimeInfo.chatRoomViewPresenter?.show()
                             param.result = null
                         }
                         if (position == firstOfficialPosition) {
                             LogUtils.log("TrackHelperCan'tOpen, MainAdapter -> HookItemClickListener -> onItemClick -> officialClickPerform, RuntimeInfo.officialViewPresenter = ${RuntimeInfo.officialViewPresenter}")
-                            RuntimeInfo.officialViewPresenter.show()
+                            RuntimeInfo.officialViewPresenter?.show()
                             param.result = null
                         }
                     }
@@ -167,7 +165,15 @@ object MainAdapter {
                         mainItemViewHolder.muteImage.visibility = View.GONE
 
 
-                        val allChatRoom = MessageFactory.getSpecChatRoom()
+                        /**
+                         * 首先使用存储的临时列表，如果在首页或者临时列表为空，使用sql语句查询实时数据
+                         */
+                        var allChatRoom = RuntimeInfo.chatRoomViewPresenter?.getCurrentData()
+                                ?: arrayListOf()
+                        if (allChatRoom.isEmpty() || RuntimeInfo.currentPage == PageType.MAIN) {
+                            allChatRoom = MessageFactory.getSpecChatRoom()
+                        }
+
                         val unReadCountItem = MessageFactory.getUnReadCountItem(allChatRoom)
                         val totalUnReadCount = MessageFactory.getUnReadCount(allChatRoom)
                         val unMuteUnReadCount = MessageFactory.getUnMuteUnReadCount(allChatRoom)
@@ -213,8 +219,15 @@ object MainAdapter {
                         mainItemViewHolder.sendStatus.visibility = View.GONE
                         mainItemViewHolder.muteImage.visibility = View.GONE
 
+                        /**
+                         * 首先使用存储的临时列表，如果在首页或者临时列表为空，使用sql语句查询实时数据
+                         */
+                        var allOfficial = RuntimeInfo.officialViewPresenter?.getCurrentData()
+                                ?: arrayListOf()
+                        if (allOfficial.isEmpty() || RuntimeInfo.currentPage == PageType.MAIN) {
+                            allOfficial = MessageFactory.getSpecOfficial()
+                        }
 
-                        val allOfficial = MessageFactory.getSpecOfficial()
                         val unReadCountItem = MessageFactory.getUnReadCountItem(allOfficial)
                         val totalUnReadCount = MessageFactory.getUnReadCount(allOfficial)
 
@@ -258,9 +271,6 @@ object MainAdapter {
             private var getItemOfficialFlag = false
 
             override fun beforeHookedMethod(param: MethodHookParam) {
-
-                LogUtils.log("MessageHook 2019-04-12 15:36:49, thisObject className = ${param.thisObject::class.java.name}, adapter className = ${ConversationReflectFunction.conversationWithCacheAdapter.name}")
-
                 if (param.thisObject::class.java.name != ConversationReflectFunction.conversationWithCacheAdapter.name) return
 
                 /**
@@ -410,7 +420,10 @@ object MainAdapter {
                             field_conversationTime = -1L
                             field_flag = System.currentTimeMillis() + (1L shl 62)//你在这秀你妈位运算呢
                         } else {
-                            field_conversationTime = MessageFactory.getSpecChatRoom().first().field_conversationTime
+                            var currentData = RuntimeInfo.chatRoomViewPresenter?.getCurrentData()
+                                    ?: arrayListOf()
+                            if (currentData.isEmpty() || RuntimeInfo.currentPage == PageType.MAIN) currentData = MessageFactory.getSpecChatRoom()
+                            field_conversationTime = currentData.first().field_conversationTime
                             field_flag = field_conversationTime
                         }
 
@@ -426,7 +439,10 @@ object MainAdapter {
                             field_conversationTime = -1L
                             field_flag = System.currentTimeMillis() + (1L shl 62)
                         } else {
-                            field_conversationTime = MessageFactory.getSpecOfficial().first().field_conversationTime
+                            var currentData = RuntimeInfo.officialViewPresenter?.getCurrentData()
+                                    ?: arrayListOf()
+                            if (currentData.isEmpty() || RuntimeInfo.currentPage == PageType.MAIN) currentData = MessageFactory.getSpecOfficial()
+                            field_conversationTime = currentData.first().field_conversationTime
                             field_flag = field_conversationTime
                         }
 
@@ -469,6 +485,56 @@ object MainAdapter {
             }
         })
 
+        findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter,
+                "onNotifyChange",
+                Int::class.java,
+                ConversationReflectFunction.mStorageExClass,
+                Any::class.java,
+                object : XC_MethodHook() {
+
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+
+                        val args = param.args!!
+
+                        val type = args[0] as Int
+                        val username = args[2] as String
+
+                        LogUtils.log("MessageHook 2021-09-16 23:11:46, type = $type, username = $username")
+
+                        var officialData = RuntimeInfo.officialViewPresenter?.getCurrentData()
+                                ?: arrayListOf()
+                        var chatRoomData = RuntimeInfo.chatRoomViewPresenter?.getCurrentData()
+                                ?: arrayListOf()
+
+                        if (officialData.isEmpty()) officialData = MessageFactory.getSpecOfficial()
+                        if (chatRoomData.isEmpty()) chatRoomData = MessageFactory.getSpecChatRoom()
+
+                        val isInOfficial = officialData.map { it.field_username }.any { it == username }
+                        val isInChatRoom = chatRoomData.map { it.field_username }.any { it == username }
+
+                        LogUtils.log("MessageHook 2021-09-16 23:11:46, " +
+                                "isInOfficial = $isInOfficial, " +
+                                "isInChatRoom = $isInChatRoom, " +
+                                "officialData size = ${officialData.size}, " +
+                                "chatRoomData size = ${chatRoomData.size}")
+
+                        when {
+                            isInChatRoom -> {
+                                RuntimeInfo.chatRoomViewPresenter?.refreshList(false, Any())
+                                XposedHelpers.callMethod(originAdapter,
+                                        ConversationReflectFunction.notifyPartialConversationListMethodName, "chatRoomItem", 2, true)
+                                param.result = null
+                            }
+                            isInOfficial -> {
+                                RuntimeInfo.officialViewPresenter?.refreshList(false, Any())
+                                XposedHelpers.callMethod(originAdapter,
+                                        ConversationReflectFunction.notifyPartialConversationListMethodName, "officialItem", 2, true)
+                                param.result = null
+                            }
+                        }
+                    }
+
+                })
 
 //        /**
 //         * 2020年6月27日
@@ -533,6 +599,40 @@ object MainAdapter {
             }
 
         })
+
+        findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter.superclass,
+                ConversationReflectFunction.notifyPartialConversationListMethodName,
+                Any::class.java, Int::class.java, Boolean::class.java,
+                object : XC_MethodHook() {
+
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        val args = param.args
+                        val s = args[0] as String
+                        val i = args[1] as Int
+                        val b = args[2] as Boolean
+
+                        LogUtils.log("MessageHook 2021-09-18 17:02:00, s = $s, i = $i, b = $b")
+
+                        ConversationReflectFunction.conversationWithCacheAdapter.superclass.methods.forEach { method ->
+                            LogUtils.log("method.name = ${method.name}, " + method.parameterTypes.joinToString { it.name })
+                        }
+                    }
+                })
+
+        findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter.superclass,
+                "a", HashMap::class.java,
+                Any::class.java, Int::class.java, ConversationReflectFunction.beanClass.interfaces[0],
+                object : XC_MethodHook() {
+
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        val args = param.args
+                        val s = args[1] as String
+                        val i = args[2] as Int
+
+                        LogUtils.log("MessageHook 2021-09-18 17:03:00, s = $s, i = $i")
+                    }
+
+                })
     }
 
     fun setTextForNoMeasuredTextView(noMeasuredTextView: Any, charSequence: CharSequence) = XposedHelpers.callMethod(noMeasuredTextView, "setText", charSequence)
