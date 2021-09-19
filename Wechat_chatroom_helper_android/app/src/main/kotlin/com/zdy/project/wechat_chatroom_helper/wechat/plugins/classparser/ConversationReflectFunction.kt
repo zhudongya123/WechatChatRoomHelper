@@ -117,8 +117,8 @@ object ConversationReflectFunction {
 
     fun getConversationContent(adapter: Any, chatInfoModel: ChatInfoModel): CharSequence {
 
-        val getContentMethod = conversationWithCacheAdapter.declaredMethods
-                .filter { it.parameterTypes.size == 4 }
+        val method = conversationWithCacheAdapter.declaredMethods
+                .filter { it.parameterTypes.size >= 4 }
                 .single {
                     it.parameterTypes[0].simpleName == beanClass.simpleName &&
                             it.parameterTypes[1].simpleName == Int::class.java.simpleName &&
@@ -146,7 +146,13 @@ object ConversationReflectFunction {
 
         val textSize = (ScreenUtils.getScreenDensity() * 13f).toInt()
         val content = try {
-            XposedHelpers.callMethod(adapter, getContentMethod.name, bean, textSize, null, true) as CharSequence
+            if (method.parameterTypes.size == 5) {
+                val clazz = method.parameterTypes[4]
+                val newInstance = clazz.newInstance()
+                XposedHelpers.callMethod(adapter, method.name, bean, textSize, null, true, newInstance) as CharSequence
+            } else {
+                XposedHelpers.callMethod(adapter, method.name, bean, textSize, null, true) as CharSequence
+            }
         } catch (e: Throwable) {
             e.printStackTrace()
             ""
