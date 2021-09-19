@@ -2,6 +2,7 @@ package com.zdy.project.wechat_chatroom_helper.wechat.chatroomView
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
@@ -179,7 +180,19 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
                 .newInstance(MainAdapter.originAdapter, MainAdapter.listView, MainLauncherUI.launcherUI, intArrayOf(300, 300))
         setOnItemActionListener(object : ChatRoomRecyclerViewAdapter.OnItemActionListener {
             override fun onItemClick(view: View, relativePosition: Int, chatInfoModel: ChatInfoModel) {
-                XposedHelpers.callMethod(MainLauncherUI.launcherUI, WXObject.MainUI.M.StartChattingOfLauncherUI, chatInfoModel.field_username, null, true)
+
+                /**
+                 * 通过位运算确定当前回话是企业号
+                 */
+                if (chatInfoModel.field_attrflag.and(0x200000) == 0x200000) {
+                    val intent = Intent(mContext, RuntimeInfo.classloader.loadClass("com.tencent.mm.ui.conversation.EnterpriseConversationUI"))
+                    intent.putExtra("enterprise_biz_name", chatInfoModel.field_username)
+                    intent.putExtra("enterprise_biz_display_name", chatInfoModel.nickname)
+                    intent.putExtra("enterprise_from_scene", 1)
+                    mContext.startActivity(intent)
+                } else {
+                    XposedHelpers.callMethod(MainLauncherUI.launcherUI, WXObject.MainUI.M.StartChattingOfLauncherUI, chatInfoModel.field_username, null, true)
+                }
             }
 
             override fun onItemLongClick(view: View, relativePosition: Int, chatInfoModel: ChatInfoModel): Boolean {
@@ -202,6 +215,8 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             return
         }
 
+        LogUtils.log("MessageHook 2021-09-18, refresh, RuntimeInfo.currentPage = ${RuntimeInfo.currentPage}")
+
         //在主页的时候不刷
         if (RuntimeInfo.currentPage == PageType.MAIN) return
 
@@ -210,6 +225,8 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
 
         //上次刷新距离现在的时间间隔
         val interval = currentTimeMillis - refreshFlag
+
+        LogUtils.log("MessageHook 2021-09-18, refresh, currentTimeMillis = $currentTimeMillis, refreshFlag = $refreshFlag, interval = $interval")
 
         //刷新小于三秒，安排三秒后刷新
         if (interval < 3000) {
@@ -222,6 +239,7 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
     }
 
     private fun refreshInner() {
+        LogUtils.log("MessageHook 2021-09-18, refreshInner")
         mainView.post {
             val newData =
                     if (pageType == PageType.CHAT_ROOMS) MessageFactory.getSpecChatRoom()
@@ -319,8 +337,8 @@ class ChatRoomView(private val mContext: Context, mContainer: ViewGroup, private
             dialog.show()
             dialog.setOnDismissListener {
                 when (pageType) {
-                    PageType.OFFICIAL -> RuntimeInfo.officialViewPresenter.refreshList(false, Any())
-                    PageType.CHAT_ROOMS -> RuntimeInfo.chatRoomViewPresenter.refreshList(false, Any())
+                    PageType.OFFICIAL -> RuntimeInfo.officialViewPresenter?.refreshList(false, Any())
+                    PageType.CHAT_ROOMS -> RuntimeInfo.chatRoomViewPresenter?.refreshList(false, Any())
                 }
                 MainLauncherUI.refreshListMainUI()
             }
