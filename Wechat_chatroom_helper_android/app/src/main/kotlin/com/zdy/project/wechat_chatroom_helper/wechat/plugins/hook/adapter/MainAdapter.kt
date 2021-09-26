@@ -618,21 +618,6 @@ object MainAdapter {
                         }
                     }
                 })
-
-        findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter.superclass,
-                "a", HashMap::class.java,
-                Any::class.java, Int::class.java, ConversationReflectFunction.beanClass.interfaces[0],
-                object : XC_MethodHook() {
-
-                    override fun afterHookedMethod(param: MethodHookParam) {
-                        val args = param.args
-                        val s = args[1] as String
-                        val i = args[2] as Int
-
-                        LogUtils.log("MessageHook 2021-09-18 17:03:00, s = $s, i = $i")
-                    }
-
-                })
     }
 
     fun setTextForNoMeasuredTextView(noMeasuredTextView: Any, charSequence: CharSequence) = XposedHelpers.callMethod(noMeasuredTextView, "setText", charSequence)

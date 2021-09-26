@@ -114,31 +114,6 @@ object MainLauncherUI {
 
                 })
 
-
-//        try {
-//            findAndHookMethod(ConversationReflectFunction.conversationWithAppBrandListView,
-//                    WXObject.Adapter.M.SetAdapter,
-//                    ListAdapter::class.java, object : XC_MethodHook() {
-//
-//                override fun afterHookedMethod(param: MethodHookParam) {
-//
-//                    val adapter = param.args[0]
-//                    MainAdapter.listView = param.thisObject as ListView
-//
-//                    if (RuntimeInfo.chatRoomViewPresenter.isStarted() || RuntimeInfo.officialViewPresenter.isStarted()) return
-//
-//                    RuntimeInfo.chatRoomViewPresenter.setAdapter(adapter)
-//                    RuntimeInfo.officialViewPresenter.setAdapter(adapter)
-//
-//                    RuntimeInfo.chatRoomViewPresenter.start()
-//                    RuntimeInfo.officialViewPresenter.start()
-//                }
-//            })
-//        } catch (e: Throwable) {
-//            e.printStackTrace()
-//        }
-
-
         try {
             findAndHookMethod(ConversationReflectFunction.conversationListView,
                     WXObject.Adapter.M.SetActivity,
