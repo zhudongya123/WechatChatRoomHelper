@@ -137,14 +137,6 @@ object MainLauncherUI {
                 }
             })
 
-//            findAndHookMethod(ConversationReflectFunction.conversationListView,
-//                    "onSizeChanged", Int::class.java, Int::class.java, Int::class.java, Int::class.java,
-//                    object : XC_MethodHook() {
-//                        override fun beforeHookedMethod(param: MethodHookParam) {
-//                            param.result = null
-//
-//                        }
-//                    })
         } catch (e: Throwable) {
             e.printStackTrace()
         }

@@ -128,7 +128,7 @@ object ConversationReflectFunction {
                 .single {
                     it.parameterTypes[0].simpleName == beanClass.simpleName &&
                             it.parameterTypes[1].simpleName == Int::class.java.simpleName &&
-                            it.parameterTypes[3].simpleName == Boolean::class.java.simpleName
+                            it.parameterTypes[2].simpleName == Boolean::class.java.simpleName
                 }
 
         val aeConstructor = beanClass.constructors.filter { it.parameterTypes.size == 1 }
@@ -151,13 +151,9 @@ object ConversationReflectFunction {
         setupItemClassField(bean, "field_flag", chatInfoModel.field_flag)
         val textSize = (ScreenUtils.getScreenDensity() * 13f).toInt()
         val content = try {
-            if (method.parameterTypes.size == 5) {
-                val clazz = method.parameterTypes[4]
-                val newInstance = clazz.newInstance()
-                XposedHelpers.callMethod(adapter, method.name, bean, textSize, null, true, newInstance) as CharSequence
-            } else {
-                XposedHelpers.callMethod(adapter, method.name, bean, textSize, null, true) as CharSequence
-            }
+            val clazz = method.parameterTypes[3]
+            val newInstance = clazz.newInstance()
+            XposedHelpers.callMethod(adapter, method.name, bean, textSize, true, newInstance) as CharSequence
         } catch (e: Throwable) {
             e.printStackTrace()
             ""

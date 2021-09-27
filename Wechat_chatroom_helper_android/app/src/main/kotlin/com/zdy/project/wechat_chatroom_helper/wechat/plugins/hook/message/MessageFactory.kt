@@ -146,7 +146,7 @@ object MessageFactory {
             }
 
             if (MainAdapter.isOriginAdapterIsInitialized()) {
-//                content = ConversationReflectFunction.getConversationContent(MainAdapter.originAdapter, this)
+                content = ConversationReflectFunction.getConversationContent(MainAdapter.originAdapter, this)
                 nickname = if (field_nickname.isEmpty()) "群聊" else field_nickname
 //                nickname = ConversationReflectFunction.getConversationNickname(MainAdapter.originAdapter, this)
             } else {
