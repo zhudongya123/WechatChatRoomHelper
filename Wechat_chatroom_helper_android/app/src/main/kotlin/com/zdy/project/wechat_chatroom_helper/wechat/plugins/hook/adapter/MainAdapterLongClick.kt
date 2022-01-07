@@ -26,17 +26,8 @@ object MainAdapterLongClick {
     var onCreateContextMenuMethodInvokeGetChatRoomFlag = false
     var onCreateContextMenuMethodInvokeGetOfficialFlag = false
 
-    var chatRoomStickyValue = 0
-    var officialStickyValue = 0
-
     const val MENU_ITEM_CLEAR_UNREAD_CHATROOM = 1024
     const val MENU_ITEM_CLEAR_UNREAD_OFFICIAL = 1025
-
-    const val MENU_ITEM_STICK_HEADER_CHATROOM_ENABLE = 1034
-    const val MENU_ITEM_STICK_HEADER_OFFICIAL_ENABLE = 1035
-
-    const val MENU_ITEM_STICK_HEADER_CHATROOM_DISABLE = 1044
-    const val MENU_ITEM_STICK_HEADER_OFFICIAL_DISABLE = 1045
 
     const val MENU_ITEM_REMOVE_CHATROOM = 1054
     const val MENU_ITEM_REMOVE_OFFICIAL = 1055
@@ -127,20 +118,20 @@ object MainAdapterLongClick {
                     onCreateContextMenuMethodInvokeGetChatRoomFlag = false
                     XposedHelpers.callMethod(contextMenu, "clear")
                     XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_CLEAR_UNREAD_CHATROOM, 0, "所有群聊标为已读")
-                    if (chatRoomStickyValue > 0)
-                        XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_CHATROOM_DISABLE, 0, "取消群聊助手置顶")
-                    else
-                        XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_CHATROOM_ENABLE, 0, "群聊助手置顶")
+//                    if (chatRoomStickyValue > 0)
+//                        XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_CHATROOM_DISABLE, 0, "取消群聊助手置顶")
+//                    else
+//                        XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_CHATROOM_ENABLE, 0, "群聊助手置顶")
                 }
 
                 if (onCreateContextMenuMethodInvokeGetOfficialFlag) {
                     onCreateContextMenuMethodInvokeGetOfficialFlag = false
                     XposedHelpers.callMethod(contextMenu, "clear")
                     XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_CLEAR_UNREAD_OFFICIAL, 0, "所有服务号标为已读")
-                    if (officialStickyValue > 0)
-                        XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_OFFICIAL_DISABLE, 0, "取消服务号助手置顶")
-                    else
-                        XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_OFFICIAL_ENABLE, 0, "服务号助手置顶")
+//                    if (officialStickyValue > 0)
+//                        XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_OFFICIAL_DISABLE, 0, "取消服务号助手置顶")
+//                    else
+//                        XposedHelpers.callMethod(contextMenu, "add", position, MENU_ITEM_STICK_HEADER_OFFICIAL_ENABLE, 0, "服务号助手置顶")
                 }
                 if ((RuntimeInfo.chatRoomViewPresenter?.getCurrentData()
                                 ?: arrayListOf()).any { it.field_username == currentLongClickUsername }) {
@@ -181,57 +172,6 @@ object MainAdapterLongClick {
                     MENU_ITEM_CLEAR_UNREAD_OFFICIAL -> {
                         MessageFactory.clearSpecOfficialUnRead()
                         RuntimeInfo.officialViewPresenter?.refreshList(false, Any())
-                    }
-                    MENU_ITEM_STICK_HEADER_CHATROOM_ENABLE -> {
-                        if (officialStickyValue > 0) {
-                            saveStickyInfo(officialStickyValue + 1, officialStickyValue) {
-                                AppSaveInfo.setHelperStickyInfo(it)
-                            }
-                        } else {
-                            saveStickyInfo(1, 0) {
-                                AppSaveInfo.setHelperStickyInfo(it)
-                            }
-                        }
-                        parseStickyInfo(AppSaveInfo.getHelperStickyInfo()) {
-                            chatRoomStickyValue = it.first
-                            officialStickyValue = it.second
-                        }
-                    }
-                    MENU_ITEM_STICK_HEADER_OFFICIAL_ENABLE -> {
-                        if (chatRoomStickyValue > 0) {
-                            saveStickyInfo(chatRoomStickyValue, chatRoomStickyValue + 1) {
-                                AppSaveInfo.setHelperStickyInfo(it)
-                            }
-                        } else {
-                            saveStickyInfo(0, 1) {
-                                AppSaveInfo.setHelperStickyInfo(it)
-                            }
-                        }
-
-                        parseStickyInfo(AppSaveInfo.getHelperStickyInfo()) {
-                            chatRoomStickyValue = it.first
-                            officialStickyValue = it.second
-                        }
-                    }
-
-                    MENU_ITEM_STICK_HEADER_CHATROOM_DISABLE -> {
-                        saveStickyInfo(0, officialStickyValue) {
-                            AppSaveInfo.setHelperStickyInfo(it)
-                        }
-                        parseStickyInfo(AppSaveInfo.getHelperStickyInfo()) {
-                            chatRoomStickyValue = it.first
-                            officialStickyValue = it.second
-                        }
-                    }
-
-                    MENU_ITEM_STICK_HEADER_OFFICIAL_DISABLE -> {
-                        saveStickyInfo(chatRoomStickyValue, 0) {
-                            AppSaveInfo.setHelperStickyInfo(it)
-                        }
-                        parseStickyInfo(AppSaveInfo.getHelperStickyInfo()) {
-                            chatRoomStickyValue = it.first
-                            officialStickyValue = it.second
-                        }
                     }
 
                     MENU_ITEM_REMOVE_OFFICIAL -> {

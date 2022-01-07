@@ -20,7 +20,6 @@ object MessageFactory {
             "and ( 1 !=1 or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  " +
             "and rconversation.username != 'qmessage' " +
             "and rconversation.username != 'message_fold' " +
-
             "order by flag desc"
 
     private const val SqlForGetAllChatRoom = "select unReadCount, status, isSend, flag, conversationTime, rcontact.usernameFlag, " +

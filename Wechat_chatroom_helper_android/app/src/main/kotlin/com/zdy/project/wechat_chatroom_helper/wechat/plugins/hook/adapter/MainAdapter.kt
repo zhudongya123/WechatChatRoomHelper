@@ -13,6 +13,7 @@ import android.widget.ListView
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.PageType
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.chatroomView.ChatRoomViewFactory
 import com.zdy.project.wechat_chatroom_helper.wechat.manager.DrawableMaker
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction
@@ -39,6 +40,8 @@ object MainAdapter {
     var firstChatRoomPosition = -1
     var firstOfficialPosition = -1
 
+    private var chatRoomItemModel: Any? = null
+    private var officialItemModel: Any? = null
 
     fun isOriginAdapterIsInitialized() = MainAdapter::originAdapter.isInitialized
 
@@ -115,7 +118,7 @@ object MainAdapter {
                          */
                         when (position) {
                             firstChatRoomPosition -> {
-                                refreshChatEntryView(view, position)
+                                refreshChatRoomEntryView(view, position)
                                 param.result = view
                             }
                             firstOfficialPosition -> {
@@ -150,7 +153,7 @@ object MainAdapter {
                         LogUtils.log("MMBaseAdapter_getView, afterHookedMethod, index = $position, view = $view")
                     }
 
-                    private fun refreshChatEntryView(view: View?, position: Int) {
+                    private fun refreshChatRoomEntryView(view: View?, position: Int) {
                         LogUtils.log("MessageHooker2.6,position = $position, position = $position, " +
                                 "firstChatRoomPosition = $firstChatRoomPosition ,firstOfficialPosition = $firstOfficialPosition \n")
 
@@ -159,7 +162,7 @@ object MainAdapter {
 
                         mainItemViewHolder.unReadCount.visibility = View.GONE
                         XposedHelpers.callMethod(mainItemViewHolder.content, "setDrawLeftDrawable", false)
-                        setTextForNoMeasuredTextView(mainItemViewHolder.nickname, "群聊消息" + (if (MainAdapterLongClick.chatRoomStickyValue > 0) " - 置顶" else ""))
+                        setTextForNoMeasuredTextView(mainItemViewHolder.nickname, "群聊消息")
                         mainItemViewHolder.avatar.setImageDrawable(DrawableMaker.handleAvatarDrawable(mainItemViewHolder.avatar.context, PageType.CHAT_ROOMS))
                         mainItemViewHolder.sendStatus.visibility = View.GONE
                         mainItemViewHolder.muteImage.visibility = View.GONE
@@ -202,6 +205,13 @@ object MainAdapter {
                                 setTextForNoMeasuredTextView(mainItemViewHolder.content, "${chatInfoModel.nickname}：${chatInfoModel.content}")
                                 mainItemViewHolder.unMuteReadIndicators.visibility = View.GONE
                             }
+
+                            if (MessageFactory.getStickFlagInfo(chatRoomItemModel) != 0L) {
+                                mainItemViewHolder.containerView.background = ChatRoomViewFactory.getItemViewBackgroundSticky(view.context)
+                            } else {
+                                mainItemViewHolder.containerView.background = ChatRoomViewFactory.getItemViewBackground(view.context)
+                            }
+
                         }
                     }
 
@@ -214,7 +224,7 @@ object MainAdapter {
 
                         mainItemViewHolder.unReadCount.visibility = View.GONE
                         XposedHelpers.callMethod(mainItemViewHolder.content, "setDrawLeftDrawable", false)
-                        setTextForNoMeasuredTextView(mainItemViewHolder.nickname, "服务号消息" + (if (MainAdapterLongClick.officialStickyValue > 0) " - 置顶" else ""))
+                        setTextForNoMeasuredTextView(mainItemViewHolder.nickname, "服务号消息")
                         mainItemViewHolder.avatar.setImageDrawable(DrawableMaker.handleAvatarDrawable(mainItemViewHolder.avatar.context, PageType.OFFICIAL))
                         mainItemViewHolder.sendStatus.visibility = View.GONE
                         mainItemViewHolder.muteImage.visibility = View.GONE
@@ -255,6 +265,14 @@ object MainAdapter {
                                 }
                                 mainItemViewHolder.unMuteReadIndicators.visibility = View.GONE
                             }
+
+
+                            if (MessageFactory.getStickFlagInfo(officialItemModel) != 0L) {
+                                mainItemViewHolder.containerView.background = ChatRoomViewFactory.getItemViewBackgroundSticky(view.context)
+                            } else {
+                                mainItemViewHolder.containerView.background = ChatRoomViewFactory.getItemViewBackground(view.context)
+                            }
+
                         }
                     }
                 })
@@ -346,7 +364,7 @@ object MainAdapter {
 
                 if (param.thisObject::class.java.name != ConversationReflectFunction.conversationWithCacheAdapter.name) return
 
-                var index = param.args[0] as Int
+                val index = param.args[0] as Int
 
                 LogUtils.log("MessageHook 2020-07-04 16:02:08, index = $index, getItemChatRoomFlag = $getItemChatRoomFlag, getItemOfficialFlag = $getItemOfficialFlag")
 
@@ -377,8 +395,7 @@ object MainAdapter {
                             if (result == null) {
                                 LogUtils.log("MessageHook 2019-04-01 15:30:00, index = $index")
                                 // MainLauncherUI.restartMainActivity()
-                                val result = getCustomItemForEntry(firstOfficialPosition)
-                                param.result = result
+                                param.result = getCustomItemForEntry(firstOfficialPosition)
                             }
                         } catch (e: Throwable) {
                             e.printStackTrace()
@@ -401,9 +418,6 @@ object MainAdapter {
             }
 
 
-            private var chatRoomItemModel: Any? = null
-            private var officialItemModel: Any? = null
-
             /**
              * 构造助手的Bean然后返回
              */
@@ -416,16 +430,13 @@ object MainAdapter {
 
                 when {
                     firstChatRoomPosition == currentPosition -> {
-                        if (MainAdapterLongClick.chatRoomStickyValue > 0) {
-                            field_conversationTime = -1L
-                            field_flag = System.currentTimeMillis() + (1L shl 62)//你在这秀你妈位运算呢
-                        } else {
-                            var currentData = RuntimeInfo.chatRoomViewPresenter?.getCurrentData()
-                                    ?: arrayListOf()
-                            if (currentData.isEmpty() || RuntimeInfo.currentPage == PageType.MAIN) currentData = MessageFactory.getSpecChatRoom()
-                            field_conversationTime = currentData.first().field_conversationTime
-                            field_flag = field_conversationTime
-                        }
+
+                        var currentData = RuntimeInfo.chatRoomViewPresenter?.getCurrentData()
+                                ?: arrayListOf()
+                        if (currentData.isEmpty() || RuntimeInfo.currentPage == PageType.MAIN) currentData = MessageFactory.getSpecChatRoom()
+                        val first = currentData.first()
+                        field_flag = first.field_flag
+                        field_conversationTime = first.field_conversationTime
 
                         if (chatRoomItemModel == null)
                             chatRoomItemModel = getSpecItemForPlaceHolder("chatRoomItem")
@@ -435,17 +446,12 @@ object MainAdapter {
                     }
                     firstOfficialPosition == currentPosition -> {
 
-                        if (MainAdapterLongClick.officialStickyValue > 0) {
-                            field_conversationTime = -1L
-                            field_flag = System.currentTimeMillis() + (1L shl 62)
-                        } else {
-                            var currentData = RuntimeInfo.officialViewPresenter?.getCurrentData()
-                                    ?: arrayListOf()
-                            if (currentData.isEmpty() || RuntimeInfo.currentPage == PageType.MAIN) currentData = MessageFactory.getSpecOfficial()
-                            field_conversationTime = currentData.first().field_conversationTime
-                            field_flag = field_conversationTime
-                        }
-
+                        var currentData = RuntimeInfo.officialViewPresenter?.getCurrentData()
+                                ?: arrayListOf()
+                        if (currentData.isEmpty() || RuntimeInfo.currentPage == PageType.MAIN) currentData = MessageFactory.getSpecOfficial()
+                        val first = currentData.first()
+                        field_flag = first.field_flag
+                        field_conversationTime = first.field_conversationTime
 
                         if (officialItemModel == null)
                             officialItemModel = getSpecItemForPlaceHolder("officialItem")
@@ -565,37 +571,6 @@ object MainAdapter {
                 }
 
                 LogUtils.log("onEntryPositionChanged, firstChatRoomPosition = ${firstChatRoomPosition}, firstOfficialPosition = ${firstOfficialPosition}")
-
-                LogUtils.log("onEntryPositionChanged, chatRoomStickyValue = ${MainAdapterLongClick.chatRoomStickyValue}, firstOfficialPosition = ${MainAdapterLongClick.officialStickyValue}")
-
-                /**
-                 * 粘性头部~（置顶）
-                 */
-                if (MainAdapterLongClick.chatRoomStickyValue > 0 && MainAdapterLongClick.officialStickyValue == 0) {
-                    if (firstChatRoomPosition > firstOfficialPosition) {
-                        firstOfficialPosition += 1
-                    }
-                    firstChatRoomPosition = 0
-                }
-                if (MainAdapterLongClick.chatRoomStickyValue == 0 && MainAdapterLongClick.officialStickyValue > 0) {
-                    if (firstOfficialPosition > firstChatRoomPosition) {
-                        firstChatRoomPosition += 1
-                    }
-                    firstOfficialPosition = 0
-                }
-                if (MainAdapterLongClick.chatRoomStickyValue > 0 && MainAdapterLongClick.officialStickyValue > 0) {
-
-                    if (MainAdapterLongClick.chatRoomStickyValue > MainAdapterLongClick.officialStickyValue) {
-                        firstChatRoomPosition = 0
-                        firstOfficialPosition = 1
-                    }
-                    if (MainAdapterLongClick.chatRoomStickyValue < MainAdapterLongClick.officialStickyValue) {
-                        firstChatRoomPosition = 1
-                        firstOfficialPosition = 0
-                    }
-                }
-
-                LogUtils.log("onEntryPositionChanged2, firstChatRoomPosition = ${firstChatRoomPosition}, firstOfficialPosition = ${firstOfficialPosition}")
             }
 
         })

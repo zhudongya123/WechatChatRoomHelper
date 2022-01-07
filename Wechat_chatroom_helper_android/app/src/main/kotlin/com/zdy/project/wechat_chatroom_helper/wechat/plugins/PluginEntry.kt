@@ -7,6 +7,7 @@ import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapterLongClick
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.log.LogRecord
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageHandler
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.other.OtherHook
@@ -52,10 +53,6 @@ class PluginEntry : IXposedHookLoadPackage {
             WXObject.Adapter.C.ConversationHashMapBean = configJson.get("conversationHashMapBean").asString
             WXObject.Tool.C.Logcat = configJson.get("logcat").asString
 
-            MainAdapterLongClick.parseStickyInfo(AppSaveInfo.getHelperStickyInfo()) {
-                MainAdapterLongClick.chatRoomStickyValue = it.first
-                MainAdapterLongClick.officialStickyValue = it.second
-            }
 
             Constants.defaultValue = Constants.DefaultValue(true)
 
@@ -69,7 +66,7 @@ class PluginEntry : IXposedHookLoadPackage {
                 MainAdapterLongClick.executeHook()
                 MainLauncherUI.executeHook()
                 if (AppSaveInfo.openLogInfo()) {
-             //       LogRecord.executeHook()
+                    LogRecord.executeHook()
                 }
                 OtherHook.executeHook()
 
