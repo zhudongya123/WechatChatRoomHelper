@@ -15,14 +15,21 @@ object MessageFactory {
     private const val SqlForGetAllOfficial = "select unReadCount, status, isSend, flag, conversationTime, rcontact.usernameFlag, " +
             "rconversation.username, rcontact.nickname, rcontact.lvbuff, content, msgType ,digest, digestUser, attrflag, editingMsg, " +
             "atCount, unReadMuteCount, UnReadInvite from rconversation, rcontact " +
-            "where ( rcontact.username = rconversation.username and rcontact.verifyFlag != 0) and ( parentRef is null  or parentRef = '' )  " +
+            "where ( rcontact.username = rconversation.username and rcontact.verifyFlag != 0)" +
+            "and ( parentRef is null  or parentRef = '' or parentRef = 'message_fold' )  " +
             "and ( 1 !=1 or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  " +
-            "and rconversation.username != 'qmessage' order by flag desc"
+            "and rconversation.username != 'qmessage' " +
+            "and rconversation.username != 'message_fold' " +
+
+            "order by flag desc"
 
     private const val SqlForGetAllChatRoom = "select unReadCount, status, isSend, flag, conversationTime, rcontact.usernameFlag, " +
             "rconversation.username, rcontact.nickname, rcontact.lvbuff, content, msgType, digest, digestUser, attrflag, editingMsg, " +
             "atCount, unReadMuteCount, UnReadInvite from rconversation, rcontact " +
-            "where rcontact.username = rconversation.username and  rconversation.username like '%chatroom' order by flag desc"
+            "where rcontact.username = rconversation.username " +
+            "and rconversation.username like '%chatroom' " +
+            "and ( parentRef is null  or parentRef = '' or parentRef = 'message_fold' )  " +
+            "order by flag desc"
 
     private fun SqlForByUsername(field_username: String) = "select unReadCount, status, flag, isSend, conversationTime, rcontact.usernameFlag, " +
             "rconversation.username, rcontact.nickname, rcontact.lvbuff, content, msgType, digest, digestUser, attrflag, editingMsg, " +

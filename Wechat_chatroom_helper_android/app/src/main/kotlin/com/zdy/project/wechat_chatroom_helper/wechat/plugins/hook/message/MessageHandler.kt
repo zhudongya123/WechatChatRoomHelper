@@ -20,12 +20,15 @@ object MessageHandler {
 
     //查询当前第一个服务号的会话信息
     private const val SqlForGetFirstOfficial = "select rconversation.username, flag, rconversation.conversationTime from rconversation,rcontact " +
-            "where ( rcontact.username = rconversation.username and rcontact.verifyFlag != 0) and ( parentRef is null  or parentRef = '' )  " +
+            "where ( rcontact.username = rconversation.username and rcontact.verifyFlag != 0) and ( parentRef is null  or parentRef = '' or parentRef = 'message_fold' )  " +
             "and ( 1 !=1 or rconversation.username like '%@chatroom' or rconversation.username like '%@openim' or rconversation.username not like '%@%' )  " +
-            "and rconversation.username != 'qmessage' order by conversationTime desc limit 1"
+            "and rconversation.username != 'qmessage' order by flag desc limit 1"
 
     //查询当前第一个群聊的会话信息
-    private const val SqlForGetFirstChatroom = "select username, flag, conversationTime from rconversation where  username like '%@chatroom' order by conversationTime desc limit 1"
+    private const val SqlForGetFirstChatroom = "select username, flag, conversationTime from rconversation " +
+            "where  username like '%@chatroom' " +
+            "and ( parentRef is null  or parentRef = '' or parentRef = 'message_fold' ) " +
+            "order by flag desc limit 1"
 
     //查询除去服务号和群聊的sql语句，可以通过拼接添加自定义名单
     private var SqlForNewAllContactConversation =
@@ -35,12 +38,11 @@ object MessageHandler {
                     "rconversation.digestUser, rconversation.attrflag, rconversation.editingMsg, " +
                     "rconversation.atCount, rconversation.unReadMuteCount, " +
                     "rconversation.UnReadInvite, rconversation.hasTodo, rconversation.hbMarkRed, " +
-                    "rconversation.remitMarkRed ",
+                    "rconversation.remitMarkRed, rconversation.parentRef " +
                     "from rconversation, rcontact where " +
-                            "( rconversation.username = rcontact.username and rcontact.verifyFlag = 0 and rcontact.username not like '%@chatroom') ",
-                    "AND  ( parentRef is null  or parentRef = '' )",
-                    "and ( rcontact.usernameFlag in ( 4 , 2 , 65536 , 0 )  )",
-                    "and rconversation.username != 'qmessage' and rconversation.username != 'appbrand_notify_message' ",
+                    "( rconversation.username = rcontact.username and rcontact.verifyFlag = 0 and rcontact.username not like '%@chatroom') ",
+                    "and  ( parentRef is null  or parentRef = '' or parentRef = 'message_fold' )",
+                    "and rconversation.username != 'qmessage' and rconversation.username != 'appbrand_notify_message' and rconversation.username != 'message_fold' ",
                     "order by flag desc")
 
     //微信原始的查询所有消息回话的语句，通过分段来筛选出相关逻辑
@@ -183,9 +185,9 @@ object MessageHandler {
                         /**
                          * 先获取两个助手的 username (包含Sql查询)
                          */
-                        refreshEntryUsername(thisObject).let {
-                            val firstChatRoomUsername = it.first
-                            val firstOfficialUsername = it.second
+                        refreshEntryUsername(thisObject).let { pair ->
+                            val firstChatRoomUsername = pair.first
+                            val firstOfficialUsername = pair.second
                             iMainAdapterRefreshes.forEach { it.onEntryInit(firstChatRoomUsername, firstOfficialUsername) }
                         }
 
@@ -230,7 +232,7 @@ object MessageHandler {
                     /**
                      * 当请求全部联系人回话时（不包括服务号和群聊）
                      */
-                    isQueryNewAllConversation(sql) && !sql.contains(", rconversation.conversationTime desc") -> {
+                    isQueryNewAllConversation(sql) && !sql.contains(", rconversation.flag desc") -> {
 
                         LogUtils.log("MessageHandler, isQueryNewAllConversation")
                         LogUtils.log("MessageHandler, SqlForNewAllContactConversation size = ${SqlForNewAllContactConversation.joinToString("") { it }}")
@@ -321,8 +323,10 @@ object MessageHandler {
                         /**
                          * 2021-09-18
                          * 新逻辑
+                         *
+                         * 2022-01-07 加 rconversation.flag desc 是为了避免重复请求的循坏
                          */
-                        val newSqlForAllConversation = "$sql, rconversation.conversationTime desc"
+                        val newSqlForAllConversation = "$sql, rconversation.flag desc"
                         val result = XposedHelpers.callMethod(thisObject, WXObject.Message.M.QUERY, factory, newSqlForAllConversation, selectionArgs, editTable, cancellation)
                         param.result = result
                     }

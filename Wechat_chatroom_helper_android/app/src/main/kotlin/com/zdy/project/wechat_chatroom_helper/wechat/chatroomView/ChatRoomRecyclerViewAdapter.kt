@@ -58,7 +58,7 @@ class ChatRoomRecyclerViewAdapter constructor(private val mContext: Context) : R
         holder.time.text = item.conversationTime
 
 
-        if (!item.field_username.isEmpty()) {
+        if (item.field_username.isNotEmpty()) {
             ConversationReflectFunction.getConversationAvatar(item.field_username.toString(), holder.avatar)
             holder.itemView.setOnClickListener {
                 onItemActionListener.onItemClick(holder.itemView, position, item)
