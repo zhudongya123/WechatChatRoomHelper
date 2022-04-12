@@ -58,15 +58,6 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                     srcPath, apkFile.apkMeta.versionName, apkFile.apkMeta.versionCode.toString())
 
 
-            Thread(Runnable {
-
-                for (dexClass in dexClasses.filter { it.classType.contains("wcdb") }) {
-
-                    Thread.sleep(1)
-                    Log.v("doInBackground", "dexClass = ${dexClass.classType}")
-                }
-            }).start()
-
             dexClasses.map { it.classType.substring(1, it.classType.length - 1).replace("/", ".") }
                     .filter { it.contains(Constants.WECHAT_PACKAGE_NAME) }
                     .forEachIndexed { index, className ->
@@ -85,7 +76,6 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
                     }
 
             configData["conversationWithCacheAdapter"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationWithCacheAdapter(classes))
-            configData["conversationAvatar"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
             configData["conversationLongClickListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationLongClickListener(classes))
             configData["conversationClickListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
             configData["conversationMenuItemSelectedListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationMenuItemSelectedListener(classes))
@@ -94,6 +84,7 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
 //            configData["conversationItemSelectorBackGroundInt"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationItemSelectorBackGroundInt(classes))
             configData["logcat"] = parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
             configData["conversationHashMapBean"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationHashMapBean(classes))
+            configData["conversationAvatar"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
 
 
             writeNewConfig()

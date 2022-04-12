@@ -100,9 +100,16 @@ object WXClassParser {
         fun getConversationAvatar(classes: MutableList<Class<*>>): Class<*>? {
             return classes
                     .filter { it.name.contains("com.tencent.mm.pluginsdk.ui") }
-                    .filter { it.declaredClasses.isNotEmpty() }
-                    .firstOrNull { it.declaredClasses.any { it.methods.map { it.name }.contains("doInvalidate") } }!!
-                    .declaredClasses!!
+//                    .filter { it.declaredClasses.isNotEmpty() }
+                    .first {
+                        it.methods.any { method ->
+                            val contains = method.name.contains("setIsPressed")
+                            Log.v("W.R,C,H","contains = $contains, method = $method, it = ${it.name}")
+                            contains
+                                    && method.parameterTypes[0].name == Boolean::class.java.name && Modifier.isFinal(method.modifiers)
+                        }
+                    }
+                    .declaredClasses
                     .firstOrNull {
                         it.declaredMethods.any {
                             it.parameterTypes.size == 4 &&

@@ -120,18 +120,7 @@ class PermissionHelper(private var activity: Activity) {
             .create()
 
 
-    fun onRequestPermissionsResult(requestCode: Int, grantResults: IntArray) {
-        if (MainActivity.WRITE_EXTERNAL_STORAGE_RESULT_CODE == requestCode) {
-            //回调中获得了权限
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                WechatJsonUtils.init(activity)
-            }
-            //刚拒绝了权限
-            else {
-                settingDialog.show()
-            }
-        }
-    }
+
 
 
 }

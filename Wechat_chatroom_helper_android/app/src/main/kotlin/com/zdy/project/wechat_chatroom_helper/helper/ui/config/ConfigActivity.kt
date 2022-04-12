@@ -161,6 +161,7 @@ class ConfigActivity : AppCompatActivity() {
                 PermissionHelper.ALLOW -> {
                     initColorTextView(R.id.config_step2_text1, R.string.config_permission_success, R.color.right_color)
                     setNavigationBarNextButtonEnabled(true)
+                    WechatJsonUtils.init(this)
                 }
                 PermissionHelper.ASK -> PermissionHelper.requestPermission(this)
                 PermissionHelper.DENY -> {
