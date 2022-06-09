@@ -381,14 +381,14 @@ object MessageHandler {
                     String::class.java, Array<Any>::class.java, String::class.java,
                     databaseCancellationSignal, queryHook)
 
-            Log.v("PluginEntry", "MessageHandler line 318")
+            LogUtils.log("PluginEntry, MessageHandler line 318")
 
         } catch (e: NoSuchMethodError) {
             XposedHelpers.findAndHookMethod(database, WXObject.Message.M.QUERY, databaseFactory,
                     String::class.java, Array<Any>::class.java, String::class.java,
                     databaseCancellationSignal, queryHook)
 
-            Log.v("PluginEntry", "MessageHandler line 325")
+            LogUtils.log("PluginEntry, MessageHandler line 325")
         }
 
         XposedHelpers.findAndHookMethod(database, WXObject.Message.M.INSERT,

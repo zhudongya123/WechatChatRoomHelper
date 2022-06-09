@@ -1,9 +1,11 @@
 package     com.zdy.project.wechat_chatroom_helper.wechat.plugins
 
 import android.annotation.SuppressLint
+import android.text.SpannableStringBuilder
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.beanClass
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapterLongClick
@@ -11,7 +13,11 @@ import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.log.LogRecord
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageHandler
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.other.OtherHook
+import com.zdy.project.wechat_chatroom_helper.wechat.utils.printAllDeclaredField
+import com.zdy.project.wechat_chatroom_helper.wechat.utils.printAllField
 import de.robv.android.xposed.IXposedHookLoadPackage
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
@@ -71,14 +77,36 @@ class PluginEntry : IXposedHookLoadPackage {
                 OtherHook.executeHook()
 
 
+//                val k = "com.tencent.mm.ui.conversation.k"
+//                val conversationWithCacheAdapter = p0.classLoader.loadClass(WXObject.Adapter.C.ConversationWithCacheAdapter)
+//                val d = p0.classLoader.loadClass("$k\$d")
+//                val gtz = p0.classLoader.loadClass("com.tencent.mm.protocal.protobuf.gtz")
+//
+//                XposedHelpers.findAndHookMethod(conversationWithCacheAdapter, "a", beanClass, d, Int::class.java, SpannableStringBuilder::class.java,
+//                        CharSequence::class.java, Boolean::class.java, gtz, object : XC_MethodHook() {
+//                    override fun beforeHookedMethod(param: MethodHookParam) {
+//                        val args = param.args
+//
+//                        val bean = args[0]
+//                        val d = args[1]
+//                        val textSize = args[2]
+//                        val builder = args[3]
+//                        val charSequence = args[4]
+//                        val boolean = args[5]
+//                        val gtz = args[6]
+//
+//                        XposedBridge.log("spannableStringBuilder, bean = ${bean.printAllField()}, ${bean.printAllDeclaredField()}, d = $d, textSize = $textSize, " +
+//                                "builder =$builder, char = $charSequence, bolean = $boolean")
+//
+//                        XposedBridge.log("spannableStringBuilder2, gtz = ${gtz.printAllField()}, ${gtz.printAllDeclaredField()}")
+//
+//                        val info = XposedHelpers.getObjectField(bean, "info")
+//                        XposedBridge.log("spannableStringBuilder3, info = ${info.printAllField()}, ${info.printAllDeclaredField()}")
+//                    }
+//                })
             } catch (e: Throwable) {
                 e.printStackTrace()
-
-
             }
-
-
         }
-
     }
 }

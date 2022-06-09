@@ -1,7 +1,9 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser
 
+import android.text.SpannableStringBuilder
 import android.widget.ImageView
 import com.blankj.utilcode.util.ScreenUtils
+import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import de.robv.android.xposed.XposedHelpers
@@ -87,9 +89,30 @@ object ConversationReflectFunction {
      * 微信 1940 后 首页聊天列表中的item 字段全部变为私有 只能通过父类的class对象来设置
      */
     fun setupItemClassField(item: Any, fieldName: String, value: Any) {
+//        beanClass.superclass.superclass.let {
+//            when (value) {
+//                is Int -> {
+//                    XposedHelpers.setIntField(item, fieldName, value)
+//                }
+//                is Long -> {
+//                    XposedHelpers.setLongField(item, fieldName, value)
+//                }
+//                else -> {
+//                    XposedHelpers.setObjectField(item, fieldName, value)
+//                }
+//            }
+//        }
+
         beanClass.superclass?.superclass?.let { clazz ->
             clazz.getDeclaredField(fieldName).apply { isAccessible = true }.set(item, value)
         }
+
+
+//            try {
+//                clazz.getField(fieldName).set(item, value)
+//            } catch (e: NoSuchFieldException) {
+//                e.printStackTrace()
+//            }
     }
 
     /**
@@ -125,10 +148,10 @@ object ConversationReflectFunction {
 
         val method = conversationWithCacheAdapter.declaredMethods
                 .filter { it.parameterTypes.size >= 4 }
-                .single {
-                    it.parameterTypes[0].simpleName == beanClass.simpleName &&
-                            it.parameterTypes[1].simpleName == Int::class.java.simpleName &&
-                            it.parameterTypes[2].simpleName == Boolean::class.java.simpleName
+                .first {
+                    it.parameterTypes.any { type -> type.simpleName == beanClass.simpleName } &&
+                            it.parameterTypes.any { type -> type.simpleName == Int::class.java.simpleName } &&
+                            it.parameterTypes.any { type -> type.simpleName == Boolean::class.java.simpleName }
                 }
 
         val aeConstructor = beanClass.constructors.filter { it.parameterTypes.size == 1 }
@@ -136,47 +159,47 @@ object ConversationReflectFunction {
 
         val bean = aeConstructor.newInstance(chatInfoModel.field_username)
 
-        setupItemClassField(bean, "field_editingMsg", chatInfoModel.field_editingMsg)
-        setupItemClassField(bean, "field_atCount", chatInfoModel.field_atCount)
-        setupItemClassField(bean, "field_unReadCount", chatInfoModel.field_unReadCount)
-        setupItemClassField(bean, "field_unReadMuteCount", chatInfoModel.field_unReadMuteCount)
-        setupItemClassField(bean, "field_msgType", chatInfoModel.field_msgType)
-        setupItemClassField(bean, "field_username", chatInfoModel.field_username)
-        setupItemClassField(bean, "field_content", chatInfoModel.field_content)
-        setupItemClassField(bean, "field_digest", chatInfoModel.field_digest)
-        setupItemClassField(bean, "field_digestUser", chatInfoModel.field_digestUser)
-        setupItemClassField(bean, "field_isSend", chatInfoModel.field_isSend)
-        setupItemClassField(bean, "field_UnReadInvite", chatInfoModel.field_UnReadInvite)
-        setupItemClassField(bean, "field_atCount", chatInfoModel.field_atCount)
-        setupItemClassField(bean, "field_flag", chatInfoModel.field_flag)
+//        setupItemClassField(bean, "field_UnDeliverCount", chatInfoModel.field_UnDeliverCount)
+//        setupItemClassField(bean, "field_UnReadInvite", chatInfoModel.field_UnReadInvite)
+//        setupItemClassField(bean, "field_atCount", chatInfoModel.field_atCount)
+//        setupItemClassField(bean, "field_attrflag", chatInfoModel.field_attrflag)
+//        setupItemClassField(bean, "field_chatmode", chatInfoModel.field_chatmode)
+//        setupItemClassField(bean, "field_content", chatInfoModel.field_content)
+//        setupItemClassField(bean, "field_conversationTime", chatInfoModel.field_conversationTime)
+//        setupItemClassField(bean, "field_digest", chatInfoModel.field_digest)
+//        setupItemClassField(bean, "field_digestUser", chatInfoModel.field_digestUser)
+//        setupItemClassField(bean, "field_editingMsg", chatInfoModel.field_editingMsg)
+//        setupItemClassField(bean, "field_editingQuoteMsgId", chatInfoModel.field_editingQuoteMsgId)
+//        setupItemClassField(bean, "field_firstUnDeliverSeq", chatInfoModel.field_firstUnDeliverSeq)
+//        setupItemClassField(bean, "field_flag", chatInfoModel.field_flag)
+//        setupItemClassField(bean, "field_hasSpecialFollow", chatInfoModel.field_hasSpecialFollow)
+//        setupItemClassField(bean, "field_hasTodo", chatInfoModel.field_hasTodo)
+//        setupItemClassField(bean, "field_hbMarkRed", chatInfoModel.field_hbMarkRed)
+//        setupItemClassField(bean, "field_isSend", chatInfoModel.field_isSend)
+//        setupItemClassField(bean, "field_lastSeq", chatInfoModel.field_lastSeq)
+//        setupItemClassField(bean, "field_msgCount", chatInfoModel.field_msgCount)
+//        setupItemClassField(bean, "field_msgType", chatInfoModel.field_msgType)
+//        setupItemClassField(bean, "field_parentRef", chatInfoModel.field_parentRef)
+//        setupItemClassField(bean, "field_remitMarkRed", chatInfoModel.field_remitMarkRed)
+//        setupItemClassField(bean, "field_showTips", chatInfoModel.field_showTips)
+//        setupItemClassField(bean, "field_status", chatInfoModel.field_status)
+//        setupItemClassField(bean, "field_unReadCount", chatInfoModel.field_unReadCount)
+//        setupItemClassField(bean, "field_unReadMuteCount", chatInfoModel.field_unReadMuteCount)
+//        setupItemClassField(bean, "field_username", chatInfoModel.field_username)
         val textSize = (ScreenUtils.getScreenDensity() * 13f).toInt()
         val content = try {
-            val clazz = method.parameterTypes[3]
+            val clazz = method.parameterTypes[6]
             val newInstance = clazz.newInstance()
-            XposedHelpers.callMethod(adapter, method.name, bean, textSize, true, newInstance) as CharSequence
+            //(bd bdVar, d dVar, int i2, e eVar, boolean z, gtz gtz)
+            //(bd bdVar, d dVar, int i2, SpannableStringBuilder spannableStringBuilder, CharSequence charSequence, boolean z, gtz gtz)
+            val charSequence = XposedHelpers.callMethod(adapter, method.name, bean, null, textSize, SpannableStringBuilder(), chatInfoModel.field_content, true, newInstance) as CharSequence
+            LogUtils.log("getConversationContent = $charSequence")
+            return charSequence
         } catch (e: Throwable) {
             e.printStackTrace()
             ""
         }
 
-//        LogUtils.log("MessageHook2019-04-01 16:25:57, flag = ${chatInfoModel.field_flag}, username = ${chatInfoModel.field_username}")
-//        val secondBeanMethodName = conversationWithCacheAdapter.declaredMethods
-//                .filter { it.parameterTypes.size == 1 }
-//                .single {
-//                    LogUtils.log("getConversationContent, name = $it, name = ${beanClass.name}")
-//                    it.parameterTypes[0].name == beanClass.name
-//                }.name
-//
-//        val secondBean = XposedHelpers.callMethod(adapter, secondBeanMethodName, beanClass)
-//
-//        val fields = secondBean::class.java.fields
-//
-//        var fieldString = ""
-//        fields.forEach {
-//            fieldString = "getConversationContent, fieldName = ${it.name}, fieldValue = ${it.get(secondBean)}\n"
-//        }
-//
-//        com.zdy.project.wechat_chatroom_helper.LogUtils.log("getConversationContent = $fieldString")
         return if (content.isEmpty()) chatInfoModel.field_content else content
     }
 
