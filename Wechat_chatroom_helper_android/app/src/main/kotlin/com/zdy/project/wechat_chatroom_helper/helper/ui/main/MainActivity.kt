@@ -129,7 +129,7 @@ class MainActivity : BaseActivity() {
 
                 getString(R.string.title_question_string) -> {
                     itemView.setOnClickListener {
-                        thisActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/zhudongya123/WechatChatRoomHelper/wiki")))
+                        thisActivity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/zhuMr.Zdya123/WechatChatRoomHelper/wiki")))
                     }
                     text2.setText(R.string.sub_title_question_string)
                 }

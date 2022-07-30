@@ -141,7 +141,6 @@ object MessageHandler {
     }
 
     fun executeHook() {
-
         val database =
                 XposedHelpers.findClass(WXObject.Message.C.SQLiteDatabase, RuntimeInfo.classloader)
         val databaseFactory =
@@ -151,6 +150,7 @@ object MessageHandler {
 
         val queryHook = object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
+                LogUtils.log("MessageHandler, queryHook, invoke")
 
                 val thisObject = param.thisObject
                 val factory = param.args[0]
@@ -376,19 +376,18 @@ object MessageHandler {
 
             }
         }
+
         try {
             XposedHelpers.findAndHookMethod(database, WXObject.Message.M.QUERY, databaseFactory,
                     String::class.java, Array<Any>::class.java, String::class.java,
                     databaseCancellationSignal, queryHook)
-
-            LogUtils.log("PluginEntry, MessageHandler line 318")
+            LogUtils.log("PluginEntry, MessageHandler hook query DataBase")
 
         } catch (e: NoSuchMethodError) {
             XposedHelpers.findAndHookMethod(database, WXObject.Message.M.QUERY, databaseFactory,
                     String::class.java, Array<Any>::class.java, String::class.java,
                     databaseCancellationSignal, queryHook)
-
-            LogUtils.log("PluginEntry, MessageHandler line 325")
+            LogUtils.log("PluginEntry, MessageHandler  hook query DataBase NoSuchMethodError")
         }
 
         XposedHelpers.findAndHookMethod(database, WXObject.Message.M.INSERT,
@@ -423,6 +422,7 @@ object MessageHandler {
                         }
                     }
                 })
+        LogUtils.log("PluginEntry, MessageHandler  hook INSERT DataBase ")
         XposedHelpers.findAndHookMethod(database, WXObject.Message.M.UPDATE,
                 String::class.java, ContentValues::class.java, String::class.java,
                 Array<String>::class.java, Int::class.java,
@@ -439,9 +439,7 @@ object MessageHandler {
                         }
                     }
                 })
-
+        LogUtils.log("PluginEntry, MessageHandler  hook UPDATE DataBase ")
 
     }
-
-
 }
