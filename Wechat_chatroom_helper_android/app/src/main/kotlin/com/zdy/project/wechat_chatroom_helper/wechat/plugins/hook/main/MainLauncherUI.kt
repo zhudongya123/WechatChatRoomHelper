@@ -2,14 +2,11 @@ package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
-import android.util.AttributeSet
 import android.view.KeyEvent
-import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.*

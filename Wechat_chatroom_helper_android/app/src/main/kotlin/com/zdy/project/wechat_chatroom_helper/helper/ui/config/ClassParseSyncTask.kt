@@ -5,7 +5,6 @@ import android.os.AsyncTask
 import android.os.Build
 import android.os.Message
 import android.support.annotation.RequiresApi
-import android.util.Log
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.HANDLER_SHOW_NEXT_BUTTON
@@ -83,16 +82,10 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
             configData["conversationClickListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
             configData["conversationMenuItemSelectedListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationMenuItemSelectedListener(classes))
             configData["conversationStickyHeaderHandler"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationStickyHeaderHandler(classes))
-//            configData["conversationItemHighLightSelectorBackGroundInt"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationItemHighLightSelectorBackGroundInt(classes))
-//            configData["conversationItemSelectorBackGroundInt"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationItemSelectorBackGroundInt(classes))
             configData["logcat"] = parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
             configData["conversationHashMapBean"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationHashMapBean(classes))
             configData["conversationAvatar"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
 
-
-            val filter = classes.filter { it.interfaces.any { it.name.contains(".ISQLiteDatabase") } }.map {
-                Log.v("WRCH ", "className = ${it.name}, parentName = ${it.superclass}，genericSuperclass = ${it.genericSuperclass}, interfaces = ${it.interfaces.joinToString { it.name }}")
-            }
 
             writeNewConfig()
 

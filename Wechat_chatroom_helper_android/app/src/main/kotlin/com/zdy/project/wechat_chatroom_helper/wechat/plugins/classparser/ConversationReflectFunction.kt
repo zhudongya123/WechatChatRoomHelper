@@ -1,25 +1,25 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser
 
-import android.text.SpannableStringBuilder
 import android.widget.ImageView
 import com.blankj.utilcode.util.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import de.robv.android.xposed.XposedHelpers
+import java.lang.reflect.Constructor
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 
 object ConversationReflectFunction {
 
-    val conversationWithCacheAdapter = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithCacheAdapter, RuntimeInfo.classloader)
-    val conversationAvatar = XposedHelpers.findClass(WXObject.Adapter.C.ConversationAvatar, RuntimeInfo.classloader)
-    val conversationListView = XposedHelpers.findClass(WXObject.Adapter.C.ConversationListView, RuntimeInfo.classloader)
-    val conversationClickListener = XposedHelpers.findClass(WXObject.Adapter.C.ConversationClickListener, RuntimeInfo.classloader)
-    val conversationStickyHeaderHandler = XposedHelpers.findClass(WXObject.Adapter.C.ConversationStickyHeaderHandler, RuntimeInfo.classloader)
-    val conversationHashMapBean = XposedHelpers.findClass(WXObject.Adapter.C.ConversationHashMapBean, RuntimeInfo.classloader)
-    val mStorageExClass = XposedHelpers.findClass(WXObject.Adapter.C.MStorageEx, RuntimeInfo.classloader)
+    val conversationWithCacheAdapter: Class<*> = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithCacheAdapter, RuntimeInfo.classloader)
+    val conversationListView: Class<*> = XposedHelpers.findClass(WXObject.Adapter.C.ConversationListView, RuntimeInfo.classloader)
+    val conversationClickListener: Class<*> = XposedHelpers.findClass(WXObject.Adapter.C.ConversationClickListener, RuntimeInfo.classloader)
+    val conversationStickyHeaderHandler: Class<*> = XposedHelpers.findClass(WXObject.Adapter.C.ConversationStickyHeaderHandler, RuntimeInfo.classloader)
+    val mStorageExClass: Class<*> = XposedHelpers.findClass(WXObject.Adapter.C.MStorageEx, RuntimeInfo.classloader)
 
+    private val conversationHashMapBean: Class<*> = XposedHelpers.findClass(WXObject.Adapter.C.ConversationHashMapBean, RuntimeInfo.classloader)
+    private val conversationAvatar: Class<*> = XposedHelpers.findClass(WXObject.Adapter.C.ConversationAvatar, RuntimeInfo.classloader)
 
     /**
      * 这个就是获取itemView里面的model的那个对象的方法 一般命名为getItem(index) 方法
@@ -55,24 +55,19 @@ object ConversationReflectFunction {
                         && it.parameterTypes[3].name == Boolean::class.java.name
             }
 
-    val conversationGetHashMapMethod = conversationHashMapBean.methods
-            .filter { it.returnType == HashMap::class.java }
-            .first { it.parameterTypes.isEmpty() }
-
-
     val beanClass = ((conversationWithCacheAdapter.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>)
-    val beanConstructor = beanClass.constructors
+    val beanConstructor: Constructor<*> = beanClass.constructors
             .filter { it.parameterTypes.size == 1 }
             .first { it.parameterTypes[0] == String::class.java }
 
-    val stickyHeaderHandlerMethod = conversationStickyHeaderHandler.methods.first { it.parameterTypes.size == 3 }
+    val stickyHeaderHandlerMethod: Method = conversationStickyHeaderHandler.methods.first { it.parameterTypes.size == 3 }
 
 
     fun getConversationTimeString(adapter: Any, conversationTime: Long): CharSequence {
 
         conversationTimeStringMethod.let { _ ->
 
-            beanConstructor?.let {
+            beanConstructor.let {
                 val obj = beanConstructor.newInstance("")
 
                 setupItemClassField(obj, "field_status", 0)
@@ -124,7 +119,6 @@ object ConversationReflectFunction {
 
 
     fun getConversationNickname(adapter: Any, chatInfoModel: ChatInfoModel): CharSequence {
-
         val getNicknameMethod = conversationWithCacheAdapter.declaredMethods
                 .filter { it.parameterTypes.size == 1 }
                 .filter {

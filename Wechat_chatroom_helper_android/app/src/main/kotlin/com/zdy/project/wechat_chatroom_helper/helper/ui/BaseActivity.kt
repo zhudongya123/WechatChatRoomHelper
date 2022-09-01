@@ -2,7 +2,6 @@ package com.zdy.project.wechat_chatroom_helper.helper.ui
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 
 open class BaseActivity : AppCompatActivity() {
 

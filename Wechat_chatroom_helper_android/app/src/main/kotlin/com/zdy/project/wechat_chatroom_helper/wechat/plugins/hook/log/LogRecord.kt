@@ -1,6 +1,5 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.log
 
-import android.util.Log
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
@@ -8,7 +7,6 @@ import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObjec
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
-import de.robv.android.xposed.XposedHelpers.findAndHookMethod
 import de.robv.android.xposed.XposedHelpers.findMethodsByExactParameters
 
 object LogRecord {
