@@ -104,7 +104,6 @@ object WXClassParser {
                     .first {
                         it.methods.any { method ->
                             val contains = method.name.contains("setIsPressed")
-                            Log.v("W.R,C,H","contains = $contains, method = $method, it = ${it.name}")
                             contains
                                     && method.parameterTypes[0].name == Boolean::class.java.name && Modifier.isFinal(method.modifiers)
                         }

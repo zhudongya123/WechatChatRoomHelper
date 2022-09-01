@@ -6,6 +6,19 @@ package com.zdy.project.wechat_chatroom_helper.io.model
  */
 class ChatInfoModel {
 
+//    var field_showTips: Long = 0L
+//    var field_remitMarkRed: Long = 0L
+//    var field_parentRef: CharSequence = ""
+//    var field_msgCount: Long = 0L
+//    var field_lastSeq: Long = 0L
+//    var field_hbMarkRed: Long = 0L
+//    var field_hasTodo: Long = 0L
+//    var field_hasSpecialFollow: Long = 0L
+//    var field_firstUnDeliverSeq: Long = 0L
+//    var field_editingQuoteMsgId: Long = 0L
+//    var field_chatmode: Long = 0L
+//    var field_UnDeliverCount: Long = 0L
+
     var field_username: CharSequence = ""
     var field_nickname: CharSequence = ""
     var field_content: CharSequence = ""
