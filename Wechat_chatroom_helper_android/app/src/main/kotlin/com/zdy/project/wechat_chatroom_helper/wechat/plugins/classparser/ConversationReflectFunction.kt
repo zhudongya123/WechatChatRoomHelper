@@ -7,6 +7,7 @@ import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import de.robv.android.xposed.XposedHelpers
+import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 
 object ConversationReflectFunction {
@@ -147,7 +148,7 @@ object ConversationReflectFunction {
     fun getConversationContent(adapter: Any, chatInfoModel: ChatInfoModel): CharSequence {
 
         val method = conversationWithCacheAdapter.declaredMethods
-                .filter { it.parameterTypes.size >= 4 }
+                .filter { it.parameterTypes.size == 6 }
                 .first {
                     it.parameterTypes.any { type -> type.simpleName == beanClass.simpleName } &&
                             it.parameterTypes.any { type -> type.simpleName == Int::class.java.simpleName } &&
@@ -159,40 +160,52 @@ object ConversationReflectFunction {
 
         val bean = aeConstructor.newInstance(chatInfoModel.field_username)
 
-//        setupItemClassField(bean, "field_UnDeliverCount", chatInfoModel.field_UnDeliverCount)
-//        setupItemClassField(bean, "field_UnReadInvite", chatInfoModel.field_UnReadInvite)
-//        setupItemClassField(bean, "field_atCount", chatInfoModel.field_atCount)
-//        setupItemClassField(bean, "field_attrflag", chatInfoModel.field_attrflag)
-//        setupItemClassField(bean, "field_chatmode", chatInfoModel.field_chatmode)
-//        setupItemClassField(bean, "field_content", chatInfoModel.field_content)
-//        setupItemClassField(bean, "field_conversationTime", chatInfoModel.field_conversationTime)
-//        setupItemClassField(bean, "field_digest", chatInfoModel.field_digest)
-//        setupItemClassField(bean, "field_digestUser", chatInfoModel.field_digestUser)
-//        setupItemClassField(bean, "field_editingMsg", chatInfoModel.field_editingMsg)
-//        setupItemClassField(bean, "field_editingQuoteMsgId", chatInfoModel.field_editingQuoteMsgId)
-//        setupItemClassField(bean, "field_firstUnDeliverSeq", chatInfoModel.field_firstUnDeliverSeq)
-//        setupItemClassField(bean, "field_flag", chatInfoModel.field_flag)
-//        setupItemClassField(bean, "field_hasSpecialFollow", chatInfoModel.field_hasSpecialFollow)
-//        setupItemClassField(bean, "field_hasTodo", chatInfoModel.field_hasTodo)
-//        setupItemClassField(bean, "field_hbMarkRed", chatInfoModel.field_hbMarkRed)
-//        setupItemClassField(bean, "field_isSend", chatInfoModel.field_isSend)
-//        setupItemClassField(bean, "field_lastSeq", chatInfoModel.field_lastSeq)
-//        setupItemClassField(bean, "field_msgCount", chatInfoModel.field_msgCount)
-//        setupItemClassField(bean, "field_msgType", chatInfoModel.field_msgType)
-//        setupItemClassField(bean, "field_parentRef", chatInfoModel.field_parentRef)
-//        setupItemClassField(bean, "field_remitMarkRed", chatInfoModel.field_remitMarkRed)
-//        setupItemClassField(bean, "field_showTips", chatInfoModel.field_showTips)
-//        setupItemClassField(bean, "field_status", chatInfoModel.field_status)
-//        setupItemClassField(bean, "field_unReadCount", chatInfoModel.field_unReadCount)
-//        setupItemClassField(bean, "field_unReadMuteCount", chatInfoModel.field_unReadMuteCount)
-//        setupItemClassField(bean, "field_username", chatInfoModel.field_username)
+        //setupItemClassField(bean, "field_UnDeliverCount", chatInfoModel.field_UnDeliverCount)
+        setupItemClassField(bean, "field_UnReadInvite", chatInfoModel.field_UnReadInvite)
+        setupItemClassField(bean, "field_atCount", chatInfoModel.field_atCount)
+        setupItemClassField(bean, "field_attrflag", chatInfoModel.field_attrflag)
+        //setupItemClassField(bean, "field_chatmode", chatInfoModel.field_chatmode)
+        setupItemClassField(bean, "field_content", chatInfoModel.field_content)
+        setupItemClassField(bean, "field_conversationTime", chatInfoModel.field_conversationTime)
+        setupItemClassField(bean, "field_digest", chatInfoModel.field_digest)
+        setupItemClassField(bean, "field_digestUser", chatInfoModel.field_digestUser)
+        setupItemClassField(bean, "field_editingMsg", chatInfoModel.field_editingMsg)
+        //setupItemClassField(bean, "field_editingQuoteMsgId", chatInfoModel.field_editingQuoteMsgId)
+        //setupItemClassField(bean, "field_firstUnDeliverSeq", chatInfoModel.field_firstUnDeliverSeq)
+        setupItemClassField(bean, "field_flag", chatInfoModel.field_flag)
+        //setupItemClassField(bean, "field_hasSpecialFollow", chatInfoModel.field_hasSpecialFollow)
+        //setupItemClassField(bean, "field_hasTodo", chatInfoModel.field_hasTodo)
+        //setupItemClassField(bean, "field_hbMarkRed", chatInfoModel.field_hbMarkRed)
+        setupItemClassField(bean, "field_isSend", chatInfoModel.field_isSend)
+        //setupItemClassField(bean, "field_lastSeq", chatInfoModel.field_lastSeq)
+        //setupItemClassField(bean, "field_msgCount", chatInfoModel.field_msgCount)
+        setupItemClassField(bean, "field_msgType", chatInfoModel.field_msgType)
+        //setupItemClassField(bean, "field_parentRef", chatInfoModel.field_parentRef)
+        //setupItemClassField(bean, "field_remitMarkRed", chatInfoModel.field_remitMarkRed)
+        //setupItemClassField(bean, "field_showTips", chatInfoModel.field_showTips)
+        setupItemClassField(bean, "field_status", chatInfoModel.field_status)
+        setupItemClassField(bean, "field_unReadCount", chatInfoModel.field_unReadCount)
+        setupItemClassField(bean, "field_unReadMuteCount", chatInfoModel.field_unReadMuteCount)
+        setupItemClassField(bean, "field_username", chatInfoModel.field_username)
         val textSize = (ScreenUtils.getScreenDensity() * 13f).toInt()
         val content = try {
-            val clazz = method.parameterTypes[6]
-            val newInstance = clazz.newInstance()
+            val clazzHas = method.parameterTypes[5]
+            val hasNewInstance = clazzHas.newInstance()
             //(bd bdVar, d dVar, int i2, e eVar, boolean z, gtz gtz)
             //(bd bdVar, d dVar, int i2, SpannableStringBuilder spannableStringBuilder, CharSequence charSequence, boolean z, gtz gtz)
-            val charSequence = XposedHelpers.callMethod(adapter, method.name, bean, null, textSize, SpannableStringBuilder(), chatInfoModel.field_content, true, newInstance) as CharSequence
+            // a(com.tencent.mm.storage.be beVar,
+            // com.tencent.mm.ui.conversation.k.d dVar,
+            // int i2,
+            // com.tencent.mm.ui.conversation.k.e eVar,
+            // boolean z,
+            // com.tencent.mm.protocal.protobuf.has has) {
+
+//val charSequence = XposedHelpers.callMethod(adapter, method.name, bean, null, textSize, SpannableStringBuilder(), chatInfoModel.field_content, true, newInstance) as CharSequence
+
+            /**
+             * for8027
+             */
+            val charSequence = XposedHelpers.callMethod(adapter, method.name, bean, null, textSize, null, true, hasNewInstance) as CharSequence
             LogUtils.log("getConversationContent = $charSequence")
             return charSequence
         } catch (e: Throwable) {

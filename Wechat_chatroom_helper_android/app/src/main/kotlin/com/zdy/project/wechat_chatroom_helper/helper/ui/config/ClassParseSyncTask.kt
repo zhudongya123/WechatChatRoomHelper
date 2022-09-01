@@ -2,7 +2,9 @@ package com.zdy.project.wechat_chatroom_helper.helper.ui.config
 
 import android.app.Activity
 import android.os.AsyncTask
+import android.os.Build
 import android.os.Message
+import android.support.annotation.RequiresApi
 import android.util.Log
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
@@ -40,6 +42,7 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
     private var configData = hashMapOf<String, String>()
 
 
+    @RequiresApi(Build.VERSION_CODES.P)
     override fun doInBackground(vararg params: String): Boolean {
         val srcPath = params[0]
         val optimizedDirectory = params[1]
@@ -86,6 +89,10 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
             configData["conversationHashMapBean"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationHashMapBean(classes))
             configData["conversationAvatar"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
 
+
+            val filter = classes.filter { it.interfaces.any { it.name.contains(".ISQLiteDatabase") } }.map {
+                Log.v("WRCH ", "className = ${it.name}, parentName = ${it.superclass}，genericSuperclass = ${it.genericSuperclass}, interfaces = ${it.interfaces.joinToString { it.name }}")
+            }
 
             writeNewConfig()
 

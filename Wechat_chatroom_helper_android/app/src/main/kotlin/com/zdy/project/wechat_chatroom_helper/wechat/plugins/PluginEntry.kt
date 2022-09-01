@@ -2,7 +2,9 @@ package     com.zdy.project.wechat_chatroom_helper.wechat.plugins
 
 import android.annotation.SuppressLint
 import android.text.SpannableStringBuilder
+import android.util.Log
 import com.zdy.project.wechat_chatroom_helper.Constants
+import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction.beanClass
@@ -34,12 +36,12 @@ class PluginEntry : IXposedHookLoadPackage {
         /**
          * 验证微信数据环境
          */
-//        try {
-//            XposedHelpers.findClass(WXObject.Message.C.SQLiteDatabase, p0.classLoader)
-//        } catch (e: Throwable) {
-//            e.printStackTrace()
-//            return
-//        }
+        try {
+            XposedHelpers.findClass(WXObject.Message.C.SQLiteDatabase, p0.classLoader)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+            return
+        }
 
         /**
          * 初始化配置项和数据
@@ -61,7 +63,6 @@ class PluginEntry : IXposedHookLoadPackage {
 
         Constants.defaultValue = Constants.DefaultValue(true)
 
-
         /**
          * 注入Hook
          */
@@ -74,7 +75,20 @@ class PluginEntry : IXposedHookLoadPackage {
                 LogRecord.executeHook()
             }
             OtherHook.executeHook()
-
+//
+//            XposedBridge.log("WRCH, ISQLiteDatabase, queryString hook before")
+//
+//            val gClass = RuntimeInfo.classloader.loadClass("com.tencent.mm.storagebase.h")
+//            XposedHelpers.findAndHookMethod(gClass, "rawQuery", String::class.java, Array<String>::class.java, object : XC_MethodHook() {
+//                override fun beforeHookedMethod(param: MethodHookParam) {
+//                    val args = param.args
+//                    val queryString = args[0] as String
+//                    val queryArgs = args[1] as Array<String>?
+//
+//                    XposedBridge.log("WRCH, ISQLiteDatabase, queryString = $queryString, queryArgs = ${queryArgs?.joinToString { it }}")
+//                }
+//            })
+//            XposedBridge.log("WRCH, ISQLiteDatabase, queryString hook after")
 
         } catch (e: Throwable) {
             e.printStackTrace()
