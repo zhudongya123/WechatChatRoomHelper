@@ -29,7 +29,6 @@ class UISettingActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_ui_setting)
 
-        Constants.defaultValue = Constants.DefaultValue(true)
 
         setupViewFragment()
 

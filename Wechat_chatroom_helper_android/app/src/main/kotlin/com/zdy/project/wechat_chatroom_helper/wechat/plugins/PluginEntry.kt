@@ -1,7 +1,8 @@
 package     com.zdy.project.wechat_chatroom_helper.wechat.plugins
 
 import android.annotation.SuppressLint
-import com.zdy.project.wechat_chatroom_helper.Constants
+import android.app.Application
+import android.content.Context
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
@@ -12,6 +13,8 @@ import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLaunc
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageHandler
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.other.OtherHook
 import de.robv.android.xposed.IXposedHookLoadPackage
+import de.robv.android.xposed.XC_MethodHook
+import de.robv.android.xposed.XposedBridge
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 
@@ -22,24 +25,44 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 @SuppressLint("StaticFieldLeak")
 class PluginEntry : IXposedHookLoadPackage {
 
-    override fun handleLoadPackage(p0: XC_LoadPackage.LoadPackageParam) {
+    override fun handleLoadPackage(param: XC_LoadPackage.LoadPackageParam) {
 
-
+        if (param.packageName != "com.tencent.mm") return
         /**
          * 验证微信数据环境
          */
-        try {
-            XposedHelpers.findClass(WXObject.Message.C.SQLiteDatabase, p0.classLoader)
-        } catch (e: Throwable) {
-            e.printStackTrace()
-            return
-        }
 
-        /**
-         * 初始化配置项和数据
-         */
-        RuntimeInfo.classloader = p0.classLoader
+        findHookTinkerClassLoader(param.classLoader)
+        //findHookTinkerClassLoader2(param.classLoader)
+        //setClassloaderAndExecuteHook(param.classLoader)
+    }
 
+    private fun findHookTinkerClassLoader(classLoader: ClassLoader) {
+        val tinkerApplicationClass = classLoader.loadClass("com.tencent.tinker.loader.app.TinkerApplication")
+        XposedHelpers.findAndHookMethod(tinkerApplicationClass, "attachBaseContext", Context::class.java,
+                object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        XposedBridge.log("PluginEntry, TinkerApplication, attach = ${param.thisObject}")
+                        val application = param.thisObject as Application
+                        val tinkerClassLoader = application.classLoader
+                        setClassloaderAndExecuteHook(tinkerClassLoader)
+                    }
+                })
+    }
+
+
+
+    private fun setClassloaderAndExecuteHook(classLoader: ClassLoader) {
+        XposedBridge.log("PluginEntry, setClassloaderAndExecuteHook")
+        RuntimeInfo.classloader = classLoader
+        getConfigInfo()
+        hookList()
+    }
+
+    /**
+     * 初始化配置项和数据
+     */
+    private fun getConfigInfo() {
         WechatJsonUtils.init(null)
         val configJson = AppSaveInfo.getConfigJson()
 
@@ -51,13 +74,12 @@ class PluginEntry : IXposedHookLoadPackage {
         WXObject.Adapter.C.ConversationStickyHeaderHandler = configJson.get("conversationStickyHeaderHandler").asString
         WXObject.Adapter.C.ConversationHashMapBean = configJson.get("conversationHashMapBean").asString
         WXObject.Tool.C.Logcat = configJson.get("logcat").asString
+    }
 
-
-        Constants.defaultValue = Constants.DefaultValue(true)
-
-        /**
-         * 注入Hook
-         */
+    /**
+     * 注入Hook
+     */
+    private fun hookList() {
         try {
             MessageHandler.executeHook()
             MainAdapter.executeHook()
@@ -67,23 +89,21 @@ class PluginEntry : IXposedHookLoadPackage {
                 LogRecord.executeHook()
             }
             OtherHook.executeHook()
-//
-//            XposedBridge.log("WRCH, ISQLiteDatabase, queryString hook before")
-//
-//            val gClass = RuntimeInfo.classloader.loadClass("com.tencent.mm.storagebase.h")
-//            XposedHelpers.findAndHookMethod(gClass, "rawQuery", String::class.java, Array<String>::class.java, object : XC_MethodHook() {
-//                override fun beforeHookedMethod(param: MethodHookParam) {
-//                    val args = param.args
-//                    val queryString = args[0] as String
-//                    val queryArgs = args[1] as Array<String>?
-//
-//                    XposedBridge.log("WRCH, ISQLiteDatabase, queryString = $queryString, queryArgs = ${queryArgs?.joinToString { it }}")
-//                }
-//            })
-//            XposedBridge.log("WRCH, ISQLiteDatabase, queryString hook after")
+
 
         } catch (e: Throwable) {
             e.printStackTrace()
         }
+    }
+
+    private fun findHookTinkerClassLoader2(classLoader: ClassLoader) {
+        val tinkerClassLoaderClass = classLoader.loadClass("com.tencent.tinker.loader.TinkerClassLoader")
+        XposedBridge.hookAllConstructors(tinkerClassLoaderClass,
+                object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        XposedBridge.log("PluginEntry, `findHookTinkerClassLoader`, constructor = ${param.thisObject}")
+                        setClassloaderAndExecuteHook(param.thisObject::class.java.classLoader)
+                    }
+                })
     }
 }

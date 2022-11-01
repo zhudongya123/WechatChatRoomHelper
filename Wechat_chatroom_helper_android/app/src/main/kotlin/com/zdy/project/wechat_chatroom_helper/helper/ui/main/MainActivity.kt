@@ -17,7 +17,7 @@ import com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActiv
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
-import manager.PermissionHelper
+import com.zdy.project.wechat_chatroom_helper.helper.manager.PermissionHelper
 
 
 class MainActivity : BaseActivity() {

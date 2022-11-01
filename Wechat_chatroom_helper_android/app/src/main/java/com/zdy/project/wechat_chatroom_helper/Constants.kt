@@ -11,7 +11,7 @@ object Constants {
     val WECHAT_PACKAGE_NAME = "com.tencent.mm"
 
 
-    lateinit var defaultValue: DefaultValue
+    var defaultValue: DefaultValue = DefaultValue(true)
 
     class DefaultValue(val isWechatUpdate7: Boolean) {
 

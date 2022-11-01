@@ -1,4 +1,4 @@
-package manager
+package com.zdy.project.wechat_chatroom_helper.helper.manager
 
 import android.Manifest
 import android.app.Activity

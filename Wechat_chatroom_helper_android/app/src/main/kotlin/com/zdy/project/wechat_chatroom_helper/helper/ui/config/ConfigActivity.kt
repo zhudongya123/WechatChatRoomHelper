@@ -17,7 +17,7 @@ import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
-import manager.PermissionHelper
+import com.zdy.project.wechat_chatroom_helper.helper.manager.PermissionHelper
 
 class ConfigActivity : AppCompatActivity() {
 

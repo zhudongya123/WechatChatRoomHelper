@@ -16,15 +16,11 @@ object LogRecord {
         val logcatClass = XposedHelpers.findClass(WXObject.Tool.C.Logcat, RuntimeInfo.classloader)
         val logcatLogMethods = findMethodsByExactParameters(logcatClass, null, String::class.java, String::class.java, Array<Any>::class.java)
         logcatLogMethods.filter { it.name.length == 1 }.forEach { method ->
-
-            LogUtils.log("MessageHandler, logcatLogMethods, method = $method")
             XposedBridge.hookMethod(method, object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
-                    LogUtils.log("MessageHandler, logcatLogMethods, method = $method, invoke, beforeHookedMethod")
                 }
 
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    LogUtils.log("MessageHandler, logcatLogMethods, method = $method, invoke")
 
                     if (!AppSaveInfo.openLogInfo()) return
 
