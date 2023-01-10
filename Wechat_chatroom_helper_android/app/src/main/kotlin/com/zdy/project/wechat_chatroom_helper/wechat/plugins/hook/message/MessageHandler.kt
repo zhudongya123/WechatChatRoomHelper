@@ -149,8 +149,6 @@ object MessageHandler {
 
         val queryHook = object : XC_MethodHook() {
             override fun afterHookedMethod(param: MethodHookParam) {
-                LogUtils.log("MessageHandler, queryHook, invoke")
-
                 val thisObject = param.thisObject
                 val factory = param.args[0]
                 val sql = param.args[1] as String
@@ -166,7 +164,6 @@ object MessageHandler {
                     }
                 }
 
-                LogUtils.log("MessageHandler, queryHook, sql = $sql")
                 if (!sql.contains("parentRef is null")) return
 
                 val cursor = param.result as Cursor

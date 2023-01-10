@@ -121,7 +121,7 @@ object MessageFactory {
 
     fun getStickFlagInfo(obj: Any?) =
             XposedHelpers.callStaticMethod(ConversationReflectFunction.conversationStickyHeaderHandler,
-                    ConversationReflectFunction.stickyHeaderHandlerMethod.name, obj, 4, 0) as Long
+                    ConversationReflectFunction.stickyHeaderHandlerMethod.name, obj, 4, 0L) as Long
 
     private fun buildChatInfoModelByCursor(cursor: Cursor): ChatInfoModel {
 

@@ -18,9 +18,15 @@ object ConversationReflectFunction {
     val conversationStickyHeaderHandler: Class<*> = XposedHelpers.findClass(WXObject.Adapter.C.ConversationStickyHeaderHandler, RuntimeInfo.classloader)
     val mStorageExClass: Class<*> = XposedHelpers.findClass(WXObject.Adapter.C.MStorageEx, RuntimeInfo.classloader)
 
-    private val conversationHashMapBean: Class<*> = XposedHelpers.findClass(WXObject.Adapter.C.ConversationHashMapBean, RuntimeInfo.classloader)
     private val conversationAvatar: Class<*> = XposedHelpers.findClass(WXObject.Adapter.C.ConversationAvatar, RuntimeInfo.classloader)
 
+
+    /**
+     * 说是partial 其实就是一个
+     */
+    val notifyPartialConversationListMethod: Method = conversationWithCacheAdapter.superclass.methods
+            .filter { it.parameterTypes.size == 4 }
+            .first { it.parameterTypes[1] == Int::class.java }
     /**
      * 这个就是获取itemView里面的model的那个对象的方法 一般命名为getItem(index) 方法
      * 早几年微信不这么命名 而是自己混淆了一个方法 现在又回来了 不混淆了
@@ -29,13 +35,9 @@ object ConversationReflectFunction {
     val conversationWithCacheAdapterGetItemMethodName: String = conversationWithCacheAdapter.superclass.methods
             .filter { it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java }
             .filter { it.returnType != Int::class.java }
+            .filter { it.returnType == notifyPartialConversationListMethod.parameterTypes[2] }
             .first { it.name != "getItemId" }.name
 
-
-    val notifyPartialConversationListMethodName: String = conversationWithCacheAdapter.methods
-            .filter { it.parameterTypes.size == 3 }
-            .filter { it.parameterTypes[1] == Int::class.java }
-            .first { it.parameterTypes[2] == Boolean::class.java }.name
 
     private val conversationTimeStringMethod = conversationWithCacheAdapter.declaredMethods
             .filter { !it.isAccessible }
@@ -60,7 +62,9 @@ object ConversationReflectFunction {
             .filter { it.parameterTypes.size == 1 }
             .first { it.parameterTypes[0] == String::class.java }
 
-    val stickyHeaderHandlerMethod: Method = conversationStickyHeaderHandler.methods.first { it.parameterTypes.size == 3 }
+    val stickyHeaderHandlerMethod: Method = conversationStickyHeaderHandler.methods
+            .filter { it.parameterTypes.size == 3 }
+            .first { it.parameterTypes[0] == beanClass }
 
 
     fun getConversationTimeString(adapter: Any, conversationTime: Long): CharSequence {

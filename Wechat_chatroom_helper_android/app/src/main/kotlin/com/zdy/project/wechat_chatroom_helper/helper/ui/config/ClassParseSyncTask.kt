@@ -5,7 +5,6 @@ import android.os.AsyncTask
 import android.os.Build
 import android.os.Message
 import android.support.annotation.RequiresApi
-import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.HANDLER_SHOW_NEXT_BUTTON
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.HANDLER_TEXT_ADDITION
@@ -61,9 +60,11 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
 
 
             dexClasses.map { it.classType.substring(1, it.classType.length - 1).replace("/", ".") }
-                    .filter { it.contains(Constants.WECHAT_PACKAGE_NAME) }
+                    /**
+                     * 8031混淆到包名，所以暂时注释掉包名筛选
+                     */
+//                    .filter { it.contains(Constants.WECHAT_PACKAGE_NAME) }
                     .forEachIndexed { index, className ->
-
                         try {
                             val clazz = classLoader.loadClass(className)
                             classes.add(clazz)
@@ -83,7 +84,6 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
             configData["conversationMenuItemSelectedListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationMenuItemSelectedListener(classes))
             configData["conversationStickyHeaderHandler"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationStickyHeaderHandler(classes))
             configData["logcat"] = parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
-            configData["conversationHashMapBean"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationHashMapBean(classes))
             configData["conversationAvatar"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
 
 

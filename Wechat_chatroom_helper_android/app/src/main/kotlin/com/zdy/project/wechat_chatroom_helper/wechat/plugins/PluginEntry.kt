@@ -3,6 +3,7 @@ package     com.zdy.project.wechat_chatroom_helper.wechat.plugins
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
+import com.zdy.project.wechat_chatroom_helper.BuildConfig
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
@@ -72,7 +73,6 @@ class PluginEntry : IXposedHookLoadPackage {
         WXObject.Adapter.C.ConversationLongClickListener = configJson.get("conversationLongClickListener").asString
         WXObject.Adapter.C.ConversationMenuItemSelectedListener = configJson.get("conversationMenuItemSelectedListener").asString
         WXObject.Adapter.C.ConversationStickyHeaderHandler = configJson.get("conversationStickyHeaderHandler").asString
-        WXObject.Adapter.C.ConversationHashMapBean = configJson.get("conversationHashMapBean").asString
         WXObject.Tool.C.Logcat = configJson.get("logcat").asString
     }
 
@@ -85,7 +85,7 @@ class PluginEntry : IXposedHookLoadPackage {
             MainAdapter.executeHook()
             MainAdapterLongClick.executeHook()
             MainLauncherUI.executeHook()
-            if (AppSaveInfo.openLogInfo()) {
+            if (BuildConfig.BUILD_TYPE == "debug") {
                 LogRecord.executeHook()
             }
             OtherHook.executeHook()

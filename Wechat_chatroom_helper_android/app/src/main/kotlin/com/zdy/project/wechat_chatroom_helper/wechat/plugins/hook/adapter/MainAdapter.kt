@@ -18,7 +18,6 @@ import com.zdy.project.wechat_chatroom_helper.wechat.manager.DrawableMaker
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.ConversationReflectFunction
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageFactory
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageHandler
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.interfaces.MessageEventNotifyListener
@@ -61,7 +60,6 @@ object MainAdapter {
          * 修改主页面Adapter的返回数量 【服务号和群聊列表要新增两个的长度】
          */
         findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter.superclass, WXObject.Adapter.M.GetCount, object : XC_MethodHook() {
-
             override fun afterHookedMethod(param: MethodHookParam) {
                 var count = param.result as Int + (if (firstChatRoomPosition != -1) 1 else 0)
                 count += (if (firstOfficialPosition != -1) 1 else 0)
@@ -281,6 +279,7 @@ object MainAdapter {
          * 修改 getObject 的数据下标 【 插入两个view 原来getObject的位置也要发生变化】
          */
 
+        LogUtils.log("MessageHook 2023-01-09 17:02:00, ${ConversationReflectFunction.conversationWithCacheAdapterGetItemMethodName}")
         findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter.superclass,
                 ConversationReflectFunction.conversationWithCacheAdapterGetItemMethodName,
                 Int::class.java, object : XC_MethodHook() {
@@ -289,6 +288,7 @@ object MainAdapter {
             private var getItemOfficialFlag = false
 
             override fun beforeHookedMethod(param: MethodHookParam) {
+                LogUtils.log("MessageHook 2023-01-09 17:02:00, GetItemMethodName invoke GetItemMethodName = ${param.thisObject::class.java.name}")
                 if (param.thisObject::class.java.name != ConversationReflectFunction.conversationWithCacheAdapter.name) return
 
                 /**
@@ -480,16 +480,15 @@ object MainAdapter {
         })
 
 
-
-        findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter.superclass, "getChangeType", object : XC_MethodHook() {
-
-            override fun beforeHookedMethod(param: MethodHookParam) {
-                if (MainLauncherUI.NOTIFY_MAIN_LAUNCHER_UI_LIST_VIEW_FLAG) {
-                    MainLauncherUI.NOTIFY_MAIN_LAUNCHER_UI_LIST_VIEW_FLAG = false
-                    param.result = 2
-                }
-            }
-        })
+//        findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter.superclass, "getChangeType", object : XC_MethodHook() {
+//
+//            override fun beforeHookedMethod(param: MethodHookParam) {
+//                if (MainLauncherUI.NOTIFY_MAIN_LAUNCHER_UI_LIST_VIEW_FLAG) {
+//                    MainLauncherUI.NOTIFY_MAIN_LAUNCHER_UI_LIST_VIEW_FLAG = false
+//                    param.result = 2
+//                }
+//            }
+//        })
 
         findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter,
                 "onNotifyChange",
@@ -528,13 +527,13 @@ object MainAdapter {
                             isInChatRoom -> {
                                 RuntimeInfo.chatRoomViewPresenter?.refreshList(false, Any())
                                 XposedHelpers.callMethod(originAdapter,
-                                        ConversationReflectFunction.notifyPartialConversationListMethodName, "chatRoomItem", 2, true)
+                                        ConversationReflectFunction.notifyPartialConversationListMethod.name, "chatRoomItem", 2, null, true)
                                 param.result = null
                             }
                             isInOfficial -> {
                                 RuntimeInfo.officialViewPresenter?.refreshList(false, Any())
                                 XposedHelpers.callMethod(originAdapter,
-                                        ConversationReflectFunction.notifyPartialConversationListMethodName, "officialItem", 2, true)
+                                        ConversationReflectFunction.notifyPartialConversationListMethod.name, "officialItem", 2, null, true)
                                 param.result = null
                             }
                         }
@@ -575,22 +574,21 @@ object MainAdapter {
 
         })
 
+        val notifyPartialMethod = ConversationReflectFunction.notifyPartialConversationListMethod
         findAndHookMethod(ConversationReflectFunction.conversationWithCacheAdapter.superclass,
-                ConversationReflectFunction.notifyPartialConversationListMethodName,
-                Any::class.java, Int::class.java, Boolean::class.java,
+                notifyPartialMethod.name,
+                Any::class.java,
+                Int::class.java,
+                notifyPartialMethod.parameterTypes[2],
+                Boolean::class.java,
                 object : XC_MethodHook() {
 
                     override fun afterHookedMethod(param: MethodHookParam) {
                         val args = param.args
                         val s = args[0] as String
                         val i = args[1] as Int
-                        val b = args[2] as Boolean
 
-                        LogUtils.log("MessageHook 2021-09-18 17:02:00, s = $s, i = $i, b = $b")
-
-                        ConversationReflectFunction.conversationWithCacheAdapter.superclass.methods.forEach { method ->
-                            LogUtils.log("method.name = ${method.name}, " + method.parameterTypes.joinToString { it.name })
-                        }
+                        LogUtils.log("MessageHook 2021-09-18 17:02:00, s = $s, i = $i")
                     }
                 })
     }

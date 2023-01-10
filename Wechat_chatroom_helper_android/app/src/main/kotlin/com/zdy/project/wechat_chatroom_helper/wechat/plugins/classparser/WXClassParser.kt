@@ -1,6 +1,5 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser
 
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
@@ -34,7 +33,12 @@ object WXClassParser {
 
         fun getConversationWithCacheAdapter(classes: MutableList<Class<*>>): Class<*>? {
             val clazz = classes.filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.ui.conversation") }
-                    .firstOrNull { it.methods.any { it.name == "clearCache" } }!!
+                    .filter { it.methods.any { it.name == "onNotifyChange" } }
+                    .firstOrNull { clazz ->
+                        val genericSuperclass = clazz.genericSuperclass ?: return@firstOrNull false
+                        if (genericSuperclass !is ParameterizedType) return@firstOrNull false
+                        genericSuperclass.actualTypeArguments.size == 2
+                    }!!
             return clazz
         }
 
@@ -97,22 +101,27 @@ object WXClassParser {
 
         }
 
+        /**
+         * 这个地方8031改的很离谱，方法所在的类不在com.tencent.mm包内
+         *
+         * 特征：该类有两个方法的参数是两个 且第一个都是ImageView
+         * 有四个参数的方法 第一个参数是ImageView
+         */
         fun getConversationAvatar(classes: MutableList<Class<*>>): Class<*>? {
             return classes
-                    .filter { it.name.contains("com.tencent.mm.pluginsdk.ui") }
-//                    .filter { it.declaredClasses.isNotEmpty() }
-                    .first {
-                        it.methods.any { method ->
-                            val contains = method.name.contains("setIsPressed")
-                            contains
-                                    && method.parameterTypes[0].name == Boolean::class.java.name && Modifier.isFinal(method.modifiers)
-                        }
+                    .filter { it.simpleName.length < 2 }
+                    .filter { Modifier.isStatic(it.modifiers) }
+                    .filter {
+                        it.methods.count { method ->
+                            method.parameterTypes.size == 2 &&
+                                    method.parameterTypes[0].name == ImageView::class.java.name
+                        } == 2
                     }
-                    .declaredClasses
                     .firstOrNull {
-                        it.declaredMethods.any {
-                            it.parameterTypes.size == 4 &&
-                                    it.parameterTypes[0].name == ImageView::class.java.name
+                        it.methods.any { method ->
+                            Modifier.isStatic(method.modifiers) &&
+                                    method.parameterTypes.size == 4 &&
+                                    method.parameterTypes[0].name == ImageView::class.java.name
                         }
                     }
         }
@@ -120,6 +129,7 @@ object WXClassParser {
 
         /**
          * 获取置顶的标记方法
+         * 这个地方8031改的很离谱，方法所在的类不在com.tencent.mm包内
          */
         fun getConversationStickyHeaderHandler(classes: MutableList<Class<*>>): Class<*>? {
 
@@ -127,9 +137,7 @@ object WXClassParser {
             val beanClass = (conversationWithCacheAdapter.genericSuperclass as ParameterizedType).actualTypeArguments[1]
 
             return classes
-                    .filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.plugin.messenger.foundation") }
-                    //.filter { Modifier.isFinal(it.modifiers) }
-                    .firstOrNull { it ->
+                    .firstOrNull {
                         try {
                             it.methods.any { method ->
                                 method.parameterTypes.size == 3 &&
@@ -147,8 +155,10 @@ object WXClassParser {
         }
 
 
-        fun getConversationItemHighLightSelectorBackGroundInt(classes: MutableList<Class<*>>): Int? {
-
+        /**
+         * 下面两个方法开了混淆就失效了，暂时弃用
+         */
+        fun getConversationItemHighLightSelectorBackGroundInt(classes: MutableList<Class<*>>): Int {
             val backgroundClass = classes
                     // .filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.plugin") }
                     .first {
@@ -170,8 +180,7 @@ object WXClassParser {
             return field.getInt(null)
         }
 
-        fun getConversationItemSelectorBackGroundInt(classes: MutableList<Class<*>>): Int? {
-
+        fun getConversationItemSelectorBackGroundInt(classes: MutableList<Class<*>>): Int {
             val backgroundClass = classes
                     // .filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.plugin") }
                     .first {
@@ -195,33 +204,6 @@ object WXClassParser {
                         backgroundClass.getField("white_list_item_selector")
                     else backgroundClass.getField("comm_list_item_selector")
             return field.getInt(null)
-        }
-
-        fun getConversationHashMapBean(classes: MutableList<Class<*>>): Class<*>? {
-
-            val conversationWithCacheAdapter = getConversationWithCacheAdapter(classes)!!
-
-            val conversationWithCacheAdapterGetItem = conversationWithCacheAdapter.superclass.methods
-                    .filter { it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java }
-                    .filter { it.returnType != Int::class.java }
-                    .first { it.name != "getItem" && it.name != "getItemId" }.name
-
-            Log.v("erGetItem", "conversationWithCacheAdapterGetItem = $conversationWithCacheAdapterGetItem")
-
-            val conversationWithCacheAdapterGetItem2 = conversationWithCacheAdapter.superclass.declaredMethods
-                    .filter { it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java }
-                    .first { it.name != "getItem" && it.name != "getItemId" }.name
-
-
-            Log.v("erGetItem", "conversationWithCacheAdapterGetItem = $conversationWithCacheAdapterGetItem2")
-
-            return classes
-                    .filter { it.name.contains("${Constants.WECHAT_PACKAGE_NAME}.storagebase.a.f") }
-                    //   .filter { Modifier.isFinal(it.modifiers) }
-                    .filter { it.declaredMethods.any { it.name == "checkPosition" } }
-                    .firstOrNull {
-                        it.declaredFields.any { it.name == "pageSize" && it.type == Int::class.java }
-                    }
         }
     }
 }
