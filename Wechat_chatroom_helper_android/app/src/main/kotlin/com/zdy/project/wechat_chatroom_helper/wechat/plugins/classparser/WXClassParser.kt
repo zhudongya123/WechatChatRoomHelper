@@ -1,5 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser
 
+import android.app.Activity
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
@@ -56,6 +57,8 @@ object WXClassParser {
                                     it.parameterTypes[3] == Long::class.java
                         }
                     }
+                    .filter { it.constructors.any { constructor -> constructor.parameterTypes.size == 3 &&
+                            constructor.parameterTypes[2] == Activity::class.java} }
                     .filter { it.interfaces.size == 1 }
                     .firstOrNull { it.enclosingClass == null }
         }
