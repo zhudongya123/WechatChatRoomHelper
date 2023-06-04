@@ -48,31 +48,9 @@ object MessageHandler {
     private val FilterListForOriginAllConversation =
             arrayOf("select unReadCount, status, isSend, conversationTime, username, content, msgType,",
                     "parentRef is null",
-                    "or parentRef = ''",
+                    //"or parentRef = ''",
                     "and rconversation.username != 'qmessage'",
                     "order by flag desc")
-
-
-    @Deprecated("微信老版本废弃")
-    private val FilterListForOriginAllUnread1 =
-            arrayOf("select sum(unReadCount) from rconversation, rcontact",
-                    "(rconversation.parentRef is null or parentRef = '' )",
-                    "1 != 1  or rconversation.username like",
-                    "rconversation.username like '%@chatroom'",
-                    "( type & 512 ) == 0",
-                    "rcontact.username != 'officialaccounts'")
-
-    @Deprecated("微信老版本废弃， verifyFlag为0时一定不是订阅号和服务号")
-    private const val FilterListForOriginAllUnread2 = "rcontact.verifyFlag == 0"
-
-    @Deprecated("微信8.0.2废弃")
-    private val FilterListForOriginAllUnread3 = arrayOf(
-            "select unReadCount from rconversation",
-            "AND (parentRef is null or parentRef = '' )  ",
-            "and ( 1 != 1  or rconversation.username like '%@im.chatroom' ",
-            "or rconversation.username like '%@chatroom' ",
-            "or rconversation.username like '%@openim' ",
-            "or rconversation.username not like '%@%' ) ")
 
     //微信原始的查询消息未读数的语句，通过分段来筛选出相关逻辑
     private val FilterListForOriginAllUnread4 = arrayOf("SELECT rconversation.username, rconversation.unReadCount, rconversation.conversationTime",
@@ -152,7 +130,7 @@ object MessageHandler {
                 val thisObject = param.thisObject
                 val factory = param.args[0]
                 val sql = param.args[1] as String
-                val selectionArgs = param.args[2] as Array<String>?
+                val selectionArgs = param.args[2] as Array<*>?
                 val editTable = param.args[3] as String?
                 val cancellation = param.args[4]
 
