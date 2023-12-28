@@ -83,7 +83,7 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
             configData["conversationClickListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationClickListener(classes))
             configData["conversationMenuItemSelectedListener"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationMenuItemSelectedListener(classes))
             configData["conversationStickyHeaderHandler"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationStickyHeaderHandler(classes))
-            configData["logcat"] = parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
+          //  configData["logcat"] = parseAnnotatedElementToName(WXClassParser.PlatformTool.getLogcat(classes))
             configData["conversationAvatar"] = parseAnnotatedElementToName(WXClassParser.Adapter.getConversationAvatar(classes))
 
 

@@ -153,7 +153,7 @@ object MessageHandler {
                      */
                     isQueryOriginAllConversation(sql) -> {
 
-                        LogUtils.log("MessageHandler, isQueryOriginAllConversation")
+                        LogUtils.log("MessageHandler, isQueryOriginAllConversation， sql = $sql")
                         LogUtils.log("MessageHandler, originConversationSize = ${cursor.count}")
 
                         /**

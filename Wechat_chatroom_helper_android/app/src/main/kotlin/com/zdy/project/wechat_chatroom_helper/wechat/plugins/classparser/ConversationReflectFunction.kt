@@ -1,38 +1,62 @@
 package com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser
 
+import android.text.SpannableStringBuilder
 import android.widget.ImageView
 import com.blankj.utilcode.util.ScreenUtils
 import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.model.ChatInfoModel
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.RuntimeInfo
+import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
 import de.robv.android.xposed.XposedHelpers
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 import java.lang.reflect.ParameterizedType
 
 object ConversationReflectFunction {
 
-    val conversationWithCacheAdapter: Class<*> = XposedHelpers.findClass(WXObject.Adapter.C.ConversationWithCacheAdapter, RuntimeInfo.classloader)
-    val conversationListView: Class<*> = XposedHelpers.findClass(WXObject.Adapter.C.ConversationListView, RuntimeInfo.classloader)
-    val conversationClickListener: Class<*> = XposedHelpers.findClass(WXObject.Adapter.C.ConversationClickListener, RuntimeInfo.classloader)
-    val conversationStickyHeaderHandler: Class<*> = XposedHelpers.findClass(WXObject.Adapter.C.ConversationStickyHeaderHandler, RuntimeInfo.classloader)
-    val mStorageExClass: Class<*> = XposedHelpers.findClass(WXObject.Adapter.C.MStorageEx, RuntimeInfo.classloader)
+    val conversationWithCacheAdapter: Class<*> = XposedHelpers.findClass(
+        WXObject.Adapter.C.ConversationWithCacheAdapter,
+        RuntimeInfo.classloader
+    )
+    val conversationListView: Class<*> =
+        XposedHelpers.findClass(WXObject.Adapter.C.ConversationListView, RuntimeInfo.classloader)
+    val conversationClickListener: Class<*> = XposedHelpers.findClass(
+        WXObject.Adapter.C.ConversationClickListener,
+        RuntimeInfo.classloader
+    )
+    val conversationStickyHeaderHandler: Class<*> = XposedHelpers.findClass(
+        WXObject.Adapter.C.ConversationStickyHeaderHandler,
+        RuntimeInfo.classloader
+    )
 
-    private val conversationAvatar: Class<*> = XposedHelpers.findClass(WXObject.Adapter.C.ConversationAvatar, RuntimeInfo.classloader)
+    val conversationNotifyChangeMethod =
+        conversationWithCacheAdapter.methods
+            .filter { it.parameterTypes.size == 3 }
+            .filter { it.parameterTypes[0] == Int::class.java }
+            .first { it.parameterTypes[2] == Any::class.java }
+
+    // val mStorageExClass: Class<*> = XposedHelpers.findClass(WXObject.Adapter.C.MStorageEx, RuntimeInfo.classloader)
+
+    private val conversationAvatar: Class<*> =
+        XposedHelpers.findClass(WXObject.Adapter.C.ConversationAvatar, RuntimeInfo.classloader)
 
 
     /**
      * 说是partial 其实就是一个
      */
-    val notifyPartialConversationListMethod: Method = conversationWithCacheAdapter.superclass.methods
+    val notifyPartialConversationListMethod: Method =
+        conversationWithCacheAdapter.superclass.methods
             .filter { it.parameterTypes.size == 4 }
             .first { it.parameterTypes[1] == Int::class.java }
+
     /**
      * 这个就是获取itemView里面的model的那个对象的方法 一般命名为getItem(index) 方法
      * 早几年微信不这么命名 而是自己混淆了一个方法 现在又回来了 不混淆了
      * 所以微信就是一个傻逼
      */
-    val conversationWithCacheAdapterGetItemMethodName: String = conversationWithCacheAdapter.superclass.methods
+    val conversationWithCacheAdapterGetItemMethodName: String =
+        conversationWithCacheAdapter.superclass.methods
             .filter { it.parameterTypes.size == 1 && it.parameterTypes[0] == Int::class.java }
             .filter { it.returnType != Int::class.java }
             .filter { it.returnType == notifyPartialConversationListMethod.parameterTypes[2] }
@@ -40,44 +64,48 @@ object ConversationReflectFunction {
 
 
     private val conversationTimeStringMethod = conversationWithCacheAdapter.declaredMethods
-            .filter { !it.isAccessible }
-            .filter { it.returnType == CharSequence::class.java }
-            .first { it.parameterTypes.size == 1 }
+        .filter { !it.isAccessible }
+        .filter { it.returnType == CharSequence::class.java }
+        .first { it.parameterTypes.size == 1 }
 
     /**
      * @since 2021-08-05 21:18:10
      * 微信 1940 后 改成 private 方法
      */
     private val conversationAvatarMethod = conversationAvatar.declaredMethods
-            .first {
-                it.parameterTypes.size == 4
-                        && it.parameterTypes[0].name == ImageView::class.java.name
-                        && it.parameterTypes[1].name == String::class.java.name
-                        && it.parameterTypes[2].name == Float::class.java.name
-                        && it.parameterTypes[3].name == Boolean::class.java.name
-            }
+        .first {
+            it.parameterTypes.size == 4
+                    && it.parameterTypes[0].name == ImageView::class.java.name
+                    && it.parameterTypes[1].name == String::class.java.name
+                    && it.parameterTypes[2].name == Float::class.java.name
+                    && it.parameterTypes[3].name == Boolean::class.java.name
+        }
 
-    val beanClass = ((conversationWithCacheAdapter.genericSuperclass as ParameterizedType).actualTypeArguments[1] as Class<*>)
-    val beanConstructor: Constructor<*> = beanClass.constructors
-            .filter { it.parameterTypes.size == 1 }
-            .first { it.parameterTypes[0] == String::class.java }
+    val beanClass: Class<*> = conversationWithCacheAdapter.methods.filter {
+        Modifier.isStatic(it.modifiers)
+    }
+        .first { it.parameterTypes.size == 2 && it.parameterTypes[0].name == ImageView::class.java.name }.parameterTypes[1]
 
     val stickyHeaderHandlerMethod: Method = conversationStickyHeaderHandler.methods
-            .filter { it.parameterTypes.size == 3 }
-            .first { it.parameterTypes[0] == beanClass }
+        .filter { it.parameterTypes.size == 3 }
+        .first { it.parameterTypes[0] == beanClass }
 
 
     fun getConversationTimeString(adapter: Any, conversationTime: Long): CharSequence {
 
         conversationTimeStringMethod.let { _ ->
 
-            beanConstructor.let {
-                val obj = beanConstructor.newInstance("")
+            beanClass.constructors.first().let {
+                val obj = it.newInstance()
 
                 setupItemClassField(obj, "field_status", 0)
                 setupItemClassField(obj, "field_conversationTime", conversationTime)
 
-                return XposedHelpers.callMethod(adapter, conversationTimeStringMethod.name, obj) as CharSequence
+                return XposedHelpers.callMethod(
+                    adapter,
+                    conversationTimeStringMethod.name,
+                    obj
+                ) as CharSequence
             }
         }
         return ""
@@ -119,21 +147,28 @@ object ConversationReflectFunction {
      * 0.1 代表图片圆角半径 越大越圆
      */
     fun getConversationAvatar(field_username: String, imageView: ImageView) =
-            XposedHelpers.callStaticMethod(conversationAvatar, conversationAvatarMethod.name, imageView, field_username, 0.1f, false)
+        XposedHelpers.callStaticMethod(
+            conversationAvatar,
+            conversationAvatarMethod.name,
+            imageView,
+            field_username,
+            0.1f,
+            false
+        )
 
 
     fun getConversationNickname(adapter: Any, chatInfoModel: ChatInfoModel): CharSequence {
         val getNicknameMethod = conversationWithCacheAdapter.declaredMethods
-                .filter { it.parameterTypes.size == 1 }
-                .filter {
-                    it.parameterTypes[0].simpleName == beanClass.simpleName
-                }.single {
-                    it.returnType.enclosingClass != null
-                            && it.returnType.enclosingClass.name == conversationWithCacheAdapter.name
-                }
+            .filter { it.parameterTypes.size == 1 }
+            .filter {
+                it.parameterTypes[0].simpleName == beanClass.simpleName
+            }.single {
+                it.returnType.enclosingClass != null
+                        && it.returnType.enclosingClass.name == conversationWithCacheAdapter.name
+            }
 
         val aeConstructor = beanClass.constructors.filter { it.parameterTypes.size == 1 }
-                .firstOrNull { it.parameterTypes[0] == String::class.java }!!
+            .firstOrNull { it.parameterTypes[0] == String::class.java }!!
 
         val bean = aeConstructor.newInstance(chatInfoModel.field_username)
 
@@ -146,17 +181,14 @@ object ConversationReflectFunction {
     fun getConversationContent(adapter: Any, chatInfoModel: ChatInfoModel): CharSequence {
 
         val method = conversationWithCacheAdapter.declaredMethods
-                .filter { it.parameterTypes.size == 6 }
-                .first {
-                    it.parameterTypes.any { type -> type.simpleName == beanClass.simpleName } &&
-                            it.parameterTypes.any { type -> type.simpleName == Int::class.java.simpleName } &&
-                            it.parameterTypes.any { type -> type.simpleName == Boolean::class.java.simpleName }
-                }
+            .filter { it.parameterTypes.size == 5 }
+            .first {
+                it.parameterTypes.any { type -> type.simpleName == beanClass.simpleName } &&
+                        it.parameterTypes.any { type -> type.simpleName == Int::class.java.simpleName } &&
+                        it.parameterTypes.any { type -> type.simpleName == Boolean::class.java.simpleName }
+            }
 
-        val aeConstructor = beanClass.constructors.filter { it.parameterTypes.size == 1 }
-                .firstOrNull { it.parameterTypes[0] == String::class.java }!!
-
-        val bean = aeConstructor.newInstance(chatInfoModel.field_username)
+        val bean = beanClass.constructors.first().newInstance()
 
         //setupItemClassField(bean, "field_UnDeliverCount", chatInfoModel.field_UnDeliverCount)
         setupItemClassField(bean, "field_UnReadInvite", chatInfoModel.field_UnReadInvite)
@@ -185,9 +217,17 @@ object ConversationReflectFunction {
         setupItemClassField(bean, "field_unReadCount", chatInfoModel.field_unReadCount)
         setupItemClassField(bean, "field_unReadMuteCount", chatInfoModel.field_unReadMuteCount)
         setupItemClassField(bean, "field_username", chatInfoModel.field_username)
+
+        val chatInnerClass = method.parameterTypes[1] as Class<*>
+        val newInstance = chatInnerClass.constructors.first().newInstance(
+            MainAdapter.originAdapter,
+            XposedHelpers.getObjectField(MainAdapter.originAdapter, "T")
+        )
+
+
         val textSize = (ScreenUtils.getScreenDensity() * 13f).toInt()
-        val content = try {
-            val clazzHas = method.parameterTypes[5]
+        val content: String = try {
+            val clazzHas = method.parameterTypes[method.parameterTypes.size - 1]
             val hasNewInstance = clazzHas.newInstance()
             //(bd bdVar, d dVar, int i2, e eVar, boolean z, gtz gtz)
             //(bd bdVar, d dVar, int i2, SpannableStringBuilder spannableStringBuilder, CharSequence charSequence, boolean z, gtz gtz)
@@ -198,13 +238,16 @@ object ConversationReflectFunction {
             // boolean z,
             // com.tencent.mm.protocal.protobuf.has has) {
 
-//val charSequence = XposedHelpers.callMethod(adapter, method.name, bean, null, textSize, SpannableStringBuilder(), chatInfoModel.field_content, true, newInstance) as CharSequence
 
             /**
              * for8027
              */
-            val charSequence = XposedHelpers.callMethod(adapter, method.name, bean, null, textSize, null, true, hasNewInstance) as CharSequence
-            LogUtils.log("getConversationContent = $charSequence")
+            val charSequence = XposedHelpers.callMethod(
+                adapter,
+                method.name,
+                bean, newInstance, textSize, false, hasNewInstance
+            ) as CharSequence
+            LogUtils.log("getConversationContent = $chatInfoModel")
             return charSequence
         } catch (e: Throwable) {
             e.printStackTrace()

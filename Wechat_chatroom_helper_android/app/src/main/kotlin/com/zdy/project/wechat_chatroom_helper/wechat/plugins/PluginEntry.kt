@@ -3,7 +3,9 @@ package     com.zdy.project.wechat_chatroom_helper.wechat.plugins
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
+import android.text.SpannableStringBuilder
 import com.zdy.project.wechat_chatroom_helper.BuildConfig
+import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
@@ -13,6 +15,7 @@ import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.log.LogRecord
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageHandler
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.other.OtherHook
+import com.zdy.project.wechat_chatroom_helper.wechat.utils.printAllField
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
@@ -52,7 +55,6 @@ class PluginEntry : IXposedHookLoadPackage {
     }
 
 
-
     private fun setClassloaderAndExecuteHook(classLoader: ClassLoader) {
         XposedBridge.log("PluginEntry, setClassloaderAndExecuteHook")
         RuntimeInfo.classloader = classLoader
@@ -86,11 +88,9 @@ class PluginEntry : IXposedHookLoadPackage {
             MainAdapterLongClick.executeHook()
             MainLauncherUI.executeHook()
             if (BuildConfig.BUILD_TYPE == "debug") {
-                LogRecord.executeHook()
+//                LogRecord.executeHook()
             }
             OtherHook.executeHook()
-
-
         } catch (e: Throwable) {
             e.printStackTrace()
         }

@@ -19,14 +19,26 @@ object DrawableMaker {
     private const val AVATAR_BLUE = 0xFF12B7F6.toInt()
     private const val AVATAR_AMBER = 0xFFF5CB00.toInt()
 
+    private lateinit var chatroomDrawable: BitmapDrawable
+    private lateinit var officialDrawable: BitmapDrawable
 
     private const val DrawableSize = 512f
     private const val ContentSize = 256f
 
     fun handleAvatarDrawable(context: Context, type: Int): BitmapDrawable {
         return when (type) {
-            PageType.OFFICIAL -> handleAvatarDrawable(context, type, AVATAR_AMBER, Color.WHITE)
-            PageType.CHAT_ROOMS -> handleAvatarDrawable(context, type, AVATAR_BLUE, Color.WHITE)
+            PageType.OFFICIAL -> {
+                if (!this::officialDrawable.isInitialized) {
+                    officialDrawable = handleAvatarDrawable(context, type, AVATAR_AMBER, Color.WHITE)
+                }
+                officialDrawable
+            }
+            PageType.CHAT_ROOMS -> {
+                if (!this::chatroomDrawable.isInitialized) {
+                    chatroomDrawable = handleAvatarDrawable(context, type, AVATAR_BLUE, Color.WHITE)
+                }
+                chatroomDrawable
+            }
             else -> throw IllegalStateException("Error type = $type")
         }
     }
@@ -91,8 +103,7 @@ object DrawableMaker {
 
             }
 
-            PageType.OFFICIAL ->
-            {
+            PageType.OFFICIAL -> {
                 val circleBitmap = Bitmap.createBitmap(contentSize.toInt(), contentSize.toInt(), Bitmap.Config.ARGB_8888)
                 val logoCanvas = Canvas(circleBitmap)
 
@@ -114,8 +125,6 @@ object DrawableMaker {
         }
         return BitmapDrawable(context.resources, drawableBitmap)
     }
-
-
 
 
     fun getMuteBitMap(): Bitmap {
