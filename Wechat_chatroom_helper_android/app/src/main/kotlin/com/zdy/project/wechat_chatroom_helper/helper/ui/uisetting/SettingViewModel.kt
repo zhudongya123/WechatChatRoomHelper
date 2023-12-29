@@ -1,8 +1,8 @@
 package com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting
 
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import ui.MyApplication
 

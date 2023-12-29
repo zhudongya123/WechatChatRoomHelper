@@ -1,7 +1,7 @@
 package com.zdy.project.wechat_chatroom_helper.helper.ui.more
 
 import android.os.Bundle
-import android.support.v7.widget.SwitchCompat
+import androidx.appcompat.widget.SwitchCompat
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -41,7 +41,7 @@ class MoreSettingActivity : BaseActivity() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         item?.let {
             when (item.itemId) {

@@ -5,9 +5,9 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -42,7 +42,7 @@ class PreviewFragment : Fragment() {
 
     private lateinit var chatRoomRecyclerViewAdapter: ChatRoomRecyclerViewAdapter
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         thisActivity = context as UISettingActivity
     }
@@ -117,7 +117,10 @@ class PreviewFragment : Fragment() {
     private fun initRecycler(): RecyclerView {
         mRecyclerView = RecyclerView(thisActivity)
                 .apply {
-                    layoutManager = LinearLayoutManager(thisActivity)
+                    layoutManager =
+                        LinearLayoutManager(
+                            thisActivity
+                        )
                     chatRoomRecyclerViewAdapter = ChatRoomRecyclerViewAdapter(thisActivity)
                             .also {
                                 it.data = arrayList()

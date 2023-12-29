@@ -1,22 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          package="com.zdy.project.wechat_chatroom_helper">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.zdy.project.wechat_chatroom_helper">
 
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"
+        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+
 
     <application
         android:name="ui.MyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
@@ -24,7 +31,8 @@
         <activity-alias
             android:name="com.zdy.project.wechat_chatroom_helper.LauncherDelegate"
             android:enabled="true"
-            android:targetActivity="ui.MainActivity">
+            android:exported="true"
+            android:targetActivity=".helper.ui.main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -32,7 +40,8 @@
         </activity-alias>
 
         <activity
-            android:name="ui.MainActivity"
+            android:name=".helper.ui.main.MainActivity"
+            android:exported="true"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:screenOrientation="portrait">
@@ -44,24 +53,32 @@
 
         <activity
             android:name="com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting.UISettingActivity"
+            android:exported="false"
             android:label="@string/title_ui_setting_string" />
 
         <activity
             android:name=".helper.ui.functionsetting.FunctionSettingActivity"
+            android:exported="false"
             android:label="@string/title_function_setting_string" />
         <activity
             android:name=".helper.ui.QuestionActivity"
+            android:exported="false"
             android:label="@string/title_question_string" />
 
-        <activity android:name=".helper.ui.AboutActivity"
+        <activity
+            android:name=".helper.ui.AboutActivity"
+            android:exported="false"
             android:label="@string/title_about_string" />
 
-        <activity android:name=".helper.ui.more.MoreSettingActivity"
-            android:label="@string/title_other_setting_string"/>
+        <activity
+            android:name=".helper.ui.more.MoreSettingActivity"
+            android:exported="false"
+            android:label="@string/title_other_setting_string" />
 
         <activity
             android:name=".helper.ui.config.ConfigActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:exported="false"
             android:theme="@style/SuwThemeMaterial.Light" />
 
         <meta-data

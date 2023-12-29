@@ -5,7 +5,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.StateListDrawable
-import android.support.annotation.IdRes
+import androidx.annotation.IdRes
 import android.text.TextUtils
 import android.util.TypedValue
 import android.view.Gravity

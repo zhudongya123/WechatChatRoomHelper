@@ -3,19 +3,15 @@ package     com.zdy.project.wechat_chatroom_helper.wechat.plugins
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
-import android.text.SpannableStringBuilder
 import com.zdy.project.wechat_chatroom_helper.BuildConfig
-import com.zdy.project.wechat_chatroom_helper.LogUtils
 import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.classparser.WXObject
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapter
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.adapter.MainAdapterLongClick
-import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.log.LogRecord
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.main.MainLauncherUI
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.message.MessageHandler
 import com.zdy.project.wechat_chatroom_helper.wechat.plugins.hook.other.OtherHook
-import com.zdy.project.wechat_chatroom_helper.wechat.utils.printAllField
 import de.robv.android.xposed.IXposedHookLoadPackage
 import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedBridge
@@ -75,7 +71,7 @@ class PluginEntry : IXposedHookLoadPackage {
         WXObject.Adapter.C.ConversationLongClickListener = configJson.get("conversationLongClickListener").asString
         WXObject.Adapter.C.ConversationMenuItemSelectedListener = configJson.get("conversationMenuItemSelectedListener").asString
         WXObject.Adapter.C.ConversationStickyHeaderHandler = configJson.get("conversationStickyHeaderHandler").asString
-        WXObject.Tool.C.Logcat = configJson.get("logcat").asString
+//        WXObject.Tool.C.Logcat = configJson.get("logcat").asString
     }
 
     /**

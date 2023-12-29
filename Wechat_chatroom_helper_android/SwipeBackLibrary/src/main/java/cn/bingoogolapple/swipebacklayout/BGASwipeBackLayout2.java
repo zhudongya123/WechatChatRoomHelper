@@ -32,18 +32,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.ColorInt;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.FloatRange;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.os.ParcelableCompat;
-import android.support.v4.os.ParcelableCompatCreatorCallbacks;
-import android.support.v4.view.AbsSavedState;
-import android.support.v4.view.AccessibilityDelegateCompat;
-import android.support.v4.view.MotionEventCompat;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.accessibility.AccessibilityNodeInfoCompat;
-import android.support.v4.widget.ViewDragHelper;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -52,6 +40,19 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.FloatRange;
+import androidx.core.content.ContextCompat;
+import androidx.core.os.ParcelableCompat;
+import androidx.core.os.ParcelableCompatCreatorCallbacks;
+import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.core.view.MotionEventCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.customview.view.AbsSavedState;
+import androidx.customview.widget.ViewDragHelper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -1158,11 +1159,11 @@ public class BGASwipeBackLayout2 extends ViewGroup {
                 lp.dimPaint = new Paint();
             }
             lp.dimPaint.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.SRC_OVER));
-            if (ViewCompat.getLayerType(v) != ViewCompat.LAYER_TYPE_HARDWARE) {
-                ViewCompat.setLayerType(v, ViewCompat.LAYER_TYPE_HARDWARE, lp.dimPaint);
+            if (ViewCompat.getLayerType(v) != View.LAYER_TYPE_HARDWARE) {
+                ViewCompat.setLayerType(v, View.LAYER_TYPE_HARDWARE, lp.dimPaint);
             }
             invalidateChildRegion(v);
-        } else if (ViewCompat.getLayerType(v) != ViewCompat.LAYER_TYPE_NONE) {
+        } else if (ViewCompat.getLayerType(v) != View.LAYER_TYPE_NONE) {
             if (lp.dimPaint != null) {
                 lp.dimPaint.setColorFilter(null);
             }
@@ -1679,7 +1680,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
             out.writeInt(isOpen ? 1 : 0);
         }
 
-        public static final Creator<SavedState> CREATOR = ParcelableCompat.newCreator(
+        public static final Parcelable.Creator<SavedState> CREATOR = ParcelableCompat.newCreator(
                 new ParcelableCompatCreatorCallbacks<SavedState>() {
                     @Override
                     public SavedState createFromParcel(Parcel in, ClassLoader loader) {
@@ -1852,7 +1853,7 @@ public class BGASwipeBackLayout2 extends ViewGroup {
         @Override
         public void run() {
             if (mChildView.getParent() == this) {
-                ViewCompat.setLayerType(mChildView, ViewCompat.LAYER_TYPE_NONE, null);
+                ViewCompat.setLayerType(mChildView, View.LAYER_TYPE_NONE, null);
                 invalidateChildRegion(mChildView);
             }
             mPostedRunnables.remove(this);

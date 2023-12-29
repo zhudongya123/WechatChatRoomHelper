@@ -1,10 +1,10 @@
-package ui
+package com.zdy.project.wechat_chatroom_helper.helper.ui.main
 
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.SwitchCompat
+import androidx.core.content.ContextCompat
+import androidx.appcompat.widget.SwitchCompat
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -18,6 +18,7 @@ import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.helper.manager.PermissionHelper
+import ui.MyApplication
 
 
 class MainActivity : BaseActivity() {
@@ -41,8 +42,6 @@ class MainActivity : BaseActivity() {
         //加載佈局
         setContentView(R.layout.activity_main)
         listContent = findViewById(R.id.list_content)
-
-
     }
 
 
@@ -101,8 +100,12 @@ class MainActivity : BaseActivity() {
                                 val saveWechatVersionInfo = AppSaveInfo.wechatVersionInfo()
                                 val saveWechatVersionName = AppSaveInfo.getWechatVersionName()
                                 val saveHelpVersionInfo = AppSaveInfo.helpVersionCodeInfo()
-                                val currentWechatVersionInfo = DeviceUtils.getWechatVersionCode(MyApplication.get()).toString()
-                                val currentWechatVersionName = DeviceUtils.getWechatVersionName(MyApplication.get())
+                                val currentWechatVersionInfo = DeviceUtils.getWechatVersionCode(
+                                    MyApplication.get()
+                                ).toString()
+                                val currentWechatVersionName = DeviceUtils.getWechatVersionName(
+                                    MyApplication.get()
+                                )
                                 val currentHelperVersionInfo = MyApplication.get().getHelperVersionCode().toString()
 
                                 if (saveWechatVersionInfo == currentWechatVersionInfo && currentWechatVersionName == saveWechatVersionName) {

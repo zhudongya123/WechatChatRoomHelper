@@ -11,11 +11,11 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.provider.Settings
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.TypedValue
 import android.view.*
 import android.widget.*
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import cn.bingoogolapple.swipebacklayout.BGASwipeBackLayout2
 import cn.bingoogolapple.swipebacklayout.MySwipeBackLayout
 import com.zdy.project.wechat_chatroom_helper.LogUtils

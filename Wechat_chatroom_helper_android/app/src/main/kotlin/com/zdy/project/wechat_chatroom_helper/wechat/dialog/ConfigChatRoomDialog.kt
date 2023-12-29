@@ -3,7 +3,7 @@ package com.zdy.project.wechat_chatroom_helper.wechat.dialog
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.support.annotation.IdRes
+import androidx.annotation.IdRes
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*

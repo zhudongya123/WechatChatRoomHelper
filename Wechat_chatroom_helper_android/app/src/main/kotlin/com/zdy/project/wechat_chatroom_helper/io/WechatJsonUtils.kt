@@ -8,7 +8,7 @@ import android.util.Log
 import com.blankj.utilcode.util.FileIOUtils
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import ui.MainActivity
+import com.zdy.project.wechat_chatroom_helper.helper.ui.main.MainActivity
 import java.io.File
 
 
@@ -92,8 +92,7 @@ object WechatJsonUtils {
     private fun getFileString(): String {
         val res = FileIOUtils.readFile2String(configPath, "UTF-8")
         if (TextUtils.isEmpty(res)) {
-            init(null)
-            return getFileString()
+            throw RuntimeException("string is null")
         }
 
         Log.v("WechatJsonUtils", "getFileString = $res")

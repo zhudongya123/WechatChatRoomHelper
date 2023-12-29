@@ -1,6 +1,6 @@
 package com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting
 
-import android.arch.lifecycle.Observer
+import androidx.lifecycle.Observer
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -33,7 +33,7 @@ class SettingFragment : BaseFragment() {
     private lateinit var mRadioGroup: RadioGroup
 
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         mUiSettingActivity = context as UISettingActivity
     }

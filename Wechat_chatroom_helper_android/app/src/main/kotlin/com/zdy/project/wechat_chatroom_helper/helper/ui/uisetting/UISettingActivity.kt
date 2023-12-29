@@ -3,8 +3,8 @@ package com.zdy.project.wechat_chatroom_helper.helper.ui.uisetting
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import android.view.MenuItem
 import com.zdy.project.wechat_chatroom_helper.Constants
 import com.zdy.project.wechat_chatroom_helper.R
@@ -142,13 +142,14 @@ class UISettingActivity : AppCompatActivity() {
         (supportFragmentManager.findFragmentByTag(PreviewFragment::class.java.simpleName) as PreviewFragment).notifyUIToChangeColor()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        item?.let {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        item.let {
             when (item.itemId) {
                 android.R.id.home -> {
                     finish()
                     return true
                 }
+
                 else -> {
                 }
             }

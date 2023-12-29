@@ -7,7 +7,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.2'
+        classpath 'com.android.tools.build:gradle:7.4.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -26,11 +26,9 @@ allprojects {
 }
 
 ext {
-
-    buildToolVersion = '28.0.3'
+    buildToolVersion = '33.0.2'
     sdkVersion = 33
     minSdkVersion = 23
-    supportLibVersion = '33.0.0'
     constraintLayoutVersion = '2.0.4'
 }
 repositories {
@@ -39,7 +37,7 @@ repositories {
 
 compileKotlin {
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 }
 

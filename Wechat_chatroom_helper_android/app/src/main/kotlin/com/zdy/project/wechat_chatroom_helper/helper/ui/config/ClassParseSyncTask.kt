@@ -4,7 +4,7 @@ import android.app.Activity
 import android.os.AsyncTask
 import android.os.Build
 import android.os.Message
-import android.support.annotation.RequiresApi
+import androidx.annotation.RequiresApi
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.HANDLER_SHOW_NEXT_BUTTON
 import com.zdy.project.wechat_chatroom_helper.helper.ui.config.SyncHandler.Companion.HANDLER_TEXT_ADDITION

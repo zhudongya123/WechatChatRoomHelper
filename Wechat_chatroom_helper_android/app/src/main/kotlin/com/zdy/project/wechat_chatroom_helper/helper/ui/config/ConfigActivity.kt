@@ -1,12 +1,12 @@
 package com.zdy.project.wechat_chatroom_helper.helper.ui.config
 
 import android.os.Bundle
-import android.support.annotation.ColorRes
-import android.support.annotation.IdRes
-import android.support.annotation.LayoutRes
-import android.support.annotation.StringRes
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
+import androidx.annotation.ColorRes
+import androidx.annotation.IdRes
+import androidx.annotation.LayoutRes
+import androidx.annotation.StringRes
+import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

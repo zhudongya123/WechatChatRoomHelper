@@ -3,7 +3,7 @@ package com.zdy.project.wechat_chatroom_helper.helper.ui.functionsetting
 import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.support.v7.widget.SwitchCompat
+import androidx.appcompat.widget.SwitchCompat
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -43,9 +43,9 @@ class FunctionSettingActivity : BaseActivity() {
         }
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        item?.let {
+        item.let {
             when (item.itemId) {
                 android.R.id.home -> {
                     finish()

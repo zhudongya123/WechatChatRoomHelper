@@ -3,7 +3,7 @@ package com.zdy.project.wechat_chatroom_helper.helper.ui.config
 import android.graphics.Color
 import android.os.Handler
 import android.os.Message
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.SpannedString
