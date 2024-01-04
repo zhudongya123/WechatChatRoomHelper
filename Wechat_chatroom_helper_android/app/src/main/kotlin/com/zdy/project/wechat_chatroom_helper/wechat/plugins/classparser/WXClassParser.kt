@@ -121,26 +121,27 @@ object WXClassParser {
          */
         fun getConversationAvatar(classes: MutableList<Class<*>>): Class<*>? {
             return classes
-                    .filter { it.simpleName.length < 2 }
-                    //.filter { Modifier.isStatic(it.modifiers) }
-                    .filter {
+                .filter { it.simpleName.length < 2 }
+                .filter {
+                    try {
                         it.methods.any { method ->
-                            val parameterTypes = try {
+                            val parameterTypes =
                                 method.parameterTypes
-                            }catch (t:Throwable){
-                                emptyArray<Class<*>>()
-                            }
+
                             parameterTypes.size == 2 &&
                                     parameterTypes[0].name == ImageView::class.java.name
                         }
+                    } catch (t: Throwable) {
+                        false
                     }
-                    .firstOrNull {
-                        it.methods.any { method ->
-                            Modifier.isStatic(method.modifiers) &&
-                                    method.parameterTypes.size == 4 &&
-                                    method.parameterTypes[0].name == ImageView::class.java.name
-                        }
+                }
+                .firstOrNull {
+                    it.methods.any { method ->
+                        Modifier.isStatic(method.modifiers) &&
+                                method.parameterTypes.size == 4 &&
+                                method.parameterTypes[0].name == ImageView::class.java.name
                     }
+                }
         }
 
 

@@ -15,6 +15,7 @@ android {
         debug {
         }
     }
+    namespace 'cn.bingoogolapple.swipebacklayout'
 }
 
 dependencies {

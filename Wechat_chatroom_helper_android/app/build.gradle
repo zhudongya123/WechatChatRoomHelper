@@ -57,6 +57,7 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+    namespace 'com.zdy.project.wechat_chatroom_helper'
 }
 
 dependencies {
