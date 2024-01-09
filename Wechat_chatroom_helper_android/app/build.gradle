@@ -12,6 +12,10 @@ android {
             storeFile file(properties['storeFile'])
             storePassword properties['storePassword']
         }
+
+        debug {
+
+        }
     }
     compileSdkVersion rootProject.ext.sdkVersion
     buildToolsVersion rootProject.ext.buildToolVersion
@@ -54,6 +58,15 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.4"
+    }
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.7"
+    }
     kotlinOptions {
         jvmTarget = "17"
     }
@@ -70,10 +83,25 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.8.22'
+    implementation 'org.jetbrains.kotlin:kotlin-reflect:1.9.10'
     implementation 'net.dongliu:apk-parser:2.6.10'
     implementation 'com.blankj:utilcodex:1.31.1'
     implementation 'com.google.code.gson:gson:2.10.1'
+
+    implementation "io.insert-koin:koin-android:$koin_android_version"
+
+    def composeBom = platform('androidx.compose:compose-bom:2023.10.01')
+    implementation composeBom
+    androidTestImplementation composeBom
+
+    implementation 'androidx.compose.material3:material3'
+
+    implementation 'androidx.activity:activity-compose:1.8.2'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2'
+    implementation 'androidx.compose.runtime:runtime-livedata'
+    implementation 'androidx.compose.runtime:runtime-rxjava2'
+
+    implementation "androidx.compose.ui:ui-tooling:1.5.4"
 }
 
 

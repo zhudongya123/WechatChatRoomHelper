@@ -27,5 +27,7 @@
     <string name="config_permission_fail">无法获得权限，您可能已经拒绝了我们的权限申请，请点【检查】按钮来获得权限。</string>
 
 
+    <string name="next">下一步</string>
+    <string name="previous">上一步</string>
 
 </resources>

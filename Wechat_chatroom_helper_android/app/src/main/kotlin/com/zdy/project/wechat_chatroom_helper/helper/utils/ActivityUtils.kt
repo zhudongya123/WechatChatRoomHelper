@@ -20,7 +20,10 @@ import android.content.Context
 import android.content.res.Configuration
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.launch
 
 /**
  * This provides methods to help Activities load their UI.
@@ -56,4 +59,9 @@ object ActivityUtils {
         return currentNightMode == Configuration.UI_MODE_NIGHT_YES
     }
 
+}
+fun <T> Flow<T>.collectInScope(scope: CoroutineScope, collector: FlowCollector<T>) {
+    scope.launch {
+        collect(collector)
+    }
 }

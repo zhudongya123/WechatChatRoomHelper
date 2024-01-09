@@ -18,6 +18,7 @@ import com.zdy.project.wechat_chatroom_helper.io.AppSaveInfo
 import com.zdy.project.wechat_chatroom_helper.io.WechatJsonUtils
 import com.zdy.project.wechat_chatroom_helper.utils.DeviceUtils
 import com.zdy.project.wechat_chatroom_helper.helper.manager.PermissionHelper
+import com.zdy.project.wechat_chatroom_helper.helper.ui.newConfig.NewConfigActivity
 import ui.MyApplication
 
 
@@ -139,7 +140,7 @@ class MainActivity : BaseActivity() {
 
                 getString(R.string.title_ui_setting_string) -> {
                     itemView.setOnClickListener {
-                        thisActivity.startActivity(Intent(thisActivity, UISettingActivity::class.java))
+                        thisActivity.startActivity(Intent(thisActivity, NewConfigActivity::class.java))
                     }
                     text2.setText(R.string.sub_title_ui_setting_string)
                 }
