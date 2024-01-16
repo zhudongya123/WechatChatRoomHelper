@@ -20,8 +20,8 @@ import java.io.File
  */
 object WechatJsonUtils {
 
-    private val folderPath = Environment.getExternalStorageDirectory().absolutePath + "/WechatChatroomHelper"
-    val configPath = Environment.getExternalStorageDirectory().absolutePath + "/WechatChatroomHelper/config.xml"
+    private val folderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString() + "/WechatChatroomHelper"
+    val configPath = folderPath + "/config.xml"
     val parser = JsonParser()
 
     private lateinit var currentJson: JsonObject
@@ -92,7 +92,8 @@ object WechatJsonUtils {
     private fun getFileString(): String {
         val res = FileIOUtils.readFile2String(configPath, "UTF-8")
         if (TextUtils.isEmpty(res)) {
-            throw RuntimeException("string is null")
+            init(null)
+            return getFileString()
         }
 
         Log.v("WechatJsonUtils", "getFileString = $res")

@@ -39,34 +39,14 @@ object ApiManager {
                 .build()
 
         okHttpClient.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call?, e: IOException?) {
-            }
-
-            override fun onResponse(call: Call?, response: Response?) {
-                AppSaveInfo.setApiRecordTime((System.currentTimeMillis() / 1000).toInt())
-            }
-        })
-    }
-
-    fun getClassMappingRequest(versionCode: String, play_version: Boolean): Request {
-
-        val requestBody = FormBody.Builder()
-                .add("versionCode", versionCode)
-                .add("isPlayVersion", if (play_version) "1" else "0").build()
-
-        return Request.Builder().url(CLASS_MAPPING).post(requestBody).build()
-    }
-
-
-    fun sendRequestForClassMapping(request: Request, onResponse: (response: Response) -> Unit) {
-        ApiManager.okHttpClient.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException?) {
+            override fun onFailure(call: Call, e: IOException) {
+                TODO("Not yet implemented")
             }
 
             override fun onResponse(call: Call, response: Response) {
-                onResponse(response)
+                AppSaveInfo.setApiRecordTime((System.currentTimeMillis() / 1000).toInt())
+
             }
         })
-
     }
 }

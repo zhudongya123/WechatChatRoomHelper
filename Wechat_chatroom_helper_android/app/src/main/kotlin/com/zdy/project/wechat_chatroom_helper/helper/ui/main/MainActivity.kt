@@ -50,24 +50,12 @@ class MainActivity : BaseActivity() {
         super.onWindowFocusChanged(hasFocus)
 
         if (hasFocus) {
-            when (PermissionHelper.check(this)) {
-                PermissionHelper.ALLOW -> {
-                    //加載可配置項的佈局
-                    WechatJsonUtils.init(this)
-                    initSetting(arrayOf("群消息助手状态",
-                            getString(R.string.title_function_setting_string),
-                            getString(R.string.title_ui_setting_string),
-                            getString(R.string.title_question_string),
-                            getString(R.string.title_other_setting_string),
-                            getString(R.string.sub_title_about_item_1)))
-                }
-                PermissionHelper.ASK -> {
-                    initSetting(arrayOf("群消息助手状态"))
-                }
-                PermissionHelper.DENY -> {
-                    initSetting(arrayOf("群消息助手状态"))
-                }
-            }
+            initSetting(arrayOf("群消息助手状态",
+                getString(R.string.title_function_setting_string),
+                getString(R.string.title_ui_setting_string),
+                getString(R.string.title_question_string),
+                getString(R.string.title_other_setting_string),
+                getString(R.string.sub_title_about_item_1)))
         }
 
     }
@@ -95,40 +83,40 @@ class MainActivity : BaseActivity() {
                         thisActivity.startActivity(Intent(thisActivity, ConfigActivity::class.java))
                     }
 
-                    when (PermissionHelper.check(thisActivity)) {
-                        PermissionHelper.ALLOW -> {
-                            if (AppSaveInfo.hasSuitWechatDataInfo()) {
-                                val saveWechatVersionInfo = AppSaveInfo.wechatVersionInfo()
-                                val saveWechatVersionName = AppSaveInfo.getWechatVersionName()
-                                val saveHelpVersionInfo = AppSaveInfo.helpVersionCodeInfo()
-                                val currentWechatVersionInfo = DeviceUtils.getWechatVersionCode(
-                                    MyApplication.get()
-                                ).toString()
-                                val currentWechatVersionName = DeviceUtils.getWechatVersionName(
-                                    MyApplication.get()
-                                )
-                                val currentHelperVersionInfo = MyApplication.get().getHelperVersionCode().toString()
-
-                                if (saveWechatVersionInfo == currentWechatVersionInfo && currentWechatVersionName == saveWechatVersionName) {
-                                    if (currentHelperVersionInfo == saveHelpVersionInfo) {
-                                        setSuccessText(text2, "本地适配文件适用于 $saveWechatVersionName ($saveWechatVersionInfo) 版本微信，已适配。")
-                                    } else {
-                                        setWarmText(text2, "本地适配文件由老版本的助手生成，请点击生成新版本的适配文件。")
-                                    }
-                                } else {
-                                    setFailText(text2, "本地适配文件适用于 $saveWechatVersionName ($saveWechatVersionInfo) 版本微信，当前微信版本：$currentWechatVersionName ($currentWechatVersionInfo)， 点击获取新的适配文件。")
-                                }
-                            } else {
-                                setFailText(text2, "本地未发现适配文件， 点击获取新的适配文件。")
-                            }
-                        }
-                        PermissionHelper.ASK -> {
-                            setWarmText(text2, "未获得外部存储存储权限，点击获取并创建新的适配文件。")
-                        }
-                        PermissionHelper.DENY -> {
-                            setFailText(text2, "您已经拒绝了我们的权限授予，点击手动授予权限。")
-                        }
-                    }
+//                    when (PermissionHelper.check(thisActivity)) {
+//                        PermissionHelper.ALLOW -> {
+//                            if (AppSaveInfo.hasSuitWechatDataInfo()) {
+//                                val saveWechatVersionInfo = AppSaveInfo.wechatVersionInfo()
+//                                val saveWechatVersionName = AppSaveInfo.getWechatVersionName()
+//                                val saveHelpVersionInfo = AppSaveInfo.helpVersionCodeInfo()
+//                                val currentWechatVersionInfo = DeviceUtils.getWechatVersionCode(
+//                                    MyApplication.get()
+//                                ).toString()
+//                                val currentWechatVersionName = DeviceUtils.getWechatVersionName(
+//                                    MyApplication.get()
+//                                )
+//                                val currentHelperVersionInfo = MyApplication.get().getHelperVersionCode().toString()
+//
+//                                if (saveWechatVersionInfo == currentWechatVersionInfo && currentWechatVersionName == saveWechatVersionName) {
+//                                    if (currentHelperVersionInfo == saveHelpVersionInfo) {
+//                                        setSuccessText(text2, "本地适配文件适用于 $saveWechatVersionName ($saveWechatVersionInfo) 版本微信，已适配。")
+//                                    } else {
+//                                        setWarmText(text2, "本地适配文件由老版本的助手生成，请点击生成新版本的适配文件。")
+//                                    }
+//                                } else {
+//                                    setFailText(text2, "本地适配文件适用于 $saveWechatVersionName ($saveWechatVersionInfo) 版本微信，当前微信版本：$currentWechatVersionName ($currentWechatVersionInfo)， 点击获取新的适配文件。")
+//                                }
+//                            } else {
+//                                setFailText(text2, "本地未发现适配文件， 点击获取新的适配文件。")
+//                            }
+//                        }
+//                        PermissionHelper.ASK -> {
+//                            setWarmText(text2, "未获得外部存储存储权限，点击获取并创建新的适配文件。")
+//                        }
+//                        PermissionHelper.DENY -> {
+//                            setFailText(text2, "您已经拒绝了我们的权限授予，点击手动授予权限。")
+//                        }
+//                    }
                 }
 
                 getString(R.string.title_question_string) -> {

@@ -36,10 +36,10 @@ class FunctionSettingActivity : BaseActivity() {
         super.onWindowFocusChanged(hasFocus)
 
         if (hasFocus) {
-            if (PermissionHelper.check(this) == PermissionHelper.ALLOW) {
-                //加載可配置項的佈局
-                initSetting()
-            }
+//            if (PermissionHelper.check(this) == PermissionHelper.ALLOW) {
+//                //加載可配置項的佈局
+//                initSetting()
+//            }
         }
     }
 

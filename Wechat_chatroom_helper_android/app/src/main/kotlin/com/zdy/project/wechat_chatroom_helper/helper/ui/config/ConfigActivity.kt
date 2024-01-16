@@ -145,32 +145,32 @@ class ConfigActivity : AppCompatActivity() {
      * 检查权限设置
      */
     private fun checkPermission() {
-        when (PermissionHelper.check(this)) {
-            PermissionHelper.ALLOW -> {
-                initColorTextView(R.id.config_step2_text1, R.string.config_permission_success, R.color.right_color)
-                WechatJsonUtils.init(null)
-                setNavigationBarNextButtonEnabled(true)
-            }
-            PermissionHelper.DENY -> {
-                initColorTextView(R.id.config_step2_text1, R.string.config_permission_fail, R.color.error_color)
-                setNavigationBarNextButtonEnabled(false)
-            }
-        }
-        findViewById<View>(R.id.config_step2_button1).setOnClickListener {
-            when (PermissionHelper.check(this)) {
-                PermissionHelper.ALLOW -> {
-                    initColorTextView(R.id.config_step2_text1, R.string.config_permission_success, R.color.right_color)
-                    setNavigationBarNextButtonEnabled(true)
-                    WechatJsonUtils.init(this)
-                }
-                PermissionHelper.ASK -> PermissionHelper.requestPermission(this)
-                PermissionHelper.DENY -> {
-                    initColorTextView(R.id.config_step2_text1, R.string.config_permission_fail, R.color.error_color)
-                    PermissionHelper.gotoPermissionPage(this)
-                    setNavigationBarNextButtonEnabled(false)
-                }
-            }
-        }
+//        when (PermissionHelper.check(this)) {
+//            PermissionHelper.ALLOW -> {
+//                initColorTextView(R.id.config_step2_text1, R.string.config_permission_success, R.color.right_color)
+//                WechatJsonUtils.init(null)
+//                setNavigationBarNextButtonEnabled(true)
+//            }
+//            PermissionHelper.DENY -> {
+//                initColorTextView(R.id.config_step2_text1, R.string.config_permission_fail, R.color.error_color)
+//                setNavigationBarNextButtonEnabled(false)
+//            }
+//        }
+//        findViewById<View>(R.id.config_step2_button1).setOnClickListener {
+//            when (PermissionHelper.check(this)) {
+//                PermissionHelper.ALLOW -> {
+//                    initColorTextView(R.id.config_step2_text1, R.string.config_permission_success, R.color.right_color)
+//                    setNavigationBarNextButtonEnabled(true)
+//                    WechatJsonUtils.init(this)
+//                }
+//                PermissionHelper.ASK -> PermissionHelper.requestPermission(this)
+//                PermissionHelper.DENY -> {
+//                    initColorTextView(R.id.config_step2_text1, R.string.config_permission_fail, R.color.error_color)
+//                    PermissionHelper.gotoPermissionPage(this)
+//                    setNavigationBarNextButtonEnabled(false)
+//                }
+//            }
+//        }
 
     }
 
