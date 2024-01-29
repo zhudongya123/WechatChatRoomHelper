@@ -21,7 +21,7 @@ import java.io.File
 object WechatJsonUtils {
 
     private val folderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString() + "/WechatChatroomHelper"
-    val configPath = folderPath + "/config.xml"
+    val configPath = "$folderPath/config.json"
     val parser = JsonParser()
 
     private lateinit var currentJson: JsonObject
@@ -30,7 +30,7 @@ object WechatJsonUtils {
     fun init(activity: Activity?) {
 
         val folder = File(folderPath)
-        val config = File(folderPath, "config.xml")
+        val config = File(configPath)
 
         if (!folder.exists())
             folder.mkdirs()
@@ -91,14 +91,14 @@ object WechatJsonUtils {
 
     private fun getFileString(): String {
         val res = FileIOUtils.readFile2String(configPath, "UTF-8")
-        if (TextUtils.isEmpty(res)) {
-            init(null)
-            return getFileString()
-        }
-
         Log.v("WechatJsonUtils", "getFileString = $res")
-        currentJson = parser.parse(res).asJsonObject
-        return res
+        if (TextUtils.isEmpty(res)) {
+            currentJson = JsonObject()
+            return "{}"
+        }else{
+            currentJson = parser.parse(res).asJsonObject
+            return res
+        }
     }
 
     fun putFileString() {

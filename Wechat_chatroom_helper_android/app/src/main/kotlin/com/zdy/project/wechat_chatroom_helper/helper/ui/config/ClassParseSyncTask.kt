@@ -149,7 +149,6 @@ class ClassParseSyncTask(syncHandler: SyncHandler, activity: Activity) : AsyncTa
             AppSaveInfo.addConfigItem(key, value)
             sendMessageToHandler(makeTypeSpec(HANDLER_TEXT_ADDITION, TEXT_COLOR_NORMAL), weakA.get()!!.getString(R.string.config_step3_text5), key, value)
         }
-
     }
 
     private fun sendMessageToHandler(type: Int, text: String, vararg args: Any) {

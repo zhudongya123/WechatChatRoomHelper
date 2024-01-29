@@ -103,7 +103,6 @@ object WXClassParser {
                 .filter { it.declaredFields.size == 1 }
                 .firstOrNull {
                     try {
-                        LogUtils.log(it.declaredConstructors.first().toString())
                         it.declaredConstructors.size == 1 && it.declaredConstructors.any { it.parameterTypes.size == 1 }
                     } catch (t: Throwable) {
                         t.printStackTrace()

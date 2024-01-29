@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.helper.ui.newConfig
+package com.zdy.project.wechat_chatroom_helper.helper.ui.newConfig.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,6 +20,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.zdy.project.wechat_chatroom_helper.R
+import com.zdy.project.wechat_chatroom_helper.helper.ui.newConfig.BOTTOM_SIZE
+import com.zdy.project.wechat_chatroom_helper.helper.ui.newConfig.viewmodel.NewConfigViewModel
 
 @Composable
 fun SetupWizardBottomView(

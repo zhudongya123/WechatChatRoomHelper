@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.helper.ui.newConfig
+package com.zdy.project.wechat_chatroom_helper.helper.ui.newConfig.compose
 
 import android.app.Activity
 import androidx.compose.foundation.layout.Column
@@ -16,9 +16,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.zdy.project.wechat_chatroom_helper.R
 import com.zdy.project.wechat_chatroom_helper.helper.manager.PermissionHelper
+import com.zdy.project.wechat_chatroom_helper.helper.ui.newConfig.ConfigPageState
+import com.zdy.project.wechat_chatroom_helper.helper.ui.newConfig.PermissionResult
 
 @Composable
-fun PermissionManagerView(state: ConfigState.CheckPermission) {
+fun PermissionManagerView(state: ConfigPageState.CheckPermissionPage) {
     val context = LocalContext.current
 
     val result = state.result

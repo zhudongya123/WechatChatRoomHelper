@@ -1,4 +1,4 @@
-package com.zdy.project.wechat_chatroom_helper.helper.ui.newConfig
+package com.zdy.project.wechat_chatroom_helper.helper.ui.newConfig.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -15,9 +15,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zdy.project.wechat_chatroom_helper.R
+import com.zdy.project.wechat_chatroom_helper.helper.ui.newConfig.ConfigPageState
 
 @Composable
-fun SetupWizardHeaderView(configState: ConfigState) {
+fun SetupWizardHeaderView(configPageState: ConfigPageState) {
     val configuration = LocalConfiguration.current
     val screenHeightDp = configuration.screenHeightDp.dp
     val headSize = screenHeightDp / 3f
@@ -30,11 +31,11 @@ fun SetupWizardHeaderView(configState: ConfigState) {
     ) {
         Text(
             text = context.getString(
-                when (configState) {
-                    ConfigState.Welcome -> R.string.config_step1_title
-                    is ConfigState.CheckPermission -> R.string.config_step2_title
-                    ConfigState.WriteFile -> R.string.config_step3_title
-                    else -> throw RuntimeException("Error state -> $configState")
+                when (configPageState) {
+                    ConfigPageState.WelcomePage -> R.string.config_step1_title
+                    is ConfigPageState.CheckPermissionPage -> R.string.config_step2_title
+                    is ConfigPageState.WriteFilePage -> R.string.config_step3_title
+                    else -> throw RuntimeException("Error state -> $configPageState")
                 }
             ),
             fontSize = 24.sp,
